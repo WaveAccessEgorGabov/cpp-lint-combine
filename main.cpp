@@ -7,10 +7,13 @@
 bool clangTidyCall(const std::string& commandLineString) {
     std::ostringstream oss;
     oss << "clang-tidy " << commandLineString;
-    if(!boost::process::system(oss.str()))
-        return true;
-    std::cerr << "Error in runtime clang-tidy" << std::endl;
-    return false;
+    boost::process::child clangTidyProcess(oss.str());
+    clangTidyProcess.wait();
+    if(!clangTidyProcess.exit_code()) {
+        std::cerr << "Error in runtime clang-tidy" << std::endl;
+        return false;
+    }
+    return true;
 }
 
 bool addDocLinkToYAMLFile() {
