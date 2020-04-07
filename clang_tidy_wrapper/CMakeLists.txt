@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 project(clang_tidy_wrapper)
 
 set(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_FLAGS -pthread)
 
 add_subdirectory(yaml-cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include)
