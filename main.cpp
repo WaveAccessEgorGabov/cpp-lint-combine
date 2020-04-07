@@ -4,21 +4,39 @@
 #include <iostream>
 #include <string>
 
-void clangTidyCall(const std::string& commandLineString) {
+bool clangTidyCall(const std::string& commandLineString) {
     std::ostringstream oss;
     oss << "clang-tidy " << commandLineString;
-    boost::process::system(oss.str());
+    if(!boost::process::system(oss.str()))
+        return true;
+    std::cerr << "Error in runtime clang-tidy" << std::endl;
+    return false;
 }
 
-void upgradeClangTidyOutputWithDocLink() {
-    YAML::Node yalmFile = YAML::LoadFile("clangTidyYamlOutput.yaml");
-    for(auto it: yalmFile["Diagnostics"]) {
+bool addDocLinkToYAMLFile() {
+    YAML::Node yamlFile;
+    try {
+        yamlFile = YAML::LoadFile("clangTidyYamlOutput.yaml");
+    }
+    catch (const YAML::BadFile& ex) {
+        std::cerr << "Exception into addDocLinkToYAMLFile(); " << "what(): " << ex.what() << std::endl;
+        return false;
+    }
+
+    for(auto it: yamlFile["Diagnostics"]) {
         std::ostringstream oss;
         oss << "https://clang.llvm.org/extra/clang-tidy/checks/" << it["DiagnosticName"] << ".html";
         it["DiagnosticMessage"]["Documentation link"] = oss.str();
     }
-    std::ofstream clangTidyWithDocLinkFile(CURRENT_SOURCE_DIR"/clangTidyYamlWithDocLink.yaml");
-    clangTidyWithDocLinkFile << yalmFile;
+    try {
+        std::ofstream clangTidyWithDocLinkFile(CURRENT_SOURCE_DIR"/clangTidyYamlWithDocLink.yaml");
+        clangTidyWithDocLinkFile << yamlFile;
+    }
+    catch (const std::exception& ex) {
+        std::cerr << "Exception into addDocLinkToYAMLFile(); " << "what(): " << ex.what() << std::endl;
+        return  false;
+    }
+    return true;
 }
 
 int main(int argc, char* argv[]) {
@@ -27,7 +45,9 @@ int main(int argc, char* argv[]) {
         commandLineString += argv[i];
         commandLineString += " ";
     }
-    clangTidyCall(commandLineString);
-    upgradeClangTidyOutputWithDocLink();
+    if(!clangTidyCall(commandLineString))
+        return 1;
+    if(!addDocLinkToYAMLFile())
+        return 1;
     return 0;
 }
