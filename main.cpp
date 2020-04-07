@@ -4,53 +4,63 @@
 #include <iostream>
 #include <string>
 
-bool clangTidyCall(const std::string& commandLineString) {
-    std::ostringstream oss;
-    oss << "clang-tidy " << commandLineString;
-    boost::process::child clangTidyProcess(oss.str());
+static const int callClangTidy(const std::string& commandLineParameters) {
+    std::string clangTidyExecutableCommand("clang-tidy ");
+    clangTidyExecutableCommand.append(commandLineParameters);
+    boost::process::child clangTidyProcess(clangTidyExecutableCommand);
     clangTidyProcess.wait();
-    if(!clangTidyProcess.exit_code()) {
-        std::cerr << "Error in runtime clang-tidy" << std::endl;
-        return false;
-    }
-    return true;
+    return clangTidyProcess.exit_code();
 }
 
-bool addDocLinkToYAMLFile() {
-    YAML::Node yamlFile;
+static bool addDocLinkToYAMLFile() {
+    YAML::Node yamlNode;
     try {
-        yamlFile = YAML::LoadFile("clangTidyYamlOutput.yaml");
+        yamlNode = YAML::LoadFile("clangTidyYamlOutput.yaml");
     }
     catch (const YAML::BadFile& ex) {
         std::cerr << "Exception into addDocLinkToYAMLFile(); " << "what(): " << ex.what() << std::endl;
         return false;
     }
-
-    for(auto it: yamlFile["Diagnostics"]) {
-        std::ostringstream oss;
-        oss << "https://clang.llvm.org/extra/clang-tidy/checks/" << it["DiagnosticName"] << ".html";
-        it["DiagnosticMessage"]["Documentation link"] = oss.str();
+    catch (...) {
+        std::cerr << "Exception into addDocLinkToYAMLFile(); Error while load .yaml" << std::endl;
+        return false;
     }
+
+    for(auto it: yamlNode["Diagnostics"]) {
+        std::ostringstream documentationLink;
+        documentationLink << "https://clang.llvm.org/extra/clang-tidy/checks/" << it["DiagnosticName"] << ".html";
+        it["DiagnosticMessage"]["Documentation link"] = documentationLink.str();
+    }
+
     try {
         std::ofstream clangTidyWithDocLinkFile(CURRENT_SOURCE_DIR"/clangTidyYamlWithDocLink.yaml");
-        clangTidyWithDocLinkFile << yamlFile;
+        clangTidyWithDocLinkFile << yamlNode;
     }
-    catch (const std::exception& ex) {
+    catch (const std::ios_base::failure& ex) {
         std::cerr << "Exception into addDocLinkToYAMLFile(); " << "what(): " << ex.what() << std::endl;
         return  false;
+    }
+    catch (...) {
+        std::cerr << "Exception into addDocLinkToYAMLFile(); Error while write to .yaml" << std::endl;
+        return false;
     }
     return true;
 }
 
 int main(int argc, char* argv[]) {
-    std::string commandLineString;
+    std::string commandLineParameters;
     for(int i = 1; i < argc; ++i) {
-        commandLineString += argv[i];
-        commandLineString += " ";
+        commandLineParameters.append(argv[i]);
+        commandLineParameters.append(" ");
     }
-    if(!clangTidyCall(commandLineString))
+
+    const int clangTidyReturnCode = callClangTidy(commandLineParameters);
+    if(clangTidyReturnCode) {
+        return clangTidyReturnCode;
+    }
+
+    if(!addDocLinkToYAMLFile()) {
         return 1;
-    if(!addDocLinkToYAMLFile())
-        return 1;
+    }
     return 0;
 }
