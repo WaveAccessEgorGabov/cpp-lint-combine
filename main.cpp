@@ -1,15 +1,31 @@
 #include "yaml-cpp/yaml.h"
 
 #include <boost/process.hpp>
+#include <fstream>
 #include <iostream>
 #include <string>
 
-static const int callClangTidy(const std::string& commandLineParameters) {
+static int callClangTidy(const std::string& commandLineParameters) {
+#ifdef WIN32
+    std::string clangTidyExecutableCommand(CLANGTIDY_PATH"clang-tidy.exe ");
+#elif __linux__
     std::string clangTidyExecutableCommand("clang-tidy ");
+#endif
     clangTidyExecutableCommand.append(commandLineParameters);
-    boost::process::child clangTidyProcess(clangTidyExecutableCommand);
-    clangTidyProcess.wait();
-    return clangTidyProcess.exit_code();
+    std::cout << clangTidyExecutableCommand << std::endl;
+    try {
+        boost::process::child clangTidyProcess(clangTidyExecutableCommand);
+        clangTidyProcess.wait();
+        return clangTidyProcess.exit_code();
+    }
+    catch(const boost::process::process_error& ex) {
+        std::cerr << "Exception while run clang-tidy; what(): " << ex.what() << std::endl;
+    }
+    catch(...)
+    {
+        std::cerr << "Exception while run clang-tidy" << std::endl;
+    }
+    return 1;
 }
 
 static bool addDocLinkToYAMLFile() {
@@ -18,11 +34,11 @@ static bool addDocLinkToYAMLFile() {
         yamlNode = YAML::LoadFile("clangTidyYamlOutput.yaml");
     }
     catch (const YAML::BadFile& ex) {
-        std::cerr << "Exception into addDocLinkToYAMLFile(); " << "what(): " << ex.what() << std::endl;
+        std::cerr << "Exception while load .yaml " << "what(): " << ex.what() << std::endl;
         return false;
     }
     catch (...) {
-        std::cerr << "Exception into addDocLinkToYAMLFile(); Error while load .yaml" << std::endl;
+        std::cerr << "Exception while load .yaml" << std::endl;
         return false;
     }
 
@@ -37,11 +53,11 @@ static bool addDocLinkToYAMLFile() {
         clangTidyWithDocLinkFile << yamlNode;
     }
     catch (const std::ios_base::failure& ex) {
-        std::cerr << "Exception into addDocLinkToYAMLFile(); " << "what(): " << ex.what() << std::endl;
+        std::cerr << "Exception while writing updated .yaml " << "what(): " << ex.what() << std::endl;
         return  false;
     }
     catch (...) {
-        std::cerr << "Exception into addDocLinkToYAMLFile(); Error while write to .yaml" << std::endl;
+        std::cerr << "Exception while writing updated .yaml " << std::endl;
         return false;
     }
     return true;
@@ -56,10 +72,12 @@ int main(int argc, char* argv[]) {
 
     const int clangTidyReturnCode = callClangTidy(commandLineParameters);
     if(clangTidyReturnCode) {
+        std::cerr << "Error while running clang-tidy" << std::endl;
         return clangTidyReturnCode;
     }
 
     if(!addDocLinkToYAMLFile()) {
+        std::cerr << "Error while updating .yaml" << std::endl;
         return 1;
     }
     return 0;
