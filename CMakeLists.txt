@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.0)
+project(lintWrapper)
+
+if(WIN32)
+    if (NOT DEFINED ENV{LINTERS_DIR})
+        message("environment variable <LINTERS_DIR> not defined")
+    endif()
+endif()
+
+set(CMAKE_CXX_STANDARD 17)
+
+if(WIN32)
+	find_package(Boost COMPONENTS REQUIRED)
+elseif(UNIX)
+	find_package(Boost COMPONENTS program_options thread REQUIRED)
+endif()
+include_directories(${Boost_INCLUDE_DIR})
+
+add_subdirectory(yaml-cpp)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include)
+
+add_executable(lintWrapper main.cpp)
+target_compile_definitions(lintWrapper PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+if(WIN32)
+	target_link_libraries(lintWrapper yaml-cpp)
+	target_compile_definitions(lintWrapper PRIVATE LINTERS_DIR="$ENV{LINTERS_DIR}")
+	target_link_directories(lintWrapper PRIVATE ${Boost_LIBRARY_DIR})
+elseif(UNIX)
+	target_link_libraries(lintWrapper yaml-cpp Boost::program_options Boost::thread)
+endif()
