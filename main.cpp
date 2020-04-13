@@ -38,12 +38,12 @@ bool parseCommandLine(const int argc, char** argv, std::string& linterName,
 static int callLinter(const std::string& linterName, const std::string& yamlFilePath,
         const std::string& linterOptions) {
 #ifdef WIN32
-    std::string linterExecutableCommand(CLANGTIDY_PATH"clang-tidy.exe ");
+	std::string linterExecutableCommand(LINTERS_DIR"\\" + linterName + ".exe " + linterOptions);
 #elif __linux__
     std::string linterExecutableCommand = linterName + " " + linterOptions;
+#endif
     if(!yamlFilePath.empty())
         linterExecutableCommand.append(" --export-fixes=" + yamlFilePath);
-#endif
     try {
         boost::process::child linterProcess(linterExecutableCommand);
         linterProcess.wait();
@@ -120,7 +120,6 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error while running linter" << std::endl;
         return linterReturnCode;
     }
-
     if(!yamlFilePath.empty()) {
         if (!addDocLinkToYAMLFile(linterName, yamlFilePath)) {
             std::cerr << "Error while updating .yaml" << std::endl;
