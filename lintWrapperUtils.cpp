@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 namespace po = boost::program_options;
 
@@ -39,6 +40,10 @@ bool parseCommandLine(const int argc, char** argv, std::string& linterName,
 
 int callLinter(const std::string& linterName, const std::string& yamlFilePath,
                       const std::string& linterOptions) {
+    if(linterName.empty()) {
+        std::cerr << "Expected: linter name is't empty" << std::endl;
+        return 1;
+    }
 #ifdef WIN32
     std::string linterExecutableCommand(LINTERS_DIR"\\" + linterName + ".exe " + linterOptions);
 #elif __linux__

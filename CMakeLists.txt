@@ -16,6 +16,7 @@ elseif(UNIX)
 endif()
 include_directories(${Boost_INCLUDE_DIR})
 
+add_subdirectory(Tests)
 add_subdirectory(yaml-cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include)
 
@@ -31,5 +32,4 @@ elseif(UNIX)
 endif()
 target_link_libraries(lintWrapper linkWrapperUtils)
 
-add_executable(run_BoostTests Tests/simpleTest.cpp)
-target_link_libraries(run_BoostTests linkWrapperUtils)
+
