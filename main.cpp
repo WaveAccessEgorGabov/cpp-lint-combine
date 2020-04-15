@@ -1,39 +1,35 @@
-#include "lintWrapperUtils.h"
+#include "LinterWrapperUtils.h"
+#include "LinterWrapperBase.h"
 
 #include <iostream>
-#include <string>
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 
-int main(int argc, char* argv[]) {
-    std::string linterName;
-    std::string yamlFilePath;
-    std::string linterOptions;
+int main( int argc, char * argv[] ) {
+    LinterWrapperBase * linterWrapper;
     try {
-        if(parseCommandLine(argc, argv, linterName, yamlFilePath, linterOptions))
-            return 0;
+        linterWrapper = parseCommandLine ( argc, argv );
     }
-    catch (const po::error& ex) {
-        std::cerr << "Exception while parse command line; what(): " << ex.what() << std::endl;
+    catch ( const po::error & ex ) {
+        std::cerr << "Exception while parse command line; what(): " << ex.what () << std::endl;
         return 1;
     }
 
-    if(linterName.empty()) {
+    if ( !linterWrapper ) {
         std::cerr << "Expected: linter exist" << std::endl;
         return 1;
     }
 
-    const int linterReturnCode = callLinter(linterName, yamlFilePath, linterOptions);
-    if(linterReturnCode) {
+    const int linterReturnCode = linterWrapper->callLinter ();
+    if ( linterReturnCode ) {
         std::cerr << "Error while running linter" << std::endl;
         return linterReturnCode;
     }
-    if(!yamlFilePath.empty()) {
-        if (!addDocLinkToYAMLFile(linterName, yamlFilePath)) {
-            std::cerr << "Error while updating .yaml" << std::endl;
-            return 1;
-        }
+
+    if ( !linterWrapper->createUpdatedYaml () ) {
+        std::cerr << "Error while updating .yaml" << std::endl;
+        return 1;
     }
 
     return 0;
