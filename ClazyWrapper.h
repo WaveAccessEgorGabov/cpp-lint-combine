@@ -7,10 +7,10 @@
 
 class ClazyWrapper : public LinterWrapperBase {
 public:
-    ClazyWrapper() = default;
-
-    ClazyWrapper( const std::string & linterName, const std::string & linterOptions, const std::string & yamlFilePath )
-            : LinterWrapperBase ( linterName, linterOptions, yamlFilePath ) {}
+    ClazyWrapper( const std::string & linterOptions, const std::string & yamlFilePath )
+            : LinterWrapperBase ( linterOptions, yamlFilePath ) {
+        linterName = "clazy-standalone";
+    }
 
 private:
     void addDocLinkToYaml( const YAML::Node & yamlNode ) override;

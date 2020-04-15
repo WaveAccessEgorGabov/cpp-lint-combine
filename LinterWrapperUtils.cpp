@@ -8,11 +8,11 @@
 
 namespace po = boost::program_options;
 
-LinterWrapperBase* linterWrapperFactory( const std::string& linterName, const std::string& linterOptions, const std::string& yamlFilePath) {
+static LinterWrapperBase* linterWrapperFactory( const std::string& linterName, const std::string& linterOptions, const std::string& yamlFilePath) {
     if(linterName == "clang-tidy")
-        return new ClangTidyWrapper(linterName, linterOptions, yamlFilePath);
+        return new ClangTidyWrapper(linterOptions, yamlFilePath);
     if(linterName == "clazy-standalone")
-        return new ClazyWrapper(linterName, linterOptions, yamlFilePath);
+        return new ClazyWrapper(linterOptions, yamlFilePath);
     return nullptr;
 }
 

@@ -12,20 +12,18 @@ public:
 
     bool createUpdatedYaml() override;
 
-protected:
-    LinterWrapperBase() = default;
-
-    LinterWrapperBase( const std::string & linterName, const std::string & linterOptions,
-                       const std::string & yamlFilePath )
-            : linterName ( linterName ), linterOptions ( linterOptions ), yamlFilePath ( yamlFilePath ) {}
-
-    virtual void addDocLinkToYaml( const YAML::Node & yamlNode ) = 0;
-
     const std::string & getLinterName() const;
 
     const std::string & getLinterOptions() const;
 
     const std::string & getYamlFilePath() const;
+
+protected:
+
+    LinterWrapperBase( const std::string & linterOptions, const std::string & yamlFilePath )
+            : linterOptions ( linterOptions ), yamlFilePath ( yamlFilePath ) {}
+
+    virtual void addDocLinkToYaml( const YAML::Node & yamlNode ) = 0;
 
     std::string linterName;
     std::string linterOptions;
