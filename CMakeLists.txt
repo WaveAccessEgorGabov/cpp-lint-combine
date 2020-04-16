@@ -15,7 +15,7 @@ elseif (UNIX)
 endif ()
 include_directories(${Boost_INCLUDE_DIR})
 
-add_subdirectory(Tests)
+#add_subdirectory(Tests)
 add_subdirectory(yaml-cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include)
 
@@ -31,5 +31,19 @@ elseif (UNIX)
     target_link_libraries(runLinter yaml-cpp Boost::program_options Boost::thread)
 endif ()
 target_compile_definitions(runLinter PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
+execute_process(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMAND git describe --tags --long --abbrev=12 OUTPUT_VARIABLE LinterWrapperVersion)
+string(REGEX REPLACE "-" "." LinterWrapperVersion ${LinterWrapperVersion})
+if(UNIX)
+elseif(WIN32)
+    set(PRODUCTNAME_STR_IMPL "LinterWrapper")
+	STRING(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+" LinterWrapperVersion ${LinterWrapperVersion})
+    set(PRODUCTVERSION_STR_IMPL ${LinterWrapperVersion})
+    string(REGEX REPLACE "\\." "," LinterWrapperVersion ${LinterWrapperVersion})
+    set(FILEVERSION_STR_IMPL ${LinterWrapperVersion})
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc @ONLY)
+    target_sources(runLinter PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+endif()
 
 
