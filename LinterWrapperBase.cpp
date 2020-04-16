@@ -4,8 +4,8 @@
 #include <iostream>
 #include <boost/process.hpp>
 
-int LinterWrapperBase::callLinter() {
-    if ( linterName.empty() ) {
+int LinterWrapperBase::callLinter( bool isNeedHelp ) {
+    if( linterName.empty() ) {
         std::cerr << "Expected: linter name is not empty" << std::endl;
         return 1;
     }
@@ -14,26 +14,29 @@ int LinterWrapperBase::callLinter() {
 #elif __linux__
     std::string linterExecutableCommand = linterName + " " + linterOptions;
 #endif
-    if ( !yamlFilePath.empty() )
+    if( !yamlFilePath.empty() )
         linterExecutableCommand.append( " --export-fixes=" + yamlFilePath );
-    std::cout << "run: " << linterExecutableCommand << std::endl;
+    if( isNeedHelp ) {
+        linterExecutableCommand.append( "--help" );
+        std::cout << "Information about chosen linter: " << std::endl;
+    }
     try {
         boost::process::child linterProcess( linterExecutableCommand );
         linterProcess.wait();
         return linterProcess.exit_code();
     }
-    catch ( const boost::process::process_error & ex ) {
+    catch( const boost::process::process_error & ex ) {
         std::cerr << "Exception while run linter; what(): " << ex.what() << std::endl;
         return 1;
     }
-    catch ( ... ) {
+    catch( ... ) {
         std::cerr << "Exception while run linter" << std::endl;
         return 1;
     }
 }
 
 bool LinterWrapperBase::createUpdatedYaml() {
-    if ( yamlFilePath.empty() ) {
+    if( yamlFilePath.empty() ) {
         std::cerr << ".yaml file is empty" << std::endl;
         return false;
     }
@@ -42,11 +45,11 @@ bool LinterWrapperBase::createUpdatedYaml() {
     try {
         yamlNode = YAML::LoadFile( yamlFilePath );
     }
-    catch ( const YAML::BadFile & ex ) {
+    catch( const YAML::BadFile & ex ) {
         std::cerr << "Exception while load .yaml; what(): " << ex.what() << std::endl;
         return false;
     }
-    catch ( ... ) {
+    catch( ... ) {
         std::cerr << "Exception while load .yaml" << std::endl;
         return false;
     }
@@ -58,11 +61,11 @@ bool LinterWrapperBase::createUpdatedYaml() {
         yamlWithDocLinkFile << yamlNode;
         return true;
     }
-    catch ( const std::ios_base::failure & ex ) {
+    catch( const std::ios_base::failure & ex ) {
         std::cerr << "Exception while writing updated .yaml " << "what(): " << ex.what() << std::endl;
         return false;
     }
-    catch ( ... ) {
+    catch( ... ) {
         std::cerr << "Exception while writing updated .yaml " << std::endl;
         return false;
     }

@@ -8,11 +8,12 @@ namespace po = boost::program_options;
 
 int main( const int argc, char * argv[] ) {
     LinterWrapperBase * linterWrapper = nullptr;
+    bool isNeedHelp;
     try {
-        linterWrapper = parseCommandLine( argc, argv );
+        linterWrapper = parseCommandLine ( argc, argv, isNeedHelp );
     }
     catch ( const po::error & ex ) {
-        std::cerr << "Exception while parse command line; what(): " << ex.what() << std::endl;
+        std::cerr << "Exception while parse command line; what(): " << ex.what () << std::endl;
         return 1;
     }
 
@@ -21,15 +22,17 @@ int main( const int argc, char * argv[] ) {
         return 1;
     }
 
-    const int linterReturnCode = linterWrapper->callLinter();
+    const int linterReturnCode = linterWrapper->callLinter ( isNeedHelp );
     if ( linterReturnCode ) {
         std::cerr << "Error while running linter" << std::endl;
         return linterReturnCode;
     }
 
-    if ( !linterWrapper->createUpdatedYaml() ) {
-        std::cerr << "Error while updating .yaml" << std::endl;
-        return 1;
+    if ( !isNeedHelp ) {
+        if ( !linterWrapper->createUpdatedYaml () ) {
+            std::cerr << "Error while updating .yaml" << std::endl;
+            return 1;
+        }
     }
 
     return 0;

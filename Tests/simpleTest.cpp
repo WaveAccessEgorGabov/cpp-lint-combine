@@ -28,19 +28,22 @@ BOOST_AUTO_TEST_SUITE( TestParseCommandLine )
 
     BOOST_AUTO_TEST_CASE( emptyCommandLine ) {
         char * str[] = { nullptr };
-        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str );
+        bool isNeedHelp;
+        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str, isNeedHelp );
         BOOST_CHECK( !res );
     }
 
     BOOST_AUTO_TEST_CASE( linterNotExists ) {
         char * str[] = { nullptr, "-L", "mockLinter" };
-        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str );
+        bool isNeedHelp;
+        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str, isNeedHelp );
         BOOST_CHECK( !res );
     }
 
     BOOST_AUTO_TEST_CASE( linterClangYidy ) {
         char * str[] = { nullptr, "-L", "clang-tidy" };
-        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str );
+        bool isNeedHelp;
+        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str, isNeedHelp );
         BOOST_CHECK( res );
         BOOST_CHECK( res->getLinterName () == "clang-tidy" );
         BOOST_CHECK( res->getLinterOptions ().empty () );
@@ -49,7 +52,8 @@ BOOST_AUTO_TEST_SUITE( TestParseCommandLine )
 
     BOOST_AUTO_TEST_CASE( linterClazy ) {
         char * str[] = { nullptr, "-L", "clazy-standalone" };
-        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str );
+        bool isNeedHelp;
+        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str, isNeedHelp );
         BOOST_CHECK( res );
         BOOST_CHECK( res->getLinterName () == "clazy-standalone" );
         BOOST_CHECK( res->getLinterOptions ().empty () );
@@ -58,7 +62,8 @@ BOOST_AUTO_TEST_SUITE( TestParseCommandLine )
 
     BOOST_AUTO_TEST_CASE( LinterOptionsExists ) {
         char * str[] = { nullptr, "-L", "clazy-standalone", "param1", "param2", "param3" };
-        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str );
+        bool isNeedHelp;
+        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str, isNeedHelp );
         BOOST_CHECK( res );
         BOOST_CHECK( res->getLinterName () == "clazy-standalone" );
         BOOST_CHECK( res->getLinterOptions () == "param1 param2 param3 " );
@@ -67,7 +72,8 @@ BOOST_AUTO_TEST_SUITE( TestParseCommandLine )
 
     BOOST_AUTO_TEST_CASE( yamlFileExist ) {
         char * str[] = { nullptr, "-L", "clazy-standalone", "--export-fixes", "file.yaml" };
-        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str );
+        bool isNeedHelp;
+        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str, isNeedHelp );
         BOOST_CHECK( res );
         BOOST_CHECK( res->getLinterName () == "clazy-standalone" );
         BOOST_CHECK( res->getLinterOptions ().empty () );
@@ -76,7 +82,8 @@ BOOST_AUTO_TEST_SUITE( TestParseCommandLine )
 
     BOOST_AUTO_TEST_CASE( yamlFileAndlinterOptionsExist ) {
         char * str[] = { nullptr, "--linter", "clazy-standalone", "--export-fixes", "file.yaml", "param1", "param2", "param3" };
-        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str );
+        bool isNeedHelp;
+        LinterWrapperBase * res = parseCommandLine( sizeof ( str ) / sizeof( char * ), str, isNeedHelp );
         BOOST_CHECK( res );
         BOOST_CHECK( res->getLinterName () == "clazy-standalone" );
         BOOST_CHECK( res->getLinterOptions () == "param1 param2 param3 " );
@@ -89,12 +96,12 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
 
     BOOST_AUTO_TEST_CASE( emptyParameters ) {
         MockWrapper linterWrapper( "", "", "" );
-        BOOST_CHECK( linterWrapper.callLinter () == 1 );
+        BOOST_CHECK( linterWrapper.callLinter(false) == 1 );
     }
 
     BOOST_AUTO_TEST_CASE( linterNotExists ) {
         MockWrapper linterWrapper( "nonexistLinter", "", "" );
-        BOOST_CHECK( linterWrapper.callLinter () == 1 );
+        BOOST_CHECK( linterWrapper.callLinter(false) == 1 );
     }
 
     BOOST_AUTO_TEST_CASE( linterReturn0 ) {
@@ -103,7 +110,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
 #elif __linux__
         MockWrapper linterWrapper( CURRENT_BINARY_DIR"mockReturn0", "", "" );
 #endif
-        BOOST_CHECK( linterWrapper.callLinter() == 0 );
+        BOOST_CHECK( linterWrapper.callLinter(false) == 0 );
     }
 
     BOOST_AUTO_TEST_CASE( linterReturn1 ) {
@@ -112,7 +119,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
 #elif __linux__
         MockWrapper linterWrapper( CURRENT_BINARY_DIR"mockReturn1", "", "" );
 #endif
-        BOOST_CHECK( linterWrapper.callLinter () == 1 );
+        BOOST_CHECK( linterWrapper.callLinter(false) == 1 );
     }
 
     BOOST_AUTO_TEST_CASE( linterReturn2 ) {
@@ -121,7 +128,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
 #elif __linux__
         MockWrapper linterWrapper( CURRENT_BINARY_DIR"mockReturn2", "", "" );
 #endif
-        BOOST_CHECK( linterWrapper.callLinter () == 2 );
+        BOOST_CHECK( linterWrapper.callLinter (false) == 2 );
     }
 
     BOOST_AUTO_TEST_CASE( linterReturn0AndYamlExists ) {
@@ -130,7 +137,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
 #elif __linux__
         MockWrapper linterWrapper( CURRENT_BINARY_DIR"mockReturn0", "", "test.yaml" );
 #endif
-        BOOST_CHECK( linterWrapper.callLinter () == 0 );
+        BOOST_CHECK( linterWrapper.callLinter (false) == 0 );
     }
 
     BOOST_AUTO_TEST_CASE( linterReturn0AndLinterOptionsExists ) {
@@ -139,7 +146,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
 #elif __linux__
         MockWrapper linterWrapper( CURRENT_BINARY_DIR"mockReturn0", "param1 param2", "" );
 #endif
-        BOOST_CHECK( linterWrapper.callLinter () == 0 );
+        BOOST_CHECK( linterWrapper.callLinter (false) == 0 );
     }
 
     BOOST_AUTO_TEST_CASE( linterReturn0YamFileAndLinterOptionsExists ) {
@@ -148,7 +155,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
 #elif __linux__
         MockWrapper linterWrapper( CURRENT_BINARY_DIR"mockReturn0", "param1 param2", "test.yaml" );
 #endif
-        BOOST_CHECK( linterWrapper.callLinter () == 0 );
+        BOOST_CHECK( linterWrapper.callLinter (false) == 0 );
     }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -8,7 +8,7 @@
 
 class LinterWrapperBase : public LinterWrapperItf {
 public:
-    int callLinter() override;
+    int callLinter( bool isNeedHelp ) override;
 
     bool createUpdatedYaml() override;
 

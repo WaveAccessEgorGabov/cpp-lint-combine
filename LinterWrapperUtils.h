@@ -4,9 +4,6 @@
 #include <string>
 #include "LinterWrapperBase.h"
 
-static LinterWrapperBase * linterWrapperFactory( const std::string & linterName, const std::string & linterOptions,
-                                                 const std::string & yamlFilePath );
-
-LinterWrapperBase * parseCommandLine( int argc, char ** argv );
+LinterWrapperBase * parseCommandLine( int argc, char ** argv, bool & isNeedHelp );
 
 #endif //__LINTWRAPPER_LINTWRAPPERUTILS_H__
