@@ -21,7 +21,7 @@ public:
 protected:
 
     LinterWrapperBase( const std::string & linterOptions, const std::string & yamlFilePath )
-            : linterOptions ( linterOptions ), yamlFilePath ( yamlFilePath ) {}
+            : linterOptions( linterOptions ), yamlFilePath( yamlFilePath ) {}
 
     virtual void addDocLinkToYaml( const YAML::Node & yamlNode ) = 0;
 

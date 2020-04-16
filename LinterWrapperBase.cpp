@@ -1,27 +1,29 @@
 #include "LinterWrapperBase.h"
 
+#include <fstream>
 #include <iostream>
 #include <boost/process.hpp>
 
 int LinterWrapperBase::callLinter() {
-    if ( linterName.empty () ) {
+    if ( linterName.empty() ) {
         std::cerr << "Expected: linter name is not empty" << std::endl;
         return 1;
     }
 #ifdef WIN32
-    std::string linterExecutableCommand(linterName + ".exe " + linterOptions);
+    std::string linterExecutableCommand( linterName + ".exe " + linterOptions );
 #elif __linux__
     std::string linterExecutableCommand = linterName + " " + linterOptions;
 #endif
-    if ( !yamlFilePath.empty () )
-        linterExecutableCommand.append ( " --export-fixes=" + yamlFilePath );
+    if ( !yamlFilePath.empty() )
+        linterExecutableCommand.append( " --export-fixes=" + yamlFilePath );
+    std::cout << "run: " << linterExecutableCommand << std::endl;
     try {
-        boost::process::child linterProcess ( linterExecutableCommand );
-        linterProcess.wait ();
-        return linterProcess.exit_code ();
+        boost::process::child linterProcess( linterExecutableCommand );
+        linterProcess.wait();
+        return linterProcess.exit_code();
     }
     catch ( const boost::process::process_error & ex ) {
-        std::cerr << "Exception while run linter; what(): " << ex.what () << std::endl;
+        std::cerr << "Exception while run linter; what(): " << ex.what() << std::endl;
         return 1;
     }
     catch ( ... ) {
@@ -31,17 +33,17 @@ int LinterWrapperBase::callLinter() {
 }
 
 bool LinterWrapperBase::createUpdatedYaml() {
-    if ( yamlFilePath.empty () ) {
+    if ( yamlFilePath.empty() ) {
         std::cerr << ".yaml file is empty" << std::endl;
         return false;
     }
 
     YAML::Node yamlNode;
     try {
-        yamlNode = YAML::LoadFile ( yamlFilePath );
+        yamlNode = YAML::LoadFile( yamlFilePath );
     }
     catch ( const YAML::BadFile & ex ) {
-        std::cerr << "Exception while load .yaml; what(): " << ex.what () << std::endl;
+        std::cerr << "Exception while load .yaml; what(): " << ex.what() << std::endl;
         return false;
     }
     catch ( ... ) {
@@ -49,15 +51,15 @@ bool LinterWrapperBase::createUpdatedYaml() {
         return false;
     }
 
-    addDocLinkToYaml ( yamlNode );
+    addDocLinkToYaml( yamlNode );
 
     try {
-        std::ofstream yamlWithDocLinkFile ( CURRENT_SOURCE_DIR"/linterYamlWithDocLink.yaml" );
+        std::ofstream yamlWithDocLinkFile( CURRENT_SOURCE_DIR"/linterYamlWithDocLink.yaml" );
         yamlWithDocLinkFile << yamlNode;
         return true;
     }
     catch ( const std::ios_base::failure & ex ) {
-        std::cerr << "Exception while writing updated .yaml " << "what(): " << ex.what () << std::endl;
+        std::cerr << "Exception while writing updated .yaml " << "what(): " << ex.what() << std::endl;
         return false;
     }
     catch ( ... ) {

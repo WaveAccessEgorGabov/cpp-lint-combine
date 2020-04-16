@@ -5,10 +5,10 @@
 
 #include <string>
 
-class ClangTidyWrapper : public LinterWrapperBase {
+class ClangTidyWrapper final : public LinterWrapperBase {
 public:
     ClangTidyWrapper( const std::string & linterOptions, const std::string & yamlFilePath )
-            : LinterWrapperBase ( linterOptions, yamlFilePath ) {
+            : LinterWrapperBase( linterOptions, yamlFilePath ) {
         linterName = "clang-tidy";
     }
 

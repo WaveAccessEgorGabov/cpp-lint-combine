@@ -5,7 +5,7 @@
 
 #include <string>
 
-class ClazyWrapper : public LinterWrapperBase {
+class ClazyWrapper final : public LinterWrapperBase {
 public:
     ClazyWrapper( const std::string & linterOptions, const std::string & yamlFilePath )
             : LinterWrapperBase ( linterOptions, yamlFilePath ) {
