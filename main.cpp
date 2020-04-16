@@ -18,6 +18,9 @@ int main( const int argc, char * argv[] ) {
     }
 
     if ( !linterWrapper ) {
+		if( isNeedHelp ) {
+			return 0;
+		}
         std::cerr << "Expected: linter exist" << std::endl;
         return 1;
     }
