@@ -1,12 +1,11 @@
-#include "LinterWrapperUtils.h"
 #include "ClangTidyWrapper.h"
 #include "ClazyWrapper.h"
+#include "LinterWrapperUtils.h"
 #include "version.rsrc"
 
-#include <string>
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <vector>
-#include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 
@@ -33,21 +32,23 @@ LinterWrapperBase * parseCommandLine( const int argc, char ** argv, bool & isNee
               "stored fixes can be applied to the input source"
               "code with clang-apply-replacements." );
 
-    po::parsed_options parsed = po::command_line_parser( argc, argv ).options(
-            programOptions ).allow_unregistered().run();
+    po::parsed_options parsed
+            = po::command_line_parser( argc, argv ).options( programOptions ).allow_unregistered().run();
     po::variables_map vm;
     po::store( parsed, vm );
     notify( vm );
     std::vector < std::string > linterOptionsVec = po::collect_unrecognized( parsed.options, po::include_positional );
     if( vm.count( "help" ) ) {
         isNeedHelp = true;
-        std::cout << "-----------------------------------------" << std::endl;
+        std::cout << "-----------------------------------------------------------------------------------" << std::endl;
         std::cout << "Product name: " << PRODUCTNAME_STR << std::endl;
         std::cout << "Product version: " << PRODUCTVERSION_STR << std::endl;
         std::cout << "Product options: " << std::endl << programOptions;
-        std::cout << "-----------------------------------------" << std::endl;
+        std::cout << "-----------------------------------------------------------------------------------" << std::endl;
+
     }
-    for( const auto & it : linterOptionsVec )
+    for( const auto & it : linterOptionsVec ) {
         linterOptions.append( it + " " );
+    }
     return linterWrapperFactory( linterName, linterOptions, yamlFilePath );
 }

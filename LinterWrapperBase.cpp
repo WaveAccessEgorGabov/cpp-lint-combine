@@ -4,7 +4,7 @@
 #include <iostream>
 #include <boost/process.hpp>
 
-int LinterWrapperBase::callLinter( bool isNeedHelp ) {
+int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
     if( linterName.empty() ) {
         std::cerr << "Expected: linter name is not empty" << std::endl;
         return 1;
@@ -14,8 +14,9 @@ int LinterWrapperBase::callLinter( bool isNeedHelp ) {
 #elif __linux__
     std::string linterExecutableCommand = linterName + " " + linterOptions;
 #endif
-    if( !yamlFilePath.empty() )
+    if( !yamlFilePath.empty() ) {
         linterExecutableCommand.append( " --export-fixes=" + yamlFilePath );
+    }
     if( isNeedHelp ) {
         linterExecutableCommand.append( "--help" );
         std::cout << "Information about chosen linter: " << std::endl;
@@ -35,7 +36,7 @@ int LinterWrapperBase::callLinter( bool isNeedHelp ) {
     }
 }
 
-bool LinterWrapperBase::createUpdatedYaml() {
+bool LinterWrapperBase::createUpdatedYaml() const {
     if( yamlFilePath.empty() ) {
         std::cerr << ".yaml file is empty" << std::endl;
         return false;

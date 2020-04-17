@@ -1,5 +1,5 @@
-#include "LinterWrapperUtils.h"
 #include "LinterWrapperBase.h"
+#include "LinterWrapperUtils.h"
 
 #include <iostream>
 #include <boost/program_options.hpp>
@@ -7,32 +7,36 @@
 namespace po = boost::program_options;
 
 int main( const int argc, char * argv[] ) {
-    LinterWrapperBase * linterWrapper = nullptr;
+    LinterWrapperItf * linterWrapper = nullptr;
     bool isNeedHelp;
     try {
-        linterWrapper = parseCommandLine ( argc, argv, isNeedHelp );
+        linterWrapper = parseCommandLine( argc, argv, isNeedHelp );
     }
-    catch ( const po::error & ex ) {
-        std::cerr << "Exception while parse command line; what(): " << ex.what () << std::endl;
+    catch( const po::error & ex ) {
+        std::cerr << "Exception while parse command line; what(): " << ex.what() << std::endl;
+        return 1;
+    }
+    catch( ... ) {
+        std::cerr << "Exception while parse command line; what(): " << std::endl;
         return 1;
     }
 
-    if ( !linterWrapper ) {
-		if( isNeedHelp ) {
-			return 0;
-		}
+    if( !linterWrapper ) {
+        if( isNeedHelp ) {
+            return 0;
+        }
         std::cerr << "Expected: linter exist" << std::endl;
         return 1;
     }
 
-    const int linterReturnCode = linterWrapper->callLinter ( isNeedHelp );
-    if ( linterReturnCode ) {
+    const int linterReturnCode = linterWrapper->callLinter( isNeedHelp );
+    if( linterReturnCode ) {
         std::cerr << "Error while running linter" << std::endl;
         return linterReturnCode;
     }
 
-    if ( !isNeedHelp ) {
-        if ( !linterWrapper->createUpdatedYaml () ) {
+    if( !isNeedHelp ) {
+        if( !linterWrapper->createUpdatedYaml() ) {
             std::cerr << "Error while updating .yaml" << std::endl;
             return 1;
         }

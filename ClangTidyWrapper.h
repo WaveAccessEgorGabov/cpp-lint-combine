@@ -13,7 +13,7 @@ public:
     }
 
 private:
-    void addDocLinkToYaml( const YAML::Node & yamlNode ) override;
+    void addDocLinkToYaml( const YAML::Node & yamlNode ) const override;
 };
 
 #endif //__CLANGTIDYWRAPPER_H__

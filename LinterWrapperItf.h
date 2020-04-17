@@ -3,9 +3,9 @@
 
 class LinterWrapperItf {
 public:
-    virtual int callLinter( bool isNeedHelp ) = 0;
+    [[nodiscard]] virtual int callLinter( bool isNeedHelp ) const = 0;
 
-    virtual bool createUpdatedYaml() = 0;
+    [[nodiscard]] virtual bool createUpdatedYaml() const = 0;
 };
 
 #endif //__LINTERWRAPPERITF_H__

@@ -1,5 +1,5 @@
-#ifndef __LINTERWRAPPER_H__
-#define __LINTERWRAPPER_H__
+#ifndef __LINTERWRAPPERBASE_H__
+#define __LINTERWRAPPERBASE_H__
 
 #include "LinterWrapperItf.h"
 #include "yaml-cpp/yaml.h"
@@ -8,26 +8,27 @@
 
 class LinterWrapperBase : public LinterWrapperItf {
 public:
-    int callLinter( bool isNeedHelp ) override;
+    [[nodiscard]] int callLinter( bool isNeedHelp ) const override;
 
-    bool createUpdatedYaml() override;
+    [[nodiscard]] bool createUpdatedYaml() const override;
 
-    const std::string & getLinterName() const;
+    [[nodiscard]] const std::string & getLinterName() const;
 
-    const std::string & getLinterOptions() const;
+    [[nodiscard]] const std::string & getLinterOptions() const;
 
-    const std::string & getYamlFilePath() const;
+    [[nodiscard]] const std::string & getYamlFilePath() const;
 
 protected:
 
     LinterWrapperBase( const std::string & linterOptions, const std::string & yamlFilePath )
-            : linterOptions( linterOptions ), yamlFilePath( yamlFilePath ) {}
+            : linterOptions( linterOptions ), yamlFilePath( yamlFilePath ) {
+    }
 
-    virtual void addDocLinkToYaml( const YAML::Node & yamlNode ) = 0;
+    virtual void addDocLinkToYaml( const YAML::Node & yamlNode ) const = 0;
 
     std::string linterName;
     std::string linterOptions;
     std::string yamlFilePath;
 };
 
-#endif //__LINTERWRAPPER_H__
+#endif //__LINTERWRAPPERBASE_H__
