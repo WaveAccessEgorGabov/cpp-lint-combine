@@ -1,11 +1,12 @@
+#include "LinterWrapperUtils.h"
 #include "ClangTidyWrapper.h"
 #include "ClazyWrapper.h"
-#include "LinterWrapperUtils.h"
 #include "version.rsrc"
 
-#include <boost/program_options.hpp>
 #include <iostream>
+#include <string>
 #include <vector>
+#include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 

@@ -1,4 +1,3 @@
-#include "LinterWrapperBase.h"
 #include "LinterSwitch.h"
 #include "LinterWrapperUtils.h"
 
@@ -9,7 +8,7 @@ namespace po = boost::program_options;
 
 int main( const int argc, char * argv[] ) {
     LinterWrapperItf * linterWrapper = nullptr;
-    bool isNeedHelp;
+    bool isNeedHelp = false;
     try {
         linterWrapper = parseCommandLine( argc, argv, isNeedHelp );
     }
