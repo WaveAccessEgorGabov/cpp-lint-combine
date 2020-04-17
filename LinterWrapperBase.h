@@ -8,7 +8,7 @@
 
 class LinterWrapperBase : public LinterWrapperItf {
 public:
-    [[nodiscard]] int callLinter( bool isNeedHelp ) const override;
+    [[nodiscard]] int callLinter( bool isNeedHelp = false ) const override;
 
     [[nodiscard]] bool createUpdatedYaml() const override;
 
@@ -20,7 +20,7 @@ public:
 
 protected:
 
-    LinterWrapperBase( const std::string & linterOptions, const std::string & yamlFilePath )
+    explicit LinterWrapperBase( const std::string & linterOptions, const std::string & yamlFilePath )
             : linterOptions( linterOptions ), yamlFilePath( yamlFilePath ) {
     }
 

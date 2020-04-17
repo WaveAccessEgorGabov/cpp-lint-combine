@@ -1,4 +1,5 @@
 #include "LinterWrapperBase.h"
+#include "LinterSwitch.h"
 #include "LinterWrapperUtils.h"
 
 #include <iostream>
@@ -29,14 +30,16 @@ int main( const int argc, char * argv[] ) {
         return 1;
     }
 
-    const int linterReturnCode = linterWrapper->callLinter( isNeedHelp );
+    LinterSwitch linter( ( std::shared_ptr < LinterWrapperItf >( linterWrapper ) ) );
+
+    const int linterReturnCode = linter.callLinter( isNeedHelp );
     if( linterReturnCode ) {
         std::cerr << "Error while running linter" << std::endl;
         return linterReturnCode;
     }
 
     if( !isNeedHelp ) {
-        if( !linterWrapper->createUpdatedYaml() ) {
+        if( !linter.createUpdatedYaml() ) {
             std::cerr << "Error while updating .yaml" << std::endl;
             return 1;
         }
