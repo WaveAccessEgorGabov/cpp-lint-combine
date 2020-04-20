@@ -7,7 +7,7 @@
 
 class ClangTidyWrapper final : public LinterWrapperBase {
 public:
-    ClangTidyWrapper( const std::string & linterOptions, const std::string & yamlFilePath )
+    explicit ClangTidyWrapper( const std::string & linterOptions, const std::string & yamlFilePath )
             : LinterWrapperBase( linterOptions, yamlFilePath ) {
         linterName = "clang-tidy";
     }

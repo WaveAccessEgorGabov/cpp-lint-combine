@@ -38,10 +38,11 @@ set(FILEVERSION_STR_IMPL ${LinterWrapperVersion})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in ${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc @ONLY)
 
 add_executable(runLinter main.cpp
+        ClazyWrapper.h        ClazyWrapper.cpp
+        LinterSwitch.h        LinterSwitch.cpp
+        ClangTidyWrapper.h    ClangTidyWrapper.cpp
         LinterWrapperItf.h    version.rsrc
         LinterWrapperBase.h   LinterWrapperBase.cpp
-        ClangTidyWrapper.h    ClangTidyWrapper.cpp
-        ClazyWrapper.h        ClazyWrapper.cpp
         LinterWrapperUtils.h  LinterWrapperUtils.cpp)
 if (WIN32)
     target_link_libraries(runLinter yaml-cpp)
