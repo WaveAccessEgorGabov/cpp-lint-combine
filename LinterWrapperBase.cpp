@@ -9,6 +9,8 @@ int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
         std::cerr << "Expected: linter name is not empty" << std::endl;
         return 1;
     }
+
+// TODO move "+ .exe" to linter implementation classes
 #ifdef WIN32
     std::string linterExecutableCommand( linterName + ".exe " + linterOptions );
 #elif __linux__
@@ -22,8 +24,17 @@ int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
         std::cout << "Information about chosen linter: " << std::endl;
     }
     try {
-        boost::process::child linterProcess( linterExecutableCommand );
+        boost::process::ipstream pipeStdout;
+        boost::process::ipstream pipeStderr;
+
+        std::cout << std::flush;
+        std::cerr << std::flush;
+        boost::process::child linterProcess( linterExecutableCommand,
+                boost::process::std_out > pipeStdout,
+                boost::process::std_err > pipeStderr);
         linterProcess.wait();
+        std::cout << pipeStdout.rdbuf();
+        std::cerr << pipeStderr.rdbuf();
         return linterProcess.exit_code();
     }
     catch( const boost::process::process_error & ex ) {
@@ -58,7 +69,7 @@ bool LinterWrapperBase::createUpdatedYaml() const {
     addDocLinkToYaml( yamlNode );
 
     try {
-        std::ofstream yamlWithDocLinkFile( CURRENT_SOURCE_DIR"/linterYamlWithDocLink.yaml" );
+        std::ofstream yamlWithDocLinkFile( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" );
         yamlWithDocLinkFile << yamlNode;
         return true;
     }

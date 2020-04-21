@@ -3,7 +3,7 @@
 
 class LinterWrapperItf {
 public:
-    [[nodiscard]] virtual int callLinter( bool isNeedHelp = false ) const = 0;
+    [[nodiscard]] virtual int callLinter( bool isNeedHelp ) const = 0;
 
     [[nodiscard]] virtual bool createUpdatedYaml() const = 0;
 
