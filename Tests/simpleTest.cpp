@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
         StreamCapture stderrCapture( std::cerr );
 #ifdef WIN32
     const std::string scriptRunner = "sh.exe ";
-#elif
+#elif __linux__
     const std::string scriptRunner = boost::process::shell().string();
 #endif
         auto linterWrapper = std::make_shared < MockWrapper >( scriptRunner + " " + CURRENT_SOURCE_DIR"mockPrograms/mockTerminated.sh", "", "" );
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
         StreamCapture stderrCapture( std::cerr );
 #ifdef WIN32
         const std::string scriptRunner = "sh.exe ";
-#elif
+#elif __linux__
         const std::string scriptRunner = boost::process::shell().string();
 #endif
         auto linterWrapper = std::make_shared < MockWrapper >( scriptRunner + " " CURRENT_SOURCE_DIR"mockPrograms/mockReturn1.sh", "", "" );
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
         StreamCapture stderrCapture( std::cerr );
 #ifdef WIN32
         const std::string scriptRunner = "sh.exe ";
-#elif
+#elif __linux__
         const std::string scriptRunner = boost::process::shell().string();
 #endif
         auto linterWrapper = std::make_shared < MockWrapper >( scriptRunner + " " CURRENT_SOURCE_DIR"mockPrograms/mockReturn0AndWriteToStreamsAndToFile.sh", "", "" );
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
         StreamCapture stderrCapture( std::cerr );
 #ifdef WIN32
         const std::string scriptRunner = "sh.exe ";
-#elif
+#elif __linux__
         const std::string scriptRunner = boost::process::shell().string();
 #endif
         auto linterWrapper = std::make_shared < MockWrapper >( scriptRunner + " " CURRENT_SOURCE_DIR"mockPrograms/mockReturn0.sh", "", "" );
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
         StreamCapture stderrCapture( std::cerr );
 #ifdef WIN32
         const std::string scriptRunner = "sh.exe ";
-#elif
+#elif __linux__
         const std::string scriptRunner = boost::process::shell().string();
 #endif
         auto linterWrapper = std::make_shared < MockWrapper >( scriptRunner + " " CURRENT_SOURCE_DIR"mockPrograms/mockReturn0.sh", "", "" );
