@@ -21,15 +21,17 @@ int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
     try {
         boost::process::ipstream pipeStdout;
         boost::process::ipstream pipeStderr;
-
-        std::cout << std::flush;
-        std::cerr << std::flush;
         boost::process::child linterProcess( linterExecutableCommand,
-                boost::process::std_out > pipeStdout,
-                boost::process::std_err > pipeStderr);
+                boost::process::std_out = pipeStdout,
+                boost::process::std_err = pipeStderr);
         linterProcess.wait();
+        std::streambuf * stdoutOldValue = std::cout.rdbuf();
+        std::streambuf * stderrOldValue = std::cerr.rdbuf();
         std::cout << pipeStdout.rdbuf();
         std::cerr << pipeStderr.rdbuf();
+        std::cout.rdbuf( stdoutOldValue );
+        std::cerr.rdbuf( stderrOldValue );
+
         return linterProcess.exit_code();
     }
     catch( const boost::process::process_error & ex ) {

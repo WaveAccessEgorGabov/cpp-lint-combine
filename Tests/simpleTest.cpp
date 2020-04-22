@@ -155,11 +155,7 @@ BOOST_AUTO_TEST_SUITE( TestCallLinter )
         int returnCode = linter.callLinter( false );
         BOOST_CHECK( stdoutCapture.getBufferData() == "stdout\n" );
         BOOST_CHECK( stderrCapture.getBufferData() == "stderr\n" );
-#ifdef WIN32
-        BOOST_CHECK( returnCode == 3840 );
-#elif __linux__
-        BOOST_CHECK(returnCode == 15);
-#endif
+        BOOST_CHECK(returnCode == 9);
     }
 
     BOOST_AUTO_TEST_CASE( linterReturn1 ) {
