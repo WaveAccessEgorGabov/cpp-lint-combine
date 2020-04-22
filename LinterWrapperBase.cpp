@@ -10,12 +10,7 @@ int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
         return 1;
     }
 
-// TODO move "+ .exe" to linter implementation classes
-#ifdef WIN32
-    std::string linterExecutableCommand( linterName + ".exe " + linterOptions );
-#elif __linux__
     std::string linterExecutableCommand = linterName + " " + linterOptions;
-#endif
     if( !yamlFilePath.empty() ) {
         linterExecutableCommand.append( " --export-fixes=" + yamlFilePath );
     }

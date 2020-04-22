@@ -9,7 +9,11 @@ class ClazyWrapper final : public LinterWrapperBase {
 public:
     explicit ClazyWrapper( const std::string & linterOptions, const std::string & yamlFilePath )
             : LinterWrapperBase( linterOptions, yamlFilePath ) {
-        linterName = "clazy-standalone";
+#ifdef WIN32
+    linterName = "clazy-standalone.exe";
+#elif __linux__
+    linterName = "clazy-standalone";
+#endif
     }
 
 

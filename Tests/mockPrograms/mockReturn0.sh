@@ -1,3 +1,3 @@
 echo "stdout" >&1
 echo "stderr" >&2
-return 0
+exit 0
