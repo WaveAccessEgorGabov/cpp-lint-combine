@@ -11,9 +11,11 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
 endif()
 
 if (WIN32)
-    find_package(Boost COMPONENTS REQUIRED)
+    # Boost version 1.72 has bug in boost::asio
+    find_package(Boost 1.71 COMPONENTS REQUIRED)
 elseif (UNIX)
-    find_package(Boost COMPONENTS program_options thread REQUIRED)
+    # Boost version 1.72 has bug in boost::asio
+    find_package(Boost 1.71 COMPONENTS program_options thread REQUIRED)
 endif ()
 include_directories(${Boost_INCLUDE_DIR})
 

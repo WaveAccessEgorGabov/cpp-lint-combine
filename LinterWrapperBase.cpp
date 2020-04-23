@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <boost/process.hpp>
+#include <boost/asio.hpp>
 
 int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
     if( linterName.empty() ) {
@@ -19,16 +20,20 @@ int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
         std::cout << "Information about chosen linter: " << std::endl;
     }
     try {
-        boost::process::ipstream pipeStdout;
-        boost::process::ipstream pipeStderr;
+        boost::asio::io_service ios;
+        boost::asio::streambuf stdoutBuf;
+        boost::asio::streambuf stderrBuf;
+
         boost::process::child linterProcess( linterExecutableCommand,
-                boost::process::std_out = pipeStdout,
-                boost::process::std_err = pipeStderr);
+                boost::process::std_out > stdoutBuf,
+                boost::process::std_err > stderrBuf, ios );
+
+        ios.run();
         linterProcess.wait();
         std::streambuf * stdoutOldValue = std::cout.rdbuf();
         std::streambuf * stderrOldValue = std::cerr.rdbuf();
-        std::cout << pipeStdout.rdbuf();
-        std::cerr << pipeStderr.rdbuf();
+        std::cout << & stdoutBuf;
+        std::cerr << & stderrBuf;
         std::cout.rdbuf( stdoutOldValue );
         std::cerr.rdbuf( stderrOldValue );
 
