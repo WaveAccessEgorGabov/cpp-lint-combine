@@ -10,11 +10,11 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 endif()
 
+# Boost version 1.72 has bug in boost::asio
+# bug reference: https://github.com/boostorg/process/issues/116
 if (WIN32)
-    # Boost version 1.72 has bug in boost::asio
     find_package(Boost 1.71 COMPONENTS REQUIRED)
 elseif (UNIX)
-    # Boost version 1.72 has bug in boost::asio
     find_package(Boost 1.71 COMPONENTS program_options thread REQUIRED)
 endif ()
 include_directories(${Boost_INCLUDE_DIR})

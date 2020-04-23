@@ -21,22 +21,34 @@ int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
     }
     try {
         boost::asio::io_service ios;
-        boost::asio::streambuf stdoutBuf;
-        boost::asio::streambuf stderrBuf;
+        boost::process::async_pipe stdoutPipe ( ios );
+        boost::process::async_pipe stderrPipe ( ios );
 
-        boost::process::child linterProcess( linterExecutableCommand,
-                boost::process::std_out > stdoutBuf,
-                boost::process::std_err > stderrBuf, ios );
+        boost::process::child linterProcess(
+                linterExecutableCommand,
+                boost::process::std_out > stdoutPipe,
+                boost::process::std_err > stderrPipe, ios );
 
+        std::function < void() > asyncWriteToStdout = [ &, buffer = std::array < char, 64 > {} ]() mutable {
+            stdoutPipe.async_read_some( boost::process::buffer( buffer ), [ & ]( boost::system::error_code ec, size_t size ) {
+                std::cout.write( buffer.data(), size );
+                if( !ec )
+                    asyncWriteToStdout();
+            } );
+        };
+
+        std::function < void() > asyncWriteToStderr = [ &, buffer = std::array < char, 64 > {} ]() mutable {
+            stderrPipe.async_read_some( boost::process::buffer( buffer ), [ & ]( boost::system::error_code ec, size_t size ) {
+                std::cerr.write( buffer.data(), size );
+                if( !ec )
+                    asyncWriteToStderr();
+            } );
+        };
+
+        asyncWriteToStdout();
+        asyncWriteToStderr();
         ios.run();
         linterProcess.wait();
-        std::streambuf * stdoutOldValue = std::cout.rdbuf();
-        std::streambuf * stderrOldValue = std::cerr.rdbuf();
-        std::cout << & stdoutBuf;
-        std::cerr << & stderrBuf;
-        std::cout.rdbuf( stdoutOldValue );
-        std::cerr.rdbuf( stderrOldValue );
-
         return linterProcess.exit_code();
     }
     catch( const boost::process::process_error & ex ) {
