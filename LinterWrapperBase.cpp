@@ -3,17 +3,15 @@
 #include <fstream>
 #include <iostream>
 #include <boost/process.hpp>
+#include <boost/asio.hpp>
 
 int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
     if( linterName.empty() ) {
         std::cerr << "Expected: linter name is not empty" << std::endl;
         return 1;
     }
-#ifdef WIN32
-    std::string linterExecutableCommand( linterName + ".exe " + linterOptions );
-#elif __linux__
+
     std::string linterExecutableCommand = linterName + " " + linterOptions;
-#endif
     if( !yamlFilePath.empty() ) {
         linterExecutableCommand.append( " --export-fixes=" + yamlFilePath );
     }
@@ -22,7 +20,34 @@ int LinterWrapperBase::callLinter( bool isNeedHelp ) const {
         std::cout << "Information about chosen linter: " << std::endl;
     }
     try {
-        boost::process::child linterProcess( linterExecutableCommand );
+        boost::asio::io_service ios;
+        boost::process::async_pipe stdoutPipe ( ios );
+        boost::process::async_pipe stderrPipe ( ios );
+
+        boost::process::child linterProcess(
+                linterExecutableCommand,
+                boost::process::std_out > stdoutPipe,
+                boost::process::std_err > stderrPipe, ios );
+
+        std::function < void() > asyncWriteToStdout = [ &, buffer = std::array < char, 64 > {} ]() mutable {
+            stdoutPipe.async_read_some( boost::process::buffer( buffer ), [ & ]( boost::system::error_code ec, size_t size ) {
+                std::cout.write( buffer.data(), size );
+                if( !ec )
+                    asyncWriteToStdout();
+            } );
+        };
+
+        std::function < void() > asyncWriteToStderr = [ &, buffer = std::array < char, 64 > {} ]() mutable {
+            stderrPipe.async_read_some( boost::process::buffer( buffer ), [ & ]( boost::system::error_code ec, size_t size ) {
+                std::cerr.write( buffer.data(), size );
+                if( !ec )
+                    asyncWriteToStderr();
+            } );
+        };
+
+        asyncWriteToStdout();
+        asyncWriteToStderr();
+        ios.run();
         linterProcess.wait();
         return linterProcess.exit_code();
     }
@@ -58,7 +83,7 @@ bool LinterWrapperBase::createUpdatedYaml() const {
     addDocLinkToYaml( yamlNode );
 
     try {
-        std::ofstream yamlWithDocLinkFile( CURRENT_SOURCE_DIR"/linterYamlWithDocLink.yaml" );
+        std::ofstream yamlWithDocLinkFile( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" );
         yamlWithDocLinkFile << yamlNode;
         return true;
     }

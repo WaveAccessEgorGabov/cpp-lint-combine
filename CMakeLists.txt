@@ -10,10 +10,12 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 endif()
 
+# Boost version 1.72 has bug in boost::asio
+# bug reference: https://github.com/boostorg/process/issues/116
 if (WIN32)
-    find_package(Boost COMPONENTS REQUIRED)
+    find_package(Boost 1.71 COMPONENTS REQUIRED)
 elseif (UNIX)
-    find_package(Boost COMPONENTS program_options thread REQUIRED)
+    find_package(Boost 1.71 COMPONENTS program_options thread REQUIRED)
 endif ()
 include_directories(${Boost_INCLUDE_DIR})
 
@@ -51,4 +53,4 @@ if (WIN32)
 elseif (UNIX)
     target_link_libraries(runLinter yaml-cpp Boost::program_options Boost::thread)
 endif ()
-target_compile_definitions(runLinter PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(runLinter PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")

@@ -9,8 +9,12 @@ class ClangTidyWrapper final : public LinterWrapperBase {
 public:
     explicit ClangTidyWrapper( const std::string & linterOptions, const std::string & yamlFilePath )
             : LinterWrapperBase( linterOptions, yamlFilePath ) {
-        linterName = "clang-tidy";
-    }
+#ifdef WIN32
+    linterName = "clang-tidy.exe";
+#elif  __linux__
+    linterName = "clang-tidy";
+#endif
+}
 
 private:
     void addDocLinkToYaml( const YAML::Node & yamlNode ) const override;
