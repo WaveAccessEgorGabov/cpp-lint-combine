@@ -17,7 +17,6 @@ On windows cmake project generator from Visual Studio can't create compile_comma
 
 ## [clazy](https://github.com/KDE/clazy)
 Qmake can't generated compile_commands.json, so you have to using [Bear](https://github.com/rizsotto/Bear). Bear is a tool that generates a compilation database for clang tooling.
-Or you can generate compile_commands.json from QtCreator: Build->Generate Compilation Database for <your project name>
 
 **Create compile_commands.json. Ubuntu. Qmake**  
 1) Go to project directory, where files for analyzing is located
