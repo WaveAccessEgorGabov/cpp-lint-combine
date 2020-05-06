@@ -1,16 +1,17 @@
 #ifndef __LINTERCOMBINE_H__
 #define __LINTERCOMBINE_H__
 
-#include "Factory.h"
-#include "LinterWrapperItf.h"
+#include "FactoryBase.h"
+#include "StandardFactory.h"
+#include "LinterItf.h"
 
 #include <memory>
 #include <vector>
 
 namespace LintCombine {
-    class LinterCombine : public LinterWrapperItf {
+    class LinterCombine : public LinterItf {
     public:
-        LinterCombine( int argc, char ** argv );
+        LinterCombine( int argc, char ** argv, FactoryBase& factory = StandardFactory::getInstance() );
 
         void callLinter() const override;
 
@@ -18,13 +19,13 @@ namespace LintCombine {
 
         CallTotals updatedYaml() const override;
 
-        std::shared_ptr < LinterWrapperItf > linterAt( int pos );
+        std::shared_ptr < LinterItf > linterAt( int pos );
 
         int numLinters();
 
     private:
-        std::vector < std::shared_ptr < LinterWrapperItf > > linters;
-        Factory::Service service;
+        std::vector < std::shared_ptr < LinterItf > > linters;
+        FactoryBase::Services service;
     };
 }
 #endif //__LINTERCOMBINE_H__

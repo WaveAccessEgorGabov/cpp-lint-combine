@@ -1,6 +1,6 @@
 project( lintWrapperTesting )
 
-add_executable( runTests simpleTest.cpp ../LinterWrapperItf.h
+add_executable( runTests simpleTest.cpp ../LinterItf.h
                ../LinterWrapperBase.h   ../LinterWrapperBase.cpp
                ../ClangTidyWrapper.h    ../ClangTidyWrapper.cpp
                ../ClazyWrapper.h        ../ClazyWrapper.cpp

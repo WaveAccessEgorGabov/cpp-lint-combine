@@ -1,14 +1,14 @@
 #ifndef __LINTERWRAPPERBASE_H__
 #define __LINTERWRAPPERBASE_H__
 
-#include "Factory.h"
-#include "LinterWrapperItf.h"
+#include "FactoryBase.h"
+#include "LinterItf.h"
 #include "yaml-cpp/yaml.h"
 
 #include <string>
 
 namespace LintCombine {
-    class LinterWrapperBase : public LinterWrapperItf {
+    class LinterWrapperBase : public LinterItf {
     public:
         void callLinter() const override;
 
@@ -32,7 +32,7 @@ namespace LintCombine {
         std::string name;
         std::string options;
         std::string yamlPath;
-        Factory::Service service;
+        FactoryBase::Services service;
     };
 }
 

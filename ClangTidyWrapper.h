@@ -1,7 +1,7 @@
 #ifndef __CLANGTIDYWRAPPER_H__
 #define __CLANGTIDYWRAPPER_H__
 
-#include "Factory.h"
+#include "FactoryBase.h"
 #include "LinterWrapperBase.h"
 
 #include <boost/asio.hpp>
@@ -10,7 +10,7 @@
 namespace LintCombine {
     class ClangTidyWrapper : public LinterWrapperBase {
     public:
-        ClangTidyWrapper( int argc, char ** argv, Factory::Service & service );
+        ClangTidyWrapper( int argc, char ** argv, FactoryBase::Services & service );
 
     private:
         void updateYamlAction( const YAML::Node & yamlNode ) const override;
@@ -19,7 +19,7 @@ namespace LintCombine {
 
         void parseCommandLine( int argc, char ** argv ) override;
 
-        Factory::Service service;
+        FactoryBase::Services service;
         boost::process::child linterProcess;
         boost::process::async_pipe stdoutPipe;
         boost::process::async_pipe stderrPipe;
