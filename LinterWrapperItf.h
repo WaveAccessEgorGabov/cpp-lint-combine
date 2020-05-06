@@ -1,13 +1,17 @@
 #ifndef __LINTERWRAPPERITF_H__
 #define __LINTERWRAPPERITF_H__
 
-class LinterWrapperItf {
-public:
-    [[nodiscard]] virtual int callLinter( bool isNeedHelp ) const = 0;
+#include "CallTotals.h"
 
-    [[nodiscard]] virtual bool createUpdatedYaml() const = 0;
+namespace LintCombine {
+    class LinterWrapperItf {
+    public:
+        virtual void callLinter() const = 0;
 
-    virtual ~LinterWrapperItf() = default;
-};
+        virtual int waitLinter() const = 0;
+
+        virtual CallTotals updatedYaml() const = 0;
+    };
+}
 
 #endif //__LINTERWRAPPERITF_H__

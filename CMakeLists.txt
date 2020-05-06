@@ -40,12 +40,12 @@ set(FILEVERSION_STR_IMPL ${LinterWrapperVersion})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in ${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc @ONLY)
 
 add_executable(runLinter main.cpp
+        Factory.h             Factory.cpp
         ClazyWrapper.h        ClazyWrapper.cpp
-        LinterSwitch.h        LinterSwitch.cpp
+        LinterCombine.h       LinterCombine.cpp
         ClangTidyWrapper.h    ClangTidyWrapper.cpp
         LinterWrapperItf.h    version.rsrc
-        LinterWrapperBase.h   LinterWrapperBase.cpp
-        LinterWrapperUtils.h  LinterWrapperUtils.cpp)
+        LinterWrapperBase.h   LinterWrapperBase.cpp CallTotals.h)
 if (WIN32)
     target_link_libraries(runLinter yaml-cpp)
     target_link_directories(runLinter PRIVATE ${Boost_LIBRARY_DIR})
