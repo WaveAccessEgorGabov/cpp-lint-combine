@@ -2,7 +2,7 @@
 #define __LINTERCOMBINE_H__
 
 #include "FactoryBase.h"
-#include "StandardFactory.h"
+#include "UsualFactory.h"
 #include "LinterItf.h"
 
 #include <memory>
@@ -11,7 +11,7 @@
 namespace LintCombine {
     class LinterCombine : public LinterItf {
     public:
-        LinterCombine( int argc, char ** argv, FactoryBase& factory = StandardFactory::getInstance() );
+        LinterCombine( int argc, char ** argv, FactoryBase & factory = UsualFactory::getInstance() );
 
         void callLinter() const override;
 
@@ -24,6 +24,11 @@ namespace LintCombine {
         int numLinters();
 
     private:
+
+        std::vector < char ** > splitCommandLineByLinters( int, char ** );
+
+        std::vector < std::pair < std::string, char **>> getLinterNameWithOptions( std::vector < char ** > );
+
         std::vector < std::shared_ptr < LinterItf > > linters;
         FactoryBase::Services service;
     };

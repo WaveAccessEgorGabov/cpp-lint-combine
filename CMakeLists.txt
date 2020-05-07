@@ -44,7 +44,7 @@ add_executable(runLinter main.cpp CallTotals.h
         FactoryBase.h FactoryBase.cpp
         ClazyWrapper.h ClazyWrapper.cpp
         LinterCombine.h LinterCombine.cpp
-        StandardFactory.h StandardFactory.cpp
+        UsualFactory.h UsualFactory.cpp
         ClangTidyWrapper.h ClangTidyWrapper.cpp
         LinterWrapperBase.h LinterWrapperBase.cpp)
 if (WIN32)
