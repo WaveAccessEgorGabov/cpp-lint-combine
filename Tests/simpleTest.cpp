@@ -664,16 +664,12 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
-        BOOST_CHECK( callTotals
-                             .success == 1 );
-        BOOST_CHECK( callTotals
-                             .fail == 0 );
+        BOOST_CHECK( callTotals.success == 1 );
+        BOOST_CHECK( callTotals.fail == 0 );
 
         YAML::Node yamlNode;
         yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"linterFile_1.yaml" );
-        for(
-            auto it
-                : yamlNode[ "Diagnostics" ] ) {
+        for( auto it : yamlNode[ "Diagnostics" ] ) {
             std::ostringstream documentationLink;
             documentationLink << it[ "Documentation link" ];
             std::ostringstream ossToCompare;
@@ -693,9 +689,7 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
 
         YAML::Node yamlNode;
         yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"linterFile_2.yaml" );
-        for(
-            auto it
-                : yamlNode[ "Diagnostics" ] ) {
+        for( auto it : yamlNode[ "Diagnostics" ] ) {
             std::ostringstream documentationLink;
             documentationLink << it[ "Documentation link" ];
             std::ostringstream diagnosticName;
