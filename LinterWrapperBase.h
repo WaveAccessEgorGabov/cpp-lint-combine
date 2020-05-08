@@ -22,6 +22,8 @@ namespace LintCombine {
 
         const std::string & getYamlPath() const;
 
+        virtual ~LinterWrapperBase() = default;
+
     protected:
 
         virtual void updateYamlAction( const YAML::Node & yamlNode ) const = 0;

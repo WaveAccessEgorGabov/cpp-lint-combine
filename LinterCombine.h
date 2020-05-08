@@ -1,7 +1,6 @@
 #ifndef __LINTERCOMBINE_H__
 #define __LINTERCOMBINE_H__
 
-#include "FactoryBase.h"
 #include "UsualFactory.h"
 #include "LinterItf.h"
 
@@ -25,9 +24,7 @@ namespace LintCombine {
 
     private:
 
-        std::vector < char ** > splitCommandLineByLinters( int, char ** );
-
-        std::vector < std::pair < std::string, char **>> getLinterNameWithOptions( std::vector < char ** > );
+        std::vector < std::vector < std::string > > splitCommandLineByLinters( int argc, char ** argv );
 
         std::vector < std::shared_ptr < LinterItf > > linters;
         FactoryBase::Services service;

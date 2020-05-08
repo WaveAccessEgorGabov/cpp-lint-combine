@@ -1,5 +1,5 @@
-#ifndef __CLANGTIDYWRAPPER_H__
-#define __CLANGTIDYWRAPPER_H__
+#ifndef __CLAZYTIDYWRAPPER_H__
+#define __CLAZYTIDYWRAPPER_H__
 
 #include "FactoryBase.h"
 #include "LinterWrapperBase.h"
@@ -19,11 +19,11 @@ namespace LintCombine {
 
         void parseCommandLine( int argc, char ** argv ) override;
 
-        FactoryBase::Services service;
+        FactoryBase::Services & service;
         boost::process::child linterProcess;
         boost::process::async_pipe stdoutPipe;
         boost::process::async_pipe stderrPipe;
         std::function <void (boost::process::async_pipe & )> readFromPipe;
     };
 }
-#endif //__CLANGTIDYWRAPPER_H__
+#endif //__CLAZYTIDYWRAPPER_H__

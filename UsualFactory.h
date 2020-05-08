@@ -6,21 +6,24 @@
 namespace LintCombine {
     class UsualFactory : public FactoryBase {
     public:
-        UsualFactory(UsualFactory&) = delete;
+        UsualFactory( UsualFactory & ) = delete;
 
-        UsualFactory(UsualFactory&&) = delete;
+        UsualFactory( UsualFactory && ) = delete;
 
-        UsualFactory& operator= (UsualFactory const&) = delete;
+        UsualFactory & operator=( UsualFactory const & ) = delete;
 
-        UsualFactory& operator= (UsualFactory const&&) = delete;
+        UsualFactory & operator=( UsualFactory const && ) = delete;
 
-        static UsualFactory & getInstance();
+        static UsualFactory & getInstance() {
+            static UsualFactory instance;
+            return instance;
+        }
 
         std::shared_ptr < LinterItf >
-        createLinter( std::vector < std::pair < std::string, char ** >> lintersAndTheirOptions );
+        createLinter( int argc, char ** argv );
 
     private:
-        UsualFactory();
+        UsualFactory() = default;
     };
 }
 

@@ -19,7 +19,7 @@ namespace LintCombine {
 
         void parseCommandLine( int argc, char ** argv ) override;
 
-        FactoryBase::Services service;
+        FactoryBase::Services & service;
         boost::process::child linterProcess;
         boost::process::async_pipe stdoutPipe;
         boost::process::async_pipe stderrPipe;
