@@ -1,33 +1,39 @@
 #ifndef __LINTERWRAPPERBASE_H__
 #define __LINTERWRAPPERBASE_H__
 
-#include "LinterWrapperItf.h"
+#include "FactoryBase.h"
+#include "LinterItf.h"
 #include "yaml-cpp/yaml.h"
 
 #include <string>
 
-class LinterWrapperBase : public LinterWrapperItf {
-public:
-    [[nodiscard]] int callLinter( bool isNeedHelp = false ) const override;
+namespace LintCombine {
+    class LinterWrapperBase : public LinterItf {
+    public:
+        void callLinter() const override;
 
-    [[nodiscard]] bool createUpdatedYaml() const override;
+        int waitLinter() const override;
 
-    [[nodiscard]] const std::string & getLinterName() const;
+        CallTotals updatedYaml() const override;
 
-    [[nodiscard]] const std::string & getLinterOptions() const;
+        const std::string & getName() const;
 
-    [[nodiscard]] const std::string & getYamlFilePath() const;
+        const std::string & getOptions() const;
 
-protected:
+        const std::string & getYamlPath() const;
 
-    explicit LinterWrapperBase( const std::string & linterOptions, const std::string & yamlFilePath )
-            : linterOptions( linterOptions ), yamlFilePath( yamlFilePath ) {}
+    protected:
 
-    virtual void addDocLinkToYaml( const YAML::Node & yamlNode ) const = 0;
+        virtual void updateYamlAction( const YAML::Node & yamlNode ) const = 0;
 
-    std::string linterName;
-    std::string linterOptions;
-    std::string yamlFilePath;
-};
+        virtual void parseCommandLine( int argc, char ** argv ) = 0;
+
+        bool isNeedHelp;
+        std::string name;
+        std::string options;
+        std::string yamlPath;
+        FactoryBase::Services service;
+    };
+}
 
 #endif //__LINTERWRAPPERBASE_H__

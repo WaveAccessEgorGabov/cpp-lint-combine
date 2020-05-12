@@ -1,41 +1,29 @@
 #define BOOST_TEST_MODULE lintWrapperTesting
 
-#include <boost/process.hpp>
-
-#include "../LinterWrapperUtils.h"
-#include "../ClazyWrapper.h"
-#include "../ClangTidyWrapper.h"
-#include "../LinterSwitch.h"
-#include "yaml-cpp/yaml.h"
+#include "../LinterCombine.h"
+#include "../LinterWrapperBase.h"
+#include "../FactoryBase.h"
 
 #include <boost/test/included/unit_test.hpp>
-#include <memory>
+#include <boost/program_options.hpp>
+#include <stdexcept>
 #include <filesystem>
 
-struct initAddDocToYamlFileTests {
-    initAddDocToYamlFileTests() {
-        std::filesystem::remove( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" );
+struct recoverFiles {
+    ~recoverFiles() {
+        std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
+        std::filesystem::copy_file( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1_save.yaml",
+                                    CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
+        std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/linterFile_2.yaml" );
+        std::filesystem::copy_file( CURRENT_SOURCE_DIR"yamlFiles/linterFile_2_save.yaml",
+                                    CURRENT_SOURCE_DIR"yamlFiles/linterFile_2.yaml" );
     }
-
-    ~initAddDocToYamlFileTests() {
-        std::filesystem::remove( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" );
-    }
-};
-
-struct MockWrapper : LinterWrapperBase {
-    MockWrapper( const std::string & linterName, const std::string & linterOptions, const std::string & yamlFilePath )
-            : LinterWrapperBase( linterOptions, yamlFilePath ) {
-        this->linterName = linterName;
-    }
-
-    void addDocLinkToYaml( const YAML::Node & yamlNode ) const override {}
 };
 
 class StreamCapture {
 public:
-    explicit StreamCapture( std::ostream & stream ) : stream( & stream ) {
-        stream.flush();
-        old = stream.rdbuf( buffer.rdbuf() );
+    StreamCapture( std::ostream & stream ) : stream( & stream ) {
+        old = stream.flush().rdbuf( buffer.rdbuf() );
     }
 
     ~StreamCapture() {
@@ -53,262 +41,634 @@ private:
     std::streambuf * old;
 };
 
-BOOST_AUTO_TEST_SUITE( TestParseCommandLine )
+namespace LintCombine {
+    struct MockWrapper : LinterWrapperBase {
+        MockWrapper( int argc, char ** argv ) {
+            parseCommandLine( argc, argv );
+        }
+
+        void updateYamlAction( const YAML::Node & yamlNode ) const override {
+        }
+
+        void parseCommandLine( int argc, char ** argv ) override {
+            this->name = argv[ 1 ];
+            if( argc == 3 )
+                this->yamlPath = argv[ 2 ];
+        }
+    };
+
+    class MocksFactory : public FactoryBase {
+    public:
+        MocksFactory( const MocksFactory & ) = delete;
+
+        MocksFactory( MocksFactory && ) = delete;
+
+        MocksFactory & operator=( MocksFactory const & ) = delete;
+
+        MocksFactory & operator=( MocksFactory const && ) = delete;
+
+        static MocksFactory & getInstance() {
+            static MocksFactory mockFactory;
+            return mockFactory;
+        }
+
+        std::shared_ptr < LinterItf >
+        createLinter( std::vector < std::pair < std::string, char ** >> lintersAndTheirOptions ) override {
+            for( auto & it: lintersAndTheirOptions ) {
+                if( it.first == "MockWrapper" )
+                    return std::make_shared < MockWrapper >( sizeof( it.second ) / sizeof( char * ), it.second );
+            }
+        }
+
+    private:
+        MocksFactory();
+    };
+}
+
+BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
 
     BOOST_AUTO_TEST_CASE( emptyCommandLine ) {
-        char * str[] = { nullptr };
-        bool isNeedHelp;
-        LinterWrapperItf * res = parseCommandLine( sizeof( str ) / sizeof( char * ), str, isNeedHelp );
-        BOOST_CHECK( !res );
+        char * argv[] = { nullptr };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 0 );
     }
 
-    BOOST_AUTO_TEST_CASE( linterNotExists ) {
-        char * str[] = { nullptr, "-L", "notExistenLinter" };
-        bool isNeedHelp;
-        LinterWrapperItf * res = parseCommandLine( sizeof( str ) / sizeof( char * ), str, isNeedHelp );
-        BOOST_CHECK( !res );
+    BOOST_AUTO_TEST_CASE( OneNotExistentLinter ) {
+        char * argv[] = { nullptr, "--sub-linter=", "NotExistentLinter" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        BOOST_CHECK_THROW( LintCombine::LinterCombine( argc, argv ), std::logic_error );
     }
 
-    BOOST_AUTO_TEST_CASE( linterClangTidy ) {
-        char * str[] = { nullptr, "-L", "clang-tidy" };
-        bool isNeedHelp;
-        LinterWrapperBase * res = parseCommandLine( sizeof( str ) / sizeof( char * ), str, isNeedHelp );
-        BOOST_CHECK( res );
-#ifdef WIN32
-        BOOST_CHECK( res->getLinterName() == "clang-tidy.exe" );
-#elif __linux__
-        BOOST_CHECK( res->getLinterName() == "clang-tidy" );
-#endif
-        BOOST_CHECK( res->getLinterOptions().empty() );
-        BOOST_CHECK( res->getYamlFilePath().empty() );
+    BOOST_AUTO_TEST_CASE( FirstLinterNotExistentSecondExists ) {
+        char * argv[] = { nullptr, "--sub-linter=", "NotExistentLinter", "--sub-linter=", "clazy-standalone" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        BOOST_CHECK_THROW( LintCombine::LinterCombine( argc, argv ), std::logic_error );
     }
 
-    BOOST_AUTO_TEST_CASE( linterClazy ) {
-        char * str[] = { nullptr, "-L", "clazy-standalone" };
-        bool isNeedHelp;
-        LinterWrapperBase * res = parseCommandLine( sizeof( str ) / sizeof( char * ), str, isNeedHelp );
-        BOOST_CHECK( res );
-#ifdef WIN32
-        BOOST_CHECK(res->getLinterName() == "clazy-standalone.exe" );
-#elif __linux__
-        BOOST_CHECK( res->getLinterName() == "clazy-standalone" );
-#endif
-        BOOST_CHECK( res->getLinterOptions().empty() );
-        BOOST_CHECK( res->getYamlFilePath().empty() );
+    BOOST_AUTO_TEST_CASE( BothLintersNotExistent ) {
+        char * argv[] = { nullptr, "--sub-linter=", "NotExistentLinter_1", "--sub-linter=", "NotExistentLinter_2" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        BOOST_CHECK_THROW( LintCombine::LinterCombine( argc, argv ), std::logic_error );
     }
 
-    BOOST_AUTO_TEST_CASE( LinterOptionsExists ) {
-        char * str[] = { nullptr, "-L", "clazy-standalone", "param1", "param2", "param3" };
-        bool isNeedHelp;
-        LinterWrapperBase * res = parseCommandLine( sizeof( str ) / sizeof( char * ), str, isNeedHelp );
-        BOOST_CHECK( res );
-#ifdef WIN32
-        BOOST_CHECK(res->getLinterName() == "clazy-standalone.exe");
-#elif __linux__
-        BOOST_CHECK( res->getLinterName() == "clazy-standalone" );
-#endif
-        BOOST_CHECK( res->getLinterOptions() == "param1 param2 param3 " );
-        BOOST_CHECK( res->getYamlFilePath().empty() );
+    BOOST_AUTO_TEST_CASE( FirstLinterEmptySecondExists ) {
+        char * argv[] = { nullptr, "--sub-linter=", "", "--sub-linter=", "clazy-standalone" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        BOOST_CHECK_THROW( LintCombine::LinterCombine( argc, argv ), boost::program_options::error );
     }
 
-    BOOST_AUTO_TEST_CASE( yamlFileExist ) {
-        char * str[] = { nullptr, "-L", "clazy-standalone", "--export-fixes", "file.yaml" };
-        bool isNeedHelp;
-        LinterWrapperBase * res = parseCommandLine( sizeof( str ) / sizeof( char * ), str, isNeedHelp );
-        BOOST_CHECK( res );
-#ifdef WIN32
-        BOOST_CHECK(res->getLinterName() == "clazy-standalone.exe");
-#elif __linux__
-        BOOST_CHECK( res->getLinterName() == "clazy-standalone" );
-#endif
-        BOOST_CHECK( res->getLinterOptions().empty() );
-        BOOST_CHECK( res->getYamlFilePath() == "file.yaml" );
+    BOOST_AUTO_TEST_CASE( BothLintersEmpty ) {
+        char * argv[] = { nullptr, "--sub-linter=", "", "--sub-linter=", "" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        BOOST_CHECK_THROW( LintCombine::LinterCombine( argc, argv ), boost::program_options::error );
     }
 
-    BOOST_AUTO_TEST_CASE( yamlFileAndLinterOptionsExist ) {
-        char * str[] = { nullptr, "--linter", "clazy-standalone", "--export-fixes", "file.yaml", "param1", "param2",
-                         "param3" };
-        bool isNeedHelp;
-        LinterWrapperBase * res = parseCommandLine( sizeof( str ) / sizeof( char * ), str, isNeedHelp );
-        BOOST_CHECK( res );
-#ifdef WIN32
-        BOOST_CHECK(res->getLinterName() == "clazy-standalone.exe");
-#elif __linux__
-        BOOST_CHECK( res->getLinterName() == "clazy-standalone" );
-#endif
-        BOOST_CHECK( res->getLinterOptions() == "param1 param2 param3 " );
-        BOOST_CHECK( res->getYamlFilePath() == "file.yaml" );
+    BOOST_AUTO_TEST_CASE( BothLintersExist ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clang-tidy", "--sub-linter=", "clazy-standalone" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 2 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getOptions().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getYamlPath().empty() );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersExistAndHasOptions ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clang-tidy", "CTParam_1", "CTParam_2",
+                          "--sub-linter=", "clazy-standalone", "CSParam_1", "CSParam_1" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 2 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions() == "CTParam_1 CTParam_2" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getOptions() == "CSParam_1 CSParam_1" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getYamlPath().empty() );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersExistAndHasYamlPath ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clang-tidy", "--export-fixes=", "CTFile.yaml",
+                          "--sub-linter=", "clazy-standalone", "--export-fixes=", "CSFile.yaml" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 2 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "CTFile.yaml" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getOptions().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getYamlPath() == "CSFile.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersExistAndFirstHasOptionsAndYamlPath ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clang-tidy", "--export-fixes=", "CTFile.yaml", "CTParam_1",
+                          "CTParam_2",
+                          "--sub-linter=", "clazy-standalone" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 2 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions() == "CTParam_1 CTParam_2" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "CTFile.yaml" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getOptions().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getYamlPath().empty() );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersExistAndHasOptionsAndYamlPath ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clang-tidy", "--export-fixes=", "CTFile.yaml", "CTParam_1",
+                          "CTParam_2",
+                          "--sub-linter=", "clazy-standalone", "--export-fixes=", "CSFile.yaml", "CSParam_1",
+                          "CSParam_2", };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 2 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions() == "CTParam_1 CTParam_2" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "CTFile.yaml" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getOptions() == "CSParam_1 CSParam_2" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 1 ) )->getYamlPath() == "CSFile.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( LinterIsClangTidy ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clang-tidy" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 1 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath().empty() );
+    }
+
+    BOOST_AUTO_TEST_CASE( LinterIsClazyStandalone ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clazy-standalone" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 1 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath().empty() );
+    }
+
+    BOOST_AUTO_TEST_CASE( LinterIsClazyStandaloneAndOptionsExist ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clazy-standalone", "lintParam_1", "lintParam_2" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 1 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions() == "lintParam_1 lintParam_2" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath().empty() );
+    }
+
+    BOOST_AUTO_TEST_CASE( LinterIsClazyStandaloneAndYamlPathExists ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clazy-standalone", "--export-fixes=", "lintFile.yaml" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 1 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "lintFile.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( LinterIsClazyStandaloneAndOptionsAndYamlPathExist ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clazy-standalone",
+                          "--export-fixes=", "lintFile.yaml", "lintParam_1", "lintParam_2" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 1 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions() == "lintParam_1 lintParam_2" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterWrapperBase >
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "lintFile.yaml" );
     }
 
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE( TestCallLinter )
+BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
 
-    BOOST_AUTO_TEST_CASE( mockProgrammTerminated ) {
+    BOOST_AUTO_TEST_CASE( LinterTerminate ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-#ifdef WIN32
-        const std::string scriptRunner = "sh.exe ";
-#elif __linux__
-        const std::string scriptRunner = boost::process::shell().string();
-#endif
-        auto linterWrapper = std::make_shared < MockWrapper >( scriptRunner
-                + " " + CURRENT_SOURCE_DIR"mockPrograms/mockTerminated.sh", "", "" );
-        LinterSwitch linter( linterWrapper );
-        int returnCode = linter.callLinter( false );
-        BOOST_CHECK( stdoutCapture.getBufferData() == "stdout\n" );
-        BOOST_CHECK( stderrCapture.getBufferData() == "stderr\n" );
-        BOOST_CHECK( returnCode == 9 );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 3 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\n" );
     }
 
-    BOOST_AUTO_TEST_CASE( linterReturn1 ) {
+    BOOST_AUTO_TEST_CASE( LinterReturn1 ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-#ifdef WIN32
-        const std::string scriptRunner = "sh.exe ";
-#elif __linux__
-        const std::string scriptRunner = boost::process::shell().string();
-#endif
-        auto linterWrapper = std::make_shared < MockWrapper >( scriptRunner
-                + " " CURRENT_SOURCE_DIR"mockPrograms/mockReturn1.sh", "", "" );
-        LinterSwitch linter( linterWrapper );
-        int returnCode = linter.callLinter( false );
-        BOOST_CHECK( stdoutCapture.getBufferData() == "stdout\n" );
-        BOOST_CHECK( stderrCapture.getBufferData() == "stderr\n" );
-        BOOST_CHECK( returnCode == 1 );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 3 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\n" );
     }
 
-    BOOST_AUTO_TEST_CASE( EmptyParameters ) {
-        auto linterWrapper = std::make_shared < MockWrapper >( "", "", "" );
-        LinterSwitch linter( linterWrapper );
-        int returnCode = linter.callLinter( false );
-        BOOST_CHECK( returnCode == 1 );
-    }
-
-    BOOST_AUTO_TEST_CASE( NotExistenLinter ) {
-        auto linterWrapper = std::make_shared < MockWrapper >( "notExistFile", "", "" );
-        LinterSwitch linter( linterWrapper );
-        int returnCode = linter.callLinter( false );
-        BOOST_CHECK( returnCode == 1 );
-    }
-
-    BOOST_AUTO_TEST_CASE( linterReturn0AndWriteToStreams ) {
+    BOOST_AUTO_TEST_CASE( FirstTerminateSecondReturn0WriteToStreamsWriteToFile ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-#ifdef WIN32
-        const std::string scriptRunner = "sh.exe ";
-#elif __linux__
-        const std::string scriptRunner = boost::process::shell().string();
-#endif
-        auto linterWrapper = std::make_shared < MockWrapper >( scriptRunner
-                + " " CURRENT_SOURCE_DIR"mockPrograms/mockReturn0AndWriteToStreams.sh", "", "" );
-        LinterSwitch linter( linterWrapper );
-        int returnCode = linter.callLinter( false );
-        BOOST_CHECK( stdoutCapture.getBufferData() == "stdout\n" );
-        BOOST_CHECK( stderrCapture.getBufferData() == "stderr\n" );
-        BOOST_CHECK( returnCode == 0 );
-    }
-
-    BOOST_AUTO_TEST_CASE( linterReturn0AndWriteToFile ) {
-        std::filesystem::remove( CURRENT_BINARY_DIR"test.yaml" );
-#ifdef WIN32
-        const std::string scriptRunner = "sh.exe ";
-#elif __linux__
-        const std::string scriptRunner = boost::process::shell().string();
-#endif
-        auto linterWrapper = std::make_shared < MockWrapper >(scriptRunner
-                + " " CURRENT_SOURCE_DIR"mockPrograms/mockReturn0AndWriteToFile.sh .sh", "", "" );
-        LinterSwitch linter( linterWrapper );
-        int returnCode = linter.callLinter( false );
-        BOOST_CHECK( returnCode == 0 );
-        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"test.yaml" ) );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh",
+                "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 2 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\nstderrLinter_2\n" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
         std::string str;
-        getline( std::fstream( CURRENT_BINARY_DIR"test.yaml" ), str );
-        BOOST_CHECK( str == "this is yaml-file" );
-        std::filesystem::remove( CURRENT_BINARY_DIR"test.yaml" );
+        getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), str );
+        BOOST_CHECK( str == "this is linter_2" );
+        std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
     }
 
-    BOOST_AUTO_TEST_CASE( linterReturn0AndWriteToFileAndToStream ) {
-        std::filesystem::remove( CURRENT_BINARY_DIR"test.yaml" );
+    BOOST_AUTO_TEST_CASE( BothLintersTerminate ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-#ifdef WIN32
-        const std::string scriptRunner = "sh.exe ";
-#elif __linux__
-        const std::string scriptRunner = boost::process::shell().string();
-#endif
-        auto linterWrapper = std::make_shared < MockWrapper >( scriptRunner
-                + " " CURRENT_SOURCE_DIR"mockPrograms/mockReturn0AndWriteToStreamsAndToFile.sh", "", "" );
-        LinterSwitch linter( linterWrapper );
-        int returnCode = linter.callLinter( false );
-        BOOST_CHECK( stdoutCapture.getBufferData() == "stdout\n" );
-        BOOST_CHECK( stderrCapture.getBufferData() == "stderr\n" );
-        BOOST_CHECK( returnCode == 0 );
-        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"test.yaml" ) );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh",
+                "--sub-linter=", "MockWrapper", "sh" CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 3 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\nstderrLinter_2\n" );
+    }
+
+    BOOST_AUTO_TEST_CASE( FirstReturn1SecondReturn0WriteToStreamsWriteToFile ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh",
+                "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 2 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\nstderrLinter_2\n" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
         std::string str;
-        getline( std::fstream( CURRENT_BINARY_DIR"test.yaml" ), str );
-        BOOST_CHECK( str == "this is yaml-file" );
-        std::filesystem::remove( CURRENT_BINARY_DIR"test.yaml" );
+        getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), str );
+        BOOST_CHECK( str == "this is linter_2" );
+        std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersReturn1 ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh",
+                "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 3 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\nstderrLinter_2\n" );
+    }
+
+    BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreams ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 0 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\n" );
+    }
+
+    BOOST_AUTO_TEST_CASE( LinterReturn0WriteToFile ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 0 );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
+        std::string str;
+        getline( std::fstream( CURRENT_BINARY_DIR"MockFile_1.yaml" ), str );
+        BOOST_CHECK( str == "this is linter_1" );
+        std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_1.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreamsWriteToFile ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 0 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\n" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
+        std::string str;
+        getline( std::fstream( CURRENT_BINARY_DIR"MockFile_1.yaml" ), str );
+        BOOST_CHECK( str == "this is linter_1" );
+        std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_1.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToStreams ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh",
+                "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 0 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\nstderrLinter_2\n" );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToFiles ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh",
+                "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 0 );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
+        std::string str_1;
+        getline( std::fstream( CURRENT_BINARY_DIR"MockFile_1.yaml" ), str_1 );
+        BOOST_CHECK( str_1 == "this is linter_1" );
+        std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_1.yaml" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
+        std::string str_2;
+        getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), str_2 );
+        BOOST_CHECK( str_2 == "this is linter_2" );
+        std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( FirstReturn0WriteToStreamsSecondReturn0WriteToFile ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh",
+                "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 0 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\n" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
+        std::string str;
+        getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), str );
+        BOOST_CHECK( str == "this is linter_2" );
+        std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToStreamsWriteToFiles ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                nullptr, "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh",
+                "--sub-linter=", "MockWrapper",
+                "sh" CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 0 );
+        BOOST_CHECK( stdoutCapture.getBufferData() == "stdoutLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "stderrLinter_1\nstderrLinter_2\n" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
+        std::string str_1;
+        getline( std::fstream( CURRENT_BINARY_DIR"MockFile_1.yaml" ), str_1 );
+        BOOST_CHECK( str_1 == "this is linter_1" );
+        std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_1.yaml" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
+        std::string str_2;
+        getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), str_2 );
+        BOOST_CHECK( str_2 == "this is linter_2" );
+        std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
     }
 
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE( TestAddDocLinkToYamlFile )
+BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
 
-    BOOST_FIXTURE_TEST_CASE( linterAndYamlFileNotExist, initAddDocToYamlFileTests ) {
-        auto linterWrapper = std::make_shared < MockWrapper >( "notExistProgram", "", "notExistFile" );
-        LinterSwitch linter( linterWrapper );
-        BOOST_CHECK( !linter.createUpdatedYaml() );
-        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" ) );
+    BOOST_AUTO_TEST_CASE( NotExistentYamlPath ) {
+        char * argv[] = { nullptr, "--sub-linter=", "MockWrapper", "defaultLinter", "NotExistentFile" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 0 );
+        BOOST_CHECK( callTotals.fail == 1 );
     }
 
-    BOOST_FIXTURE_TEST_CASE( linterNotExistsYamlEmpty, initAddDocToYamlFileTests ) {
-        auto linterWrapper = std::make_shared < MockWrapper >( "notExistProgram", "", "" );
-        LinterSwitch linter( linterWrapper );
-        BOOST_CHECK( !linter.createUpdatedYaml() );
-        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" ) );
+    BOOST_AUTO_TEST_CASE( EmptyYamlPath ) {
+        char * argv[] = { nullptr, "--sub-linter=", "MockWrapper", "defaultLinter", "" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 0 );
+        BOOST_CHECK( callTotals.fail == 1 );
     }
 
-    BOOST_FIXTURE_TEST_CASE( ClangTidyYamlEmpty, initAddDocToYamlFileTests ) {
-        auto linterWrapper = std::make_shared < ClangTidyWrapper >( "", "" );
-        LinterSwitch linter( linterWrapper );
-        BOOST_CHECK( !linter.createUpdatedYaml() );
-        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" ) );
+    BOOST_AUTO_TEST_CASE( FirstHasEmptyYamlPathSecondHasPathToExistsYaml ) {
+        char * argv[] = { nullptr, "--sub-linter=", "MockWrapper", "defaultLinter", "",
+                          "--sub-linter=", "MockWrapper", "defaultLinter",
+                          CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 1 );
+        BOOST_CHECK( callTotals.fail == 1 );
+        std::ifstream yamlFile_2( "linterFile_2.yaml" );
+        std::ifstream yamlFile_2_save( "linterFile_2_save.yaml" );
+        std::istream_iterator < char > fileIter_2( yamlFile_2 ), end_2;
+        std::istream_iterator < char > fileIter_2_save( yamlFile_2_save ), end_2_save;
+        BOOST_CHECK_EQUAL_COLLECTIONS( fileIter_2, end_2, fileIter_2_save, end_2_save );
     }
 
-    BOOST_FIXTURE_TEST_CASE( ClazyStandaloneYamlEmpty, initAddDocToYamlFileTests ) {
-        auto linterWrapper = std::make_shared < ClazyWrapper >( "", "" );
-        LinterSwitch linter( linterWrapper );
-        BOOST_CHECK( !linter.createUpdatedYaml() );
-        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" ) );
+    BOOST_AUTO_TEST_CASE( BothLintersHaveEmptyYamlPath ) {
+        char * argv[] = { nullptr, "--sub-linter=", "MockWrapper", "defaultLinter", "",
+                          "--sub-linter=", "MockWrapper", "defaultLinter", "" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 0 );
+        BOOST_CHECK( callTotals.fail == 2 );
     }
 
-    BOOST_FIXTURE_TEST_CASE( mockProgrammYamlExists, initAddDocToYamlFileTests ) {
-        auto linterWrapper
-                = std::make_shared < MockWrapper >( "notExistProgram", "",
-                        CURRENT_SOURCE_DIR"yamlFiles/clangTidy.yaml" );
-        LinterSwitch linter( linterWrapper );
-        BOOST_CHECK( linter.createUpdatedYaml() );
-        BOOST_CHECK( std::filesystem::exists( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" ) );
+    BOOST_AUTO_TEST_CASE( FirstHasNotExistentYamlPathSecondHasPathToExistsYaml ) {
+        char * argv[] = { nullptr, "--sub-linter=", "MockWrapper", "defaultLinter", "NotExistentFile",
+                          "--sub-linter=", "MockWrapper", "defaultLinter",
+                          CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 1 );
+        BOOST_CHECK( callTotals.fail == 1 );
+        std::ifstream yamlFile_2( "linterFile_2.yaml" );
+        std::ifstream yamlFile_2_save( "linterFile_2_save.yaml" );
+        std::istream_iterator < char > fileIter_2( yamlFile_2 ), end_2;
+        std::istream_iterator < char > fileIter_2_save( yamlFile_2_save ), end_2_save;
+        BOOST_CHECK_EQUAL_COLLECTIONS( fileIter_2, end_2, fileIter_2_save, end_2_save );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersHaveNotExistentYamlPath ) {
+        char * argv[] = { nullptr, "--sub-linter=", "MockWrapper", "defaultLinter", "NotExistentFile",
+                          "--sub-linter=", "MockWrapper", "defaultLinter", "NotExistentFile" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 0 );
+        BOOST_CHECK( callTotals.fail == 2 );
+    }
+
+    BOOST_AUTO_TEST_CASE( YamlPathExists ) {
+        char * argv[] = { nullptr, "--sub-linter=", "MockWrapper", "defaultLinter",
+                          CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 1 );
+        BOOST_CHECK( callTotals.fail == 0 );
+        std::ifstream yamlFile_1( "linterFile_1.yaml" );
+        std::ifstream yamlFile_1_save( "linterFile_1_save.yaml" );
+        std::istream_iterator < char > fileIter_1( yamlFile_1 ), end_1;
+        std::istream_iterator < char > fileIter_1_save( yamlFile_1_save ), end_1_save;
+        BOOST_CHECK_EQUAL_COLLECTIONS( fileIter_1, end_1, fileIter_1_save, end_1_save );
+    }
+
+    BOOST_AUTO_TEST_CASE( NothLintersHaveExistYamlPath ) {
+        char * argv[] = { nullptr, "--sub-linter=", "MockWrapper", "defaultLinter",
+                          CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml",
+                          "--sub-linter=", "MockWrapper", "defaultLinter",
+                          CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 2 );
+        BOOST_CHECK( callTotals.fail == 0 );
+        std::ifstream yamlFile_1( "linterFile_1.yaml" );
+        std::ifstream yamlFile_1_save( "linterFile_1_save.yaml" );
+        std::istream_iterator < char > fileIter_1( yamlFile_1 ), end_1;
+        std::istream_iterator < char > fileIter_1_save( yamlFile_1_save ), end_1_save;
+        BOOST_CHECK_EQUAL_COLLECTIONS( fileIter_1, end_1, fileIter_1_save, end_1_save );
+        std::ifstream yamlFile_2( "linterFile_1.yaml" );
+        std::ifstream yamlFile_2_save( "linterFile_1_save.yaml" );
+        std::istream_iterator < char > fileIter_2( yamlFile_2 ), end_2;
+        std::istream_iterator < char > fileIter_2_save( yamlFile_2_save ), end_2_save;
+        BOOST_CHECK_EQUAL_COLLECTIONS( fileIter_2, end_2, fileIter_2_save, end_2_save );
+    }
+
+    BOOST_FIXTURE_TEST_CASE( clangTidyTest, recoverFiles ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clang-tidy", "--export-fixes=",
+                          CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 1 );
+        BOOST_CHECK( callTotals.fail == 0 );
 
         YAML::Node yamlNode;
-        yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" );
-        for( auto it : yamlNode[ "Diagnostics" ] ) {
-            std::ostringstream documentationLink;
-            documentationLink << it[ "Documentation link" ];
-            BOOST_CHECK( documentationLink.str().empty() );
-        }
-    }
-
-    BOOST_FIXTURE_TEST_CASE( ClangTidyYamlExists, initAddDocToYamlFileTests ) {
-        auto linterWrapper
-                = std::make_shared < ClangTidyWrapper >( "", CURRENT_SOURCE_DIR"yamlFiles/clangTidy.yaml" );
-        LinterSwitch linter( linterWrapper );
-        BOOST_CHECK( linter.createUpdatedYaml() );
-        BOOST_CHECK( std::filesystem::exists( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" ) );
-
-        YAML::Node yamlNode;
-        yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" );
+        yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"linterFile_1.yaml" );
         for( auto it : yamlNode[ "Diagnostics" ] ) {
             std::ostringstream documentationLink;
             documentationLink << it[ "Documentation link" ];
@@ -318,15 +678,17 @@ BOOST_AUTO_TEST_SUITE( TestAddDocLinkToYamlFile )
         }
     }
 
-    BOOST_FIXTURE_TEST_CASE( ClazyStandaloneYamlExists, initAddDocToYamlFileTests ) {
-        auto linterWrapper
-                = std::make_shared < ClazyWrapper >( "", CURRENT_SOURCE_DIR"yamlFiles/clazy.yaml" );
-        LinterSwitch linter( linterWrapper );
-        BOOST_CHECK( linter.createUpdatedYaml() );
-        BOOST_CHECK( std::filesystem::exists( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" ) );
+    BOOST_FIXTURE_TEST_CASE( clazyTest, recoverFiles ) {
+        char * argv[] = { nullptr, "--sub-linter=", "clang-tidy", "--export-fixes=",
+                          CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
+        int argc = sizeof( argv ) / sizeof( char * ) + 1;
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        LintCombine::CallTotals callTotals = linterCombine.updatedYaml();
+        BOOST_CHECK( callTotals.success == 1 );
+        BOOST_CHECK( callTotals.fail == 0 );
 
         YAML::Node yamlNode;
-        yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"linterYamlWithDocLink.yaml" );
+        yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"linterFile_2.yaml" );
         for( auto it : yamlNode[ "Diagnostics" ] ) {
             std::ostringstream documentationLink;
             documentationLink << it[ "Documentation link" ];

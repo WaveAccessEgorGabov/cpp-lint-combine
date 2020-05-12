@@ -1,23 +1,29 @@
 #ifndef __CLANGTIDYWRAPPER_H__
 #define __CLANGTIDYWRAPPER_H__
 
+#include "FactoryBase.h"
 #include "LinterWrapperBase.h"
 
-#include <string>
+#include <boost/asio.hpp>
+#include <boost/process.hpp>
 
-class ClangTidyWrapper final : public LinterWrapperBase {
-public:
-    explicit ClangTidyWrapper( const std::string & linterOptions, const std::string & yamlFilePath )
-            : LinterWrapperBase( linterOptions, yamlFilePath ) {
-#ifdef WIN32
-    linterName = "clang-tidy.exe";
-#elif  __linux__
-    linterName = "clang-tidy";
-#endif
+namespace LintCombine {
+    class ClangTidyWrapper : public LinterWrapperBase {
+    public:
+        ClangTidyWrapper( int argc, char ** argv, FactoryBase::Services & service );
+
+    private:
+        void updateYamlAction( const YAML::Node & yamlNode ) const override;
+
+        void addDocLinkToYaml( const YAML::Node & yamlNode ) const;
+
+        void parseCommandLine( int argc, char ** argv ) override;
+
+        FactoryBase::Services service;
+        boost::process::child linterProcess;
+        boost::process::async_pipe stdoutPipe;
+        boost::process::async_pipe stderrPipe;
+        std::function <void (boost::process::async_pipe & )> readFromPipe;
+    };
 }
-
-private:
-    void addDocLinkToYaml( const YAML::Node & yamlNode ) const override;
-};
-
 #endif //__CLANGTIDYWRAPPER_H__

@@ -8,7 +8,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-endif()
+endif ()
 
 # Boost version 1.72 has bug in boost::asio
 # bug reference: https://github.com/boostorg/process/issues/116
@@ -24,28 +24,29 @@ add_subdirectory(yaml-cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include)
 
 execute_process(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMAND git describe --tags --long --abbrev=12 OUTPUT_VARIABLE LinterWrapperVersion)
+        COMMAND git describe --tags --long --abbrev=12 OUTPUT_VARIABLE LinterWrapperVersion)
 string(REGEX REPLACE "-" "." LinterWrapperVersion ${LinterWrapperVersion})
 
 set(PRODUCTNAME_STR_IMPL "LinterWrapper")
-if(WIN32)
+if (WIN32)
     STRING(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+" LinterWrapperVersion ${LinterWrapperVersion})
-elseif(UNIX)
+elseif (UNIX)
     STRING(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" LinterWrapperVersion ${LinterWrapperVersion})
-endif()
+endif ()
 
 set(PRODUCTVERSION_STR_IMPL ${LinterWrapperVersion})
 string(REGEX REPLACE "\\." "," LinterWrapperVersion ${LinterWrapperVersion})
 set(FILEVERSION_STR_IMPL ${LinterWrapperVersion})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in ${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc @ONLY)
 
-add_executable(runLinter main.cpp
-        ClazyWrapper.h        ClazyWrapper.cpp
-        LinterSwitch.h        LinterSwitch.cpp
-        ClangTidyWrapper.h    ClangTidyWrapper.cpp
-        LinterWrapperItf.h    version.rsrc
-        LinterWrapperBase.h   LinterWrapperBase.cpp
-        LinterWrapperUtils.h  LinterWrapperUtils.cpp)
+add_executable(runLinter main.cpp CallTotals.h
+        LinterItf.h version.rsrc
+        FactoryBase.h FactoryBase.cpp
+        ClazyWrapper.h ClazyWrapper.cpp
+        LinterCombine.h LinterCombine.cpp
+        UsualFactory.h UsualFactory.cpp
+        ClangTidyWrapper.h ClangTidyWrapper.cpp
+        LinterWrapperBase.h LinterWrapperBase.cpp)
 if (WIN32)
     target_link_libraries(runLinter yaml-cpp)
     target_link_directories(runLinter PRIVATE ${Boost_LIBRARY_DIR})
