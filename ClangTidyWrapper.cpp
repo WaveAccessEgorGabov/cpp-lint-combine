@@ -11,9 +11,15 @@ LintCombine::ClangTidyWrapper::ClangTidyWrapper( int argc, char ** argv, Factory
 }
 
 void LintCombine::ClangTidyWrapper::updateYamlAction( const YAML::Node & yamlNode ) {
+    addDocLinkToYaml( yamlNode );
 }
 
 void LintCombine::ClangTidyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) {
+    for( auto it : yamlNode[ "Diagnostics" ] ) {
+        std::ostringstream documentationLink;
+        documentationLink << "https://clang.llvm.org/extra/clang-tidy/checks/" << it[ "DiagnosticName" ] << ".html";
+        it[ "Documentation link" ] = documentationLink.str();
+    }
 }
 
 void LintCombine::ClangTidyWrapper::parseCommandLine( int argc, char ** argv ) {

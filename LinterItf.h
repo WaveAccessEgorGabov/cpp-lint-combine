@@ -10,7 +10,7 @@ namespace LintCombine {
 
         virtual int waitLinter() = 0;
 
-        virtual CallTotals updatedYaml() = 0;
+        virtual CallTotals updateYaml() = 0;
     };
 }
 

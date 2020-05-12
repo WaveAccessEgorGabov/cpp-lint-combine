@@ -16,7 +16,7 @@ namespace LintCombine {
 
         int waitLinter() override;
 
-        CallTotals updatedYaml() override;
+        CallTotals updateYaml() override;
 
         std::shared_ptr < LinterItf > linterAt( int pos );
 

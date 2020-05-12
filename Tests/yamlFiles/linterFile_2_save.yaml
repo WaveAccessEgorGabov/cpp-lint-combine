@@ -1,14 +1,13 @@
----
-MainSourceFile:  ../main.cpp
+MainSourceFile: ../main.cpp
 Diagnostics:
-  - DiagnosticName:  clazy-temporary-iterator
-    Message:         'Don''t call QList::begin() on temporary'
-    FileOffset:      221
-    FilePath:        ../main.cpp
-    Replacements:
-  - DiagnosticName:  clazy-temporary-iterator
-    Message:         'Don''t call QList::end() on temporary'
-    FileOffset:      246
-    FilePath:        ../main.cpp
-    Replacements:
-...
+  - DiagnosticName: clazy-temporary-iterator
+    Message: Don't call QList::begin() on temporary
+    FileOffset: 221
+    FilePath: ../main.cpp
+    Replacements: ~
+  - DiagnosticName: clazy-temporary-iterator
+    Message: Don't call QList::end() on temporary
+    FileOffset: 246
+    FilePath: ../main.cpp
+    Replacements: ~
+

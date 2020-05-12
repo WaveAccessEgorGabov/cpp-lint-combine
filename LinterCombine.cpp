@@ -66,8 +66,12 @@ int LintCombine::LinterCombine::waitLinter() {
     return lintersReturnCode;
 }
 
-LintCombine::CallTotals LintCombine::LinterCombine::updatedYaml() {
-    return CallTotals();
+LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
+    CallTotals callTotals;
+    for(auto it: linters) {
+        callTotals += it->updateYaml();
+    }
+    return callTotals;
 }
 
 std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( int pos ) {
