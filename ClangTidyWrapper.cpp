@@ -5,15 +5,15 @@
 namespace po = boost::program_options;
 
 LintCombine::ClangTidyWrapper::ClangTidyWrapper( int argc, char ** argv, FactoryBase::Services & service )
-        : service( service ), stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
+        : LinterBase( service ) {
     name = "clang-tidy";
     parseCommandLine( argc, argv );
 }
 
-void LintCombine::ClangTidyWrapper::updateYamlAction( const YAML::Node & yamlNode ) const {
+void LintCombine::ClangTidyWrapper::updateYamlAction( const YAML::Node & yamlNode ) {
 }
 
-void LintCombine::ClangTidyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) const {
+void LintCombine::ClangTidyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) {
 }
 
 void LintCombine::ClangTidyWrapper::parseCommandLine( int argc, char ** argv ) {

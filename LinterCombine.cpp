@@ -11,12 +11,13 @@ static char ** vectorStringToCharPP( const std::vector < std::string > & stringV
     return str;
 }
 
-LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase & factory ) {
+LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase & factory )
+        : service( factory.getService() ) {
     std::vector < std::vector < std::string > > lintersVectorString = splitCommandLineByLinters( argc, argv );
-    for( const auto& it_extern : lintersVectorString ) {
+    for( const auto & it_extern : lintersVectorString ) {
         char ** lintersCharPP = vectorStringToCharPP( it_extern );
         std::shared_ptr < LinterItf > linter = factory.createLinter( it_extern.size(), lintersCharPP );
-        free ( lintersCharPP);
+        free( lintersCharPP );
         if( linter == nullptr ) {
             throw std::logic_error( "Linter is not exists" );
         }
@@ -50,14 +51,22 @@ LintCombine::LinterCombine::splitCommandLineByLinters( int argc, char ** argv ) 
     return linterDataVec;
 }
 
-void LintCombine::LinterCombine::callLinter() const {
+void LintCombine::LinterCombine::callLinter() {
+    for( auto it : linters ) {
+        it->callLinter();
+    }
 }
 
-int LintCombine::LinterCombine::waitLinter() const {
-    return 0;
+int LintCombine::LinterCombine::waitLinter() {
+    int lintersReturnCode = 1;
+    service.getIO_Service().run();
+    for( auto it : linters ) {
+        it->waitLinter() == 0 ? lintersReturnCode &= ~1 : lintersReturnCode |= 2;
+    }
+    return lintersReturnCode;
 }
 
-LintCombine::CallTotals LintCombine::LinterCombine::updatedYaml() const {
+LintCombine::CallTotals LintCombine::LinterCombine::updatedYaml() {
     return CallTotals();
 }
 

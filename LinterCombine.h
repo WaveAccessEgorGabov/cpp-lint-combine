@@ -12,11 +12,11 @@ namespace LintCombine {
     public:
         LinterCombine( int argc, char ** argv, FactoryBase & factory = UsualFactory::getInstance() );
 
-        void callLinter() const override;
+        void callLinter() override;
 
-        int waitLinter() const override;
+        int waitLinter() override;
 
-        CallTotals updatedYaml() const override;
+        CallTotals updatedYaml() override;
 
         std::shared_ptr < LinterItf > linterAt( int pos );
 
@@ -27,7 +27,7 @@ namespace LintCombine {
         std::vector < std::vector < std::string > > splitCommandLineByLinters( int argc, char ** argv );
 
         std::vector < std::shared_ptr < LinterItf > > linters;
-        FactoryBase::Services service;
+        FactoryBase::Services & service;
     };
 }
 #endif //__LINTERCOMBINE_H__

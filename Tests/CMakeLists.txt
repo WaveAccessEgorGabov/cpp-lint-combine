@@ -2,7 +2,7 @@ project(lintWrapperTesting)
 
 add_executable(runTests simpleTest.cpp
         ../LinterItf.h ../CallTotals.h
-        ../LinterWrapperBase.h ../LinterWrapperBase.cpp
+        ../LinterBase.h ../LinterBase.cpp
         ../ClangTidyWrapper.h ../ClangTidyWrapper.cpp
         ../ClazyWrapper.h ../ClazyWrapper.cpp
         ../LinterCombine.h ../LinterCombine.cpp

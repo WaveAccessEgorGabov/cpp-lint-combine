@@ -6,11 +6,11 @@
 namespace LintCombine {
     class LinterItf {
     public:
-        virtual void callLinter() const = 0;
+        virtual void callLinter() = 0;
 
-        virtual int waitLinter() const = 0;
+        virtual int waitLinter() = 0;
 
-        virtual CallTotals updatedYaml() const = 0;
+        virtual CallTotals updatedYaml() = 0;
     };
 }
 
