@@ -44,15 +44,15 @@ private:
 
 namespace LintCombine {
     struct MockWrapper : LinterBase {
-        MockWrapper( int argc, char ** argv, FactoryBase::Services & service ) : LinterBase ( service ) {
-            parseCommandLine(argc, argv);
+        MockWrapper( int argc, char ** argv, FactoryBase::Services & service ) : LinterBase( service ) {
+            parseCommandLine( argc, argv );
         }
 
         void updateYamlAction( const YAML::Node & yamlNode ) override {
         }
 
         void parseCommandLine( int argc, char ** argv ) override {
-            name = argv[1];
+            name = argv[ 1 ];
         }
     };
 
@@ -565,7 +565,7 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 0 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stdoutData == "stdoutLinter_1\nstdoutLinter_2\n" );
         BOOST_CHECK( stderrData == "stderrLinter_1\nstderrLinter_2\n" );
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
         std::string fileData_1;
@@ -577,6 +577,26 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), fileData_2 );
         BOOST_CHECK( fileData_2 == "this is linter_2" );
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( TestParallelWorking ) {
+        StreamCapture stdoutCapture( std::cout );
+        StreamCapture stderrCapture( std::cerr );
+        char * argv[] = {
+                "", "--sub-linter=MockWrapper",
+                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh",
+                "--sub-linter=MockWrapper",
+                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh"
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        int linterCombineReturnCode = linterCombine.waitLinter();
+        std::string stdoutData = stdoutCapture.getBufferData();
+        std::string stderrData = stderrCapture.getBufferData();
+        BOOST_CHECK( linterCombineReturnCode == 0 );
+        BOOST_CHECK( stdoutData == "First_stdout_mes_1\nSecond_stdout_mes_1\nFirst_stdout_mes_2\n" );
+        BOOST_CHECK( stderrData == "First_stderr_mes_1\nSecond_stderr_mes_1\nFirst_stderr_mes_2\n" );
     }
 
 BOOST_AUTO_TEST_SUITE_END()
