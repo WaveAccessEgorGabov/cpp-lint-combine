@@ -52,6 +52,7 @@ LintCombine::LinterCombine::splitCommandLineByLinters( int argc, char ** argv ) 
 }
 
 void LintCombine::LinterCombine::callLinter() {
+    service.getIO_Service().restart();
     for( auto it : linters ) {
         it->callLinter();
     }
