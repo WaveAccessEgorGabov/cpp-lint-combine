@@ -48,7 +48,7 @@ namespace LintCombine {
             parseCommandLine( argc, argv );
         }
 
-        void updateYamlAction( const YAML::Node & yamlNode ) override {
+        void updateYamlAction( const YAML::Node & yamlNode ) const override {
         }
 
         void parseCommandLine( int argc, char ** argv ) override {
@@ -349,8 +349,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 2 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\nstdoutLinter_2\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_1") != std::string::npos );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_2") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_1") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_2") != std::string::npos );
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
         std::string fileData;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), fileData );
@@ -373,8 +375,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 3 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\nstdoutLinter_2\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_1") != std::string::npos );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_2") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_1") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_2") != std::string::npos );
     }
 
     BOOST_AUTO_TEST_CASE( FirstReturn1SecondReturn0WriteToStreamsWriteToFile ) {
@@ -393,8 +397,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 2 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\nstdoutLinter_2\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_1") != std::string::npos );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_2") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_1") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_2") != std::string::npos );
 
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
         std::string fileData;
@@ -419,8 +425,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 3 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\nstdoutLinter_2\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_1") != std::string::npos );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_2") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_1") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_2") != std::string::npos );
     }
 
     BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreams ) {
@@ -498,8 +506,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 0 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\nstdoutLinter_2\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_1") != std::string::npos );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_2") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_1") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_2") != std::string::npos );
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToFiles ) {
@@ -568,8 +578,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 0 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\nstdoutLinter_2\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\nstderrLinter_2\n" );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_1") != std::string::npos );
+        BOOST_CHECK( stdoutData.find("stdoutLinter_2") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_1") != std::string::npos );
+        BOOST_CHECK( stderrData.find("stderrLinter_2") != std::string::npos );
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
         std::string fileData_1;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_1.yaml" ), fileData_1 );
