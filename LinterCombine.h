@@ -8,19 +8,19 @@
 #include <vector>
 
 namespace LintCombine {
-    class LinterCombine : public LinterItf {
+    class LinterCombine final : public LinterItf {
     public:
-        LinterCombine( int argc, char ** argv, FactoryBase & factory = UsualFactory::getInstance() );
+        explicit LinterCombine( int argc, char ** argv, FactoryBase & factory = UsualFactory::getInstance() );
 
-        void callLinter() override;
+        void callLinter() final;
 
-        int waitLinter() override;
+        int waitLinter() final;
 
-        CallTotals updateYaml() override;
+        CallTotals updateYaml() const final;
 
-        std::shared_ptr < LinterItf > linterAt( int pos );
+        std::shared_ptr < LinterItf > linterAt( int pos ) const;
 
-        int numLinters();
+        int numLinters() const noexcept;
 
     private:
 

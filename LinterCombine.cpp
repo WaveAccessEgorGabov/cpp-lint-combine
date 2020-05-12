@@ -5,9 +5,9 @@
 #include <stdexcept>
 
 static char ** vectorStringToCharPP( const std::vector < std::string > & stringVector ) {
-    char ** str = ( char ** ) malloc( stringVector.size() * sizeof( char * ) );
+    char ** str = new char * [stringVector.size()];
     for( int i = 0; i < stringVector.size(); ++i )
-        str[ i ] = const_cast<char *> (stringVector[ i ].c_str());
+        str[ i ] = const_cast< char * > ( stringVector[ i ].c_str() );
     return str;
 }
 
@@ -17,7 +17,7 @@ LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase &
     for( const auto & it_extern : lintersVectorString ) {
         char ** lintersCharPP = vectorStringToCharPP( it_extern );
         std::shared_ptr < LinterItf > linter = factory.createLinter( it_extern.size(), lintersCharPP );
-        free( lintersCharPP );
+        delete[] ( lintersCharPP );
         if( linter == nullptr ) {
             throw std::logic_error( "Linter is not exists" );
         }
@@ -31,6 +31,7 @@ LintCombine::LinterCombine::splitCommandLineByLinters( int argc, char ** argv ) 
     std::vector < std::string > linterData;
     for( int i = 0; i < argc; ++i ) {
         std::string argvAsString( argv[ i ] );
+
         if( !argvAsString.find( "--sub-linter=" ) ) {
             if( !linterData.empty() ) {
                 linterDataVec.emplace_back( linterData );
@@ -53,7 +54,7 @@ LintCombine::LinterCombine::splitCommandLineByLinters( int argc, char ** argv ) 
 
 void LintCombine::LinterCombine::callLinter() {
     service.getIO_Service().restart();
-    for( auto it : linters ) {
+    for( const auto & it : linters ) {
         it->callLinter();
     }
 }
@@ -61,25 +62,27 @@ void LintCombine::LinterCombine::callLinter() {
 int LintCombine::LinterCombine::waitLinter() {
     int lintersReturnCode = 1;
     service.getIO_Service().run();
-    for( auto it : linters ) {
+    for( const auto & it : linters ) {
         it->waitLinter() == 0 ? ( lintersReturnCode &= ~1 ) : ( lintersReturnCode |= 2 );
     }
     return lintersReturnCode;
 }
 
-LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
+LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() const {
     CallTotals callTotals;
-    for( auto it: linters ) {
+    for( const auto & it : linters ) {
         callTotals += it->updateYaml();
     }
     return callTotals;
 }
 
-std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( int pos ) {
+std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( int pos ) const {
+    if( pos >= linters.size() )
+        throw std::out_of_range( "index out of bounds" );
     return linters[ pos ];
 }
 
-int LintCombine::LinterCombine::numLinters() {
+int LintCombine::LinterCombine::numLinters() const noexcept {
     return linters.size();
 }
 

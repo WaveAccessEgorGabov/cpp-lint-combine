@@ -4,7 +4,7 @@
 #include "FactoryBase.h"
 
 namespace LintCombine {
-    class UsualFactory : public FactoryBase {
+    class UsualFactory final : public FactoryBase {
     public:
         UsualFactory( UsualFactory & ) = delete;
 
@@ -19,8 +19,7 @@ namespace LintCombine {
             return instance;
         }
 
-        std::shared_ptr < LinterItf >
-        createLinter( int argc, char ** argv );
+        std::shared_ptr < LinterItf > createLinter( int argc, char ** argv ) final;
 
     private:
         UsualFactory() = default;

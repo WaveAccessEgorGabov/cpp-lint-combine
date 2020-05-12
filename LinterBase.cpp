@@ -22,8 +22,8 @@ void LintCombine::LinterBase::callLinter() {
     linterProcess = boost::process::child( name,
                                            boost::process::std_out > stdoutPipe,
                                            boost::process::std_err > stderrPipe );
-    readFromPipeToStream( stdoutPipe, 1 );
-    readFromPipeToStream( stderrPipe, 2 );
+    readFromPipeToStream( stdoutPipe, /*streamType=*/ 1 );
+    readFromPipeToStream( stderrPipe, /*streamType=*/ 2 );
 }
 
 int LintCombine::LinterBase::waitLinter() {
@@ -31,7 +31,7 @@ int LintCombine::LinterBase::waitLinter() {
     return linterProcess.exit_code();
 }
 
-LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
+LintCombine::CallTotals LintCombine::LinterBase::updateYaml() const {
     YAML::Node yamlNode;
     try {
         yamlNode = YAML::LoadFile( yamlPath );

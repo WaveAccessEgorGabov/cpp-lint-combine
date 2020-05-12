@@ -16,7 +16,7 @@ namespace LintCombine {
 
         int waitLinter() override;
 
-        CallTotals updateYaml() override;
+        CallTotals updateYaml() const override;
 
         const std::string & getName() const;
 
@@ -28,13 +28,12 @@ namespace LintCombine {
 
     protected:
 
-        LinterBase( FactoryBase::Services & service );
+        explicit LinterBase( FactoryBase::Services & service );
 
-        virtual void updateYamlAction( const YAML::Node & yamlNode ) = 0;
+        virtual void updateYamlAction( const YAML::Node & yamlNode ) const = 0;
 
         virtual void parseCommandLine( int argc, char ** argv ) = 0;
 
-        bool isNeedHelp;
         std::string name;
         std::string options;
         std::string yamlPath;

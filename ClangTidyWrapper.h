@@ -5,16 +5,16 @@
 #include "LinterBase.h"
 
 namespace LintCombine {
-    class ClangTidyWrapper : public LinterBase {
+    class ClangTidyWrapper final : public LinterBase {
     public:
         ClangTidyWrapper( int argc, char ** argv, FactoryBase::Services & service );
 
     private:
-        void updateYamlAction( const YAML::Node & yamlNode ) override;
+        void updateYamlAction( const YAML::Node & yamlNode ) const final;
 
-        void addDocLinkToYaml( const YAML::Node & yamlNode );
+        void addDocLinkToYaml( const YAML::Node & yamlNode ) const;
 
-        void parseCommandLine( int argc, char ** argv ) override;
+        void parseCommandLine( int argc, char ** argv ) final;
     };
 }
 #endif //__CLANGTIDYWRAPPER_H__
