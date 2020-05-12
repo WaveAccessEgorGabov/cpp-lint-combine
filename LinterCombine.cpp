@@ -62,14 +62,14 @@ int LintCombine::LinterCombine::waitLinter() {
     int lintersReturnCode = 1;
     service.getIO_Service().run();
     for( auto it : linters ) {
-        it->waitLinter() == 0 ? lintersReturnCode &= ~1 : lintersReturnCode |= 2;
+        it->waitLinter() == 0 ? ( lintersReturnCode &= ~1 ) : ( lintersReturnCode |= 2 );
     }
     return lintersReturnCode;
 }
 
 LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
     CallTotals callTotals;
-    for(auto it: linters) {
+    for( auto it: linters ) {
         callTotals += it->updateYaml();
     }
     return callTotals;
