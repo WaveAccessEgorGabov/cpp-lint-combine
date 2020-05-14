@@ -1,29 +1,27 @@
 #include "LinterBase.h"
 
+#include <fstream>
 #include <iostream>
+
+void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe& pipe, std::ostream& stream ) {
+    std::array < char, 64 > buffer = {};
+    pipe.async_read_some(boost::process::buffer(buffer), [ & ]( boost::system::error_code ec, size_t size ) {
+            stream.write(buffer.data(), size);
+            if (!ec)
+                readFromPipeToStream(pipe, stream);
+        });
+}
 
 LintCombine::LinterBase::LinterBase( FactoryBase::Services & service )
         : service( service ), stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
-    readFromPipeToStream = [ this, buffer = std::array < char, 64 > {} ]( boost::process::async_pipe & pipe,
-                                                                          const int streamType ) mutable {
-        pipe.async_read_some( boost::process::buffer( buffer ),
-                              [ &, streamType ]( boost::system::error_code ec, size_t size ) {
-                                  if( streamType == 1 )
-                                      std::cout.write( buffer.data(), size );
-                                  if( streamType == 2 )
-                                      std::cerr.write( buffer.data(), size );
-                                  if( !ec )
-                                      readFromPipeToStream( pipe, streamType );
-                              } );
-    };
 }
 
 void LintCombine::LinterBase::callLinter() {
     linterProcess = boost::process::child( name,
                                            boost::process::std_out > stdoutPipe,
                                            boost::process::std_err > stderrPipe );
-    readFromPipeToStream( stdoutPipe, /*streamType=*/ 1 );
-    readFromPipeToStream( stderrPipe, /*streamType=*/ 2 );
+    readFromPipeToStream(stdoutPipe, std::cout);
+    readFromPipeToStream(stderrPipe, std::cerr);
 }
 
 int LintCombine::LinterBase::waitLinter() {

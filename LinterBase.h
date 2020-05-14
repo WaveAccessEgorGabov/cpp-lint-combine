@@ -41,7 +41,7 @@ namespace LintCombine {
         boost::process::child linterProcess;
         boost::process::async_pipe stdoutPipe;
         boost::process::async_pipe stderrPipe;
-        std::function < void( boost::process::async_pipe &, const int i ) > readFromPipeToStream;
+        void readFromPipeToStream( boost::process::async_pipe& pipe, std::ostream& stream );
     };
 }
 
