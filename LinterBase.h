@@ -37,11 +37,13 @@ namespace LintCombine {
         std::string name;
         std::string options;
         std::string yamlPath;
-        FactoryBase::Services & service;
         boost::process::child linterProcess;
         boost::process::async_pipe stdoutPipe;
         boost::process::async_pipe stderrPipe;
-        void readFromPipeToStream( boost::process::async_pipe& pipe, std::ostream& stream );
+    private:
+        FactoryBase::Services & service;
+        std::array < char, 64 > buffer = {};
+        void readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & stream );
     };
 }
 
