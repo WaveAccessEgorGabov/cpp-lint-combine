@@ -22,12 +22,15 @@ namespace LintCombine {
 
         int numLinters() const noexcept;
 
+        bool printTextIfRequested() const;
+
     private:
-        char** vectorStringToCharPP( const std::vector < std::string > & stringVector );
+        char ** vectorStringToCharPP( const std::vector < std::string > & stringVector );
 
         std::vector < std::vector < std::string > > splitCommandLineByLinters( int argc, char ** argv );
 
-        std::vector < std::shared_ptr < LinterItf > > linters;
+        bool m_helpIsRequested = false;
+        std::vector < std::shared_ptr < LinterItf > > m_linters;
         FactoryBase::Services & service;
     };
 }

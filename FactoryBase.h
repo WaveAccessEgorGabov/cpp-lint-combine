@@ -13,22 +13,22 @@ namespace LintCombine {
         class Services {
         public:
             boost::asio::io_service & getIO_Service() {
-                return ios;
+                return m_ios;
             }
 
         private:
-            boost::asio::io_service ios;
+            boost::asio::io_service m_ios;
         };
 
         Services & getService() {
-            return services;
+            return m_services;
         }
 
         virtual std::shared_ptr < LinterItf > createLinter( int argc, char ** argv ) = 0;
 
     protected:
 
-        Services services;
+        Services m_services;
     };
 }
 

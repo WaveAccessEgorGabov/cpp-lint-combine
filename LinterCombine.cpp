@@ -1,5 +1,7 @@
 #include "LinterCombine.h"
+#include "version.rsrc"
 
+#include <iostream>
 #include <vector>
 #include <memory>
 #include <stdexcept>
@@ -9,6 +11,16 @@ char ** LintCombine::LinterCombine::vectorStringToCharPP( const std::vector < st
     for( int i = 0; i < stringVector.size(); ++i )
         str[ i ] = const_cast< char * > ( stringVector[ i ].c_str() );
     return str;
+}
+
+bool LintCombine::LinterCombine::printTextIfRequested() const {
+    if( m_helpIsRequested ) {
+        std::cout << "-----------------------------------------------------------------------------------" << std::endl;
+        std::cout << "Product name: " << PRODUCTNAME_STR << std::endl;
+        std::cout << "Product version: " << PRODUCTVERSION_STR << std::endl;
+        std::cout << "-----------------------------------------------------------------------------------" << std::endl;
+    }
+    return m_helpIsRequested;
 }
 
 LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase & factory )
@@ -21,7 +33,7 @@ LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase &
         if( linter == nullptr ) {
             throw std::logic_error( "Linter is not exists" );
         }
-        linters.emplace_back( linter );
+        m_linters.emplace_back( linter );
     }
 }
 
@@ -31,7 +43,6 @@ LintCombine::LinterCombine::splitCommandLineByLinters( int argc, char ** argv ) 
     std::vector < std::string > linterData;
     for( int i = 0; i < argc; ++i ) {
         std::string argvAsString( argv[ i ] );
-
         if( !argvAsString.find( "--sub-linter=" ) ) {
             // if "--sub-linter=" is found again, add current sub-linter with options to linterDataVec
             if( !linterData.empty() ) {
@@ -44,6 +55,8 @@ LintCombine::LinterCombine::splitCommandLineByLinters( int argc, char ** argv ) 
             // skip options before "--sub-linter="
         else if( !linterData.empty() ) {
             linterData.emplace_back( argvAsString );
+        } else if( !argvAsString.find( "--help" ) || !argvAsString.find( "-h" ) ) {
+            m_helpIsRequested = true;
         }
 
         if( i == argc - 1 && !linterData.empty() ) {
@@ -56,15 +69,16 @@ LintCombine::LinterCombine::splitCommandLineByLinters( int argc, char ** argv ) 
 void LintCombine::LinterCombine::callLinter() {
     // to continue work of io_service
     service.getIO_Service().restart();
-    for( const auto & it : linters ) {
+    for( const auto & it : m_linters ) {
         it->callLinter();
     }
 }
 
+// ToDo: int lintersReturnCode = 0; If m_linters.size() is returned 0
 int LintCombine::LinterCombine::waitLinter() {
     int lintersReturnCode = 1;
     service.getIO_Service().run();
-    for( const auto & it : linters ) {
+    for( const auto & it : m_linters ) {
         it->waitLinter() == 0 ? ( lintersReturnCode &= ~1 ) : ( lintersReturnCode |= 2 );
     }
     return lintersReturnCode;
@@ -72,19 +86,19 @@ int LintCombine::LinterCombine::waitLinter() {
 
 LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() const {
     CallTotals callTotals;
-    for( const auto & it : linters ) {
+    for( const auto & it : m_linters ) {
         callTotals += it->updateYaml();
     }
     return callTotals;
 }
 
 std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( int pos ) const {
-    if( pos >= linters.size() )
+    if( pos >= m_linters.size() )
         throw std::out_of_range( "index out of bounds" );
-    return linters[ pos ];
+    return m_linters[ pos ];
 }
 
 int LintCombine::LinterCombine::numLinters() const noexcept {
-    return linters.size();
+    return m_linters.size();
 }
 

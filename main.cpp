@@ -5,6 +5,9 @@
 int main( const int argc, char * argv[] ) {
     try {
         LintCombine::LinterCombine linterCombine( argc, argv );
+        if( linterCombine.printTextIfRequested() ) {
+            return 0;
+        }
         linterCombine.callLinter();
         int linterReturnCode = linterCombine.waitLinter();
         if( linterReturnCode == 1 ) {

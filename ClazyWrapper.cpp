@@ -29,7 +29,6 @@ void LintCombine::ClazyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) 
 void LintCombine::ClazyWrapper::parseCommandLine( int argc, char ** argv ) {
     po::options_description programOptions;
     programOptions.add_options()
-            ( "help,h", "Display available options" )
             ( "export-fixes", po::value < std::string >( & yamlPath ),
               "YAML file to store suggested fixes in. The"
               "stored fixes can be applied to the input source"
