@@ -6,6 +6,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/program_options.hpp>
+#include <boost/predef.h>
 #include <stdexcept>
 #include <filesystem>
 #include <iostream>
@@ -299,28 +300,39 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
 
     BOOST_AUTO_TEST_CASE( LinterTerminate ) {
         StreamCapture stdoutCapture( std::cout );
-        StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        if( BOOST_OS_WINDOWS ) {
+            mockExecutableCommand_1 = "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh"
+                const_cast <char*> (mockExecutableCommand_1.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         linterCombine.callLinter();
         int linterCombineReturnCode = linterCombine.waitLinter();
         std::string stdoutData = stdoutCapture.getBufferData();
-        std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 3 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\n" );
+        BOOST_CHECK(stdoutData.find("stdoutLinter_1") != std::string::npos);
     }
 
     BOOST_AUTO_TEST_CASE( LinterReturn1 ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh"
+                const_cast <char*> (mockExecutableCommand_1.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -329,18 +341,28 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 3 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\n" );
+        BOOST_CHECK(stdoutData.find("stdoutLinter_1") != std::string::npos);
+        BOOST_CHECK(stderrData.find("stderrLinter_1") != std::string::npos);
     }
 
     BOOST_AUTO_TEST_CASE( FirstTerminateSecondReturn0WriteToStreamsWriteToFile ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh";
+            mockExecutableCommand_2 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh";
+            mockExecutableCommand_2 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh";
+        }
         char * argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh",
+                const_cast <char*> (mockExecutableCommand_1.c_str()),
                 "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh"
+                const_cast <char*> (mockExecutableCommand_2.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -351,44 +373,60 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         BOOST_CHECK( linterCombineReturnCode == 2 );
         BOOST_CHECK( stdoutData.find("stdoutLinter_1") != std::string::npos );
         BOOST_CHECK( stdoutData.find("stdoutLinter_2") != std::string::npos );
-        BOOST_CHECK( stderrData.find("stderrLinter_1") != std::string::npos );
         BOOST_CHECK( stderrData.find("stderrLinter_2") != std::string::npos );
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
         std::string fileData;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), fileData );
-        BOOST_CHECK( fileData == "this is linter_2" );
+        BOOST_CHECK(fileData.find("this is linter_2") != std::string::npos);
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersTerminate ) {
         StreamCapture stdoutCapture( std::cout );
-        StreamCapture stderrCapture( std::cerr );
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh";
+            mockExecutableCommand_2 = "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh";
+            mockExecutableCommand_2 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh";
+        }
         char * argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh",
-                "--sub-linter=MockWrapper", "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh"
+                const_cast <char*> (mockExecutableCommand_1.c_str()),
+                "--sub-linter=MockWrapper",
+                const_cast <char*> (mockExecutableCommand_2.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         linterCombine.callLinter();
         int linterCombineReturnCode = linterCombine.waitLinter();
         std::string stdoutData = stdoutCapture.getBufferData();
-        std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 3 );
         BOOST_CHECK( stdoutData.find("stdoutLinter_1") != std::string::npos );
         BOOST_CHECK( stdoutData.find("stdoutLinter_2") != std::string::npos );
-        BOOST_CHECK( stderrData.find("stderrLinter_1") != std::string::npos );
-        BOOST_CHECK( stderrData.find("stderrLinter_2") != std::string::npos );
     }
 
     BOOST_AUTO_TEST_CASE( FirstReturn1SecondReturn0WriteToStreamsWriteToFile ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat";
+            mockExecutableCommand_2 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh";
+            mockExecutableCommand_2 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh",
+                const_cast <char*> (mockExecutableCommand_1.c_str()),
                 "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh"
+                const_cast <char*> (mockExecutableCommand_2.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -401,22 +439,31 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         BOOST_CHECK( stdoutData.find("stdoutLinter_2") != std::string::npos );
         BOOST_CHECK( stderrData.find("stderrLinter_1") != std::string::npos );
         BOOST_CHECK( stderrData.find("stderrLinter_2") != std::string::npos );
-
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
         std::string fileData;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), fileData );
-        BOOST_CHECK( fileData == "this is linter_2" );
+        BOOST_CHECK(fileData.find("this is linter_2") != std::string::npos);
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersReturn1 ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat";
+            mockExecutableCommand_2 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh";
+            mockExecutableCommand_2 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh",
+                const_cast <char*> (mockExecutableCommand_1.c_str()),
                 "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.sh"
+                const_cast <char*> (mockExecutableCommand_2.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -434,9 +481,16 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
     BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreams ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh"
+                const_cast <char*> (mockExecutableCommand_1.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -445,16 +499,23 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 0 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\n" );
+        BOOST_CHECK(stdoutData.find("stdoutLinter_1") != std::string::npos);
+        BOOST_CHECK(stderrData.find("stderrLinter_1") != std::string::npos);
     }
 
     BOOST_AUTO_TEST_CASE( LinterReturn0WriteToFile ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh"
+                const_cast <char*> (mockExecutableCommand_1.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -463,16 +524,23 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
         std::string fileData;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_1.yaml" ), fileData );
-        BOOST_CHECK( fileData == "this is linter_1" );
+        BOOST_CHECK(fileData.find("this is linter_1") != std::string::npos);
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_1.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreamsWriteToFile ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh"
+                const_cast <char*> (mockExecutableCommand_1.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -481,23 +549,33 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 0 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\n" );
+        BOOST_CHECK(stdoutData.find("stdoutLinter_1") != std::string::npos);
+        BOOST_CHECK(stderrData.find("stderrLinter_1") != std::string::npos);
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
         std::string fileData;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_1.yaml" ), fileData );
-        BOOST_CHECK( fileData == "this is linter_1" );
+        BOOST_CHECK(fileData.find("this is linter_1") != std::string::npos);
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_1.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToStreams ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat";
+            mockExecutableCommand_2 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh";
+            mockExecutableCommand_2 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh",
+                const_cast <char*> (mockExecutableCommand_1.c_str()),
                 "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.sh"
+                const_cast <char*> (mockExecutableCommand_2.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -515,12 +593,23 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
     BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToFiles ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat";
+            mockExecutableCommand_2 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh";
+            mockExecutableCommand_2 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh",
+                const_cast <char*> (mockExecutableCommand_1.c_str()),
                 "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh"
+                const_cast <char*> (mockExecutableCommand_2.c_str())
         };
+
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         linterCombine.callLinter();
@@ -528,23 +617,33 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
         std::string fileData_1;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_1.yaml" ), fileData_1 );
-        BOOST_CHECK( fileData_1 == "this is linter_1" );
+        BOOST_CHECK(fileData_1.find("this is linter_1") != std::string::npos);
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_1.yaml" );
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
         std::string fileData_2;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), fileData_2 );
-        BOOST_CHECK( fileData_2 == "this is linter_2" );
+        BOOST_CHECK(fileData_2.find("this is linter_2") != std::string::npos);
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( FirstReturn0WriteToStreamsSecondReturn0WriteToFile ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat";
+            mockExecutableCommand_2 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh";
+            mockExecutableCommand_2 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh",
+                const_cast <char*> (mockExecutableCommand_1.c_str()),
                 "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh"
+                const_cast <char*> (mockExecutableCommand_2.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -553,23 +652,33 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stdoutData = stdoutCapture.getBufferData();
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 0 );
-        BOOST_CHECK( stdoutData == "stdoutLinter_1\n" );
-        BOOST_CHECK( stderrData == "stderrLinter_1\n" );
+        BOOST_CHECK(stdoutData.find("stdoutLinter_1") != std::string::npos);
+        BOOST_CHECK(stderrData.find("stderrLinter_1") != std::string::npos);
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
         std::string fileData;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), fileData );
-        BOOST_CHECK( fileData == "this is linter_2" );
+        BOOST_CHECK(fileData.find("this is linter_2") != std::string::npos);
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToStreamsWriteToFiles ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat";
+            mockExecutableCommand_2 = CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh";
+            mockExecutableCommand_2 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh",
+                const_cast <char*> (mockExecutableCommand_1.c_str()),
                 "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh"
+                const_cast <char*> (mockExecutableCommand_2.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -585,23 +694,33 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
         std::string fileData_1;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_1.yaml" ), fileData_1 );
-        BOOST_CHECK( fileData_1 == "this is linter_1" );
+        BOOST_CHECK(fileData_1.find("this is linter_1") != std::string::npos);
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_1.yaml" );
         BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_2.yaml" ) );
         std::string fileData_2;
         getline( std::fstream( CURRENT_BINARY_DIR"MockFile_2.yaml" ), fileData_2 );
-        BOOST_CHECK( fileData_2 == "this is linter_2" );
+        BOOST_CHECK(fileData_2.find("this is linter_2") != std::string::npos);
         std::filesystem::remove( CURRENT_BINARY_DIR"MockFile_2.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( TestParallelWorking ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        char * argv[] = {
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if (BOOST_OS_WINDOWS) {
+            mockExecutableCommand_1 = "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh";
+            mockExecutableCommand_2 = "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh";
+        }
+        if (BOOST_OS_LINUX) {
+            mockExecutableCommand_1 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh";
+            mockExecutableCommand_2 = "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh";
+        }
+        char* argv[] = {
                 "", "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh",
+                const_cast <char*> (mockExecutableCommand_1.c_str()),
                 "--sub-linter=MockWrapper",
-                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh"
+                const_cast <char*> (mockExecutableCommand_2.c_str())
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -611,7 +730,6 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 0 );
         BOOST_CHECK( stdoutData == "First_stdout_mes_1\nSecond_stdout_mes_1\nFirst_stdout_mes_2\n" );
-        BOOST_CHECK( stderrData == "First_stderr_mes_1\nSecond_stderr_mes_1\nFirst_stderr_mes_2\n" );
     }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -749,7 +867,7 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
     BOOST_FIXTURE_TEST_CASE( clazyTest, recoverFiles ) {
         char * argv[] = { "", "--sub-linter=clazy-standalone",
                           "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml" };
-        int argc = sizeof( argv ) / sizeof( char * ) + 1;
+        int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
         BOOST_CHECK( callTotals.success == 1 );
