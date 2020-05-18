@@ -4,7 +4,7 @@
 #include <memory>
 #include <stdexcept>
 
-static char ** vectorStringToCharPP( const std::vector < std::string > & stringVector ) {
+char ** LintCombine::LinterCombine::vectorStringToCharPP( const std::vector < std::string > & stringVector ) {
     char ** str = new char * [stringVector.size()];
     for( int i = 0; i < stringVector.size(); ++i )
         str[ i ] = const_cast< char * > ( stringVector[ i ].c_str() );
@@ -33,26 +33,28 @@ LintCombine::LinterCombine::splitCommandLineByLinters( int argc, char ** argv ) 
         std::string argvAsString( argv[ i ] );
 
         if( !argvAsString.find( "--sub-linter=" ) ) {
+            // if "--sub-linter=" is found again, add current sub-linter with options to linterDataVec
             if( !linterData.empty() ) {
                 linterDataVec.emplace_back( linterData );
                 linterData.clear();
             }
-            if( i == argc - 1 ) {
-                linterData.emplace_back( argvAsString.c_str() + std::string( "--sub-linter=" ).size() );
-                linterDataVec.emplace_back( linterData );
-            }
+            // + size() for skipping "--sub-linter=" and add only sub-linter name
             linterData.emplace_back( argvAsString.c_str() + std::string( "--sub-linter=" ).size() );
-        } else if( !linterData.empty() ) {
+        }
+            // skip options before "--sub-linter="
+        else if( !linterData.empty() ) {
             linterData.emplace_back( argvAsString );
-            if( i == argc - 1 ) {
-                linterDataVec.emplace_back( linterData );
-            }
+        }
+
+        if( i == argc - 1 && !linterData.empty() ) {
+            linterDataVec.emplace_back( linterData );
         }
     }
     return linterDataVec;
 }
 
 void LintCombine::LinterCombine::callLinter() {
+    // to continue work of io_service
     service.getIO_Service().restart();
     for( const auto & it : linters ) {
         it->callLinter();

@@ -10,7 +10,7 @@ namespace LintCombine {
 
         CallTotals & operator+=( const CallTotals & rhs ) {
             this->success += rhs.success;
-            this->fail += rhs.fail;
+            this->fail    += rhs.fail;
             return * this;
         }
 

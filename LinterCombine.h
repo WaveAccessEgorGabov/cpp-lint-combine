@@ -23,6 +23,7 @@ namespace LintCombine {
         int numLinters() const noexcept;
 
     private:
+        char** vectorStringToCharPP( const std::vector < std::string > & stringVector );
 
         std::vector < std::vector < std::string > > splitCommandLineByLinters( int argc, char ** argv );
 
