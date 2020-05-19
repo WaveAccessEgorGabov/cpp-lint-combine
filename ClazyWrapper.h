@@ -12,7 +12,7 @@ namespace LintCombine {
     private:
         void updateYamlAction( const YAML::Node & yamlNode ) const final;
 
-        void addDocLinkToYaml( const YAML::Node & yamlNode ) const;
+        static void addDocLinkToYaml( const YAML::Node & yamlNode );
 
         void parseCommandLine( int argc, char ** argv ) final;
     };

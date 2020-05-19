@@ -6,7 +6,9 @@
 namespace LintCombine {
     class LinterItf {
     public:
-        virtual void callLinter() = 0;
+	    virtual ~LinterItf() = default;
+
+	    virtual void callLinter() = 0;
 
         virtual int waitLinter() = 0;
 

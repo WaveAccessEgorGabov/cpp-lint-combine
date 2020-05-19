@@ -14,7 +14,7 @@ void LintCombine::ClazyWrapper::updateYamlAction( const YAML::Node & yamlNode ) 
     addDocLinkToYaml( yamlNode );
 }
 
-void LintCombine::ClazyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) const {
+void LintCombine::ClazyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) {
     for( auto it : yamlNode[ "Diagnostics" ] ) {
         std::ostringstream documentationLink;
         std::ostringstream diagnosticName;
@@ -34,7 +34,7 @@ void LintCombine::ClazyWrapper::parseCommandLine( int argc, char ** argv ) {
               "stored fixes can be applied to the input source"
               "code with clang-apply-replacements." );
 
-    po::parsed_options parsed =
+    const po::parsed_options parsed =
             po::command_line_parser( argc, argv ).options( programOptions ).allow_unregistered().run();
     po::variables_map vm;
     po::store( parsed, vm );

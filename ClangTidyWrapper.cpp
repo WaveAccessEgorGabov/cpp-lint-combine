@@ -14,7 +14,7 @@ void LintCombine::ClangTidyWrapper::updateYamlAction( const YAML::Node & yamlNod
     addDocLinkToYaml( yamlNode );
 }
 
-void LintCombine::ClangTidyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) const {
+void LintCombine::ClangTidyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) {
     for( auto it : yamlNode[ "Diagnostics" ] ) {
         std::ostringstream documentationLink;
         documentationLink << "https://clang.llvm.org/extra/clang-tidy/checks/" << it[ "DiagnosticName" ] << ".html";
@@ -30,7 +30,7 @@ void LintCombine::ClangTidyWrapper::parseCommandLine( int argc, char ** argv ) {
               "stored fixes can be applied to the input source"
               "code with clang-apply-replacements." );
 
-    po::parsed_options parsed
+    const po::parsed_options parsed
             = po::command_line_parser( argc, argv ).options( programOptions ).allow_unregistered().run();
     po::variables_map vm;
     po::store( parsed, vm );

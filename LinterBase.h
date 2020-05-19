@@ -6,7 +6,6 @@
 #include "yaml-cpp/yaml.h"
 
 #include <string>
-#include <boost/asio.hpp>
 #include <boost/process.hpp>
 
 namespace LintCombine {

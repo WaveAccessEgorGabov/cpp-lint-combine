@@ -8,7 +8,7 @@
 
 char ** LintCombine::LinterCombine::vectorStringToCharPP( const std::vector < std::string > & stringVector ) {
     char ** str = new char * [stringVector.size()];
-    for( int i = 0; i < stringVector.size(); ++i )
+    for( size_t i = 0; i < stringVector.size(); ++i )
         str[ i ] = const_cast< char * > ( stringVector[ i ].c_str() );
     return str;
 }
@@ -28,7 +28,8 @@ LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase &
     std::vector < std::vector < std::string > > lintersVectorString = splitCommandLineByLinters( argc, argv );
     for( const auto & it_extern : lintersVectorString ) {
         char ** lintersCharPP = vectorStringToCharPP( it_extern );
-        std::shared_ptr < LinterItf > linter = factory.createLinter( it_extern.size(), lintersCharPP );
+        std::shared_ptr < LinterItf > linter
+    		= factory.createLinter( static_cast < int > ( it_extern.size() ), lintersCharPP );
         delete[] ( lintersCharPP );
         if( linter == nullptr ) {
             throw std::logic_error( "Linter is not exists" );
@@ -74,9 +75,11 @@ void LintCombine::LinterCombine::callLinter() {
     }
 }
 
-// ToDo: int lintersReturnCode = 0; If m_linters.size() is returned 0
 int LintCombine::LinterCombine::waitLinter() {
-    int lintersReturnCode = 1;
+    if ( !m_linters.size() ) {
+        return 0;
+    }
+	int lintersReturnCode = 1;
     service.getIO_Service().run();
     for( const auto & it : m_linters ) {
         it->waitLinter() == 0 ? ( lintersReturnCode &= ~1 ) : ( lintersReturnCode |= 2 );
@@ -92,13 +95,13 @@ LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() const {
     return callTotals;
 }
 
-std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( int pos ) const {
-    if( pos >= m_linters.size() )
+std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( const int pos ) const {
+    if ( pos >= static_cast <int> ( m_linters.size() ) )
         throw std::out_of_range( "index out of bounds" );
     return m_linters[ pos ];
 }
 
-int LintCombine::LinterCombine::numLinters() const noexcept {
+size_t LintCombine::LinterCombine::numLinters() const noexcept {
     return m_linters.size();
 }
 

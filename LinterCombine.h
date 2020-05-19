@@ -20,12 +20,12 @@ namespace LintCombine {
 
         std::shared_ptr < LinterItf > linterAt( int pos ) const;
 
-        int numLinters() const noexcept;
+        size_t numLinters() const noexcept;
 
         bool printTextIfRequested() const;
 
     private:
-        char ** vectorStringToCharPP( const std::vector < std::string > & stringVector );
+        static char ** vectorStringToCharPP( const std::vector < std::string > & stringVector );
 
         std::vector < std::vector < std::string > > splitCommandLineByLinters( int argc, char ** argv );
 
