@@ -87,7 +87,7 @@ int LintCombine::LinterCombine::waitLinter() {
     return lintersReturnCode;
 }
 
-std::string LintCombine::LinterCombine::getYamlPath() {
+std::string LintCombine::LinterCombine::getYamlPath() const {
     return std::string();
 }
 

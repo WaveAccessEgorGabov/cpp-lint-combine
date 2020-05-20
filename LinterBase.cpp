@@ -28,10 +28,6 @@ int LintCombine::LinterBase::waitLinter() {
     return linterProcess.exit_code();
 }
 
-std::string LintCombine::LinterBase::getYamlPath() {
-    return std::string();
-}
-
 LintCombine::CallTotals LintCombine::LinterBase::updateYaml() const {
     YAML::Node yamlNode;
     try {
@@ -64,6 +60,6 @@ const std::string & LintCombine::LinterBase::getOptions() const {
     return options;
 }
 
-const std::string & LintCombine::LinterBase::getYamlPath() const {
+std::string LintCombine::LinterBase::getYamlPath() const {
     return yamlPath;
 }

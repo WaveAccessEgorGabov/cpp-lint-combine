@@ -15,15 +15,13 @@ namespace LintCombine {
 
         int waitLinter() override;
 
-        std::string getYamlPath() final;
-
         CallTotals updateYaml() const override;
 
         const std::string & getName() const;
 
         const std::string & getOptions() const;
 
-        const std::string & getYamlPath() const;
+        std::string getYamlPath() const final;
 
         virtual ~LinterBase() = default;
 

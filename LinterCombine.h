@@ -16,7 +16,7 @@ namespace LintCombine {
 
         int waitLinter() final;
 
-        std::string getYamlPath() final;
+        std::string getYamlPath() const final;
 
         CallTotals updateYaml() const final;
 
