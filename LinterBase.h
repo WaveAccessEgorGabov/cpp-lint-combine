@@ -15,6 +15,8 @@ namespace LintCombine {
 
         int waitLinter() override;
 
+        std::string getYamlPath() final;
+
         CallTotals updateYaml() const override;
 
         const std::string & getName() const;
@@ -42,6 +44,7 @@ namespace LintCombine {
     private:
         FactoryBase::Services & service;
         std::array < char, 64 > buffer = {};
+
         void readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & stream );
     };
 }

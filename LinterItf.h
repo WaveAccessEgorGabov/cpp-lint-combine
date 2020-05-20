@@ -2,6 +2,7 @@
 #define __LINTERWRAPPERITF_H__
 
 #include "CallTotals.h"
+#include <string>
 
 namespace LintCombine {
     class LinterItf {
@@ -13,6 +14,8 @@ namespace LintCombine {
         virtual int waitLinter() = 0;
 
         virtual CallTotals updateYaml() const = 0;
+
+        virtual std::string getYamlPath() = 0;
     };
 }
 

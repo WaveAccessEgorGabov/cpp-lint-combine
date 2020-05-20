@@ -87,6 +87,10 @@ int LintCombine::LinterCombine::waitLinter() {
     return lintersReturnCode;
 }
 
+std::string LintCombine::LinterCombine::getYamlPath() {
+    return std::string();
+}
+
 LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() const {
     CallTotals callTotals;
     for( const auto & it : m_linters ) {
@@ -105,3 +109,6 @@ size_t LintCombine::LinterCombine::numLinters() const noexcept {
     return m_linters.size();
 }
 
+std::string LintCombine::LinterCombine::combineYaml( std::vector < std::string > yamlPaths ) {
+    return std::string();
+}
