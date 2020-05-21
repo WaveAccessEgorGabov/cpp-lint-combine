@@ -1,5 +1,5 @@
 #include "LinterCombine.h"
-#include "version.rsrc"
+#include "../data/version.rsrc"
 
 #include <iostream>
 #include <vector>

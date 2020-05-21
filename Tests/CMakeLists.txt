@@ -1,12 +1,12 @@
 project(lintWrapperTesting)
 
-add_executable(runTests simpleTest.cpp
-        ../LinterItf.h ../CallTotals.h
-        ../LinterBase.h ../LinterBase.cpp
-        ../ClangTidyWrapper.h ../ClangTidyWrapper.cpp
-        ../ClazyWrapper.h ../ClazyWrapper.cpp
-        ../LinterCombine.h ../LinterCombine.cpp
-        ../UsualFactory.h ../UsualFactory.cpp)
+add_executable(runTests src/simpleTest.cpp
+        ../src/LinterItf.h ../src/CallTotals.h
+        ../src/LinterBase.h ../src/LinterBase.cpp
+        ../src/ClangTidyWrapper.h ../src/ClangTidyWrapper.cpp
+        ../src/ClazyWrapper.h ../src/ClazyWrapper.cpp
+        ../src/LinterCombine.h ../src/LinterCombine.cpp
+        ../src/UsualFactory.h ../src/UsualFactory.cpp)
 target_link_libraries(runTests yaml-cpp)
 target_compile_definitions(runTests PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_compile_definitions(runTests PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")

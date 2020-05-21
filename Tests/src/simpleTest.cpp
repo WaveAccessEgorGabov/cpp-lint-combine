@@ -1,15 +1,13 @@
 #define BOOST_TEST_MODULE lintWrapperTesting
 
-#include "../src/LinterCombine.h"
-#include "../src/LinterBase.h"
-#include "../src/UsualFactory.h"
+#include "../../src/LinterCombine.h"
+#include "../../src/LinterBase.h"
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/program_options.hpp>
 #include <boost/predef.h>
 #include <stdexcept>
 #include <filesystem>
-#include <iostream>
 
 struct recoverFiles {
     ~recoverFiles() {

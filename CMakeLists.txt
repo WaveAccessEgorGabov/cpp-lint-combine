@@ -37,19 +37,19 @@ endif ()
 set(PRODUCTVERSION_STR_IMPL ${LinterWrapperVersion})
 string(REGEX REPLACE "\\." "," LinterWrapperVersion ${LinterWrapperVersion})
 set(FILEVERSION_STR_IMPL ${LinterWrapperVersion})
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in ${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc @ONLY)
+configure_file(data/version.rsrc.in data/version.rsrc @ONLY)
 
-add_executable(runLinter main.cpp CallTotals.h
-        LinterItf.h version.rsrc FactoryBase.h
-        ClazyWrapper.h ClazyWrapper.cpp
-        LinterCombine.h LinterCombine.cpp
-        UsualFactory.h UsualFactory.cpp
-        ClangTidyWrapper.h ClangTidyWrapper.cpp
-        LinterBase.h LinterBase.cpp)
+add_executable(runLinter src/main.cpp src/CallTotals.h
+        src/LinterItf.h data/version.rsrc src/FactoryBase.h
+        src/ClazyWrapper.h src/ClazyWrapper.cpp
+        src/LinterCombine.h src/LinterCombine.cpp
+        src/UsualFactory.h src/UsualFactory.cpp
+        src/ClangTidyWrapper.h src/ClangTidyWrapper.cpp
+        src/LinterBase.h src/LinterBase.cpp)
 if (WIN32)
     target_link_libraries(runLinter yaml-cpp)
     target_link_directories(runLinter PRIVATE ${Boost_LIBRARY_DIR})
-    target_sources(runLinter PRIVATE version.rc)
+    target_sources(runLinter PRIVATE data/version.rc)
 elseif (UNIX)
     target_link_libraries(runLinter yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
 endif ()
