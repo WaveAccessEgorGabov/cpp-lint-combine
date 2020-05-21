@@ -8,9 +8,9 @@
 namespace LintCombine {
     class FactoryBase {
     public:
-	    virtual ~FactoryBase() = default;
+        virtual ~FactoryBase() = default;
 
-	    class Services {
+        class Services {
         public:
             boost::asio::io_service & getIO_Service() {
                 return m_ios;

@@ -273,7 +273,8 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
         char * argv[] = { "", "--sub-linter=clang-tidy",
                           "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml", "CTParam_1", "CTParam_2",
                           "--sub-linter=clazy-standalone",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml", "CSParam_1", "CSParam_2" };
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml", "CSParam_1",
+                          "CSParam_2" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.numLinters() == 2 );

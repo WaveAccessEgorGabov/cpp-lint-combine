@@ -45,7 +45,8 @@ void LintCombine::ClazyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) 
         std::ostringstream diagnosticName;
         diagnosticName << it[ "DiagnosticName" ];
         documentationLink << "https://github.com/KDE/clazy/blob/master/docs/checks/README-"
-            << diagnosticName.str().substr( std::string("clazy-").size(), diagnosticName.str().size() ) << ".md";
+                          << diagnosticName.str().substr( std::string( "clazy-" ).size(), diagnosticName.str().size() )
+                          << ".md";
         it[ "Documentation link" ] = documentationLink.str();
     }
 }
