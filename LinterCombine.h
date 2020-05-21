@@ -1,5 +1,4 @@
-#ifndef __LINTERCOMBINE_H__
-#define __LINTERCOMBINE_H__
+#pragma once
 
 #include "yaml-cpp/yaml.h"
 #include "UsualFactory.h"
@@ -42,4 +41,3 @@ namespace LintCombine {
         FactoryBase::Services & services;
     };
 }
-#endif //__LINTERCOMBINE_H__

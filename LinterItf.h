@@ -1,5 +1,4 @@
-#ifndef __LINTERWRAPPERITF_H__
-#define __LINTERWRAPPERITF_H__
+#pragma once
 
 #include "CallTotals.h"
 #include <string>
@@ -19,4 +18,3 @@ namespace LintCombine {
     };
 }
 
-#endif //__LINTERWRAPPERITF_H__

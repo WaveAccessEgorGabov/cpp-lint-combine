@@ -1,5 +1,4 @@
-#ifndef __CALLTOTALS_H__
-#define __CALLTOTALS_H__
+#pragma once
 
 namespace LintCombine {
     struct CallTotals {
@@ -19,5 +18,3 @@ namespace LintCombine {
         unsigned int failNum = 0;
     };
 }
-
-#endif //__CALLTOTALS_H__

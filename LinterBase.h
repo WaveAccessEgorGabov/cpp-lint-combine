@@ -1,5 +1,4 @@
-#ifndef __LINTERWRAPPERBASE_H__
-#define __LINTERWRAPPERBASE_H__
+#pragma once
 
 #include "FactoryBase.h"
 #include "LinterItf.h"
@@ -46,5 +45,3 @@ namespace LintCombine {
         void readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & outputStream );
     };
 }
-
-#endif //__LINTERWRAPPERBASE_H__

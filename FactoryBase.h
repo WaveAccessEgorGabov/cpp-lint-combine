@@ -1,5 +1,4 @@
-#ifndef __LINTERWRAPPER_FACTORY_H__
-#define __LINTERWRAPPER_FACTORY_H__
+#pragma once
 
 #include "LinterItf.h"
 
@@ -32,6 +31,3 @@ namespace LintCombine {
         Services services;
     };
 }
-
-
-#endif //__LINTERWRAPPER_FACTORY_H__

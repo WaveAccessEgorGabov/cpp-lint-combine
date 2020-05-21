@@ -1,5 +1,4 @@
-#ifndef __STANDARDFACTORY_H__
-#define __STANDARDFACTORY_H__
+#pragma once
 
 #include "FactoryBase.h"
 
@@ -25,5 +24,3 @@ namespace LintCombine {
         UsualFactory() = default;
     };
 }
-
-#endif //__STANDARDFACTORY_H__

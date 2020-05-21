@@ -1,5 +1,4 @@
-#ifndef __CLANGTIDYWRAPPER_H__
-#define __CLANGTIDYWRAPPER_H__
+#pragma once
 
 #include "FactoryBase.h"
 #include "LinterBase.h"
@@ -17,4 +16,3 @@ namespace LintCombine {
         void parseCommandLine( int argc, char ** argv ) final;
     };
 }
-#endif //__CLANGTIDYWRAPPER_H__
