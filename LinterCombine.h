@@ -17,7 +17,7 @@ namespace LintCombine {
 
         int waitLinter() final;
 
-        std::string getYamlPath() const final;
+        const std::string & getYamlPath() final;
 
         CallTotals updateYaml() const final;
 
@@ -30,7 +30,7 @@ namespace LintCombine {
     private:
         static char ** vectorStringToCharPP( const std::vector < std::string > & stringVector );
 
-        std::vector < std::vector < std::string > > splitCommandLineByLinters( int argc, char ** argv );
+        std::vector < std::vector < std::string > > splitCommandLineBySubLinters( int argc, char ** argv );
 
         void mergeYaml( const std::string & yamlPathToMerge ) const;
 
@@ -39,7 +39,7 @@ namespace LintCombine {
         std::string m_mergedYamlPath;
         bool m_helpIsRequested = false;
         std::vector < std::shared_ptr < LinterItf > > m_linters;
-        FactoryBase::Services & service;
+        FactoryBase::Services & services;
     };
 }
 #endif //__LINTERCOMBINE_H__

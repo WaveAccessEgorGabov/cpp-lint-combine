@@ -27,27 +27,22 @@ void LintCombine::ClangTidyWrapper::addDocLinkToYaml( const YAML::Node & yamlNod
 void LintCombine::ClangTidyWrapper::parseCommandLine( int argc, char ** argv ) {
     po::options_description programOptions;
     programOptions.add_options()
-            ( "export-fixes", po::value < std::string >( & yamlPath ),
-              "YAML file to store suggested fixes in. The"
-              "stored fixes can be applied to the input source"
-              "code with clang-apply-replacements." );
+            ( "export-fixes", po::value < std::string >( & yamlPath ) );
 
-    const po::parsed_options parsed
-            = po::command_line_parser( argc, argv ).options( programOptions ).allow_unregistered().run();
-    po::variables_map vm;
-    po::store( parsed, vm );
-    notify( vm );
+    const po::parsed_options parsed =
+            po::command_line_parser( argc, argv ).options( programOptions ).allow_unregistered().run();
+    po::variables_map variablesMap;
+    po::store( parsed, variablesMap );
+    notify( variablesMap );
     std::vector < std::string > linterOptionsVec = po::collect_unrecognized( parsed.options, po::include_positional );
 
     for( const auto & it : linterOptionsVec ) {
         options.append( it + " " );
     }
 
-    if( !yamlPath.empty() ) {
-        std::string yamlFileName = boost::filesystem::path( yamlPath ).filename().string();
-        if( !boost::filesystem::portable_name( yamlFileName ) || !boost::filesystem::exists( yamlPath ) ) {
-            std::cerr << yamlFileName << " not exist or invalid!" << std::endl;
-            yamlPath = std::string();
-        }
+    std::string yamlFileName = boost::filesystem::path( yamlPath ).filename().string();
+    if( !boost::filesystem::portable_name( yamlFileName ) || !boost::filesystem::exists( yamlPath ) ) {
+        std::cerr << yamlFileName << " not exist or invalid!" << std::endl;
+        yamlPath = std::string();
     }
 }

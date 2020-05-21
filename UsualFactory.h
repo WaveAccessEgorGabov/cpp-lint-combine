@@ -4,7 +4,6 @@
 #include "FactoryBase.h"
 
 namespace LintCombine {
-    // UsualFactory is singleton
     class UsualFactory final : public FactoryBase {
     public:
         UsualFactory( UsualFactory & ) = delete;

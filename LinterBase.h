@@ -21,9 +21,9 @@ namespace LintCombine {
 
         const std::string & getOptions() const;
 
-        std::string getYamlPath() const final;
+        const std::string & getYamlPath() final;
 
-        virtual ~LinterBase() = default;
+        ~LinterBase() override = default;
 
     protected:
 
@@ -40,10 +40,10 @@ namespace LintCombine {
         boost::process::async_pipe stdoutPipe;
         boost::process::async_pipe stderrPipe;
     private:
-        FactoryBase::Services & service;
+        // Buffer for reading from pipes
         std::array < char, 64 > buffer = {};
 
-        void readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & stream );
+        void readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & outputStream );
     };
 }
 

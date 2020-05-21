@@ -78,7 +78,7 @@ namespace LintCombine {
         std::shared_ptr < LinterItf >
         createLinter( int argc, char ** argv ) override {
             if( !strcmp( argv[ 0 ], "MockWrapper" ) ) {
-                return std::make_shared < MockWrapper >( argc, argv, getService() );
+                return std::make_shared < MockWrapper >( argc, argv, getServices() );
             }
             return nullptr;
         }
@@ -738,8 +738,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 0 );
-        BOOST_CHECK( callTotals.fail == 1 );
+        BOOST_CHECK( callTotals.successNum == 0 );
+        BOOST_CHECK( callTotals.failNum == 1 );
     }
 
     BOOST_AUTO_TEST_CASE( EmptyYamlPath ) {
@@ -747,8 +747,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 0 );
-        BOOST_CHECK( callTotals.fail == 1 );
+        BOOST_CHECK( callTotals.successNum == 0 );
+        BOOST_CHECK( callTotals.failNum == 1 );
     }
 
     BOOST_AUTO_TEST_CASE( FirstHasEmptyYamlPathSecondHasPathToExistsYaml ) {
@@ -758,8 +758,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 1 );
-        BOOST_CHECK( callTotals.fail == 1 );
+        BOOST_CHECK( callTotals.successNum == 1 );
+        BOOST_CHECK( callTotals.failNum == 1 );
         std::ifstream yamlFile_2( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" );
         std::ifstream yamlFile_2_save( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2_save.yaml" );
         std::istream_iterator < char > fileIter_2( yamlFile_2 ), end_2;
@@ -773,8 +773,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 0 );
-        BOOST_CHECK( callTotals.fail == 2 );
+        BOOST_CHECK( callTotals.successNum == 0 );
+        BOOST_CHECK( callTotals.failNum == 2 );
     }
 
     BOOST_AUTO_TEST_CASE( FirstHasNotExistentYamlPathSecondHasPathToExistsYaml ) {
@@ -784,8 +784,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 1 );
-        BOOST_CHECK( callTotals.fail == 1 );
+        BOOST_CHECK( callTotals.successNum == 1 );
+        BOOST_CHECK( callTotals.failNum == 1 );
         std::ifstream yamlFile_2( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" );
         std::ifstream yamlFile_2_save( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2_save.yaml" );
         std::istream_iterator < char > fileIter_2( yamlFile_2 ), end_2;
@@ -799,8 +799,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 0 );
-        BOOST_CHECK( callTotals.fail == 2 );
+        BOOST_CHECK( callTotals.successNum == 0 );
+        BOOST_CHECK( callTotals.failNum == 2 );
     }
 
     BOOST_AUTO_TEST_CASE( YamlPathExists ) {
@@ -809,8 +809,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 1 );
-        BOOST_CHECK( callTotals.fail == 0 );
+        BOOST_CHECK( callTotals.successNum == 1 );
+        BOOST_CHECK( callTotals.failNum == 0 );
         std::ifstream yamlFile_1( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
         std::ifstream yamlFile_1_save( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1_save.yaml" );
         std::istream_iterator < char > fileIter_1( yamlFile_1 ), end_1;
@@ -826,8 +826,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 2 );
-        BOOST_CHECK( callTotals.fail == 0 );
+        BOOST_CHECK( callTotals.successNum == 2 );
+        BOOST_CHECK( callTotals.failNum == 0 );
         std::ifstream yamlFile_1( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
         std::ifstream yamlFile_1_save( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1_save.yaml" );
         std::istream_iterator < char > fileIter_1( yamlFile_1 ), end_1;
@@ -846,8 +846,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 1 );
-        BOOST_CHECK( callTotals.fail == 0 );
+        BOOST_CHECK( callTotals.successNum == 1 );
+        BOOST_CHECK( callTotals.failNum == 0 );
 
         YAML::Node yamlNode;
         yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
@@ -867,8 +867,8 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        BOOST_CHECK( callTotals.success == 1 );
-        BOOST_CHECK( callTotals.fail == 0 );
+        BOOST_CHECK( callTotals.successNum == 1 );
+        BOOST_CHECK( callTotals.failNum == 0 );
 
         YAML::Node yamlNode;
         yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" );

@@ -5,7 +5,6 @@
 
 #include <boost/asio.hpp>
 #include <memory>
-#include <vector>
 
 namespace LintCombine {
     class FactoryBase {
@@ -22,15 +21,15 @@ namespace LintCombine {
             boost::asio::io_service m_ios;
         };
 
-        Services & getService() {
-            return m_services;
+        Services & getServices() {
+            return services;
         }
 
         virtual std::shared_ptr < LinterItf > createLinter( int argc, char ** argv ) = 0;
 
     protected:
 
-        Services m_services;
+        Services services;
     };
 }
 

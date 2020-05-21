@@ -5,17 +5,18 @@ namespace LintCombine {
     struct CallTotals {
         CallTotals() = default;
 
-        CallTotals( const unsigned int success, const unsigned int fail ) : success( success ), fail( fail ) {
+        CallTotals( const unsigned int successNum, const unsigned int failNum )
+                : successNum( successNum ), failNum( failNum ) {
         }
 
         CallTotals & operator+=( const CallTotals & rhs ) {
-            this->success += rhs.success;
-            this->fail    += rhs.fail;
+            this->successNum += rhs.successNum;
+            this->failNum += rhs.failNum;
             return * this;
         }
 
-        unsigned int success = 0;
-        unsigned int fail = 0;
+        unsigned int successNum = 0;
+        unsigned int failNum = 0;
     };
 }
 
