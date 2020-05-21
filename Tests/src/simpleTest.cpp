@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE lintWrapperTesting
 
-#include "../LinterCombine.h"
-#include "../LinterBase.h"
-#include "../UsualFactory.h"
+#include "../src/LinterCombine.h"
+#include "../src/LinterBase.h"
+#include "../src/UsualFactory.h"
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/program_options.hpp>
