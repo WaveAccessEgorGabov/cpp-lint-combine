@@ -13,5 +13,5 @@ target_compile_definitions(runTests PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_
 if (WIN32)
     target_link_directories(runTests PRIVATE ${Boost_LIBRARY_DIR})
 elseif (UNIX)
-    target_link_libraries(runTests yaml-cpp Boost::program_options Boost::thread)
+    target_link_libraries(runTests yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
 endif ()

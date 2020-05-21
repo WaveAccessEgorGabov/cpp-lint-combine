@@ -92,7 +92,6 @@ namespace LintCombine {
 BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
 
     BOOST_AUTO_TEST_CASE( emptyCommandLine ) {
-        char * kek = new char[1000];
         char * argv[] = { "" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
@@ -178,14 +177,12 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
                              ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "CTFile.yaml" );
+        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 1 ) )->getOptions().empty() );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 1 ) )->getYamlPath() == "CSFile.yaml" );
+        BOOST_CHECK( linterCombine.linterAt( 1 )->getYamlPath().empty() );
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersExistAndFirstHasOptionsAndYamlPath ) {
@@ -198,8 +195,7 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
                              ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getOptions() == "CTParam_1 CTParam_2 " );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "CTFile.yaml" );
+        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
@@ -219,14 +215,12 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
                              ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getOptions() == "CTParam_1 CTParam_2 " );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "CTFile.yaml" );
+        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 1 ) )->getOptions() == "CSParam_1 CSParam_2 " );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 1 ) )->getYamlPath() == "CSFile.yaml" );
+        BOOST_CHECK( linterCombine.linterAt( 1 )->getYamlPath().empty() );
     }
 
     BOOST_AUTO_TEST_CASE( LinterIsClangTidy ) {
@@ -269,7 +263,8 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( LinterIsClazyStandaloneAndYamlPathExists ) {
-        char * argv[] = { "", "--sub-linter=clazy-standalone", "--export-fixes=lintFile.yaml" };
+        char * argv[] = { "", "--sub-linter=clazy-standalone",
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.numLinters() == 1 );
@@ -277,13 +272,14 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
                              ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "lintFile.yaml" );
+
+        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( LinterIsClazyStandaloneAndOptionsAndYamlPathExist ) {
-        char * argv[] = { "", "--sub-linter=clazy-standalone", "--export-fixes=lintFile.yaml", "lintParam_1",
-                          "lintParam_2" };
+        char * argv[] = { "", "--sub-linter=clazy-standalone",
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
+                          "lintParam_1", "lintParam_2" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.numLinters() == 1 );
@@ -291,8 +287,7 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
                              ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getOptions() == "lintParam_1 lintParam_2 " );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getYamlPath() == "lintFile.yaml" );
+        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
     }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -895,7 +890,7 @@ BOOST_AUTO_TEST_SUITE( TestCombineYaml )
 
     BOOST_AUTO_TEST_CASE( combinedYamlPathIsEmptyLintersYamlPathValid ) {
         char * argv[] = { "", "--export-fixes=", "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" };
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
@@ -903,15 +898,15 @@ BOOST_AUTO_TEST_SUITE( TestCombineYaml )
 
     BOOST_AUTO_TEST_CASE( combinedYamlPathSetLintersYamlPathValid ) {
         char * argv[] = { "", "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" };
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlPathNotValidLintersYamlPathValid ) {
-        char * argv[] = { "", "--export-fixes=\../", "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" };
+        char * argv[] = { "", "--export-fixes=\\\\", "--sub-linter=clang-tidy",
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
@@ -925,76 +920,76 @@ BOOST_AUTO_TEST_SUITE( TestCombineYaml )
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidLintersYamlPathNotSet ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                           "--sub-linter=clang-tidy" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
-        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
+        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidLintersYamlPathIsEmpty ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
-                          "--sub-linter=clang-tidy", "--export-fixes=" };
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+                          "--sub-linter=clang-tidy", "--export-fixes= " };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
-        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
+        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidLintersYamlPathNotValid ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
-                          "--sub-linter=clang-tidy", "--export-fixes=\../" };
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+                          "--sub-linter=clang-tidy", "--export-fixes=\\\\" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
-        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
+        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidLintersYamlPathNotExists ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                           "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
-        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
+        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidLintersYamlPathExists ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                           "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/lintFile_1.yaml" };
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml" );
-        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
-        std::ifstream yamlFile( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
-        std::ifstream combinedResult( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
+        std::ifstream yamlFile( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
+        std::ifstream combinedResult( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
-        std::filesystem::remove( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidFirstLintersYamlPathNotSetSecondValid ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                           "--sub-linter=clang-tidy",
                           "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/lintFile_1.yaml" };
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml" );
-        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
-        std::ifstream yamlFile( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
-        std::ifstream combinedResult( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
+        std::ifstream yamlFile( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
+        std::ifstream combinedResult( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
-        std::filesystem::remove( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidBothLintersYamlPathNotSet ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                           "--sub-linter=clang-tidy",
                           "--sub-linter=clang-tidy" };
         int argc = sizeof( argv ) / sizeof( char * );
@@ -1003,76 +998,76 @@ BOOST_AUTO_TEST_SUITE( TestCombineYaml )
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidFirstLintersYamlPathIsEmptySecondValid ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
-                          "--sub-linter=clang-tidy", "--export-fixes=",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+                          "--sub-linter=clang-tidy", "--export-fixes= ",
                           "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/lintFile_1.yaml" };
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml" );
-        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
-        std::ifstream yamlFile( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
-        std::ifstream combinedResult( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
+        std::ifstream yamlFile( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
+        std::ifstream combinedResult( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
-        std::filesystem::remove( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidBothLintersYamlPathIsEmpty ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
-                          "--sub-linter=clang-tidy", "--export-fixes=",
-                          "--sub-linter=clang-tidy", "--export-fixes=" };
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+                          "--sub-linter=clang-tidy", "--export-fixes= ",
+                          "--sub-linter=clang-tidy", "--export-fixes= " };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidFirstLintersYamlPathNotValidSecondValid ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
-                          "--sub-linter=clang-tidy", "--export-fixes=\../",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+                          "--sub-linter=clang-tidy", "--export-fixes=\\\\",
                           "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/lintFile_1.yaml" };
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml" );
-        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
-        std::ifstream yamlFile( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
-        std::ifstream combinedResult( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
+        std::ifstream yamlFile( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
+        std::ifstream combinedResult( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
-        std::filesystem::remove( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidBothLintersYamlPathNotValid ) {
         char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
-                          "--sub-linter=clang-tidy", "--export-fixes=\../",
-                          "--sub-linter=clang-tidy", "--export-fixes=\../" };
+                          "--sub-linter=clang-tidy", "--export-fixes=\\\\",
+                          "--sub-linter=clang-tidy", "--export-fixes=\\\\" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidFirstLintersYamlPathNotExistsSecondValid ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                           "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile",
                           "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/lintFile_1.yaml" };
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml" );
-        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
-        std::ifstream yamlFile( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
-        std::ifstream combinedResult( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
+        std::ifstream yamlFile( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
+        std::ifstream combinedResult( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
-        std::filesystem::remove( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidBothLintersYamlPathNotExists ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                           "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile",
                           "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile" };
         int argc = sizeof( argv ) / sizeof( char * );
@@ -1081,21 +1076,21 @@ BOOST_AUTO_TEST_SUITE( TestCombineYaml )
     }
 
     BOOST_AUTO_TEST_CASE( combinedYamlValidBothLintersYamlPathValid ) {
-        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        char * argv[] = { "", "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                           "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/lintFile_1.yaml",
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
                           "--sub-linter=clang-tidy",
-                          "--export-fixes=" CURRENT_SOURCE_DIR "/yamlFiles/lintFile_2.yaml" };
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml" );
-        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" ) );
-        std::ifstream combinedResult_save( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult_save.yaml" );
-        std::ifstream combinedResult( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml" );
+        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
+        std::ifstream combinedResult_save( CURRENT_SOURCE_DIR"yamlFiles/combinedResult_save.yaml" );
+        std::ifstream combinedResult( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
         std::istream_iterator < char > combinedResult_saveIt( combinedResult_save ), endCR_save;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( combinedResult_saveIt, endCR_save, combinedResultIt, endCR );
-        std::filesystem::remove( CURRENT_SOURCE_DIR"/yamlFiles/combinedResult.yaml" );
+        std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
 BOOST_AUTO_TEST_SUITE_END()

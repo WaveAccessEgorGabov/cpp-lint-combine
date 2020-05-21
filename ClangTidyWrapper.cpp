@@ -1,6 +1,8 @@
 #include "ClangTidyWrapper.h"
 
+#include <iostream>
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 namespace po = boost::program_options;
 
@@ -39,5 +41,13 @@ void LintCombine::ClangTidyWrapper::parseCommandLine( int argc, char ** argv ) {
 
     for( const auto & it : linterOptionsVec ) {
         options.append( it + " " );
+    }
+
+    if( !yamlPath.empty() ) {
+        std::string yamlFileName = boost::filesystem::path( yamlPath ).filename().string();
+        if( !boost::filesystem::portable_name( yamlFileName ) || !boost::filesystem::exists( yamlPath ) ) {
+            std::cerr << yamlFileName << " not exist or invalid!" << std::endl;
+            yamlPath = std::string();
+        }
     }
 }

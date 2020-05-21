@@ -1,6 +1,7 @@
 #ifndef __LINTERCOMBINE_H__
 #define __LINTERCOMBINE_H__
 
+#include "yaml-cpp/yaml.h"
 #include "UsualFactory.h"
 #include "LinterItf.h"
 
@@ -31,8 +32,11 @@ namespace LintCombine {
 
         std::vector < std::vector < std::string > > splitCommandLineByLinters( int argc, char ** argv );
 
-        std::string combineYaml( std::vector < std::string > yamlPaths );
+        void mergeYaml( const std::string & yamlPathToMerge ) const;
 
+        static YAML::Node loadYamlNode( const std::string & pathToYaml );
+
+        std::string m_mergedYamlPath;
         bool m_helpIsRequested = false;
         std::vector < std::shared_ptr < LinterItf > > m_linters;
         FactoryBase::Services & service;
