@@ -16,17 +16,6 @@ void LintCombine::ClazyWrapper::updateYamlAction( const YAML::Node & yamlNode ) 
     addDocLinkToYaml( yamlNode );
 }
 
-void LintCombine::ClazyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) {
-    for( auto it : yamlNode[ "Diagnostics" ] ) {
-        std::ostringstream documentationLink;
-        std::ostringstream diagnosticName;
-        diagnosticName << it[ "DiagnosticName" ];
-        documentationLink << "https://github.com/KDE/clazy/blob/master/docs/checks/README-"
-            << diagnosticName.str().substr( std::string("clazy-").size(), diagnosticName.str().size() ) << ".md";
-        it[ "Documentation link" ] = documentationLink.str();
-    }
-}
-
 void LintCombine::ClazyWrapper::parseCommandLine( int argc, char ** argv ) {
     po::options_description programOptions;
     programOptions.add_options()
@@ -50,3 +39,13 @@ void LintCombine::ClazyWrapper::parseCommandLine( int argc, char ** argv ) {
     }
 }
 
+void LintCombine::ClazyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) {
+    for( auto it : yamlNode[ "Diagnostics" ] ) {
+        std::ostringstream documentationLink;
+        std::ostringstream diagnosticName;
+        diagnosticName << it[ "DiagnosticName" ];
+        documentationLink << "https://github.com/KDE/clazy/blob/master/docs/checks/README-"
+            << diagnosticName.str().substr( std::string("clazy-").size(), diagnosticName.str().size() ) << ".md";
+        it[ "Documentation link" ] = documentationLink.str();
+    }
+}

@@ -4,7 +4,6 @@
 #include "LinterItf.h"
 #include "yaml-cpp/yaml.h"
 
-#include <string>
 #include <boost/process.hpp>
 
 namespace LintCombine {

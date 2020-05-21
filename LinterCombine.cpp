@@ -7,25 +7,6 @@
 #include <stdexcept>
 #include <boost/filesystem.hpp>
 
-char ** LintCombine::LinterCombine::vectorStringToCharPP( const std::vector < std::string > & stringVector ) {
-    char ** str = new char * [stringVector.size()];
-    for( size_t i = 0; i < stringVector.size(); ++i )
-        str[ i ] = const_cast< char * > ( stringVector[ i ].c_str() );
-    return str;
-}
-
-/* ToDo:
- * Print only name and version?
- * Or also program options (by using boost::program_options::options_description)?
-*/
-bool LintCombine::LinterCombine::printTextIfRequested() const {
-    if( m_helpIsRequested ) {
-        std::cout << "Product name: " << PRODUCTNAME_STR << std::endl;
-        std::cout << "Product version: " << PRODUCTVERSION_STR << std::endl;
-    }
-    return m_helpIsRequested;
-}
-
 LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase & factory )
         : services( factory.getServices() ) {
     std::vector < std::vector < std::string > > subLintersCommandLineVV = splitCommandLineBySubLinters( argc, argv );
@@ -39,6 +20,75 @@ LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase &
         }
         m_linters.emplace_back( subLinter );
     }
+}
+
+void LintCombine::LinterCombine::callLinter() {
+    // to continue work's of io_service
+    services.getIO_Service().restart();
+    for( const auto & subLinterIt : m_linters ) {
+        subLinterIt->callLinter();
+    }
+}
+
+int LintCombine::LinterCombine::waitLinter() {
+    if( m_linters.empty() ) {
+        return 0;
+    }
+    int returnCode = 1;
+    services.getIO_Service().run();
+    for( const auto & subLinterIt : m_linters ) {
+        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) : ( returnCode |= 2 );
+    }
+    return returnCode;
+}
+
+const std::string & LintCombine::LinterCombine::getYamlPath() {
+    if( !m_mergedYamlPath.empty() ) {
+        for( const auto & subLinterIt : m_linters ) {
+            if( !subLinterIt->getYamlPath().empty() ) {
+                try {
+                    mergeYaml( subLinterIt->getYamlPath() );
+                }
+                catch( std::exception & ex ) {
+                    std::cerr << "Exception while merge yaml. What(): " << ex.what() << std::endl;
+                }
+            }
+        }
+    }
+    if( boost::filesystem::exists( m_mergedYamlPath ) )
+        return m_mergedYamlPath;
+    m_mergedYamlPath.clear();
+    return m_mergedYamlPath;
+}
+
+LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() const {
+    CallTotals callTotals;
+    for( const auto & subLinterIt : m_linters ) {
+        callTotals += subLinterIt->updateYaml();
+    }
+    return callTotals;
+}
+
+std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( const int pos ) const {
+    if( pos >= static_cast < int > ( m_linters.size() ) )
+        throw std::out_of_range( "index out of bounds" );
+    return m_linters[ pos ];
+}
+
+size_t LintCombine::LinterCombine::numLinters() const noexcept {
+    return m_linters.size();
+}
+
+/* ToDo:
+ * Print only name and version?
+ * Or also program options (by using boost::program_options::options_description)?
+*/
+bool LintCombine::LinterCombine::printTextIfRequested() const {
+    if( m_helpIsRequested ) {
+        std::cout << "Product name: " << PRODUCTNAME_STR << std::endl;
+        std::cout << "Product version: " << PRODUCTVERSION_STR << std::endl;
+    }
+    return m_helpIsRequested;
 }
 
 /* ToDo:
@@ -82,77 +132,6 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( int argc, char ** argv
     return subLinterVec;
 }
 
-void LintCombine::LinterCombine::callLinter() {
-    // to continue work's of io_service
-    services.getIO_Service().restart();
-    for( const auto & subLinterIt : m_linters ) {
-        subLinterIt->callLinter();
-    }
-}
-
-int LintCombine::LinterCombine::waitLinter() {
-    if( m_linters.empty() ) {
-        return 0;
-    }
-    int returnCode = 1;
-    services.getIO_Service().run();
-    for( const auto & subLinterIt : m_linters ) {
-        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) : ( returnCode |= 2 );
-    }
-    return returnCode;
-}
-
-LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() const {
-    CallTotals callTotals;
-    for( const auto & subLinterIt : m_linters ) {
-        callTotals += subLinterIt->updateYaml();
-    }
-    return callTotals;
-}
-
-std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( const int pos ) const {
-    if( pos >= static_cast < int > ( m_linters.size() ) )
-        throw std::out_of_range( "index out of bounds" );
-    return m_linters[ pos ];
-}
-
-size_t LintCombine::LinterCombine::numLinters() const noexcept {
-    return m_linters.size();
-}
-
-const std::string & LintCombine::LinterCombine::getYamlPath() {
-    if( !m_mergedYamlPath.empty() ) {
-        for( const auto & subLinterIt : m_linters ) {
-            if( !subLinterIt->getYamlPath().empty() ) {
-                try {
-                    mergeYaml( subLinterIt->getYamlPath() );
-                }
-                catch( std::exception & ex ) {
-                    std::cerr << "Exception while merge yaml. What(): " << ex.what() << std::endl;
-                }
-            }
-        }
-    }
-    if( boost::filesystem::exists( m_mergedYamlPath ) )
-        return m_mergedYamlPath;
-    m_mergedYamlPath.clear();
-    return m_mergedYamlPath;
-}
-
-YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToYaml ) {
-    YAML::Node yamlNode;
-    try {
-        yamlNode = YAML::LoadFile( pathToYaml );
-    }
-    catch( const YAML::BadFile & ex ) {
-        std::cerr << "YAML::BadFile exception while load mergedYamlPath. What(): " << ex.what() << std::endl;
-    }
-    catch( std::exception & ex ) {
-        std::cerr << "Exception while load mergedYamlPath. What(): " << ex.what() << std::endl;
-    }
-    return yamlNode;
-}
-
 void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge ) const {
     if( !boost::filesystem::exists( m_mergedYamlPath ) ) {
         try {
@@ -186,3 +165,26 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
         }
     }
 }
+
+char ** LintCombine::LinterCombine::vectorStringToCharPP( const std::vector < std::string > & stringVector ) {
+    char ** str = new char * [stringVector.size()];
+    for( size_t i = 0; i < stringVector.size(); ++i )
+        str[ i ] = const_cast< char * > ( stringVector[ i ].c_str() );
+    return str;
+}
+
+YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToYaml ) {
+    YAML::Node yamlNode;
+    try {
+        yamlNode = YAML::LoadFile( pathToYaml );
+    }
+    catch( const YAML::BadFile & ex ) {
+        std::cerr << "YAML::BadFile exception while load mergedYamlPath. What(): " << ex.what() << std::endl;
+    }
+    catch( std::exception & ex ) {
+        std::cerr << "Exception while load mergedYamlPath. What(): " << ex.what() << std::endl;
+    }
+    return yamlNode;
+}
+
+

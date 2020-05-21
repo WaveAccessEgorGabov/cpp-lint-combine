@@ -27,17 +27,17 @@ namespace LintCombine {
         bool printTextIfRequested() const;
 
     private:
-        static char ** vectorStringToCharPP( const std::vector < std::string > & stringVector );
-
         std::vector < std::vector < std::string > > splitCommandLineBySubLinters( int argc, char ** argv );
 
         void mergeYaml( const std::string & yamlPathToMerge ) const;
 
+        static char ** vectorStringToCharPP( const std::vector < std::string > & stringVector );
+
         static YAML::Node loadYamlNode( const std::string & pathToYaml );
 
-        std::string m_mergedYamlPath;
-        bool m_helpIsRequested = false;
         std::vector < std::shared_ptr < LinterItf > > m_linters;
+        std::string m_mergedYamlPath;
         FactoryBase::Services & services;
+        bool m_helpIsRequested = false;
     };
 }

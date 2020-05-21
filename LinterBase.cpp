@@ -3,18 +3,6 @@
 #include <fstream>
 #include <iostream>
 
-void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & outputStream ) {
-    pipe.async_read_some( boost::process::buffer( buffer ), [ & ]( boost::system::error_code ec, size_t size ) {
-        outputStream.write( buffer.data(), size );
-        if( !ec )
-            readFromPipeToStream( pipe, outputStream );
-    } );
-}
-
-LintCombine::LinterBase::LinterBase( FactoryBase::Services & service )
-        : stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
-}
-
 void LintCombine::LinterBase::callLinter() {
     linterProcess = boost::process::child( name,
                                            boost::process::std_out > stdoutPipe,
@@ -73,4 +61,16 @@ const std::string & LintCombine::LinterBase::getOptions() const {
 
 const std::string & LintCombine::LinterBase::getYamlPath() {
     return yamlPath;
+}
+
+LintCombine::LinterBase::LinterBase( FactoryBase::Services & service )
+        : stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
+}
+
+void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & outputStream ) {
+    pipe.async_read_some( boost::process::buffer( buffer ), [ & ]( boost::system::error_code ec, size_t size ) {
+        outputStream.write( buffer.data(), size );
+        if( !ec )
+            readFromPipeToStream( pipe, outputStream );
+    } );
 }
