@@ -167,60 +167,17 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
                              ( linterCombine.linterAt( 1 ) )->getYamlPath().empty() );
     }
 
-    BOOST_AUTO_TEST_CASE( BothLintersExistAndHasYamlPath ) {
-        char * argv[] = { "", "--sub-linter=clang-tidy", "--export-fixes=CTFile.yaml",
-                          "--sub-linter=clazy-standalone", "--export-fixes=CSFile.yaml" };
+    BOOST_AUTO_TEST_CASE( LinterIsClazyStandalone ) {
+        char * argv[] = { "", "--sub-linter=clazy-standalone" };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.numLinters() == 2 );
+        BOOST_CHECK( linterCombine.numLinters() == 1 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
-        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 1 ) )->getOptions().empty() );
-        BOOST_CHECK( linterCombine.linterAt( 1 )->getYamlPath().empty() );
-    }
-
-    BOOST_AUTO_TEST_CASE( BothLintersExistAndFirstHasOptionsAndYamlPath ) {
-        char * argv[] = { "", "--sub-linter=clang-tidy", "--export-fixes=CTFile.yaml", "CTParam_1", "CTParam_2",
-                          "--sub-linter=clazy-standalone" };
-        int argc = sizeof( argv ) / sizeof( char * );
-        LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.numLinters() == 2 );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getOptions() == "CTParam_1 CTParam_2 " );
-        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 1 ) )->getOptions().empty() );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 1 ) )->getYamlPath().empty() );
-    }
-
-    BOOST_AUTO_TEST_CASE( BothLintersExistAndHasOptionsAndYamlPath ) {
-        char * argv[] = { "", "--sub-linter=clang-tidy", "--export-fixes=CTFile.yaml", "CTParam_1", "CTParam_2",
-                          "--sub-linter=clazy-standalone", "--export-fixes=CSFile.yaml", "CSParam_1",
-                          "CSParam_2", };
-        int argc = sizeof( argv ) / sizeof( char * );
-        LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.numLinters() == 2 );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getOptions() == "CTParam_1 CTParam_2 " );
-        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 1 ) )->getOptions() == "CSParam_1 CSParam_2 " );
-        BOOST_CHECK( linterCombine.linterAt( 1 )->getYamlPath().empty() );
+                             ( linterCombine.linterAt( 0 ) )->getYamlPath().empty() );
     }
 
     BOOST_AUTO_TEST_CASE( LinterIsClangTidy ) {
@@ -230,19 +187,6 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
         BOOST_CHECK( linterCombine.numLinters() == 1 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getYamlPath().empty() );
-    }
-
-    BOOST_AUTO_TEST_CASE( LinterIsClazyStandalone ) {
-        char * argv[] = { "", "--sub-linter=clazy-standalone" };
-        int argc = sizeof( argv ) / sizeof( char * );
-        LintCombine::LinterCombine linterCombine( argc, argv );
-        BOOST_CHECK( linterCombine.numLinters() == 1 );
-        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                             ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
@@ -288,6 +232,63 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getOptions() == "lintParam_1 lintParam_2 " );
         BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersExistFirstYamlPathNotSetSecondYamlPathIsEmpty ) {
+        char * argv[] = { "", "--sub-linter=clang-tidy",
+                          "--sub-linter=clazy-standalone", "--export-fixes= " };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 2 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
+        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 1 ) )->getOptions().empty() );
+        BOOST_CHECK( linterCombine.linterAt( 1 )->getYamlPath().empty() );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersExistAndFirstHasOptionsAndYamlPath ) {
+        char * argv[] = { "", "--sub-linter=clang-tidy", "--export-fixes=\\\\",
+                          "--sub-linter=clazy-standalone",
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 2 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
+        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 1 ) )->getOptions().empty() );
+        BOOST_CHECK( linterCombine.linterAt( 1 )->getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
+    }
+
+    BOOST_AUTO_TEST_CASE( BothLintersExistAndHasOptionsAndYamlPath ) {
+        char * argv[] = { "", "--sub-linter=clang-tidy",
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml", "CTParam_1", "CTParam_2",
+                          "--sub-linter=clazy-standalone",
+                          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml", "CSParam_1", "CSParam_2" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv );
+        BOOST_CHECK( linterCombine.numLinters() == 2 );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 0 ) )->getOptions() == "CTParam_1 CTParam_2 " );
+        BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
+        BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
+                             ( linterCombine.linterAt( 1 ) )->getOptions() == "CSParam_1 CSParam_2 " );
+        BOOST_CHECK( linterCombine.linterAt( 1 )->getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" );
     }
 
 BOOST_AUTO_TEST_SUITE_END()
