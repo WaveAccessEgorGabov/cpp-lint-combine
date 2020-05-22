@@ -37,7 +37,7 @@ endif ()
 set(PRODUCTVERSION_STR_IMPL ${LinterWrapperVersion})
 string(REGEX REPLACE "\\." "," LinterWrapperVersion ${LinterWrapperVersion})
 set(FILEVERSION_STR_IMPL ${LinterWrapperVersion})
-configure_file(data/version.rsrc.in data/version.rsrc @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/version.rsrc.in ${CMAKE_CURRENT_SOURCE_DIR}/data/version.rsrc @ONLY)
 
 add_executable(runLinter src/main.cpp src/CallTotals.h
         src/LinterItf.h data/version.rsrc src/FactoryBase.h
