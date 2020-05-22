@@ -968,6 +968,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
+        combineResult.close();
         std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
@@ -985,6 +986,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
+        combineResult.close();
         std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
@@ -1011,6 +1013,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
+        combineResult.close();
         std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
@@ -1037,6 +1040,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
+        combineResult.close();
         std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
@@ -1063,6 +1067,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
         std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
+        combineResult.close();
         std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
@@ -1090,6 +1095,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
         std::istream_iterator < char > combinedResult_saveIt( combinedResult_save ), endCR_save;
         std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
         BOOST_CHECK_EQUAL_COLLECTIONS( combinedResult_saveIt, endCR_save, combinedResultIt, endCR );
+        combineResult.close();
         std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
 
