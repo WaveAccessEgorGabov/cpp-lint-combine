@@ -10,8 +10,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 endif ()
 
-# Boost version 1.72 has bug in boost::asio
-# bug reference: https://github.com/boostorg/process/issues/116
 if (WIN32)
     find_package(Boost 1.71 COMPONENTS REQUIRED)
 elseif (UNIX)
@@ -45,7 +43,8 @@ add_executable(runLinter src/main.cpp src/CallTotals.h
         src/LinterCombine.h src/LinterCombine.cpp
         src/UsualFactory.h src/UsualFactory.cpp
         src/ClangTidyWrapper.h src/ClangTidyWrapper.cpp
-        src/LinterBase.h src/LinterBase.cpp)
+        src/LinterBase.h src/LinterBase.cpp
+        src/LintCombineUtils.h src/LintCombineUtils.cpp)
 if (WIN32)
     target_link_libraries(runLinter yaml-cpp)
     target_link_directories(runLinter PRIVATE ${Boost_LIBRARY_DIR})

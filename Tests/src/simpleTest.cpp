@@ -2,6 +2,7 @@
 
 #include "../../src/LinterCombine.h"
 #include "../../src/LinterBase.h"
+#include "../../src/LintCombineUtils.h"
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/program_options.hpp>
@@ -1098,5 +1099,21 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
         combinedResult.close();
         std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
     }
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(TestPrepareCommandLine)
+
+	BOOST_AUTO_TEST_CASE(TestPrepareCommandLine) {
+	    char * argv[] = { "", "param1", "-p=pathToCompilationDataBase", "-export-fixes=pathToResultYaml", "param2" };
+        int argc = sizeof( argv ) / sizeof( char * );
+        char ** preparedCommandLine = prepareCommandLine( argc, argv );
+        char* result[] = { "", "--export-fixes=pathToResultYaml", "--sub-linter=clang-tidy", "param1", "param1",
+                                "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase/diagnosticsClangTidy.yaml",
+                                "--sub-linter=clazy-standalone", "-p=pathToCompilationDataBase",
+                                "--export-fixes=pathToCompilationDataBase/diagnosticsClazy.yaml", "-checks=level1" };
+        for( int i = 0; result[i] && argv[i]; ++i )
+            BOOST_CHECK( strcmp( argv[i], result[i] ) == 0 );
+	}
 
 BOOST_AUTO_TEST_SUITE_END()
