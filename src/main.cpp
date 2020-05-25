@@ -1,4 +1,5 @@
 #include "LinterCombine.h"
+#include "LintCombineUtils.h"
 
 #include <iostream>
 
