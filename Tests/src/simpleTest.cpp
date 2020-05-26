@@ -1102,18 +1102,22 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(TestPrepareCommandLine)
+BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
-	BOOST_AUTO_TEST_CASE(TestPrepareCommandLine) {
-	    char * argv[] = { "", "param1", "-p=pathToCompilationDataBase", "-export-fixes=pathToResultYaml", "param2" };
+    BOOST_AUTO_TEST_CASE( TestPrepareCommandLine ) {
+        char * argv[] = { "", "param1", "-p=pathToCompilationDataBase", "-export-fixes=pathToResultYaml", "param2" };
         int argc = sizeof( argv ) / sizeof( char * );
-        char * result[] = { "", "--export-fixes=pathToResultYaml", "--sub-linter=clang-tidy", "param1", "param1",
-                    "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase/diagnosticsClangTidy.yaml",
-                    "--sub-linter=clazy-standalone", "-p=pathToCompilationDataBase",
-                    "--export-fixes=pathToCompilationDataBase/diagnosticsClazy.yaml", "-checks=level1" };
-        char** preparedCommandLine = prepareCommandLine(argc, argv);
-        for( int i = 0; result[i] && preparedCommandLine[i]; ++i )
-            BOOST_CHECK( strcmp( argv[i], preparedCommandLine[i] ) == 0 );
-	}
+        char * result[] = { "", "-export-fixes=pathToResultYaml", "--sub-linter=clang-tidy", "param1", "param2",
+                            "-p=pathToCompilationDataBase",
+                            "-export-fixes=pathToCompilationDataBase/diagnosticsClangTidy.yaml",
+                            "--sub-linter=clazy-standalone", "-p=pathToCompilationDataBase",
+                            "-export-fixes=pathToCompilationDataBase/diagnosticsClazy.yaml", "-checks=level1" };
+        char ** preparedCommandLine = prepareCommandLine( argc, argv );
+
+        BOOST_CHECK( argc == 11 );
+        for( int i = 0; i < argc; ++i ) {
+            BOOST_CHECK( strcmp( result[ i ], preparedCommandLine[ i ] ) == 0 );
+        }
+    }
 
 BOOST_AUTO_TEST_SUITE_END()

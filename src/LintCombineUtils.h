@@ -1,4 +1,4 @@
 #pragma once
 
-char** prepareCommandLine( int argc, char ** argv );
+char ** prepareCommandLine( int & argc, char ** argv );
 
