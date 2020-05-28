@@ -849,7 +849,7 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 
     BOOST_AUTO_TEST_CASE( mergedYamlPathIsEmptyLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes=", "--sub-linter=clang-tidy",
+        LintCombine::stringVector commandLineSTL = { "--resultYaml=", "--sub-linter=clang-tidy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
@@ -863,7 +863,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlPathNotValidLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes=\\\\", "--sub-linter=clang-tidy",
+        LintCombine::stringVector commandLineSTL = { "--resultYaml=\\\\", "--sub-linter=clang-tidy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
@@ -876,7 +876,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathNotSet ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -885,7 +885,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathIsEmpty ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes= " };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -894,7 +894,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathNotValid ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -903,7 +903,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathNotExists ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -912,7 +912,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathExists ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--export-fixes="
@@ -930,7 +930,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidFirstLintersYamlPathNotSetSecondValid ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--sub-linter=clang-tidy",
@@ -949,7 +949,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathNotSet ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--sub-linter=clang-tidy" };
@@ -958,7 +958,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidFirstLintersYamlPathIsEmptySecondValid ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes= ",
                                                      "--sub-linter=clang-tidy",
@@ -977,7 +977,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathIsEmpty ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes= ",
                                                      "--sub-linter=clang-tidy", "--export-fixes= " };
@@ -986,7 +986,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidFirstLintersYamlPathNotValidSecondValid ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\",
                                                      "--sub-linter=clang-tidy",
@@ -1005,7 +1005,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathNotValid ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\" };
@@ -1014,7 +1014,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidFirstLintersYamlPathNotExistsSecondValid ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile",
                                                      "--sub-linter=clang-tidy",
@@ -1033,7 +1033,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathNotExists ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile" };
@@ -1042,7 +1042,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--export-fixes="
+        LintCombine::stringVector commandLineSTL = { "--resultYaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--export-fixes="
@@ -1069,7 +1069,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
     BOOST_AUTO_TEST_CASE( TestPrepareCommandLine ) {
         LintCombine::stringVector commandLineSTL = { "param1", "-p=pathToCompilationDataBase",
                                                      "-export-fixes=pathToResultYaml", "param2" };
-        LintCombine::stringVector result = { "", "-export-fixes=pathToResultYaml", "--sub-linter=clang-tidy",
+        LintCombine::stringVector result = { "-export-fixes=pathToResultYaml", "--sub-linter=clang-tidy",
                                              "param1", "param2",
                                              "-p=pathToCompilationDataBase",
                                              "-export-fixes=pathToCompilationDataBase/diagnosticsClangTidy.yaml",
@@ -1078,7 +1078,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                                              "-checks=level1" };
         LintCombine::prepareCommandLine( commandLineSTL );
 
-        BOOST_CHECK( commandLineSTL.size() == 11 );
+        BOOST_CHECK( commandLineSTL.size() == result.size() );
         for( size_t i = 0; i < commandLineSTL.size(); ++i ) {
             BOOST_CHECK( commandLineSTL[i] == result[i] );
         }

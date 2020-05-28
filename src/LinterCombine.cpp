@@ -120,7 +120,7 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( int argc, char ** argv
         else if( !argvAsString.find( "--help" ) || !argvAsString.find( "-h" ) ) {
             m_helpIsRequested = true;
         }
-        else if( !argvAsString.find( "--export-fixes=" ) ) {
+        else if( !argvAsString.find( "--resultYaml=" ) ) {
             m_mergedYamlPath = argvAsString.substr( std::string( "--export-fixes=" ).size(), argvAsString.size() );
             std::string mergedYamlFileName = boost::filesystem::path( m_mergedYamlPath ).filename().string();
             if( !boost::filesystem::portable_name( mergedYamlFileName ) ) {
