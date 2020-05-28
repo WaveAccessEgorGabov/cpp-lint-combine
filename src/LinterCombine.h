@@ -10,6 +10,9 @@
 namespace LintCombine {
     class LinterCombine final : public LinterItf {
     public:
+        explicit LinterCombine( stringVectorConstRef commandLineSTL,
+                                FactoryBase & factory = UsualFactory::getInstance() );
+
         explicit LinterCombine( int argc, char ** argv, FactoryBase & factory = UsualFactory::getInstance() );
 
         void callLinter() final;

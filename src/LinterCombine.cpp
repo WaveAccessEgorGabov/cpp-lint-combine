@@ -7,6 +7,10 @@
 #include <stdexcept>
 #include <boost/filesystem.hpp>
 
+LintCombine::LinterCombine::LinterCombine( stringVectorConstRef commandLineSTL,
+                                           LintCombine::FactoryBase & factory ) : services( factory.getServices() ) {
+}
+
 LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase & factory )
         : services( factory.getServices() ) {
     std::vector < std::vector < std::string > > subLintersCommandLineVV = splitCommandLineBySubLinters( argc, argv );
@@ -186,5 +190,3 @@ YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToY
     }
     return yamlNode;
 }
-
-

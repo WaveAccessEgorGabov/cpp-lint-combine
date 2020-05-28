@@ -6,6 +6,11 @@
 
 namespace po = boost::program_options;
 
+LintCombine::ClazyWrapper::ClazyWrapper( stringVectorConstRef commandLineSTL,
+                                         FactoryBase::Services & service )
+        : LinterBase( service ) {
+}
+
 LintCombine::ClazyWrapper::ClazyWrapper( int argc, char ** argv, FactoryBase::Services & service )
         : LinterBase( service ) {
     name = "clazy-standalone";
@@ -14,6 +19,9 @@ LintCombine::ClazyWrapper::ClazyWrapper( int argc, char ** argv, FactoryBase::Se
 
 void LintCombine::ClazyWrapper::updateYamlAction( const YAML::Node & yamlNode ) const {
     addDocLinkToYaml( yamlNode );
+}
+
+void LintCombine::ClazyWrapper::parseCommandLine( stringVectorConstRef commandLineSTL ) {
 }
 
 void LintCombine::ClazyWrapper::parseCommandLine( int argc, char ** argv ) {

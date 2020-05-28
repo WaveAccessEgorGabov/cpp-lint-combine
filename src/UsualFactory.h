@@ -19,6 +19,7 @@ namespace LintCombine {
         }
 
         std::shared_ptr < LinterItf > createLinter( int argc, char ** argv ) final;
+        std::shared_ptr < LinterItf > createLinter( stringVectorConstRef commandLineSTL ) final;
 
     private:
         UsualFactory() = default;

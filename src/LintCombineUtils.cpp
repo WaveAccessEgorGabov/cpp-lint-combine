@@ -1,11 +1,13 @@
 #include "LintCombineUtils.h"
 
 #include <boost/program_options.hpp>
-#include <iostream>
 
 namespace po = boost::program_options;
 
-char ** prepareCommandLine( int & argc, char ** argv ) {
+void LintCombine::prepareCommandLine( LintCombine::stringVectorConstRef commandLineSTL) {
+}
+
+char ** LintCombine::prepareCommandLine( int & argc, char ** argv ) {
     po::options_description programOptions;
     std::string pathToResultYaml;
     std::string pathToDiagnosticsDir;

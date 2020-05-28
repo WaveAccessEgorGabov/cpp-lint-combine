@@ -4,6 +4,11 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
+LintCombine::ClangTidyWrapper::ClangTidyWrapper( stringVectorConstRef commandLineSTL,
+                                                 FactoryBase::Services & service )
+        : LinterBase( service ) {
+}
+
 LintCombine::ClangTidyWrapper::ClangTidyWrapper( int argc, char ** argv, FactoryBase::Services & service )
         : LinterBase( service ) {
     name = "clang-tidy";
@@ -12,6 +17,9 @@ LintCombine::ClangTidyWrapper::ClangTidyWrapper( int argc, char ** argv, Factory
 
 void LintCombine::ClangTidyWrapper::updateYamlAction( const YAML::Node & yamlNode ) const {
     addDocLinkToYaml( yamlNode );
+}
+
+void LintCombine::ClangTidyWrapper::parseCommandLine( stringVectorConstRef commandLineSTL ) {
 }
 
 void LintCombine::ClangTidyWrapper::parseCommandLine( int argc, char ** argv ) {
