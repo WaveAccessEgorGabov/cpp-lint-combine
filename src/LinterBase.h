@@ -31,6 +31,8 @@ namespace LintCombine {
 
         virtual void parseCommandLine( int argc, char ** argv ) = 0;
 
+        virtual void parseCommandLine( stringVectorConstRef commandLineSTL ) = 0;
+
         std::string name;
         std::string options;
         std::string yamlPath;

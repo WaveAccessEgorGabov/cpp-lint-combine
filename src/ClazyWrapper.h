@@ -8,8 +8,12 @@ namespace LintCombine {
     public:
         ClazyWrapper( int argc, char ** argv, FactoryBase::Services & service );
 
+        ClazyWrapper( stringVectorConstRef commandLineSTL, FactoryBase::Services & service );
+
     private:
         void updateYamlAction( const YAML::Node & yamlNode ) const final;
+
+        void parseCommandLine( stringVectorConstRef commandLineSTL ) final;
 
         void parseCommandLine( int argc, char ** argv ) final;
 

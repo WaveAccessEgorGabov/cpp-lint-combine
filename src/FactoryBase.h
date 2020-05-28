@@ -4,6 +4,7 @@
 
 #include <boost/asio.hpp>
 #include <memory>
+#include <vector>
 
 namespace LintCombine {
     class FactoryBase {
@@ -25,6 +26,8 @@ namespace LintCombine {
         }
 
         virtual std::shared_ptr < LinterItf > createLinter( int argc, char ** argv ) = 0;
+
+        virtual std::shared_ptr < LinterItf > createLinter( stringVectorConstRef commandLineSTL ) = 0;
 
     protected:
 
