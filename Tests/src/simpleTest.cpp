@@ -7,8 +7,9 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/program_options.hpp>
 #include <boost/predef.h>
-#include <stdexcept>
+#include <fstream>
 #include <filesystem>
+#include <stdexcept>
 
 struct recoverFiles {
     ~recoverFiles() {
@@ -715,9 +716,9 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         }
         char * argv[] = {
                 "", "--sub-linter=MockWrapper",
-                const_cast <char *> (mockExecutableCommand_1.c_str()),
+                const_cast <char *> ( mockExecutableCommand_1.c_str() ),
                 "--sub-linter=MockWrapper",
-                const_cast <char *> (mockExecutableCommand_2.c_str())
+                const_cast <char *> ( mockExecutableCommand_2.c_str() )
         };
         int argc = sizeof( argv ) / sizeof( char * );
         LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
@@ -727,6 +728,68 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 0 );
         BOOST_CHECK( stdoutData == "First_stdout_mes_1\nSecond_stdout_mes_1\nFirst_stdout_mes_2\n" );
+    }
+
+    BOOST_AUTO_TEST_CASE( OneLinterEndsEarlierThatCombine ) {
+        std::ofstream( CURRENT_SOURCE_DIR "file_1.txt" );
+        std::string mockExecutableCommand_1;
+        if( BOOST_OS_WINDOWS ) {
+            mockExecutableCommand_1 =
+                    "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+                    CURRENT_SOURCE_DIR "file_1.txt";
+        }
+        if( BOOST_OS_LINUX ) {
+            mockExecutableCommand_1 =
+                    "sh " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+                    CURRENT_SOURCE_DIR "file_1.txt";
+        }
+        char * argv[] = {
+                "", "--sub-linter=MockWrapper",
+                const_cast <char *> ( mockExecutableCommand_1.c_str() )
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 0 );
+        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR "file_1.txt" ) );
+        std::filesystem::remove( CURRENT_SOURCE_DIR "file_1.txt" );
+    }
+
+    BOOST_AUTO_TEST_CASE( TwoLinterEndsEarlierThatCombine ) {
+        std::ofstream( CURRENT_SOURCE_DIR "file_1.txt" );
+        std::ofstream( CURRENT_SOURCE_DIR "file_2.txt" );
+        std::string mockExecutableCommand_1;
+        std::string mockExecutableCommand_2;
+        if( BOOST_OS_WINDOWS ) {
+            mockExecutableCommand_1 =
+                    "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+                    CURRENT_SOURCE_DIR"file_1.txt";
+            mockExecutableCommand_2 =
+                    "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
+                    CURRENT_SOURCE_DIR"file_2.txt";
+        }
+        if( BOOST_OS_LINUX ) {
+            mockExecutableCommand_1 =
+                    "sh " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+                    CURRENT_SOURCE_DIR"file_1.txt";
+            mockExecutableCommand_2 =
+                    "sh " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
+                    CURRENT_SOURCE_DIR"file_2.txt";
+        }
+        char * argv[] = {
+                "", "--sub-linter=MockWrapper",
+                const_cast <char *> ( mockExecutableCommand_1.c_str() ),
+                "--sub-linter=MockWrapper",
+                const_cast <char *> ( mockExecutableCommand_2.c_str() )
+        };
+        int argc = sizeof( argv ) / sizeof( char * );
+        LintCombine::LinterCombine linterCombine( argc, argv, LintCombine::MocksFactory::getInstance() );
+        linterCombine.callLinter();
+        BOOST_CHECK( linterCombine.waitLinter() == 0 );
+        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR "file_1.txt" ) );
+        std::filesystem::remove( CURRENT_SOURCE_DIR "file_1.txt" );
+        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR "file_2.txt" ) );
+        std::filesystem::remove( CURRENT_SOURCE_DIR "file_2.txt" );
     }
 
 BOOST_AUTO_TEST_SUITE_END()
