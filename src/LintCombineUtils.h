@@ -3,9 +3,9 @@
 #include "LinterItf.h"
 
 namespace LintCombine {
-    void prepareCommandLine( stringVectorConstRef commandLineSTL );
+    void prepareCommandLineForReSharper( stringVector & commandLineSTL );
 
-    char ** prepareCommandLine( int & argc, char ** argv );
+    void moveCommandLineToSTLContainer( stringVector & commandLineSTL, int argc, char ** argv );
 }
 
 

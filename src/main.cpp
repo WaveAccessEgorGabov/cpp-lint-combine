@@ -4,6 +4,11 @@
 #include <iostream>
 
 int main( const int argc, char * argv[] ) {
+    // TODO: add default and copy constructor to LinterCombine
+    LintCombine::stringVector commandLineSTL;
+    LintCombine::moveCommandLineToSTLContainer( commandLineSTL, argc, argv );
+    LintCombine::prepareCommandLineForReSharper( commandLineSTL );
+
     try {
         LintCombine::LinterCombine linterCombine( argc, argv );
         if( linterCombine.printTextIfRequested() ) {
