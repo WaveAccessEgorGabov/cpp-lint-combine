@@ -49,7 +49,7 @@ int LintCombine::LinterCombine::waitLinter() {
 const std::string & LintCombine::LinterCombine::getYamlPath() {
     if( !m_mergedYamlPath.empty() ) {
         for( const auto & subLinterIt : m_linters ) {
-            if( !subLinterIt->getYamlPath().empty() ) {
+            if( !subLinterIt->getYamlPath().empty() && boost::filesystem::exists( subLinterIt->getYamlPath() ) ) {
                 try {
                     mergeYaml( subLinterIt->getYamlPath() );
                 }
@@ -96,7 +96,7 @@ bool LintCombine::LinterCombine::printTextIfRequested() const {
 }
 
 /* ToDo:
- * research - Does boost::program_options useable here?
+ * research - Does boost::program_options useful here?
 */
 std::vector < std::vector < std::string > >
 LintCombine::LinterCombine::splitCommandLineBySubLinters( int argc, char ** argv ) {
@@ -124,7 +124,7 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( int argc, char ** argv
             m_mergedYamlPath = argvAsString.substr( std::string( "--export-fixes=" ).size(), argvAsString.size() );
             std::string mergedYamlFileName = boost::filesystem::path( m_mergedYamlPath ).filename().string();
             if( !boost::filesystem::portable_name( mergedYamlFileName ) ) {
-                std::cerr << mergedYamlFileName << " invalid!" << std::endl;
+                std::cerr << "\"" << mergedYamlFileName << "\"" << "is incorrect file name!" << std::endl;
                 m_mergedYamlPath = std::string();
             }
         }

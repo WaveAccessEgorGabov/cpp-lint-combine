@@ -42,8 +42,8 @@ void LintCombine::ClangTidyWrapper::parseCommandLine( int argc, char ** argv ) {
     }
 
     std::string yamlFileName = boost::filesystem::path( yamlPath ).filename().string();
-    if( !boost::filesystem::portable_name( yamlFileName ) || !boost::filesystem::exists( yamlPath ) ) {
-        std::cerr << yamlFileName << " not exist or invalid!" << std::endl;
+    if( !boost::filesystem::portable_name( yamlFileName ) ) {
+        std::cerr << "\"" << yamlFileName << "\"" << " is incorrect file name!" << std::endl;
         yamlPath = std::string();
     }
 }
