@@ -25,6 +25,7 @@ int main( const int argc, char * argv[] ) {
         if( callTotals.failNum ) {
             std::cout << "Updating " << callTotals.failNum << " yaml-files was failed" << std::endl;
         }
+        linterCombine.getYamlPath();
     }
     catch( const std::logic_error & ex ) {
         std::cerr << "std::logic_error exception. What(): " << ex.what() << std::endl;

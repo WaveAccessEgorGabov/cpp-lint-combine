@@ -5,7 +5,7 @@
 #include <iostream>
 
 void LintCombine::LinterBase::callLinter() {
-    linterProcess = boost::process::child( name,
+    linterProcess = boost::process::child( name + " " + options + "--export-fixes=" + yamlPath,
                                            boost::process::std_out > stdoutPipe,
                                            boost::process::std_err > stderrPipe );
     readFromPipeToStream( stdoutPipe, std::cout );
@@ -81,7 +81,8 @@ void LintCombine::LinterBase::parseCommandLine( stringVectorConstRef commandLine
     boost::program_options::variables_map vm;
     const boost::program_options::parsed_options parsed =
             boost::program_options::command_line_parser( commandLine ).
-                    options( programOptions ).allow_unregistered().run();
+                    options( programOptions ).style( boost::program_options::command_line_style::unix_style |
+                        boost::program_options::command_line_style::allow_long_disguise).allow_unregistered().run();
     boost::program_options::store( parsed , vm );
     std::vector < std::string > linterOptionsVec
             = boost::program_options::collect_unrecognized( parsed.options,

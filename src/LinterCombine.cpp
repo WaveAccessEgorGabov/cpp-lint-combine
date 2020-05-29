@@ -117,7 +117,7 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( stringVectorConstRef c
 
     std::vector < std::string > currentSubLinter;
     std::vector < std::vector < std::string > > subLintersVec;
-    for( int i = 0, linterNum = 0; i < commandLine.size(); ++i ) {
+    for( size_t i = 0, linterNum = 0; i < commandLine.size(); ++i ) {
         if( linterNum != lintersName.size() && commandLine[ i ] == "--sub-linter=" + lintersName[ linterNum ] ) {
             if( linterNum != 0 ) {
                 subLintersVec.emplace_back( currentSubLinter );
