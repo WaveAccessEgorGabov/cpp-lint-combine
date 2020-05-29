@@ -4,16 +4,15 @@
 #include "UsualFactory.h"
 #include "LinterItf.h"
 
+#include <boost/program_options.hpp>
 #include <memory>
 #include <vector>
 
 namespace LintCombine {
     class LinterCombine final : public LinterItf {
     public:
-        explicit LinterCombine( stringVectorConstRef commandLineSTL,
+        explicit LinterCombine( stringVectorConstRef commandLine,
                                 FactoryBase & factory = UsualFactory::getInstance() );
-
-        explicit LinterCombine( int argc, char ** argv, FactoryBase & factory = UsualFactory::getInstance() );
 
         void callLinter() final;
 
@@ -30,11 +29,11 @@ namespace LintCombine {
         bool printTextIfRequested() const;
 
     private:
-        std::vector < std::vector < std::string > > splitCommandLineBySubLinters( int argc, char ** argv );
+        std::vector < stringVector > splitCommandLineBySubLinters( stringVectorConstRef commandLine );
+
+        void checkYamlPathForCorrectness();
 
         void mergeYaml( const std::string & yamlPathToMerge ) const;
-
-        static char ** vectorStringToCharPP( const std::vector < std::string > & stringVector );
 
         static YAML::Node loadYamlNode( const std::string & pathToYaml );
 
@@ -42,5 +41,7 @@ namespace LintCombine {
         std::string m_mergedYamlPath;
         FactoryBase::Services & services;
         bool m_helpIsRequested = false;
+        // contain program options
+        boost::program_options::options_description genericOptDesc;
     };
 }

@@ -4,19 +4,18 @@
 #include <iostream>
 
 int main( const int argc, char * argv[] ) {
-    // TODO: add default and copy constructor to LinterCombine
     LintCombine::stringVector commandLineSTL;
     LintCombine::moveCommandLineToSTLContainer( commandLineSTL, argc, argv );
     LintCombine::prepareCommandLineForReSharper( commandLineSTL );
 
     try {
-        LintCombine::LinterCombine linterCombine( argc, argv );
+        LintCombine::LinterCombine linterCombine( commandLineSTL );
         if( linterCombine.printTextIfRequested() ) {
             return 0;
         }
         linterCombine.callLinter();
         const int linterReturnCode = linterCombine.waitLinter();
-        if( linterReturnCode == 1 ) {
+        if( linterReturnCode == 2 ) {
             std::cerr << "some linters are failed" << std::endl;
         }
         if( linterReturnCode == 3 ) {

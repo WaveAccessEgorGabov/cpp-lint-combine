@@ -3,18 +3,17 @@
 #include "UsualFactory.h"
 
 std::shared_ptr < LintCombine::LinterItf >
-LintCombine::UsualFactory::createLinter( stringVectorConstRef commandLineSTL ) {
-    return nullptr;
-}
-
-std::shared_ptr < LintCombine::LinterItf >
-LintCombine::UsualFactory::createLinter( int argc, char ** argv ) {
-    if( !strcmp( argv[ 0 ], "clang-tidy" ) ) {
-        return std::make_shared < LintCombine::ClangTidyWrapper >( argc, argv, getServices() );
+LintCombine::UsualFactory::createLinter( stringVectorConstRef subLinterCommandLine ) {
+    if( subLinterCommandLine[ 0 ] == "clang-tidy" ) {
+        return std::make_shared < LintCombine::ClangTidyWrapper >
+                ( stringVector( subLinterCommandLine.begin() + 1, subLinterCommandLine.end() ),
+                  this->getServices() );
     }
 
-    if( !strcmp( argv[ 0 ], "clazy" ) ) {
-        return std::make_shared < LintCombine::ClazyWrapper >( argc, argv, getServices() );
+    if( subLinterCommandLine[ 0 ] == "clazy" ) {
+        return std::make_shared < LintCombine::ClazyWrapper >
+                ( stringVector( subLinterCommandLine.begin() + 1, subLinterCommandLine.end() ),
+                  this->getServices() );
     }
 
     return nullptr;

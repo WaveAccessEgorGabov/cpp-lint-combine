@@ -27,11 +27,11 @@ namespace LintCombine {
 
         explicit LinterBase( FactoryBase::Services & service );
 
+        explicit LinterBase( stringVectorConstRef commandLine, FactoryBase::Services & service );
+
+        void parseCommandLine( stringVectorConstRef commandLine );
+
         virtual void updateYamlAction( const YAML::Node & yamlNode ) const = 0;
-
-        virtual void parseCommandLine( int argc, char ** argv ) = 0;
-
-        virtual void parseCommandLine( stringVectorConstRef commandLineSTL ) = 0;
 
         std::string name;
         std::string options;
@@ -42,6 +42,8 @@ namespace LintCombine {
     private:
         // Buffer for reading from pipes
         std::array < char, 64 > buffer = {};
+
+        void checkYamlPathForCorrectness();
 
         void readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & outputStream );
     };

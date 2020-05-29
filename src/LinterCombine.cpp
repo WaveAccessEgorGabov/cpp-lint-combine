@@ -2,27 +2,28 @@
 #include "../data/version.rsrc"
 
 #include <iostream>
-#include <vector>
-#include <memory>
-#include <stdexcept>
 #include <boost/filesystem.hpp>
 
-LintCombine::LinterCombine::LinterCombine( stringVectorConstRef commandLineSTL,
-                                           LintCombine::FactoryBase & factory ) : services( factory.getServices() ) {
+void LintCombine::LinterCombine::checkYamlPathForCorrectness() {
+    std::string yamlFileName = boost::filesystem::path( m_mergedYamlPath ).filename().string();
+    if( !boost::filesystem::portable_name( yamlFileName ) ) {
+        std::cerr << "\"" << yamlFileName << "\" is incorrect file name! (target yaml-path incorrect)" << std::endl;
+        m_mergedYamlPath = std::string();
+    }
 }
 
-LintCombine::LinterCombine::LinterCombine( int argc, char ** argv, FactoryBase & factory )
+LintCombine::LinterCombine::LinterCombine( stringVectorConstRef commandLine, LintCombine::FactoryBase & factory )
         : services( factory.getServices() ) {
-    std::vector < std::vector < std::string > > subLintersCommandLineVV = splitCommandLineBySubLinters( argc, argv );
-    for( const auto & subLinterIt : subLintersCommandLineVV ) {
-        char ** subLintersCommandLineCharPP = vectorStringToCharPP( subLinterIt );
-        std::shared_ptr < LinterItf > subLinter
-                = factory.createLinter( static_cast < int > ( subLinterIt.size() ), subLintersCommandLineCharPP );
-        delete[] ( subLintersCommandLineCharPP );
+    std::vector < stringVector > subLintersCommandLine = splitCommandLineBySubLinters( commandLine );
+    for( const auto & it : subLintersCommandLine ) {
+        std::shared_ptr < LinterItf > subLinter = factory.createLinter( it );
         if( subLinter == nullptr ) {
             throw std::logic_error( "Linter is not exists" );
         }
         m_linters.emplace_back( subLinter );
+    }
+    if( !m_helpIsRequested && !subLintersCommandLine.empty() ) {
+        checkYamlPathForCorrectness();
     }
 }
 
@@ -83,57 +84,59 @@ size_t LintCombine::LinterCombine::numLinters() const noexcept {
     return m_linters.size();
 }
 
-/* ToDo:
- * Print only name and version?
- * Or also program options (by using boost::program_options::options_description)?
-*/
 bool LintCombine::LinterCombine::printTextIfRequested() const {
     if( m_helpIsRequested ) {
         std::cout << "Product name: " << PRODUCTNAME_STR << std::endl;
         std::cout << "Product version: " << PRODUCTVERSION_STR << std::endl;
+        std::cout << "Program options: " << std::endl;
+        std::cout << genericOptDesc << std::endl;
     }
     return m_helpIsRequested;
 }
 
-/* ToDo:
- * research - Does boost::program_options useful here?
-*/
-std::vector < std::vector < std::string > >
-LintCombine::LinterCombine::splitCommandLineBySubLinters( int argc, char ** argv ) {
-    std::vector < std::vector < std::string > > subLinterVec;
+std::vector < LintCombine::stringVector >
+LintCombine::LinterCombine::splitCommandLineBySubLinters( stringVectorConstRef commandLine ) {
+    stringVector lintersName;
+    genericOptDesc.add_options()
+            ( "help", "print this message" )
+            ( "result-yaml", boost::program_options::value < std::string >( & m_mergedYamlPath ),
+              "path to yaml with diagnostics from all linters" )
+            ( "sub-linter",
+              boost::program_options::value < std::vector < std::string > >( & lintersName ),
+              "linter to use" );
+
+    boost::program_options::variables_map vm;
+    boost::program_options::store(
+            boost::program_options::command_line_parser( commandLine ).
+                    options( genericOptDesc ).allow_unregistered().run(), vm );
+    boost::program_options::notify( vm );
+
+    if( vm.count( "help" ) ) {
+        m_helpIsRequested = true;
+    }
+
     std::vector < std::string > currentSubLinter;
-    for( int i = 0; i < argc; ++i ) {
-        std::string argvAsString( argv[ i ] );
-        if( !argvAsString.find( "--sub-linter=" ) ) {
-            // if "--sub-linter=" is found again, add current sub-linter with options to subLinterVec
-            if( !currentSubLinter.empty() ) {
-                subLinterVec.emplace_back( currentSubLinter );
+    std::vector < std::vector < std::string > > subLintersVec;
+    for( int i = 0, linterNum = 0; i < commandLine.size(); ++i ) {
+        if( linterNum != lintersName.size() && commandLine[ i ] == "--sub-linter=" + lintersName[ linterNum ] ) {
+            if( linterNum != 0 ) {
+                subLintersVec.emplace_back( currentSubLinter );
                 currentSubLinter.clear();
             }
-            currentSubLinter.emplace_back(
-                    argvAsString.substr( std::string( "--sub-linter=" ).size(), argvAsString.size() ) );
+            currentSubLinter.emplace_back( lintersName[ linterNum ] );
+            if( i == commandLine.size() - 1 ) {
+                subLintersVec.emplace_back( currentSubLinter );
+            }
+            ++linterNum;
         }
-            // skip options before "--sub-linter="
         else if( !currentSubLinter.empty() ) {
-            currentSubLinter.emplace_back( argvAsString );
-        }
-        else if( !argvAsString.find( "--help" ) || !argvAsString.find( "-h" ) ) {
-            m_helpIsRequested = true;
-        }
-        else if( !argvAsString.find( "--resultYaml=" ) ) {
-            m_mergedYamlPath = argvAsString.substr( std::string( "--export-fixes=" ).size(), argvAsString.size() );
-            std::string mergedYamlFileName = boost::filesystem::path( m_mergedYamlPath ).filename().string();
-            if( !boost::filesystem::portable_name( mergedYamlFileName ) ) {
-                std::cerr << "\"" << mergedYamlFileName << "\"" << "is incorrect file name!" << std::endl;
-                m_mergedYamlPath = std::string();
+            currentSubLinter.emplace_back( commandLine[ i ] );
+            if( i == commandLine.size() - 1 ) {
+                subLintersVec.emplace_back( currentSubLinter );
             }
         }
-
-        if( i == argc - 1 && !currentSubLinter.empty() ) {
-            subLinterVec.emplace_back( currentSubLinter );
-        }
     }
-    return subLinterVec;
+    return subLintersVec;
 }
 
 void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge ) const {
@@ -168,13 +171,6 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
             std::cerr << "Exception while write result yaml. What(): " << ex.what() << std::endl;
         }
     }
-}
-
-char ** LintCombine::LinterCombine::vectorStringToCharPP( const std::vector < std::string > & stringVector ) {
-    char ** str = new char * [stringVector.size()];
-    for( size_t i = 0; i < stringVector.size(); ++i )
-        str[ i ] = const_cast< char * > ( stringVector[ i ].c_str() );
-    return str;
 }
 
 YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToYaml ) {

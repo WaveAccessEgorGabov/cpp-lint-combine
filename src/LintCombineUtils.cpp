@@ -20,16 +20,17 @@ void LintCombine::prepareCommandLineForReSharper( LintCombine::stringVector & co
     static std::vector < std::string > collectUnrecognized
             = po::collect_unrecognized( parsed.options, po::include_positional );
     commandLineSTL.clear();
-    commandLineSTL.emplace_back( "--resultYaml=" + pathToResultYaml );
+    commandLineSTL.emplace_back( "--result-yaml=" + pathToResultYaml );
     commandLineSTL.emplace_back( "--sub-linter=clang-tidy" );
-    commandLineSTL.emplace_back( "-p=" + pathToDiagnosticsDir );
-    commandLineSTL.emplace_back( "-export-fixes=" + pathToDiagnosticsDir + "/diagnosticsClangTidy.yaml" );
     for( const auto & it : collectUnrecognized ) {
         commandLineSTL.emplace_back( it );
     }
+    commandLineSTL.emplace_back( "-p=" + pathToDiagnosticsDir );
+    commandLineSTL.emplace_back( "--export-fixes=" + pathToDiagnosticsDir + "/diagnosticsClangTidy.yaml" );
     commandLineSTL.emplace_back( "--sub-linter=clazy" );
     commandLineSTL.emplace_back( "-p=" + pathToDiagnosticsDir );
-    commandLineSTL.emplace_back( "-export-fixes=" + pathToDiagnosticsDir + "/diagnosticsClazy.yaml" );
+    commandLineSTL.emplace_back( "--export-fixes=" + pathToDiagnosticsDir + "/diagnosticsClazy.yaml" );
+    commandLineSTL.emplace_back( "-checks=level1" );
 }
 
 void LintCombine::moveCommandLineToSTLContainer( stringVector & commandLineSTL, int argc, char ** argv ) {

@@ -1,5 +1,6 @@
 #include "LinterBase.h"
 
+#include <boost/program_options.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -65,6 +66,39 @@ const std::string & LintCombine::LinterBase::getYamlPath() {
 
 LintCombine::LinterBase::LinterBase( FactoryBase::Services & service )
         : stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
+}
+
+LintCombine::LinterBase::LinterBase( stringVectorConstRef commandLine, FactoryBase::Services & service )
+        : stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
+    parseCommandLine( commandLine );
+    checkYamlPathForCorrectness();
+}
+
+void LintCombine::LinterBase::parseCommandLine( stringVectorConstRef commandLine ) {
+    boost::program_options::options_description programOptions;
+    programOptions.add_options()
+            ( "export-fixes", boost::program_options::value < std::string >( & yamlPath ) );
+    boost::program_options::variables_map vm;
+    const boost::program_options::parsed_options parsed =
+            boost::program_options::command_line_parser( commandLine ).
+                    options( programOptions ).allow_unregistered().run();
+    boost::program_options::store( parsed , vm );
+    std::vector < std::string > linterOptionsVec
+            = boost::program_options::collect_unrecognized( parsed.options,
+                                                            boost::program_options::include_positional );
+    boost::program_options::notify( vm );
+
+    for( const auto & it : linterOptionsVec ) {
+        options.append( it + " " );
+    }
+}
+
+void LintCombine::LinterBase::checkYamlPathForCorrectness() {
+    std::string yamlFileName = boost::filesystem::path( yamlPath ).filename().string();
+    if( !boost::filesystem::portable_name( yamlFileName ) ) {
+        std::cerr << "\"" << yamlFileName << "\" is incorrect file name! (linter's yaml-path incorrect)" << std::endl;
+        yamlPath = std::string();
+    }
 }
 
 void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & outputStream ) {

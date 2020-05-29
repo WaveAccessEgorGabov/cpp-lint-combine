@@ -5,11 +5,10 @@
 #include "../../src/LintCombineUtils.h"
 
 #include <boost/test/included/unit_test.hpp>
-#include <boost/program_options.hpp>
 #include <boost/predef.h>
+#include <boost/program_options.hpp>
 #include <fstream>
 #include <filesystem>
-#include <stdexcept>
 
 struct recoverFiles {
     ~recoverFiles() {
@@ -46,20 +45,13 @@ private:
 namespace LintCombine {
     struct MockWrapper : LinterBase {
         MockWrapper( stringVectorConstRef commandLineSTL, FactoryBase::Services & service ) : LinterBase( service ) {
-            parseCommandLine( commandLineSTL );
-        }
-
-        void updateYamlAction( const YAML::Node & yamlNode ) const override {
-        }
-
-        void parseCommandLine( stringVectorConstRef commandLineSTL ) override {
-            name = commandLineSTL[ 0 ];
-            if( commandLineSTL.size() >= 2 ) {
-                yamlPath = commandLineSTL[ 1 ];
+            name = commandLineSTL[ 1 ];
+            if( commandLineSTL.size() >= 3 ) {
+                yamlPath = commandLineSTL[ 2 ];
             }
         }
 
-        void parseCommandLine( int argc, char ** argv ) {
+        void updateYamlAction( const YAML::Node & yamlNode ) const override {
         }
     };
 
@@ -84,10 +76,6 @@ namespace LintCombine {
                 return std::make_shared < MockWrapper >( commandLineSTL, getServices() );
             }
             return nullptr;
-        }
-
-        std::shared_ptr < LinterItf >
-        createLinter( int argc, char ** argv ) override {
         }
 
     private:
@@ -327,19 +315,21 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
     BOOST_AUTO_TEST_CASE( FirstTerminateSecondReturn0WriteToStreamsWriteToFile ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+        LintCombine::stringVector commandLine = { "--sub-linter=MockWrapper" };
         if( BOOST_OS_WINDOWS ) {
-            commandLineSTL.emplace_back(
+            commandLine.emplace_back(
                     "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
-            commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
+            commandLine.emplace_back( "--sub-linter=MockWrapper" );
+            commandLine.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
         }
         if( BOOST_OS_LINUX ) {
-            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
-            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
+            commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
+            commandLine.emplace_back( "--sub-linter=MockWrapper" );
+            commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
         }
 
-        LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+        LintCombine::LinterCombine linterCombine( commandLine, LintCombine::MocksFactory::getInstance() );
         linterCombine.callLinter();
         int linterCombineReturnCode = linterCombine.waitLinter();
         std::string stdoutData = stdoutCapture.getBufferData();
@@ -357,19 +347,21 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
 
     BOOST_AUTO_TEST_CASE( BothLintersTerminate ) {
         StreamCapture stdoutCapture( std::cout );
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+        LintCombine::stringVector commandLine = { "--sub-linter=MockWrapper" };
         if( BOOST_OS_WINDOWS ) {
-            commandLineSTL.emplace_back(
+            commandLine.emplace_back(
                     "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
-            commandLineSTL.emplace_back(
+            commandLine.emplace_back( "--sub-linter=MockWrapper" );
+            commandLine.emplace_back(
                     "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
         }
         if( BOOST_OS_LINUX ) {
-            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
-            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
+            commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
+            commandLine.emplace_back( "--sub-linter=MockWrapper" );
+            commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
         }
 
-        LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+        LintCombine::LinterCombine linterCombine( commandLine, LintCombine::MocksFactory::getInstance() );
         linterCombine.callLinter();
         int linterCombineReturnCode = linterCombine.waitLinter();
         std::string stdoutData = stdoutCapture.getBufferData();
@@ -381,19 +373,21 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
     BOOST_AUTO_TEST_CASE( FirstReturn1SecondReturn0WriteToStreamsWriteToFile ) {
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+        LintCombine::stringVector commandLine = { "--sub-linter=MockWrapper" };
         if( BOOST_OS_WINDOWS ) {
-            commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
-            commandLineSTL.emplace_back( CURRENT_SOURCE_DIR
+            commandLine.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
+            commandLine.emplace_back( "--sub-linter=MockWrapper" );
+            commandLine.emplace_back( CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
         }
         if( BOOST_OS_LINUX ) {
-            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
-            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
+            commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
+            commandLine.emplace_back( "--sub-linter=MockWrapper" );
+            commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
         }
 
-        LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+        LintCombine::LinterCombine linterCombine( commandLine, LintCombine::MocksFactory::getInstance() );
         linterCombine.callLinter();
         int linterCombineReturnCode = linterCombine.waitLinter();
         std::string stdoutData = stdoutCapture.getBufferData();
@@ -416,10 +410,12 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
         if( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.bat" );
         }
         if( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.sh" );
         }
 
@@ -510,10 +506,12 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
         if( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.bat" );
         }
         if( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.sh" );
         }
 
@@ -535,10 +533,12 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
         if( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
         }
         if( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh" );
         }
 
@@ -563,10 +563,12 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
         if( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
         }
         if( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh" );
         }
 
@@ -592,12 +594,14 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         if( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
         }
         if( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
         }
@@ -629,16 +633,14 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
         if( BOOST_OS_WINDOWS ) {
-            commandLineSTL.emplace_back( CURRENT_SOURCE_DIR
-                                         "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh" );
-            commandLineSTL.emplace_back( CURRENT_SOURCE_DIR
-                                         "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh" );
+            commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+            commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh" );
         }
         if( BOOST_OS_LINUX ) {
-            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
-                                         "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh" );
-            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
-                                         "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh" );
+            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+            commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh" );
         }
 
         LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
@@ -676,12 +678,14 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         if( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
                                          CURRENT_SOURCE_DIR"file_1.txt" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
                                          CURRENT_SOURCE_DIR"file_2.txt" );
         }
         if( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
                                          CURRENT_SOURCE_DIR "file_1.txt" );
+            commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
                                          CURRENT_SOURCE_DIR "file_2.txt" );
         }
@@ -849,10 +853,9 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 
     BOOST_AUTO_TEST_CASE( mergedYamlPathIsEmptyLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml=", "--sub-linter=clang-tidy",
+        LintCombine::stringVector commandLineSTL = { "--result-yaml=", "--sub-linter=clang-tidy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
-        BOOST_CHECK( linterCombine.getYamlPath().empty() );
+        BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, boost::program_options::error );
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlPathSetLintersYamlPathValid ) {
@@ -863,9 +866,10 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlPathNotValidLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml=\\\\", "--sub-linter=clang-tidy",
+        LintCombine::stringVector commandLineSTL = { "--result-yaml=\\\\", "--sub-linter=clang-tidy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
+        std::cout << "\"" << linterCombine.getYamlPath() << "\"" << std::endl;
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
     }
 
@@ -876,7 +880,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathNotSet ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -885,16 +889,14 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathIsEmpty ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
-                                                     "--sub-linter=clang-tidy", "--export-fixes= " };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
-        BOOST_CHECK( linterCombine.getYamlPath().empty() );
-        BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
+                                                     "--sub-linter=clang-tidy", "--export-fixes=" };
+        BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, boost::program_options::error );
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathNotValid ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -903,7 +905,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathNotExists ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -912,7 +914,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathExists ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--export-fixes="
@@ -930,7 +932,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidFirstLintersYamlPathNotSetSecondValid ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--sub-linter=clang-tidy",
@@ -949,7 +951,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathNotSet ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--sub-linter=clang-tidy" };
@@ -958,35 +960,25 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidFirstLintersYamlPathIsEmptySecondValid ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
-                                                     "--sub-linter=clang-tidy", "--export-fixes= ",
+                                                     "--sub-linter=clang-tidy", "--export-fixes=",
                                                      "--sub-linter=clang-tidy",
                                                      "--export-fixes="
                                                      CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
-        BOOST_CHECK( linterCombine.getYamlPath() == CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml" );
-        BOOST_REQUIRE( std::filesystem::exists( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" ) );
-        std::ifstream yamlFile( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
-        std::ifstream combinedResult( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
-        std::istream_iterator < char > yamlFileIt( yamlFile ), endYF;
-        std::istream_iterator < char > combinedResultIt( combinedResult ), endCR;
-        BOOST_CHECK_EQUAL_COLLECTIONS( yamlFileIt, endYF, combinedResultIt, endCR );
-        combinedResult.close();
-        std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/combinedResult.yaml" );
+        BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, boost::program_options::error );
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathIsEmpty ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
-                                                     "--sub-linter=clang-tidy", "--export-fixes= ",
-                                                     "--sub-linter=clang-tidy", "--export-fixes= " };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
-        BOOST_CHECK( linterCombine.getYamlPath().empty() );
+                                                     "--sub-linter=clang-tidy", "--export-fixes=",
+                                                     "--sub-linter=clang-tidy", "--export-fixes=" };
+        BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, boost::program_options::error );
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidFirstLintersYamlPathNotValidSecondValid ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\",
                                                      "--sub-linter=clang-tidy",
@@ -1005,7 +997,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathNotValid ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\" };
@@ -1014,7 +1006,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidFirstLintersYamlPathNotExistsSecondValid ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile",
                                                      "--sub-linter=clang-tidy",
@@ -1033,7 +1025,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathNotExists ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile" };
@@ -1042,7 +1034,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--resultYaml="
+        LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--export-fixes="
@@ -1069,18 +1061,18 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
     BOOST_AUTO_TEST_CASE( TestPrepareCommandLine ) {
         LintCombine::stringVector commandLineSTL = { "param1", "-p=pathToCompilationDataBase",
                                                      "-export-fixes=pathToResultYaml", "param2" };
-        LintCombine::stringVector result = { "-export-fixes=pathToResultYaml", "--sub-linter=clang-tidy",
+        LintCombine::stringVector result = { "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
                                              "param1", "param2",
                                              "-p=pathToCompilationDataBase",
-                                             "-export-fixes=pathToCompilationDataBase/diagnosticsClangTidy.yaml",
-                                             "--sub-linter=clazy-standalone", "-p=pathToCompilationDataBase",
-                                             "-export-fixes=pathToCompilationDataBase/diagnosticsClazy.yaml",
+                                             "--export-fixes=pathToCompilationDataBase/diagnosticsClangTidy.yaml",
+                                             "--sub-linter=clazy", "-p=pathToCompilationDataBase",
+                                             "--export-fixes=pathToCompilationDataBase/diagnosticsClazy.yaml",
                                              "-checks=level1" };
-        LintCombine::prepareCommandLine( commandLineSTL );
+        LintCombine::prepareCommandLineForReSharper( commandLineSTL );
 
         BOOST_CHECK( commandLineSTL.size() == result.size() );
         for( size_t i = 0; i < commandLineSTL.size(); ++i ) {
-            BOOST_CHECK( commandLineSTL[i] == result[i] );
+            BOOST_CHECK( commandLineSTL[ i ] == result[ i ] );
         }
     }
 
