@@ -4,12 +4,12 @@
 #include <iostream>
 
 int main( const int argc, char * argv[] ) {
-    LintCombine::stringVector commandLineSTL;
-    LintCombine::moveCommandLineToSTLContainer( commandLineSTL, argc, argv );
-    LintCombine::prepareCommandLineForReSharper( commandLineSTL );
+    LintCombine::stringVector commandLine;
+    LintCombine::moveCommandLineToSTLContainer( commandLine, argc, argv );
+    LintCombine::prepareCommandLineForReSharper( commandLine );
 
     try {
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        LintCombine::LinterCombine linterCombine( commandLine );
         if( linterCombine.printTextIfRequested() ) {
             return 0;
         }
