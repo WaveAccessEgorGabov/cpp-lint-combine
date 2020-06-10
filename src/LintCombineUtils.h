@@ -25,26 +25,22 @@ namespace LintCombine {
 
     class CommandLineOptions {
     public:
-        std::string& getPathToWorkDirRef() { return pathToWorkDir; }
-        std::string& getPathToCommonYamlRef() { return pathToCommonYaml; }
-        std::vector < std::string >& getUnrecognizedCollectionRef() { return unrecognizedCollection; }
-        void initCommandLine(std::vector < std::string >& commandLine);
+        void prepareCommandLineForReSharper ( stringVector & commandLine );
     private:
         static std::string optionValueToQuotes(const std::string& optionName, const std::string& optionNameWithValue);
         void addOptionToClangTidy(const std::string& option);
+        void initCommandLine ( stringVector & commandLine );
         void addOptionToAllLinters(const std::string& option);
-        void appendLintersOptionToCommandLine(std::vector < std::string >& commandLine);
+        void appendLintersOptionToCommandLine( stringVector & commandLine) const;
         void initUnrecognizedOptions();
-        void initLintCombineOptions(std::vector < std::string >& commandLine) const;
+        void initLintCombineOptions( stringVector & commandLine) const;
         std::vector < BaseLinterOptions* > lintersOptions;
         std::vector < std::string > unrecognizedCollection;
         std::string pathToCommonYaml;
         std::string pathToWorkDir;
     };
 
-    void prepareCommandLineForReSharper( stringVector & commandLine );
-
-    void moveCommandLineToSTLContainer( stringVector & commandLineSTL, int argc, char ** argv );
+    stringVector moveCommandLineToSTLContainer( const int argc, char ** argv );
 }
 
 
