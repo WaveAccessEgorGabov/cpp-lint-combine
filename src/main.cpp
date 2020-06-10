@@ -4,15 +4,9 @@
 #include <iostream>
 
 int main( const int argc, char * argv[] ) {
-    // TODO: check --verbatim-commands option
     LintCombine::stringVector commandLine = LintCombine::moveCommandLineToSTLContainer( argc, argv );
     LintCombine::CommandLineOptions commandLinePreparer;
     commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
-
-    for( const auto & it : commandLine ) {
-        std::cout << it << " ";
-    }
-    std::cout << std::endl;
     try {
         LintCombine::LinterCombine linterCombine( commandLine );
         if( linterCombine.printTextIfRequested() ) {

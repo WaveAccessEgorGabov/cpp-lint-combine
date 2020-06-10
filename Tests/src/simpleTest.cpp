@@ -1056,25 +1056,101 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-// ToDo: think about results of this test
-//BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
-//
-//    BOOST_AUTO_TEST_CASE( TestPrepareCommandLine ) {
-//        LintCombine::stringVector commandLineSTL = { "param1", "-p=pathToCompilationDataBase",
-//                                                     "-export-fixes=pathToResultYaml", "param2" };
-//        LintCombine::stringVector result = { "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
-//                                             "param1", "param2",
-//                                             "-p=pathToCompilationDataBase",
-//                                             "--export-fixes=pathToCompilationDataBase/diagnosticsClangTidy.yaml",
-//                                             "--sub-linter=clazy", "-p=pathToCompilationDataBase",
-//                                             "--export-fixes=pathToCompilationDataBase/diagnosticsClazy.yaml",
-//                                             "-checks=level1" };
-//        LintCombine::prepareCommandLineForReSharper( commandLineSTL );
-//
-//        BOOST_CHECK( commandLineSTL.size() == result.size() );
-//        for( size_t i = 0; i < commandLineSTL.size(); ++i ) {
-//            BOOST_CHECK( commandLineSTL[ i ] == result[ i ] );
-//        }
-//    }
-//
-//BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
+
+    void compareVectors( const LintCombine::stringVector & lhs, const LintCombine::stringVector & rhs ) {
+        BOOST_CHECK ( lhs.size () == rhs.size () );
+        for( size_t i = 0; i < lhs.size (); ++i ) {
+            BOOST_CHECK ( lhs[ i ] == rhs[ i ] );
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE( TestVerbatimOptionExists ) {
+        LintCombine::stringVector commandLine = { "-verbatim-commands", "param1",
+                                                  "-p=pathToCompilationDataBase",
+                                                  "-export-fixes=pathToResultYaml", "param2" };
+        LintCombine::stringVector result      = { "-verbatim-commands", "param1",
+                                                  "-p=pathToCompilationDataBase",
+                                                  "-export-fixes=pathToResultYaml", "param2" };
+
+        LintCombine::CommandLineOptions commandLinePreparer;
+        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( TestVerbatimOptionNotExists ) {
+        LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
+                                                  "-export-fixes=pathToResultYaml" };
+        LintCombine::stringVector result = {
+                "--result-yaml=pathToResultYaml",
+                "--sub-linter=clang-tidy",
+                "-p=pathToCompilationDataBase",
+                "--export-fixes=pathToCompilationDataBase\\diagnosticsClangTidy.yaml",
+                "--sub-linter=clazy",
+                "-p=pathToCompilationDataBase",
+                "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
+
+        LintCombine::CommandLineOptions commandLinePreparer;
+        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( TestOptionForClangTidy ) {
+        LintCombine::stringVector commandLine = { "-param_1",
+                                                  "@param_2" };
+        LintCombine::stringVector result = {
+                "--result-yaml=", "--sub-linter=clang-tidy",
+                "-p=", "--export-fixes=\\diagnosticsClangTidy.yaml",
+                "-param_1", "@param_2", "--sub-linter=clazy",
+                "-p=", "--export-fixes=\\diagnosticsClazy.yaml" };
+
+        LintCombine::CommandLineOptions commandLinePreparer;
+        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( TestFilesToAnalizeAreSet ) {
+        LintCombine::stringVector commandLine = { "file_1.cpp",
+                                                  "file_2.cpp" };
+        LintCombine::stringVector result = {
+                "--result-yaml=", "--sub-linter=clang-tidy",
+                "-p=", "--export-fixes=\\diagnosticsClangTidy.yaml",
+                "file_1.cpp", "file_2.cpp", "--sub-linter=clazy",
+                "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
+                "file_1.cpp", "file_2.cpp" };
+
+        LintCombine::CommandLineOptions commandLinePreparer;
+        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( TestHeaderFilterSet ) {
+        LintCombine::stringVector commandLine = { "-header-filter=file.cpp" };
+        const LintCombine::stringVector result = {
+                "--result-yaml=", "--sub-linter=clang-tidy",
+                "-p=", "--export-fixes=\\diagnosticsClangTidy.yaml",
+                "-header-filter=file.cpp", "--sub-linter=clazy",
+                "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
+                "-header-filter=file.cpp" };
+
+        LintCombine::CommandLineOptions commandLinePreparer;
+        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( TestClazyChecksAreSet ) {
+        LintCombine::stringVector commandLine = { "-header-filter=file.cpp" };
+        const LintCombine::stringVector result = {
+                "--result-yaml=", "--sub-linter=clang-tidy",
+                "-p=", "--export-fixes=\\diagnosticsClangTidy.yaml",
+                "-header-filter=file.cpp", "--sub-linter=clazy",
+                "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
+                "-header-filter=file.cpp" };
+
+        LintCombine::CommandLineOptions commandLinePreparer;
+        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        compareVectors ( commandLine, result );
+    }
+
+BOOST_AUTO_TEST_SUITE_END()

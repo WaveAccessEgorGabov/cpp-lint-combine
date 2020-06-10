@@ -58,7 +58,8 @@ void LintCombine::CommandLineOptions::initUnrecognizedOptions() {
 
 void LintCombine::CommandLineOptions::initCommandLine( stringVector & commandLine ) {
     commandLine.clear();
-    lintersOptions = { new ClangTidyOptions( pathToWorkDir ) , new ClazyOptions( pathToWorkDir ) };
+    lintersOptions = { new ClangTidyOptions( pathToWorkDir ) ,
+                       new ClazyOptions( pathToWorkDir, clazyChecks ) };
     initLintCombineOptions ( commandLine );
     initUnrecognizedOptions();
     appendLintersOptionToCommandLine( commandLine );
@@ -70,11 +71,13 @@ std::string LintCombine::CommandLineOptions::optionValueToQuotes(const std::stri
         optionNameWithValue.substr(optionName.size(), std::string::npos) + "\"";
 }
 
+// TODO: Figure out with one and two hyphens
 void LintCombine::CommandLineOptions::prepareCommandLineForReSharper( stringVector & commandLine ) {
     boost::program_options::options_description programOptions;
-    // TODO: add --verbatim-commands option
     programOptions.add_options()
-        ("export-fixes", boost::program_options::value < std::string >( &pathToCommonYaml ) )
+        ( "verbatim-commands", "pass options verbatim" )
+        ( "clazy-checks", boost::program_options::value < std::string > ( &clazyChecks ) )
+        ( "export-fixes", boost::program_options::value < std::string >( &pathToCommonYaml ) )
         ( "p", boost::program_options::value < std::string >( &pathToWorkDir ) );
     const boost::program_options::parsed_options parsed =
         boost::program_options::command_line_parser( commandLine ).options( programOptions )
@@ -84,7 +87,11 @@ void LintCombine::CommandLineOptions::prepareCommandLineForReSharper( stringVect
     boost::program_options::variables_map variablesMap;
     store(parsed, variablesMap);
     notify(variablesMap);
-    unrecognizedCollection = collect_unrecognized(parsed.options, boost::program_options::include_positional);
+    if( variablesMap.count( "verbatim-commands") ) {
+        return;
+    }
+    unrecognizedCollection =
+        collect_unrecognized(parsed.options, boost::program_options::include_positional);
     initCommandLine( commandLine );
 }
 
