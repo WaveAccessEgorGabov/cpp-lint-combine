@@ -34,10 +34,10 @@ void LintCombine::LinterCombine::callLinter() {
 
 int LintCombine::LinterCombine::waitLinter() {
     if( m_linters.empty() ) { return 0; }
-    uint returnCode = 1;
+    unsigned int returnCode = 1;
     m_services.getIO_Service().run();
     for( const auto & subLinterIt : m_linters ) {
-        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~(uint)1 ) : ( returnCode |= (uint)2 );
+        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~(unsigned int)1 ) : ( returnCode |= (unsigned int)2 );
     }
     return returnCode;
 }
