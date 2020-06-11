@@ -68,13 +68,13 @@ LintCombine::LinterBase::LinterBase( FactoryBase::Services & service )
         : stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
 }
 
-LintCombine::LinterBase::LinterBase( stringVectorConstRef commandLine, FactoryBase::Services & service )
+LintCombine::LinterBase::LinterBase( const stringVector & commandLine, FactoryBase::Services & service )
         : stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
     parseCommandLine( commandLine );
     checkYamlPathForCorrectness();
 }
 
-void LintCombine::LinterBase::parseCommandLine( stringVectorConstRef commandLine ) {
+void LintCombine::LinterBase::parseCommandLine( const stringVector & commandLine ) {
     boost::program_options::options_description programOptions;
     programOptions.add_options()
             ( "export-fixes", boost::program_options::value < std::string >( & yamlPath ) );

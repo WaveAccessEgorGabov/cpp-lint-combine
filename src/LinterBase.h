@@ -27,9 +27,9 @@ namespace LintCombine {
 
         explicit LinterBase( FactoryBase::Services & service );
 
-        explicit LinterBase( stringVectorConstRef commandLine, FactoryBase::Services & service );
+        explicit LinterBase( const stringVector & commandLine, FactoryBase::Services & service );
 
-        void parseCommandLine( stringVectorConstRef commandLine );
+        void parseCommandLine( const stringVector & commandLine );
 
         virtual void updateYamlAction( const YAML::Node & yamlNode ) const = 0;
 

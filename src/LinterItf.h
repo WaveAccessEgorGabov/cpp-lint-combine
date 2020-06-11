@@ -6,7 +6,6 @@
 
 namespace LintCombine {
     using stringVector = std::vector < std::string >;
-    using stringVectorConstRef = const stringVector &;
 
     class LinterItf {
     public:

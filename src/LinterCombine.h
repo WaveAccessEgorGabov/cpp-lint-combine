@@ -11,7 +11,7 @@
 namespace LintCombine {
     class LinterCombine final : public LinterItf {
     public:
-        explicit LinterCombine( stringVectorConstRef commandLine,
+        explicit LinterCombine( const stringVector & commandLine,
                                 FactoryBase & factory = UsualFactory::getInstance() );
 
         void callLinter() final;
@@ -29,7 +29,7 @@ namespace LintCombine {
         bool printTextIfRequested() const;
 
     private:
-        std::vector < stringVector > splitCommandLineBySubLinters( stringVectorConstRef commandLine );
+        std::vector < stringVector > splitCommandLineBySubLinters( const stringVector & commandLine );
 
         void checkYamlPathForCorrectness();
 
@@ -39,9 +39,9 @@ namespace LintCombine {
 
         std::vector < std::shared_ptr < LinterItf > > m_linters;
         std::string m_mergedYamlPath;
-        FactoryBase::Services & services;
+        FactoryBase::Services & m_services;
         bool m_helpIsRequested = false;
         // contain program options
-        boost::program_options::options_description genericOptDesc;
+        boost::program_options::options_description m_genericOptDesc;
     };
 }

@@ -12,8 +12,8 @@ void LintCombine::LinterCombine::checkYamlPathForCorrectness() {
     }
 }
 
-LintCombine::LinterCombine::LinterCombine( stringVectorConstRef commandLine, LintCombine::FactoryBase & factory )
-        : services( factory.getServices() ) {
+LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine, LintCombine::FactoryBase & factory )
+        : m_services( factory.getServices() ) {
     std::vector < stringVector > subLintersCommandLine = splitCommandLineBySubLinters( commandLine );
     for( const auto & it : subLintersCommandLine ) {
         std::shared_ptr < LinterItf > subLinter = factory.createLinter( it );
@@ -29,7 +29,7 @@ LintCombine::LinterCombine::LinterCombine( stringVectorConstRef commandLine, Lin
 
 void LintCombine::LinterCombine::callLinter() {
     // to continue work's of io_service
-    services.getIO_Service().restart();
+    m_services.getIO_Service().restart();
     for( const auto & subLinterIt : m_linters ) {
         subLinterIt->callLinter();
     }
@@ -40,7 +40,7 @@ int LintCombine::LinterCombine::waitLinter() {
         return 0;
     }
     int returnCode = 1;
-    services.getIO_Service().run();
+    m_services.getIO_Service().run();
     for( const auto & subLinterIt : m_linters ) {
         subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) : ( returnCode |= 2 );
     }
@@ -89,16 +89,17 @@ bool LintCombine::LinterCombine::printTextIfRequested() const {
         std::cout << "Product name: " << PRODUCTNAME_STR << std::endl;
         std::cout << "Product version: " << PRODUCTVERSION_STR << std::endl;
         std::cout << "Program options: " << std::endl;
-        std::cout << genericOptDesc << std::endl;
+        std::cout << m_genericOptDesc << std::endl;
     }
     return m_helpIsRequested;
 }
 
 std::vector < LintCombine::stringVector >
-LintCombine::LinterCombine::splitCommandLineBySubLinters( stringVectorConstRef commandLine ) {
+LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & commandLine ) {
     stringVector lintersName;
-    genericOptDesc.add_options()
+    m_genericOptDesc.add_options()
             ( "help", "print this message" )
+            ( " ", " " )
             ( "result-yaml", boost::program_options::value < std::string >( & m_mergedYamlPath ),
               "path to yaml with diagnostics from all linters" )
             ( "sub-linter",
@@ -108,15 +109,15 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( stringVectorConstRef c
     boost::program_options::variables_map vm;
     boost::program_options::store(
             boost::program_options::command_line_parser( commandLine ).
-                    options( genericOptDesc ).allow_unregistered().run(), vm );
+                    options( m_genericOptDesc ).allow_unregistered().run(), vm );
     boost::program_options::notify( vm );
 
     if( vm.count( "help" ) ) {
         m_helpIsRequested = true;
     }
 
-    std::vector < std::string > currentSubLinter;
-    std::vector < std::vector < std::string > > subLintersVec;
+    stringVector currentSubLinter;
+    std::vector < stringVector > subLintersVec;
     for( size_t i = 0, linterNum = 0; i < commandLine.size(); ++i ) {
         if( linterNum != lintersName.size() && commandLine[ i ] == "--sub-linter=" + lintersName[ linterNum ] ) {
             if( linterNum != 0 ) {

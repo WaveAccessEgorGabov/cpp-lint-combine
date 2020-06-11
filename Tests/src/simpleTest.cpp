@@ -44,10 +44,10 @@ private:
 
 namespace LintCombine {
     struct MockWrapper : LinterBase {
-        MockWrapper( stringVectorConstRef commandLineSTL, FactoryBase::Services & service ) : LinterBase( service ) {
-            name = commandLineSTL[ 1 ];
-            if( commandLineSTL.size() >= 3 ) {
-                yamlPath = commandLineSTL[ 2 ];
+        MockWrapper( const stringVector & commandLine, FactoryBase::Services & service ) : LinterBase( service ) {
+            name = commandLine[ 1 ];
+            if( commandLine.size() >= 3 ) {
+                yamlPath = commandLine[ 2 ];
             }
         }
 
@@ -71,7 +71,7 @@ namespace LintCombine {
         }
 
         std::shared_ptr < LinterItf >
-        createLinter( stringVectorConstRef commandLineSTL ) override {
+        createLinter( const stringVector & commandLineSTL ) override {
             if( commandLineSTL[ 0 ] == "MockWrapper" ) {
                 return std::make_shared < MockWrapper >( commandLineSTL, getServices() );
             }
@@ -1073,9 +1073,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                                                   "-p=pathToCompilationDataBase",
                                                   "-export-fixes=pathToResultYaml", "param2" };
 
-        LintCombine::CommandLineOptions commandLinePreparer;
-        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
-
+        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
     }
 
@@ -1091,8 +1089,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLineOptions commandLinePreparer;
-        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
     }
 
@@ -1105,8 +1102,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-param_1", "@param_2", "--sub-linter=clazy",
                 "-p=", "--export-fixes=\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLineOptions commandLinePreparer;
-        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
     }
 
@@ -1120,8 +1116,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
                 "file_1.cpp", "file_2.cpp" };
 
-        LintCombine::CommandLineOptions commandLinePreparer;
-        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
     }
 
@@ -1134,8 +1129,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
                 "-header-filter=file.cpp" };
 
-        LintCombine::CommandLineOptions commandLinePreparer;
-        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
     }
 
@@ -1148,8 +1142,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
                 "-header-filter=file.cpp" };
 
-        LintCombine::CommandLineOptions commandLinePreparer;
-        commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
     }
 

@@ -3,10 +3,10 @@
 
 #include <iostream>
 
-int main( const int argc, char * argv[] ) {
+int main( int argc, char * argv[] ) {
     LintCombine::stringVector commandLine = LintCombine::moveCommandLineToSTLContainer( argc, argv );
-    LintCombine::CommandLineOptions commandLinePreparer;
-    commandLinePreparer.prepareCommandLineForReSharper ( commandLine );
+    // Prepare command line for using in ReSharper
+    LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     try {
         LintCombine::LinterCombine linterCombine( commandLine );
         if( linterCombine.printTextIfRequested() ) {
