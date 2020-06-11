@@ -12,6 +12,12 @@ LintCombine::CommandLinePreparer::CommandLinePreparer( stringVector & commandLin
     }
 }
 
+std::string LintCombine::CommandLinePreparer::optionValueToQuotes( const std::string & optionName,
+                                                                   const std::string & optionNameWithValue ) {
+    return optionName + "\"" +
+           optionNameWithValue.substr( optionName.size(), std::string::npos ) + "\"";
+}
+
 void LintCombine::CommandLinePreparer::addOptionToClangTidy( const std::string & option ) {
     lintersOptions[ 0 ]->options.emplace_back( option );
 }
@@ -70,12 +76,6 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
     appendLintersOptionToCommandLine( commandLine );
 }
 
-std::string LintCombine::CommandLinePreparer::optionValueToQuotes( const std::string & optionName,
-                                                                   const std::string & optionNameWithValue ) {
-    return optionName + "\"" +
-           optionNameWithValue.substr( optionName.size(), std::string::npos ) + "\"";
-}
-
 // TODO: Figure out with one and two hyphens
 void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVector & commandLine ) {
     boost::program_options::options_description programOptions;
@@ -86,7 +86,7 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
             ( "p", boost::program_options::value < std::string >( & pathToWorkDir ) );
     const boost::program_options::parsed_options parsed =
             boost::program_options::command_line_parser( commandLine ).options( programOptions )
-                    .style( boost::program_options::command_line_style::long_allow_adjacent |
+                    .style( boost::program_options::command_line_style::default_style |
                             boost::program_options::command_line_style::allow_long_disguise )
                     .allow_unregistered().run();
     boost::program_options::variables_map variablesMap;

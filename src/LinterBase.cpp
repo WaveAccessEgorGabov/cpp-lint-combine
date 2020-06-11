@@ -18,9 +18,6 @@ int LintCombine::LinterBase::waitLinter() {
 }
 
 LintCombine::CallTotals LintCombine::LinterBase::updateYaml() const {
-    if( yamlPath.empty() ) {
-        return CallTotals( /*successNum=*/ 0, /*failNum=*/ 1 );
-    }
     YAML::Node yamlNode;
     try {
         yamlNode = YAML::LoadFile( yamlPath );
@@ -81,7 +78,7 @@ void LintCombine::LinterBase::parseCommandLine( const stringVector & commandLine
     boost::program_options::variables_map vm;
     const boost::program_options::parsed_options parsed =
             boost::program_options::command_line_parser( commandLine ).
-                    options( programOptions ).style( boost::program_options::command_line_style::unix_style |
+                    options( programOptions ).style( boost::program_options::command_line_style::default_style |
                         boost::program_options::command_line_style::allow_long_disguise).allow_unregistered().run();
     boost::program_options::store( parsed , vm );
     std::vector < std::string > linterOptionsVec

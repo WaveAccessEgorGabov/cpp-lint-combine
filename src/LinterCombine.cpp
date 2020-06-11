@@ -4,27 +4,24 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 
-void LintCombine::LinterCombine::checkYamlPathForCorrectness() {
-    std::string yamlFileName = boost::filesystem::path( m_mergedYamlPath ).filename().string();
-    if( !boost::filesystem::portable_name( yamlFileName ) ) {
-        std::cerr << "\"" << yamlFileName << "\" is incorrect file name! (target yaml-path incorrect)" << std::endl;
-        m_mergedYamlPath = std::string();
-    }
-}
-
 LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine, LintCombine::FactoryBase & factory )
         : m_services( factory.getServices() ) {
     std::vector < stringVector > subLintersCommandLine = splitCommandLineBySubLinters( commandLine );
+    if( m_helpIsRequested ) {
+        return;
+    }
     for( const auto & it : subLintersCommandLine ) {
         std::shared_ptr < LinterItf > subLinter = factory.createLinter( it );
         if( subLinter == nullptr ) {
-            throw std::logic_error( "Linter is not exists" );
+            std::cerr << "Linter is not exists!" << std::endl;
+            throw std::logic_error( "Linter is not exists!" );
         }
         m_linters.emplace_back( subLinter );
     }
-    if( !m_helpIsRequested && !subLintersCommandLine.empty() ) {
-        checkYamlPathForCorrectness();
+    if( m_linters.empty() ) {
+        std::cerr << "Warning not one linter was set!" << std::endl;
     }
+    checkYamlPathForCorrectness();
 }
 
 void LintCombine::LinterCombine::callLinter() {
@@ -36,13 +33,11 @@ void LintCombine::LinterCombine::callLinter() {
 }
 
 int LintCombine::LinterCombine::waitLinter() {
-    if( m_linters.empty() ) {
-        return 0;
-    }
-    int returnCode = 1;
+    if( m_linters.empty() ) { return 0; }
+    uint returnCode = 1;
     m_services.getIO_Service().run();
     for( const auto & subLinterIt : m_linters ) {
-        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) : ( returnCode |= 2 );
+        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~(uint)1 ) : ( returnCode |= (uint)2 );
     }
     return returnCode;
 }
@@ -99,7 +94,6 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
     stringVector lintersName;
     m_genericOptDesc.add_options()
             ( "help", "print this message" )
-            ( " ", " " )
             ( "result-yaml", boost::program_options::value < std::string >( & m_mergedYamlPath ),
               "path to yaml with diagnostics from all linters" )
             ( "sub-linter",
@@ -138,6 +132,14 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
         }
     }
     return subLintersVec;
+}
+
+void LintCombine::LinterCombine::checkYamlPathForCorrectness() {
+    std::string yamlFileName = boost::filesystem::path( m_mergedYamlPath ).filename().string();
+    if( !boost::filesystem::portable_name( yamlFileName ) ) {
+        std::cerr << "\"" << yamlFileName << "\" is incorrect file name! (target yaml-path incorrect)" << std::endl;
+        m_mergedYamlPath = std::string();
+    }
 }
 
 void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge ) const {

@@ -37,7 +37,8 @@ string(REGEX REPLACE "\\." "," LinterWrapperVersion ${LinterWrapperVersion})
 set(FILEVERSION_STR_IMPL ${LinterWrapperVersion})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/version.rsrc.in ${CMAKE_CURRENT_SOURCE_DIR}/data/version.rsrc @ONLY)
 
-add_executable(runCombine src/main.cpp src/CallTotals.h
+set(executableName cpp-lint-combine)
+add_executable(${executableName} src/main.cpp src/CallTotals.h
         src/LinterItf.h data/version.rsrc src/FactoryBase.h
         src/ClazyWrapper.h src/ClazyWrapper.cpp
         src/LinterCombine.h src/LinterCombine.cpp
@@ -46,10 +47,9 @@ add_executable(runCombine src/main.cpp src/CallTotals.h
         src/LinterBase.h src/LinterBase.cpp
         src/LintCombineUtils.h src/LintCombineUtils.cpp)
 if (WIN32)
-    target_link_libraries(runCombine yaml-cpp)
-    target_link_directories(runCombine PRIVATE ${Boost_LIBRARY_DIR})
-    target_sources(runCombine PRIVATE data/version.rc)
+    target_link_libraries(${executableName} yaml-cpp)
+    target_link_directories(${executableName} PRIVATE ${Boost_LIBRARY_DIR})
+    target_sources(${executableName} PRIVATE data/version.rc)
 elseif (UNIX)
-    target_link_libraries(runCombine yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
+    target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
 endif ()
-target_compile_definitions(runCombine PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")

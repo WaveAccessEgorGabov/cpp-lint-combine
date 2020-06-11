@@ -37,9 +37,9 @@ namespace LintCombine {
         static std::string
         optionValueToQuotes( const std::string & optionName, const std::string & optionNameWithValue );
 
-        void addOptionToClangTidy( const std::string & option );
-
         void initCommandLine( stringVector & commandLine );
+
+        void addOptionToClangTidy( const std::string & option );
 
         void addOptionToAllLinters( const std::string & option );
 
