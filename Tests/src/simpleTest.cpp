@@ -5,7 +5,6 @@
 #include "../../src/LintCombineUtils.h"
 
 #include <boost/test/included/unit_test.hpp>
-#include <boost/predef.h>
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <filesystem>
@@ -51,7 +50,7 @@ namespace LintCombine {
             }
         }
 
-        void updateYamlAction( const YAML::Node & yamlNode ) const override {
+        void updateYamlAction( const YAML::Node & ) const override {
         }
     };
 
@@ -275,11 +274,11 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
     BOOST_AUTO_TEST_CASE( LinterTerminate ) {
         StreamCapture stdoutCapture( std::cout );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back(
                     "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
         }
 
@@ -295,10 +294,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
         }
 
@@ -316,13 +315,13 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLine = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLine.emplace_back(
                     "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
             commandLine.emplace_back( "--sub-linter=MockWrapper" );
             commandLine.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
             commandLine.emplace_back( "--sub-linter=MockWrapper" );
             commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR
@@ -348,14 +347,14 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
     BOOST_AUTO_TEST_CASE( BothLintersTerminate ) {
         StreamCapture stdoutCapture( std::cout );
         LintCombine::stringVector commandLine = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLine.emplace_back(
                     "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
             commandLine.emplace_back( "--sub-linter=MockWrapper" );
             commandLine.emplace_back(
                     "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
             commandLine.emplace_back( "--sub-linter=MockWrapper" );
             commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
@@ -374,13 +373,13 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLine = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLine.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
             commandLine.emplace_back( "--sub-linter=MockWrapper" );
             commandLine.emplace_back( CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
             commandLine.emplace_back( "--sub-linter=MockWrapper" );
             commandLine.emplace_back( "sh " CURRENT_SOURCE_DIR
@@ -408,12 +407,12 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.sh" );
@@ -435,10 +434,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
         }
 
@@ -456,10 +455,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh" );
         }
 
@@ -477,10 +476,10 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh" );
         }
@@ -504,12 +503,12 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.sh" );
@@ -531,12 +530,12 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh" );
@@ -561,12 +560,12 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh" );
@@ -591,14 +590,14 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
                                          "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
@@ -632,12 +631,12 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         StreamCapture stdoutCapture( std::cout );
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh" );
@@ -655,11 +654,11 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
     BOOST_AUTO_TEST_CASE( OneLinterEndsEarlierThatCombine ) {
         std::ofstream( CURRENT_SOURCE_DIR "file_1.txt" );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
                                          CURRENT_SOURCE_DIR "file_1.txt" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
                                          CURRENT_SOURCE_DIR "file_1.txt" );
         }
@@ -675,14 +674,14 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         std::ofstream( CURRENT_SOURCE_DIR "file_1.txt" );
         std::ofstream( CURRENT_SOURCE_DIR "file_2.txt" );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
-        if( BOOST_OS_WINDOWS ) {
+        if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
                                          CURRENT_SOURCE_DIR"file_1.txt" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
             commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
                                          CURRENT_SOURCE_DIR"file_2.txt" );
         }
-        if( BOOST_OS_LINUX ) {
+        if constexpr ( BOOST_OS_LINUX ) {
             commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
                                          CURRENT_SOURCE_DIR "file_1.txt" );
             commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );

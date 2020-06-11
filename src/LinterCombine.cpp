@@ -37,7 +37,8 @@ int LintCombine::LinterCombine::waitLinter() {
     unsigned int returnCode = 1;
     m_services.getIO_Service().run();
     for( const auto & subLinterIt : m_linters ) {
-        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~(unsigned int)1 ) : ( returnCode |= (unsigned int)2 );
+        subLinterIt->waitLinter() == 0 ? ( returnCode &= static_cast< unsigned int >( ~1 ) ) :
+                                         ( returnCode |= static_cast< unsigned int >( 2 ) );
     }
     return returnCode;
 }
