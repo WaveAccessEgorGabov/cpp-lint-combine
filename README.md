@@ -8,17 +8,17 @@ Lint-combine is a tool that lets you combine several [linters](https://en.wikipe
 You can use lint-combine as a **command line tool**, or in [**ReSharper C++**](https://www.jetbrains.com/resharper-cpp/) — Visual Studio extension. 
 
 ### 2. Get the required tools 
-- **Boost** — minimum required version is **1.73.0**. Install from [here](https://www.boost.org/users/history/version_1_73_0.html).
+- **Boost** — minimum required version is **1.73.0**. Download from [here](https://www.boost.org/users/history/version_1_73_0.html) into "boost-src-dir".
 - **CMake** — minimum required version is **3.14**. Install from [here](https://cmake.org/download/).
 - **Git** — Install from [here](https://git-scm.com/download).
-- **Visual Studio** — required version is **2015+**. You can install Visual Studio 2019 from [here](https://visualstudio.microsoft.com/downloads/).
+- **Visual Studio** — required version is **2017+**. You can install Visual Studio 2019 from [here](https://visualstudio.microsoft.com/downloads/).
 
 ### 3. Build lint-combine  
 #### Windows
 ```sh
-git clone https://github.com/WaveAccessEgorGabov/cpp-lint-combine.git <lint-combine-source-dir>
+git clone --recurse-submodules https://github.com/WaveAccessEgorGabov/cpp-lint-combine.git <lint-combine-source-dir>
 git checkout develop
-cmake -S <lint-combine-source-dir> -B <lint-combine-build-dir>
+cmake -S <lint-combine-source-dir> -B <lint-combine-build-dir> -DCMAKE_PREFIX_PATH=<boost-src-dir>
 cmake --build <lint-combine-build-dir> --config Release
 ```
 
@@ -46,7 +46,9 @@ cmake -S <llvm-source-dir>/llvm -B <lvm-build-dir> -DLLVM_EXPORT_SYMBOLS_FOR_PLU
 cmake --build <llvm-build-dir> --config Release
 ```
 
-Add `lvm-build-dir/bin` to environment variable `PATH`.
+Add `llvm-build-dir/bin` to environment variable `PATH`.
+
+**Note:** the build may take around an hour.
 
 Install clazy:
 
@@ -72,4 +74,4 @@ Add `clazy-build-dir/bin` to environment variable `PATH`.
 #### 4.5 Set your own checks for clazy
 **1.** Open the `lint-combine-source-dir/cpp-lint-combine.cmd` file in a text editor.
  
-**2.** Specify desired checks/levels in the *CLAZY_CHECKS* variable.
+**2.** Specify desired checks/levels in the ```CLAZY_CHECKS``` variable.
