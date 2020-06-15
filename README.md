@@ -47,6 +47,7 @@ cmake --build <llvm-build-dir> --config Release
 ```
 
 Add path to `lvm-build-dir/bin` to environment variable `PATH`.
+Install clazy:
 
 ```sh
 git clone https://github.com/KDE/clazy.git <clazy-source-dir>
