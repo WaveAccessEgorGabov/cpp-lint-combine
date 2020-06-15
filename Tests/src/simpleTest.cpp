@@ -85,9 +85,15 @@ namespace LintCombine {
 BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
 
     BOOST_AUTO_TEST_CASE( emptyCommandLine ) {
+        StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = {};
         LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 0 );
+        const std::string str = stderrCapture.getBufferData();
+        BOOST_CHECK ( str.find ( "Product name" ) != std::string::npos );
+        BOOST_CHECK ( str.find ( "Product version" ) != std::string::npos );
+        BOOST_CHECK ( str.find ( "Program options" ) != std::string::npos );
+        BOOST_CHECK ( str.find ( "Product name" ) != std::string::npos );
     }
 
     BOOST_AUTO_TEST_CASE( OneNotExistentLinter ) {

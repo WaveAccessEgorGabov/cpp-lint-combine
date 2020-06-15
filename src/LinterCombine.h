@@ -26,6 +26,8 @@ namespace LintCombine {
 
         size_t numLinters() const noexcept;
 
+        bool printText ();
+
         bool printTextIfRequested() const;
 
     private:

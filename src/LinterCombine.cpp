@@ -20,6 +20,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine, Lin
     }
     if( m_linters.empty() ) {
         std::cerr << "Warning not one linter was set!" << std::endl;
+        printText ();
     }
     checkYamlPathForCorrectness();
 }
@@ -80,12 +81,20 @@ size_t LintCombine::LinterCombine::numLinters() const noexcept {
     return m_linters.size();
 }
 
+bool LintCombine::LinterCombine::printText () {
+    const bool saveHelpValue = m_helpIsRequested;
+    m_helpIsRequested = true;
+    const bool result = printTextIfRequested();
+    m_helpIsRequested = saveHelpValue;
+    return result;
+}
+
 bool LintCombine::LinterCombine::printTextIfRequested() const {
     if( m_helpIsRequested ) {
-        std::cout << "Product name: " << PRODUCTNAME_STR << std::endl;
-        std::cout << "Product version: " << PRODUCTVERSION_STR << std::endl;
-        std::cout << "Program options: " << std::endl;
-        std::cout << m_genericOptDesc << std::endl;
+        std::cerr << "Product name: " << PRODUCTNAME_STR << std::endl;
+        std::cerr << "Product version: " << PRODUCTVERSION_STR << std::endl;
+        std::cerr << "Program options: " << std::endl;
+        std::cerr << m_genericOptDesc << std::endl;
     }
     return m_helpIsRequested;
 }
