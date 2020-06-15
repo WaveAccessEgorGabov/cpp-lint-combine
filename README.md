@@ -11,7 +11,7 @@ You can use lint-combine as a **command line tool**, or in [**ReSharper C++**](h
 - **Boost** — minimum required version is **1.73.0**. Install from [here](https://www.boost.org/users/history/version_1_73_0.html).
 - **CMake** — minimum required version is **3.14**. Install from [here](https://cmake.org/download/).
 - **Git** — Install from [here](https://git-scm.com/download).
-- **Visual Studio** — minimum required version is **201***. You can install Visual Studio 2019 from [here](https://visualstudio.microsoft.com/ru/downloads/).
+- **Visual Studio** — required version is **2015+**. You can install Visual Studio 2019 from [here](https://visualstudio.microsoft.com/downloads/).
 
 ### 3. Build lint-combine  
 #### Windows
@@ -22,13 +22,13 @@ cmake -S <lint-combine-source-dir> -B <lint-combine-build-dir>
 cmake --build <lint-combine-build-dir> --config Release
 ```
 
-Add path to `lint-combine-build-dir/bin` to environment variable `PATH`.
+Add `lint-combine-build-dir/bin` to environment variable `PATH`.
 
 ### 4. Get lint-combine in Visual Studio, Windows
 You can use **lint-combine** via the ReSharper C++ Visual Studio extension. 
 #### 4.1 Install ReSharper 
 Lint-combine works in **ReSharper C++**, so you must install it. 
-You can install **ReSharper C++** from [here](https://www.jetbrains.com/resharper-cpp/). (free trial)
+You can install **ReSharper C++** from [here](https://www.jetbrains.com/resharper-cpp/) (free trial).
 #### 4.2 Supported linters
 Lint-combine supports the following linters:
 - **[clazy](https://github.com/KDE/clazy)**
@@ -46,7 +46,7 @@ cmake -S <llvm-source-dir>/llvm -B <lvm-build-dir> -DLLVM_EXPORT_SYMBOLS_FOR_PLU
 cmake --build <llvm-build-dir> --config Release
 ```
 
-Add path to `lvm-build-dir/bin` to environment variable `PATH`.
+Add `lvm-build-dir/bin` to environment variable `PATH`.
 
 Install clazy:
 
@@ -58,18 +58,18 @@ cmake -S <clazy-source-dir> -B <clazy-build-dir> -DCLANG_LIBRARY_IMPORT=<llvm-bu
 cmake --build <clazy-build-dir> --config Release
 ```
 
-Add path to `clazy-build-dir/bin` to environment variable `PATH`.
+Add `clazy-build-dir/bin` to environment variable `PATH`.
 
 #### 4.4 Set up ReSharper to use
-**1.** In Visual Studio go to: *Extentensions—>ReSharper—>Options—>Code Editing—>C++—>Clang-Tidy*.
+**1.** In Visual Studio go to: *Extentensions→ReSharper→Options→Code Editing→C++→Clang-Tidy*.
 
 **2.** Choose **Custom** in *Clang-Tidy executable to use*.
 
 **3.** Set path to `lint-combine-source-dir/cpp-lint-combine.cmd`.
 
-**4.** Set up **ReSharper C++** clang-tidy [settings](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html). 
+**4.** Tweak other ReSharper C++ clang-tidy [settings](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html) as desired.
 
 #### 4.5 Set your own checks for clazy
-**1.** Open file **lint-combine-source-dir/cpp-lint-combine.cmd**.
+**1.** Open the `lint-combine-source-dir/cpp-lint-combine.cmd` file in a text editor.
  
 **2.** Specify desired checks/levels in the *CLAZY_CHECKS* variable.
