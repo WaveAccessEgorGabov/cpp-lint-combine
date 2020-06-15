@@ -67,7 +67,7 @@ Add path to `clazy-build-dir/bin` to environment variable `PATH`.
 
 **3.** Set path to `lint-combine-source-dir/cpp-lint-combine.cmd`.
 
-**4.** Set up **ReSharper C++** clang-tidy [setting](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html). 
+**4.** Set up **ReSharper C++** clang-tidy [settings](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html). 
 
 #### 4.5 Set your own checks for clazy
 **1.** Open file **lint-combine-source-dir/cpp-lint-combine.cmd**.
