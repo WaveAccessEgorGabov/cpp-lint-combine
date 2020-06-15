@@ -3,9 +3,9 @@
 ### 1. Overview
 Lint-combine is a tool that let you combine several [linters](https://en.wikipedia.org/wiki/Lint_(software)).
 #### 1.1 What is a linter
-**lint**, or a **linter**, is a tool that analyzes source code to flag programming errors, bugs, stylistic errors, and suspicious constructs. [[1]](https://en.wikipedia.org/wiki/Lint_(software)).
+**lint**, or a **linter**, is a tool that analyzes source code to flag programming errors, bugs, stylistic errors, and suspicious constructs. 
 #### 1.2 Using lint-combine
-You can use lint-combine as a **command line tool**, or in [**ReSharper**](https://www.jetbrains.com/resharper/). 
+You can use lint-combine as a **command line tool**, or in [**ReSharper**](https://www.jetbrains.com/resharper/) - Visual Studio extension. 
 
 ### 2. Get the required tools 
 - **Boost** - minimum required version **1.73.0**. Install from [here](https://www.boost.org/users/history/version_1_73_0.html).
