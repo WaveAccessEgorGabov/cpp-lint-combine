@@ -11,9 +11,9 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif ()
 
 if (WIN32)
-    find_package(Boost 1.71 REQUIRED)
+    find_package(Boost 1.73 REQUIRED)
 elseif (UNIX)
-    find_package(Boost 1.71 COMPONENTS program_options thread filesystem REQUIRED)
+    find_package(Boost 1.73 COMPONENTS program_options thread filesystem REQUIRED)
 endif ()
 include_directories(${Boost_INCLUDE_DIR})
 
