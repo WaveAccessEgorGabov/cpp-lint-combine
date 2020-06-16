@@ -40,7 +40,7 @@ Lint-combine supports the following linters:
 It is necessary to install all supported linters and add path to the linters to the environment variable `PATH`. 
 
 #### 4.3 Get clazy
-Build llvm-10:
+**1.** Build llvm-10:
 ```sh
 git clone https://github.com/llvm/llvm-project.git <llvm-source-dir>
 cd <llvm-source-dir>
@@ -49,11 +49,11 @@ cmake -S <llvm-source-dir>/llvm -B <lvm-build-dir> -DLLVM_EXPORT_SYMBOLS_FOR_PLU
 cmake --build <llvm-build-dir> --config Release
 ```
 
-Add `llvm-build-dir/bin` to environment variable `PATH`.
-
 **Note:** the build may take around an hour.
 
-Build clazy:
+Add `llvm-build-dir/bin` to environment variable `PATH`.
+
+**2.** Build clazy:
 
 ```sh
 git clone https://github.com/KDE/clazy.git <clazy-source-dir>
