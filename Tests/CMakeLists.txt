@@ -1,5 +1,15 @@
 project(lintWrapperTesting)
 
+set(CMAKE_CXX_STANDARD 17)
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+	add_definitions(-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)  # for MSVC 2017
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 -D_WIN32_WINNT=0x0601")
+endif ()
+
 add_executable(runTests src/simpleTest.cpp
         ../src/LinterItf.h        ../src/CallTotals.h
         ../src/LinterBase.h       ../src/LinterBase.cpp
@@ -8,11 +18,12 @@ add_executable(runTests src/simpleTest.cpp
         ../src/LinterCombine.h    ../src/LinterCombine.cpp
         ../src/LintCombineUtils.h ../src/LintCombineUtils.cpp
         ../src/ClangTidyWrapper.h ../src/ClangTidyWrapper.cpp )
-target_link_libraries(runTests yaml-cpp)
 target_compile_definitions(runTests PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_compile_definitions(runTests PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 if (WIN32)
-    target_link_directories(runTests PRIVATE ${Boost_LIBRARY_DIRS})
+	target_link_libraries(runTests yaml-cpp)
+	target_link_directories(runTests PRIVATE ${Boost_LIBRARY_DIRS})
+	target_compile_definitions(runTests PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/../version.rsrc")
 elseif (UNIX)
     target_link_libraries(runTests yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
 endif ()

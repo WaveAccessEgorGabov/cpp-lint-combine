@@ -1,5 +1,5 @@
 #include "LinterCombine.h"
-#include "../data/version.rsrc"
+#include PATH_TO_VERSION_RESOURCE
 
 #include <iostream>
 #include <boost/filesystem.hpp>
