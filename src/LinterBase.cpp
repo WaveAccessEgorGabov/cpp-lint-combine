@@ -80,11 +80,10 @@ void LintCombine::LinterBase::parseCommandLine( const stringVector & commandLine
             boost::program_options::command_line_parser( commandLine ).
                     options( programOptions ).style( boost::program_options::command_line_style::default_style |
                         boost::program_options::command_line_style::allow_long_disguise).allow_unregistered().run();
-    boost::program_options::store( parsed , vm );
-    std::vector < std::string > linterOptionsVec
-            = boost::program_options::collect_unrecognized( parsed.options,
-                                                            boost::program_options::include_positional );
-    boost::program_options::notify( vm );
+    store( parsed , vm );
+    std::vector < std::string > linterOptionsVec = collect_unrecognized( parsed.options, 
+                                                                         boost::program_options::include_positional );
+    notify( vm );
 
     for( const auto & it : linterOptionsVec ) {
         options.append( it + " " );
@@ -92,7 +91,7 @@ void LintCombine::LinterBase::parseCommandLine( const stringVector & commandLine
 }
 
 void LintCombine::LinterBase::checkYamlPathForCorrectness() {
-    std::string yamlFileName = boost::filesystem::path( yamlPath ).filename().string();
+    const std::string yamlFileName = boost::filesystem::path( yamlPath ).filename().string();
     if( !boost::filesystem::portable_name( yamlFileName ) ) {
         std::cerr << "\"" << yamlFileName << "\" is incorrect file name! (linter's yaml-path incorrect)" << std::endl;
         yamlPath = std::string();
@@ -100,8 +99,8 @@ void LintCombine::LinterBase::checkYamlPathForCorrectness() {
 }
 
 void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & outputStream ) {
-    pipe.async_read_some( boost::process::buffer( buffer ), [ & ]( boost::system::error_code ec, size_t size ) {
-        outputStream.write( buffer.data(), size );
+    pipe.async_read_some( boost::process::buffer( m_buffer ), [ & ]( boost::system::error_code ec, size_t size ) {
+        outputStream.write( m_buffer.data(), size );
         if( !ec )
             readFromPipeToStream( pipe, outputStream );
     } );

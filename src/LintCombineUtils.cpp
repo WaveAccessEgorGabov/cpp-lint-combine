@@ -19,27 +19,27 @@ std::string LintCombine::CommandLinePreparer::optionValueToQuotes( const std::st
 }
 
 void LintCombine::CommandLinePreparer::addOptionToClangTidy( const std::string & option ) {
-    lintersOptions[ 0 ]->options.emplace_back( option );
+    m_lintersOptions[ 0 ]->options.emplace_back( option );
 }
 
 void LintCombine::CommandLinePreparer::addOptionToAllLinters( const std::string & option ) {
-    for( const auto & it : lintersOptions ) {
+    for( const auto & it : m_lintersOptions ) {
         it->options.emplace_back( option );
     }
 }
 
 void LintCombine::CommandLinePreparer::appendLintersOptionToCommandLine( stringVector & commandLine ) const {
-    for( const auto & it : lintersOptions ) {
+    for( const auto & it : m_lintersOptions ) {
         std::copy( it->options.begin(), it->options.end(), std::back_inserter( commandLine ) );
     }
 }
 
 void LintCombine::CommandLinePreparer::initLintCombineOptions( stringVector & commandLine ) const {
-    commandLine.emplace_back( "--result-yaml=" + pathToCommonYaml );
+    commandLine.emplace_back( "--result-yaml=" + m_pathToCommonYaml );
 }
 
 void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
-    for( auto & unrecognized : unrecognizedCollection ) {
+    for( auto & unrecognized : m_unrecognizedCollection ) {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         std::string strToCompare = "-config=";
         if( unrecognized.find( strToCompare ) == 0 ) {
@@ -69,8 +69,8 @@ void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
 
 void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLine ) {
     commandLine.clear();
-    lintersOptions = { new ClangTidyOptions( pathToWorkDir ),
-                       new ClazyOptions( pathToWorkDir, clazyChecks ) };
+    m_lintersOptions = { new ClangTidyOptions( m_pathToWorkDir ),
+                       new ClazyOptions( m_pathToWorkDir, m_clazyChecks ) };
     initLintCombineOptions( commandLine );
     initUnrecognizedOptions();
     appendLintersOptionToCommandLine( commandLine );
@@ -81,9 +81,9 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
     boost::program_options::options_description programOptions;
     programOptions.add_options()
             ( "verbatim-commands", "pass options verbatim" )
-            ( "clazy-checks", boost::program_options::value < std::string >( & clazyChecks ) )
-            ( "export-fixes", boost::program_options::value < std::string >( & pathToCommonYaml ) )
-            ( "p", boost::program_options::value < std::string >( & pathToWorkDir ) );
+            ( "clazy-checks", boost::program_options::value < std::string >( & m_clazyChecks ) )
+            ( "export-fixes", boost::program_options::value < std::string >( & m_pathToCommonYaml ) )
+            ( "p", boost::program_options::value < std::string >( & m_pathToWorkDir ) );
     const boost::program_options::parsed_options parsed =
             boost::program_options::command_line_parser( commandLine ).options( programOptions )
                     .style( boost::program_options::command_line_style::default_style |
@@ -95,7 +95,7 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
     if( variablesMap.count( "verbatim-commands" ) ) {
         return;
     }
-    unrecognizedCollection =
+    m_unrecognizedCollection =
             collect_unrecognized( parsed.options, boost::program_options::include_positional );
     initCommandLine( commandLine );
 }

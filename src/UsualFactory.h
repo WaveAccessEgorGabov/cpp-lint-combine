@@ -18,7 +18,7 @@ namespace LintCombine {
             return instance;
         }
 
-        std::shared_ptr < LinterItf > createLinter( const stringVector & subLinterCommandLine ) final;
+        std::shared_ptr < LinterItf > createLinter( const stringVector & subLinterCommandLine ) override;
 
     private:
         UsualFactory() = default;

@@ -41,7 +41,7 @@ namespace LintCombine {
         boost::process::async_pipe stderrPipe;
     private:
         // Buffer for reading from pipes
-        std::array < char, 64 > buffer = {};
+        std::array < char, 64 > m_buffer = {};
 
         void checkYamlPathForCorrectness();
 

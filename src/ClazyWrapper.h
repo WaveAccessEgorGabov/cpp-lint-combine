@@ -9,7 +9,7 @@ namespace LintCombine {
         ClazyWrapper( stringVector && commandLineSTL, FactoryBase::Services & service );
 
     private:
-        void updateYamlAction( const YAML::Node & yamlNode ) const final;
+        void updateYamlAction( const YAML::Node & yamlNode ) const override;
 
         static void addDocLinkToYaml( const YAML::Node & yamlNode );
     };

@@ -7,7 +7,7 @@ namespace LintCombine {
         std::vector < std::string > options;
     };
 
-    struct ClangTidyOptions : public BaseLinterOptions {
+    struct ClangTidyOptions : BaseLinterOptions {
         explicit ClangTidyOptions( const std::string & pathToWorkDir ) {
             options.emplace_back( "--sub-linter=clang-tidy" );
             options.emplace_back( "-p=" + pathToWorkDir );
@@ -15,7 +15,7 @@ namespace LintCombine {
         }
     };
 
-    struct ClazyOptions : public BaseLinterOptions {
+    struct ClazyOptions : BaseLinterOptions {
         explicit ClazyOptions( const std::string & pathToWorkDir,
                                const std::string & checks ) {
             options.emplace_back( "--sub-linter=clazy" );
@@ -49,11 +49,11 @@ namespace LintCombine {
 
         void initLintCombineOptions( stringVector & commandLine ) const;
 
-        std::vector < BaseLinterOptions * > lintersOptions;
-        std::vector < std::string > unrecognizedCollection;
-        std::string pathToCommonYaml;
-        std::string pathToWorkDir;
-        std::string clazyChecks;
+        std::vector < BaseLinterOptions * > m_lintersOptions;
+        std::vector < std::string > m_unrecognizedCollection;
+        std::string m_pathToCommonYaml;
+        std::string m_pathToWorkDir;
+        std::string m_clazyChecks;
     };
 
     stringVector moveCommandLineToSTLContainer( int argc, char ** argv );

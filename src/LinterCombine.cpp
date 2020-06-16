@@ -4,7 +4,7 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 
-LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine, LintCombine::FactoryBase & factory )
+LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine, FactoryBase & factory )
         : m_services( factory.getServices() ) {
     std::vector < stringVector > subLintersCommandLine = splitCommandLineBySubLinters( commandLine );
     if( m_helpIsRequested ) {
@@ -111,10 +111,9 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
               "linter to use" );
 
     boost::program_options::variables_map vm;
-    boost::program_options::store(
-            boost::program_options::command_line_parser( commandLine ).
-                    options( m_genericOptDesc ).allow_unregistered().run(), vm );
-    boost::program_options::notify( vm );
+    store( boost::program_options::command_line_parser( commandLine ).
+           options( m_genericOptDesc ).allow_unregistered().run(), vm );
+    notify( vm );
 
     if( vm.count( "help" ) ) {
         m_helpIsRequested = true;
@@ -145,7 +144,7 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
 }
 
 void LintCombine::LinterCombine::checkYamlPathForCorrectness() {
-    std::string yamlFileName = boost::filesystem::path( m_mergedYamlPath ).filename().string();
+    const std::string yamlFileName = boost::filesystem::path( m_mergedYamlPath ).filename().string();
     if( !boost::filesystem::portable_name( yamlFileName ) ) {
         std::cerr << "\"" << yamlFileName << "\" is incorrect file name! (target yaml-path incorrect)" << std::endl;
         m_mergedYamlPath = std::string();

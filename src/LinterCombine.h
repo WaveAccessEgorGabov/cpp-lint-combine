@@ -14,13 +14,13 @@ namespace LintCombine {
         explicit LinterCombine( const stringVector & commandLine,
                                 FactoryBase & factory = UsualFactory::getInstance() );
 
-        void callLinter() final;
+        void callLinter() override;
 
-        int waitLinter() final;
+        int waitLinter() override;
 
-        const std::string & getYamlPath() final;
+        const std::string & getYamlPath() override;
 
-        CallTotals updateYaml() const final;
+        CallTotals updateYaml() const override;
 
         std::shared_ptr < LinterItf > linterAt( int pos ) const;
 

@@ -5,13 +5,13 @@
 std::shared_ptr < LintCombine::LinterItf >
 LintCombine::UsualFactory::createLinter( const stringVector & subLinterCommandLine ) {
     if( subLinterCommandLine[ 0 ] == "clang-tidy" ) {
-        return std::make_shared < LintCombine::ClangTidyWrapper >
+        return std::make_shared < ClangTidyWrapper >
                 ( stringVector( subLinterCommandLine.begin() + 1, subLinterCommandLine.end() ),
                   this->getServices() );
     }
 
     if( subLinterCommandLine[ 0 ] == "clazy" ) {
-        return std::make_shared < LintCombine::ClazyWrapper >
+        return std::make_shared < ClazyWrapper >
                 ( stringVector( subLinterCommandLine.begin() + 1, subLinterCommandLine.end() ),
                   this->getServices() );
     }
