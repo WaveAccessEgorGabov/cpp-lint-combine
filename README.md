@@ -8,7 +8,8 @@ Lint-combine is a tool that lets you combine several [linters](https://en.wikipe
 You can use lint-combine as a **command line tool**, or in [**ReSharper C++**](https://www.jetbrains.com/resharper-cpp/) — Visual Studio extension. 
 
 ### 2. Get the required tools 
-- **Boost** — minimum required version is **1.73.0**. Download from [here](https://www.boost.org/users/history/version_1_73_0.html) into "boost-src-dir".
+- **Boost** — minimum required version is **1.73.0**. 
+Download and build (build Datetime, Regex, ProgramOptions and FileSystem is enough) or download and install prebuilt windows binaries from [here](https://www.boost.org/users/download/) into "boost-src-dir".
 - **CMake** — minimum required version is **3.14**. Install from [here](https://cmake.org/download/).
 - **Git** — Install from [here](https://git-scm.com/download).
 - **Visual Studio** — required version is **2017+**. You can install Visual Studio 2019 from [here](https://visualstudio.microsoft.com/downloads/).
@@ -17,9 +18,10 @@ You can use lint-combine as a **command line tool**, or in [**ReSharper C++**](h
 #### Windows
 ```sh
 git clone https://github.com/WaveAccessEgorGabov/cpp-lint-combine.git <lint-combine-source-dir>
+cd <lint-combine-source-dir>
 git checkout develop
 git submodule update --init --recursive yaml-cpp
-cmake -S <lint-combine-source-dir> -B <lint-combine-build-dir> -DCMAKE_PREFIX_PATH=<boost-src-dir>
+cmake -S <lint-combine-source-dir> -B <lint-combine-build-dir> -DBOOST_ROOT=<boost-src-dir>
 cmake --build <lint-combine-build-dir> --config Release
 ```
 
@@ -37,8 +39,8 @@ Lint-combine supports the following linters:
 
 It is necessary to install all supported linters and add path to the linters to the environment variable `PATH`. 
 
-#### 4.3 Install clazy
-Install llvm-10:
+#### 4.3 Get clazy
+Build llvm-10:
 ```sh
 git clone https://github.com/llvm/llvm-project.git <llvm-source-dir>
 cd <llvm-source-dir>
@@ -51,7 +53,7 @@ Add `llvm-build-dir/bin` to environment variable `PATH`.
 
 **Note:** the build may take around an hour.
 
-Install clazy:
+Build clazy:
 
 ```sh
 git clone https://github.com/KDE/clazy.git <clazy-source-dir>
@@ -71,7 +73,7 @@ Add `clazy-build-dir/bin` to environment variable `PATH`.
 **3.** Set path to `lint-combine-source-dir/cpp-lint-combine.cmd`.
 
 **4.** Tweak other ReSharper C++ clang-tidy [settings](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html) as desired.
-
+ 
 #### 4.5 Set your own checks for clazy
 **1.** Open the `lint-combine-source-dir/cpp-lint-combine.cmd` file in a text editor.
  
