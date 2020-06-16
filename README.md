@@ -16,8 +16,9 @@ You can use lint-combine as a **command line tool**, or in [**ReSharper C++**](h
 ### 3. Build lint-combine  
 #### Windows
 ```sh
-git clone --recurse-submodules https://github.com/WaveAccessEgorGabov/cpp-lint-combine.git <lint-combine-source-dir>
+git clone https://github.com/WaveAccessEgorGabov/cpp-lint-combine.git <lint-combine-source-dir>
 git checkout develop
+git submodule update --init --recursive yaml-cpp
 cmake -S <lint-combine-source-dir> -B <lint-combine-build-dir> -DCMAKE_PREFIX_PATH=<boost-src-dir>
 cmake --build <lint-combine-build-dir> --config Release
 ```
@@ -56,7 +57,7 @@ Install clazy:
 git clone https://github.com/KDE/clazy.git <clazy-source-dir>
 cd <clazy-source-dir>
 git checkout 1.6
-cmake -S <clazy-source-dir> -B <clazy-build-dir> -DCLANG_LIBRARY_IMPORT=<llvm-build-dir>/lib/clang.lib -DCMAKE_BUILD_TYPE=Release
+cmake -S <clazy-source-dir> -B <clazy-build-dir> -DCLANG_LIBRARY_IMPORT=<llvm-build-dir>/lib/clang.lib
 cmake --build <clazy-build-dir> --config Release
 ```
 
