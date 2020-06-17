@@ -13,8 +13,8 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine, Fac
     for( const auto & it : subLintersCommandLine ) {
         std::shared_ptr < LinterItf > subLinter = factory.createLinter( it );
         if( subLinter == nullptr ) {
-            std::cerr << "Linter is not exists!" << std::endl;
-            throw std::logic_error( "Linter is not exists!" );
+            std::cerr << "Linter not exists!" << std::endl;
+            throw std::logic_error( "Linter not exists!" );
         }
         m_linters.emplace_back( subLinter );
     }

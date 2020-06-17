@@ -51,7 +51,7 @@ namespace LintCombine {
         void initLintCombineOptions( stringVector & commandLine ) const;
 
         std::vector < BaseLinterOptions * > m_lintersOptions;
-        std::vector < std::string > m_unrecognizedCollection;
+        stringVector m_unrecognizedCollection;
         std::string m_pathToCommonYaml;
         std::string m_pathToWorkDir;
         std::string m_clazyChecks;

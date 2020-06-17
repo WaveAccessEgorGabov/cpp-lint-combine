@@ -15,7 +15,7 @@ set(Boost_USE_RELEASE_LIBS ON)  # only find release libs
 find_package(Boost 1.73 OPTIONAL_COMPONENTS program_options thread filesystem date_time REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
-add_subdirectory(Tests)
+add_subdirectory(test)
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "disable parse tools")
 add_subdirectory(yaml-cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include)
