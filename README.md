@@ -11,7 +11,7 @@ You can use lint-combine as a **command line tool**, or in [**ReSharper C++**](h
 - **Boost** — minimum required version is **1.73.0**. 
 Download and build (at least Datetime, Regex, ProgramOptions, and FileSystem) from [sources](https://www.boost.org/users/download/) or download and install [prebuilt Windows binaries](https://sourceforge.net/projects/boost/files/boost-binaries/) into “`<boost-dir>`” (substitute a path of your choosing).
 - **CMake** — minimum required version is **3.14**. Install from [here](https://cmake.org/download/).
-- **Git** — Install from [here](https://git-scm.com/download).
+- **Git** — Install from [here](https://git-scm.com/download). Ensure that Git's `bin` directory is listed in `PATH` earlier than any other directory containing `sh.exe` (or any other file invoked by the `sh` command).
 - **Visual Studio** — required version is **2017+**. You can install Visual Studio 2019 from [here](https://visualstudio.microsoft.com/downloads/).
 
 ### 3. Build lint-combine  
@@ -25,16 +25,18 @@ cmake -S <lint-combine-source-dir> -B <lint-combine-build-dir> -A x64 -DBOOST_RO
 cmake --build <lint-combine-build-dir> --config Release
 ```
 
-Add `lint-combine-build-dir/bin` to environment variable `PATH`.
+Add `<lint-combine-build-dir>/Release` to environment variable `PATH`.
 
 #### Run tests
-**1.** cmake --open `lint-combine-build-dir/Tests`
+**1.** cmake --open `<lint-combine-build-dir>`
 
-**2.** In Visual Studio go to: *Extensions→ReSharper→Unit Tests*.
+**2.** Choose Solution Configuration **Release**
 
-**3.** Choose **Run All Tests from Solution**.
+**3.** In Visual Studio go to: *Extensions→ReSharper→Unit Tests*.
 
-**4.** Tests passed success if the number of *Failed Tests* is equal to zero.
+**4.** Choose **Run All Tests from Solution**.
+
+**5.** Tests passed successfully if the number of *Failed Tests* is equal to zero.
 
 ### 4. Get lint-combine in Visual Studio, Windows
 You can use **lint-combine** via the ReSharper C++ Visual Studio extension. 
