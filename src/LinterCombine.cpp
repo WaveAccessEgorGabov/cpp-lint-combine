@@ -146,7 +146,7 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
 void LintCombine::LinterCombine::checkYamlPathForCorrectness() {
     const std::string yamlFileName = boost::filesystem::path( m_mergedYamlPath ).filename().string();
     if( !boost::filesystem::portable_name( yamlFileName ) ) {
-        std::cerr << "\"" << yamlFileName << "\" is incorrect file name! (target yaml-path incorrect)" << std::endl;
+        std::cerr << "\"" << yamlFileName << "\" is an incorrect file name! (target yaml-path incorrect)" << std::endl;
         m_mergedYamlPath = std::string();
     }
 }

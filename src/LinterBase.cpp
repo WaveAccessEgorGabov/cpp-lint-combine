@@ -93,7 +93,7 @@ void LintCombine::LinterBase::parseCommandLine( const stringVector & commandLine
 void LintCombine::LinterBase::checkYamlPathForCorrectness() {
     const std::string yamlFileName = boost::filesystem::path( yamlPath ).filename().string();
     if( !boost::filesystem::portable_name( yamlFileName ) ) {
-        std::cerr << "\"" << yamlFileName << "\" is incorrect file name! (linter's yaml-path incorrect)" << std::endl;
+        std::cerr << "\"" << yamlFileName << "\" is an incorrect file name! (linter's yaml-path incorrect)" << std::endl;
         yamlPath = std::string();
     }
 }
