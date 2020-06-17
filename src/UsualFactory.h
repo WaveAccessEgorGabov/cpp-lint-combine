@@ -4,6 +4,7 @@
 
 namespace LintCombine {
     class UsualFactory final : public FactoryBase {
+
     public:
         UsualFactory( UsualFactory & ) = delete;
 

@@ -55,6 +55,7 @@ namespace LintCombine {
     };
 
     class MocksFactory : public FactoryBase {
+
     public:
         MocksFactory( const MocksFactory & ) = delete;
 
@@ -97,17 +98,17 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( OneNotExistentLinter ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=NotExistentLinter" };
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=NotExistentLinter" };
         BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, std::logic_error );
     }
 
     BOOST_AUTO_TEST_CASE( FirstLinterNotExistentSecondExists ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=NotExistentLinter", "--sub-linter=clazy" };
+    const LintCombine::stringVector commandLineSTL = { "--sub-linter=NotExistentLinter", "--sub-linter=clazy" };
         BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, std::logic_error );
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersNotExistent ) {
-        LintCombine::stringVector commandLineSTL = { "", "--sub-linter=NotExistentLinter_1",
+    const LintCombine::stringVector commandLineSTL = { "", "--sub-linter=NotExistentLinter_1",
                                                      "--sub-linter=NotExistentLinter_2" };
         BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, std::logic_error );
     }

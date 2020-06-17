@@ -8,6 +8,7 @@ namespace LintCombine {
     using stringVector = std::vector < std::string >;
 
     class LinterItf {
+
     public:
         virtual ~LinterItf() = default;
 

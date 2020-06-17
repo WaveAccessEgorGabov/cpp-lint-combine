@@ -8,10 +8,12 @@
 
 namespace LintCombine {
     class FactoryBase {
+
     public:
         virtual ~FactoryBase() = default;
 
         class Services {
+
         public:
             boost::asio::io_service & getIO_Service() {
                 return m_ios;
@@ -28,7 +30,6 @@ namespace LintCombine {
         virtual std::shared_ptr < LinterItf > createLinter( const stringVector & commandLineSTL ) = 0;
 
     protected:
-
         Services services;
     };
 }

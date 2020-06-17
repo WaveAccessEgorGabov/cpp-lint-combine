@@ -28,6 +28,7 @@ namespace LintCombine {
     };
 
     class CommandLinePreparer {
+
     public:
         CommandLinePreparer( stringVector & commandLine, std::string && toolName );
 

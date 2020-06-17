@@ -10,6 +10,7 @@
 
 namespace LintCombine {
     class LinterCombine final : public LinterItf {
+
     public:
         explicit LinterCombine( const stringVector & commandLine,
                                 FactoryBase & factory = UsualFactory::getInstance() );

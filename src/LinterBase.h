@@ -8,6 +8,7 @@
 
 namespace LintCombine {
     class LinterBase : public LinterItf {
+
     public:
         void callLinter() override;
 
@@ -24,7 +25,6 @@ namespace LintCombine {
         ~LinterBase() override = default;
 
     protected:
-
         explicit LinterBase( FactoryBase::Services & service );
 
         explicit LinterBase( const stringVector & commandLine, FactoryBase::Services & service );
@@ -39,6 +39,7 @@ namespace LintCombine {
         boost::process::child linterProcess;
         boost::process::async_pipe stdoutPipe;
         boost::process::async_pipe stderrPipe;
+
     private:
         // Buffer for reading from pipes
         std::array < char, 64 > m_buffer = {};

@@ -5,6 +5,7 @@
 
 namespace LintCombine {
     class ClangTidyWrapper final : public LinterBase {
+
     public:
         ClangTidyWrapper( stringVector && commandLine, FactoryBase::Services & service );
 

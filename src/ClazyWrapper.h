@@ -5,6 +5,7 @@
 
 namespace LintCombine {
     class ClazyWrapper final : public LinterBase {
+
     public:
         ClazyWrapper( stringVector && commandLineSTL, FactoryBase::Services & service );
 
