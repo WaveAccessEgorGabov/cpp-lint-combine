@@ -28,11 +28,13 @@ cmake --build <lint-combine-build-dir> --config Release
 Add `lint-combine-build-dir/bin` to environment variable `PATH`.
 
 #### Run tests
-**1.** In Visual Studio go to: *Extensions→ReSharper→Unit Tests*.
+**1.** cmake --open `lint-combine-build-dir/Tests`
 
-**2.** Choose **Run All Tests from Solution**.
+**2.** In Visual Studio go to: *Extensions→ReSharper→Unit Tests*.
 
-**3.** Tests passed success if the number of *Failed Tests* is equal to zero.
+**3.** Choose **Run All Tests from Solution**.
+
+**4.** Tests passed success if the number of *Failed Tests* is equal to zero.
 
 ### 4. Get lint-combine in Visual Studio, Windows
 You can use **lint-combine** via the ReSharper C++ Visual Studio extension. 
