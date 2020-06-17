@@ -32,7 +32,7 @@ Add `lint-combine-build-dir/bin` to environment variable `PATH`.
 
 **2.** Choose **Run All Tests from Solution**.
 
-**3.** Tests passed success if the number of *Failed Tests* is equal zero.
+**3.** Tests passed success if the number of *Failed Tests* is equal to zero.
 
 ### 4. Get lint-combine in Visual Studio, Windows
 You can use **lint-combine** via the ReSharper C++ Visual Studio extension. 
