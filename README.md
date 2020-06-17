@@ -36,7 +36,7 @@ Add `<lint-combine-build-dir>/Release` to environment variable `PATH`.
 
 **4.** Choose **Run All Tests from Solution**.
 
-**5.** Tests passed successfully if the number of *Failed Tests* is equal to zero.
+**5.** Tests passed successfully if the number of *Failed Tests* is zero.
 
 ### 4. Get lint-combine in Visual Studio, Windows
 You can use **lint-combine** via the ReSharper C++ Visual Studio extension. 
