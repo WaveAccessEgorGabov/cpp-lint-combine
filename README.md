@@ -27,6 +27,13 @@ cmake --build <lint-combine-build-dir> --config Release
 
 Add `lint-combine-build-dir/bin` to environment variable `PATH`.
 
+#### Run tests
+**1.** In Visual Studio go to: *Extensions→ReSharper→Unit Tests*.
+
+**2.** Choose **Run All Tests from Solution**.
+
+**3.** Tests passed success if the number of *All Tests* is equal to the number of *Passed Tests*
+
 ### 4. Get lint-combine in Visual Studio, Windows
 You can use **lint-combine** via the ReSharper C++ Visual Studio extension. 
 #### 4.1 Install ReSharper 
@@ -66,7 +73,7 @@ cmake --build <clazy-build-dir> --config Release
 Add `clazy-build-dir/bin` to environment variable `PATH`.
 
 #### 4.4 Set up ReSharper to use
-**1.** In Visual Studio go to: *Extentensions→ReSharper→Options→Code Editing→C++→Clang-Tidy*.
+**1.** In Visual Studio go to: *Extentions→ReSharper→Options→Code Editing→C++→Clang-Tidy*.
 
 **2.** Choose **Custom** in *Clang-Tidy executable to use*.
 
