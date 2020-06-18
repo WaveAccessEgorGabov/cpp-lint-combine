@@ -8,7 +8,7 @@ Lint-combine is a tool that lets you combine several [linters](https://en.wikipe
 You can use lint-combine as a **command line tool**, or in [**ReSharper C++**](https://www.jetbrains.com/resharper-cpp/) — Visual Studio extension. 
 
 ### 2. Get the required tools 
-- **Boost** — minimum required version is **1.73.0**. 
+- **Boost** — minimum required version is **1.69.0**, but you cannot use version **1.72.0**, because it contains [an error in the boost::process](https://github.com/boostorg/process/issues/116). 
 Download and build (at least Datetime, Regex, ProgramOptions, and FileSystem) from [sources](https://www.boost.org/users/download/) or download and install [prebuilt Windows binaries](https://sourceforge.net/projects/boost/files/boost-binaries/) into “`<boost-dir>`” (substitute a path of your choosing).
 - **CMake** — minimum required version is **3.14**. Install from [here](https://cmake.org/download/).
 - **Git** — Install from [here](https://git-scm.com/download). Ensure that Git's `bin` directory is listed in `PATH` earlier than any other directory containing `sh.exe` (or any other file invoked by the `sh` command).
