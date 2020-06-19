@@ -10,4 +10,18 @@ Diagnostics:
     FileOffset: 246
     FilePath: ../main.cpp
     Replacements: ~
-
+  - DiagnosticName: ~
+    Message: empty DiagnosticName
+    FileOffset: ~
+    FilePath: ~
+    Replacements: ~
+  - DiagnosticName: shrt
+    Message: DiagnosticName's length less than clazy-
+    FileOffset: ~
+    FilePath: ~
+    Replacements: ~
+  - DiagnosticName: DiagnosticName-doesnt-start-with-clazy
+    Message: ~
+    FileOffset: ~
+    FilePath: ~
+    Replacements: ~

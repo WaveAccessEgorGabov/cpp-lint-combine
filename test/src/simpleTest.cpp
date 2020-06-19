@@ -831,10 +831,10 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
     }
 
     BOOST_FIXTURE_TEST_CASE( clazyTest, recoverFiles ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy",
+        LintCombine::stringVector commandLine = { "--sub-linter=clazy",
                                                      "--export-fixes="
                                                      CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        LintCombine::LinterCombine linterCombine( commandLine );
         LintCombine::CallTotals callTotals = linterCombine.updateYaml();
         BOOST_CHECK( callTotals.successNum == 1 );
         BOOST_CHECK( callTotals.failNum == 0 );
@@ -846,11 +846,16 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
             documentationLink << it[ "Documentation link" ];
             std::ostringstream diagnosticName;
             diagnosticName << it[ "DiagnosticName" ];
-            std::ostringstream ossToCompare;
-            ossToCompare << "https://github.com/KDE/clazy/blob/master/docs/checks/README-";
-            // substr() from 6 to size() for skipping "clazy-" in DiagnosticName
-            ossToCompare << diagnosticName.str().substr( 6, diagnosticName.str().size() ) << ".md";
-            BOOST_CHECK( documentationLink.str() == ossToCompare.str() );
+            if( diagnosticName.str ().find ( "clazy-" ) == 0 ) {
+                std::ostringstream ossToCompare;
+                ossToCompare << "https://github.com/KDE/clazy/blob/master/docs/checks/README-";
+                ossToCompare << diagnosticName.str ().substr ( std::string ( "clazy-" ).size (),
+                                                               diagnosticName.str ().size () ) << ".md";
+                BOOST_CHECK ( documentationLink.str () == ossToCompare.str () );
+            }
+            else {
+                BOOST_CHECK ( it[ "Documentation link" ].size() == 0 );
+            }
         }
     }
 
