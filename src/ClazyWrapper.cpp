@@ -21,5 +21,8 @@ void LintCombine::ClazyWrapper::addDocLinkToYaml( const YAML::Node & yamlNode ) 
                                                   diagnosticName.str ().size () ) << ".md";
             it[ "Documentation link" ] = documentationLink.str ();
         }
+        else {
+            it[ "Documentation link" ] = std::string();
+        }
     }
 }
