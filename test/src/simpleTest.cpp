@@ -636,7 +636,6 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
 
     BOOST_AUTO_TEST_CASE( TestParallelWorking ) {
         StreamCapture stdoutCapture( std::cout );
-        StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
         if constexpr ( BOOST_OS_WINDOWS ) {
             commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh" );
@@ -653,7 +652,6 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
         linterCombine.callLinter();
         int linterCombineReturnCode = linterCombine.waitLinter();
         std::string stdoutData = stdoutCapture.getBufferData();
-        std::string stderrData = stderrCapture.getBufferData();
         BOOST_CHECK( linterCombineReturnCode == 0 );
         BOOST_CHECK( stdoutData == "First_stdout_mes_1\nSecond_stdout_mes_1\nFirst_stdout_mes_2\n" );
     }
@@ -818,16 +816,11 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         BOOST_CHECK( callTotals.successNum == 1 );
         BOOST_CHECK( callTotals.failNum == 0 );
 
-        YAML::Node yamlNode;
-        yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
-        for( auto it : yamlNode[ "Diagnostics" ] ) {
-            std::ostringstream documentationLink;
-            documentationLink << it[ "Documentation link" ];
-            std::ostringstream ossToCompare;
-            ossToCompare << "https://clang.llvm.org/extra/clang-tidy/checks/" << it[ "DiagnosticName" ]
-                         << ".html";
-            BOOST_CHECK( documentationLink.str() == ossToCompare.str() );
-        }
+        std::ifstream yamlFile_1 ( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" );
+        std::ifstream yamlFile_1_save ( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1_result.yaml" );
+        std::istream_iterator < char > fileIter_1 ( yamlFile_1 ), end_1;
+        std::istream_iterator < char > fileIter_1_save ( yamlFile_1_save ), end_1_save;
+        BOOST_CHECK_EQUAL_COLLECTIONS ( fileIter_1, end_1, fileIter_1_save, end_1_save );
     }
 
     BOOST_FIXTURE_TEST_CASE( clazyTest, recoverFiles ) {
@@ -839,24 +832,11 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
         BOOST_CHECK( callTotals.successNum == 1 );
         BOOST_CHECK( callTotals.failNum == 0 );
 
-        YAML::Node yamlNode;
-        yamlNode = YAML::LoadFile( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" );
-        for( auto it : yamlNode[ "Diagnostics" ] ) {
-            std::ostringstream documentationLink;
-            documentationLink << it[ "Documentation link" ];
-            std::ostringstream diagnosticName;
-            diagnosticName << it[ "DiagnosticName" ];
-            if( diagnosticName.str ().find ( "clazy-" ) == 0 ) {
-                std::ostringstream ossToCompare;
-                ossToCompare << "https://github.com/KDE/clazy/blob/master/docs/checks/README-";
-                ossToCompare << diagnosticName.str ().substr ( std::string ( "clazy-" ).size (),
-                                                               diagnosticName.str ().size () ) << ".md";
-                BOOST_CHECK ( documentationLink.str () == ossToCompare.str () );
-            }
-            else {
-                BOOST_CHECK ( it[ "Documentation link" ].size() == 0 );
-            }
-        }
+        std::ifstream yamlFile_2 ( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" );
+        std::ifstream yamlFile_2_save ( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2_result.yaml" );
+        std::istream_iterator < char > fileIter_2 ( yamlFile_2 ), end_2;
+        std::istream_iterator < char > fileIter_2_save ( yamlFile_2_save ), end_2_save;
+        BOOST_CHECK_EQUAL_COLLECTIONS ( fileIter_2, end_2, fileIter_2_save, end_2_save );
     }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -1067,6 +1047,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 
 BOOST_AUTO_TEST_SUITE_END()
 
+//TODO: Figure out: why memory leak occurs  in Debug
 BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
     void compareVectors( const LintCombine::stringVector & lhs, const LintCombine::stringVector & rhs ) {
