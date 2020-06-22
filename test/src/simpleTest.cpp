@@ -1139,13 +1139,13 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
     }
 
     BOOST_AUTO_TEST_CASE ( TestClangExtraArgs ) {
-        LintCombine::stringVector commandLine = { "--clang-extra-args=\"arg_1 arg_2\"" };
+        LintCombine::stringVector commandLine = { "--clang-extra-args=arg_1 arg_2" };
         const LintCombine::stringVector result = {
                 "--result-yaml=", "--sub-linter=clang-tidy",
                 "-p=", "--export-fixes=\\diagnosticsClangTidy.yaml",
                 "--sub-linter=clazy",
                 "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
-                "--extra-arg=\"arg_1 arg_2\"" };
+                "--extra-arg=arg_1", "--extra-arg=arg_2" };
 
         LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );

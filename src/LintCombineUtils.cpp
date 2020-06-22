@@ -80,8 +80,11 @@ void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
 
 void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLine ) {
     commandLine.clear();
-    m_lintersOptions = { new ClangTidyOptions( m_pathToWorkDir ),
-                       new ClazyOptions( m_pathToWorkDir, m_clazyChecks, m_clangExtraArgs ) };
+    std::istringstream iss ( m_clangExtraArgs );
+    m_lintersOptions = { new ClangTidyOptions ( m_pathToWorkDir ),
+                       new ClazyOptions ( m_pathToWorkDir, m_clazyChecks,
+                       stringVector ( std::istream_iterator<std::string> { iss },
+                       std::istream_iterator<std::string> {} ) ) };
     initLintCombineOptions( commandLine );
     initUnrecognizedOptions();
     appendLintersOptionToCommandLine( commandLine );
