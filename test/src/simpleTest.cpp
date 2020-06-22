@@ -1138,7 +1138,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         compareVectors ( commandLine, result );
     }
 
-    BOOST_AUTO_TEST_CASE ( TestClangExtraArgsSet ) {
+    BOOST_AUTO_TEST_CASE ( TestClangExtraArgs ) {
         LintCombine::stringVector commandLine = { "--clang-extra-args=\"arg_1 arg_2\"" };
         const LintCombine::stringVector result = {
                 "--result-yaml=", "--sub-linter=clang-tidy",
@@ -1146,6 +1146,19 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "--sub-linter=clazy",
                 "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
                 "--extra-arg=\"arg_1 arg_2\"" };
+
+        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( TestClangTidyExtraChecks ) {
+        LintCombine::stringVector commandLine = { "-checks=* --clang-tidy-extra-checks=check_1,check_2" };
+        const LintCombine::stringVector result = {
+                "--result-yaml=", "--sub-linter=clang-tidy",
+                "-p=", "--export-fixes=\\diagnosticsClangTidy.yaml",
+                "--checks=*,check_1,check_2",
+                "--sub-linter=clazy",
+                "-p=", "--export-fixes=\\diagnosticsClazy.yaml" };
 
         LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
