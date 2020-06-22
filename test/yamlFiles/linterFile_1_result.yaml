@@ -1,0 +1,39 @@
+MainSourceFile: /home/egor/Documents/WaveAccess/WavePoint_General/clangTidyWrapperTestDir/test.cpp
+Diagnostics:
+  - DiagnosticName: modernize-use-trailing-return-type
+    DiagnosticMessage:
+      Message: use a trailing return type for this function
+      FilePath: /home/egor/Documents/WaveAccess/WavePoint_General/clangTidyWrapperTestDir/test.cpp
+      FileOffset: 26
+      Replacements:
+        - FilePath: /home/egor/Documents/WaveAccess/WavePoint_General/clangTidyWrapperTestDir/test.cpp
+          Offset: 21
+          Length: 4
+          ReplacementText: auto
+        - FilePath: /home/egor/Documents/WaveAccess/WavePoint_General/clangTidyWrapperTestDir/test.cpp
+          Offset: 29
+          Length: 0
+          ReplacementText: " -> bool"
+    Documentation link: https://clang.llvm.org/extra/clang-tidy/checks/modernize-use-trailing-return-type.html
+  - DiagnosticName: clang-diagnostic-return-type
+    DiagnosticMessage:
+      Message: non-void function does not return a value
+      FilePath: /home/egor/Documents/WaveAccess/WavePoint_General/clangTidyWrapperTestDir/test.cpp
+      FileOffset: 31
+      Replacements: []
+    Documentation link: https://clang.llvm.org/extra/clang-tidy/checks/clang-diagnostic-return-type.html
+  - DiagnosticName: modernize-use-trailing-return-type
+    DiagnosticMessage:
+      Message: use a trailing return type for this function
+      FilePath: /home/egor/Documents/WaveAccess/WavePoint_General/clangTidyWrapperTestDir/test.cpp
+      FileOffset: 38
+      Replacements:
+        - FilePath: /home/egor/Documents/WaveAccess/WavePoint_General/clangTidyWrapperTestDir/test.cpp
+          Offset: 34
+          Length: 3
+          ReplacementText: auto
+        - FilePath: /home/egor/Documents/WaveAccess/WavePoint_General/clangTidyWrapperTestDir/test.cpp
+          Offset: 44
+          Length: 0
+          ReplacementText: " -> int"
+    Documentation link: https://clang.llvm.org/extra/clang-tidy/checks/modernize-use-trailing-return-type.html
