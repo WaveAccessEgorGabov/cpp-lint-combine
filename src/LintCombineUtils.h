@@ -60,6 +60,7 @@ namespace LintCombine {
         std::string m_pathToWorkDir;
         std::string m_clazyChecks;
         std::string m_clangExtraArgs;
+        std::string m_clangTidyExtraChecks;
     };
 
     stringVector moveCommandLineToSTLContainer( int argc, char ** argv );

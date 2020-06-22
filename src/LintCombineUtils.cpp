@@ -41,23 +41,34 @@ void LintCombine::CommandLinePreparer::initLintCombineOptions( stringVector & co
 void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
     for( auto & unrecognized : m_unrecognizedCollection ) {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
-        std::string strToCompare = "-config=";
-        if( unrecognized.find( strToCompare ) == 0 ) {
+        std::string strToCompare = "config=";
+        if( unrecognized.find( strToCompare ) != std::string::npos ) {
             unrecognized = optionValueToQuotes( strToCompare, unrecognized );
             addOptionToClangTidy( unrecognized );
             continue;
         }
-        strToCompare = "-line-filter=";
-        if( unrecognized.find( strToCompare ) == 0 ) {
+        strToCompare = "line-filter=";
+        if( unrecognized.find( strToCompare ) != std::string::npos ) {
             unrecognized = optionValueToQuotes( strToCompare, unrecognized );
             addOptionToClangTidy( unrecognized );
             continue;
         }
-        strToCompare = "-header-filter=";
-        if( unrecognized.find( strToCompare ) == 0 ) {
+        strToCompare = "header-filter=";
+        if( unrecognized.find( strToCompare ) != std::string::npos ) {
             addOptionToAllLinters( unrecognized );
             continue;
         }
+        strToCompare = "checks=";
+        if( unrecognized.find( strToCompare ) != std::string::npos ) {
+            addOptionToClangTidy ( unrecognized.append ( "," + m_clangTidyExtraChecks ) );
+            continue;
+        }
+
+        strToCompare = "clang-tidy-extra-checks=";
+        if( unrecognized.find ( strToCompare ) != std::string::npos ) {
+            continue;
+        }
+
         // File to analize
         if( unrecognized[ 0 ] != '@' && unrecognized[ 0 ] != '-' ) {
             addOptionToAllLinters( unrecognized );
@@ -80,10 +91,16 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
     boost::program_options::options_description programOptions;
     programOptions.add_options()
             ( "verbatim-commands", "pass options verbatim" )
-            ( "clazy-checks", boost::program_options::value < std::string >( & m_clazyChecks ) )
-            ( "clang-extra-args", boost::program_options::value < std::string > ( & m_clangExtraArgs ) )
-            ( "export-fixes", boost::program_options::value < std::string >( & m_pathToCommonYaml ) )
-            ( "p", boost::program_options::value < std::string >( & m_pathToWorkDir ) );
+            ( "clazy-checks",
+              boost::program_options::value < std::string >( & m_clazyChecks ) )
+            ( "clang-extra-args",
+              boost::program_options::value < std::string > ( & m_clangExtraArgs ) )
+            ( "clang-tidy-extra-checks",
+              boost::program_options::value < std::string > ( & m_clangTidyExtraChecks ) )
+            ( "export-fixes",
+              boost::program_options::value < std::string >( & m_pathToCommonYaml ) )
+            ( "p",
+              boost::program_options::value < std::string >( & m_pathToWorkDir ) );
     const boost::program_options::parsed_options parsed =
             boost::program_options::command_line_parser( commandLine ).options( programOptions )
                     .style( boost::program_options::command_line_style::default_style |
