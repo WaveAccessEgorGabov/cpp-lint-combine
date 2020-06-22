@@ -17,13 +17,17 @@ namespace LintCombine {
 
     struct ClazyOptions : BaseLinterOptions {
         explicit ClazyOptions( const std::string & pathToWorkDir,
-                               const std::string & checks ) {
+                               const std::string & checks,
+                               const std::string & clangExtraArgs ) {
             options.emplace_back( "--sub-linter=clazy" );
-            if( !checks.empty() ) {
-                options.emplace_back( "-checks=" + checks );
-            }
             options.emplace_back( "-p=" + pathToWorkDir );
             options.emplace_back( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClazy.yaml" );
+            if( !checks.empty () ) {
+                options.emplace_back ( "--checks=" + checks );
+            }
+            if( !clangExtraArgs.empty () ) {
+                options.emplace_back ( "--extra-arg=" + clangExtraArgs );
+            }
         }
     };
 
@@ -55,6 +59,7 @@ namespace LintCombine {
         std::string m_pathToCommonYaml;
         std::string m_pathToWorkDir;
         std::string m_clazyChecks;
+        std::string m_clangExtraArgs;
     };
 
     stringVector moveCommandLineToSTLContainer( int argc, char ** argv );

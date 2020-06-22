@@ -1047,23 +1047,23 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-//TODO: Figure out: why memory leak occurs  in Debug
+//TODO: Figure out: why memory leak occurs in Debug
 BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
     void compareVectors( const LintCombine::stringVector & lhs, const LintCombine::stringVector & rhs ) {
-        BOOST_CHECK ( lhs.size () == rhs.size () );
+        BOOST_REQUIRE ( lhs.size () == rhs.size () );
         for( size_t i = 0; i < lhs.size (); ++i ) {
             BOOST_CHECK ( lhs[ i ] == rhs[ i ] );
         }
     }
 
     BOOST_AUTO_TEST_CASE( TestVerbatimOptionExists ) {
-        LintCombine::stringVector commandLine = { "-verbatim-commands", "param1",
+        LintCombine::stringVector commandLine = { "--verbatim-commands", "param1",
                                                   "-p=pathToCompilationDataBase",
-                                                  "-export-fixes=pathToResultYaml", "param2" };
-        LintCombine::stringVector result      = { "-verbatim-commands", "param1",
+                                                  "--export-fixes=pathToResultYaml", "param2" };
+        LintCombine::stringVector result      = { "--verbatim-commands", "param1",
                                                   "-p=pathToCompilationDataBase",
-                                                  "-export-fixes=pathToResultYaml", "param2" };
+                                                  "--export-fixes=pathToResultYaml", "param2" };
 
         LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
@@ -1071,7 +1071,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
     BOOST_AUTO_TEST_CASE ( TestVerbatimOptionNotExists ) {
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
-                                                  "-export-fixes=pathToResultYaml" };
+                                                  "--export-fixes=pathToResultYaml" };
         LintCombine::stringVector result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
@@ -1126,15 +1126,28 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
     }
 
     BOOST_AUTO_TEST_CASE ( TestClazyChecksAreSet ) {
-        LintCombine::stringVector commandLine = { "-header-filter=file.cpp" };
+        LintCombine::stringVector commandLine = { "--clazy-checks=level0,level1" };
         const LintCombine::stringVector result = {
                 "--result-yaml=", "--sub-linter=clang-tidy",
                 "-p=", "--export-fixes=\\diagnosticsClangTidy.yaml",
-                "-header-filter=file.cpp", "--sub-linter=clazy",
+                "--sub-linter=clazy",
                 "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
-                "-header-filter=file.cpp" };
+                "--checks=level0,level1" };
 
         LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( TestClangExtraArgsSet ) {
+        LintCombine::stringVector commandLine = { "--clang-extra-args=\"arg_1 arg_2\"" };
+        const LintCombine::stringVector result = {
+                "--result-yaml=", "--sub-linter=clang-tidy",
+                "-p=", "--export-fixes=\\diagnosticsClangTidy.yaml",
+                "--sub-linter=clazy",
+                "-p=", "--export-fixes=\\diagnosticsClazy.yaml",
+                "--extra-arg=\"arg_1 arg_2\"" };
+
+        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
     }
 

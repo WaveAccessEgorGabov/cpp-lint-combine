@@ -70,18 +70,18 @@ void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
 void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLine ) {
     commandLine.clear();
     m_lintersOptions = { new ClangTidyOptions( m_pathToWorkDir ),
-                       new ClazyOptions( m_pathToWorkDir, m_clazyChecks ) };
+                       new ClazyOptions( m_pathToWorkDir, m_clazyChecks, m_clangExtraArgs ) };
     initLintCombineOptions( commandLine );
     initUnrecognizedOptions();
     appendLintersOptionToCommandLine( commandLine );
 }
 
-// TODO: Figure out with one and two hyphens
 void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVector & commandLine ) {
     boost::program_options::options_description programOptions;
     programOptions.add_options()
             ( "verbatim-commands", "pass options verbatim" )
             ( "clazy-checks", boost::program_options::value < std::string >( & m_clazyChecks ) )
+            ( "clang-extra-args", boost::program_options::value < std::string > ( & m_clangExtraArgs ) )
             ( "export-fixes", boost::program_options::value < std::string >( & m_pathToCommonYaml ) )
             ( "p", boost::program_options::value < std::string >( & m_pathToWorkDir ) );
     const boost::program_options::parsed_options parsed =
