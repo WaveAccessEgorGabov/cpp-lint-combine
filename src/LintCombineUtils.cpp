@@ -47,19 +47,19 @@ void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
             addOptionToClangTidy( unrecognized );
             continue;
         }
-        strToCompare = "line-filter=";
-        if( unrecognized.find( strToCompare ) != std::string::npos ) {
+        strToCompare = "-line-filter=";
+        if( unrecognized.find( strToCompare ) == 0 ) {
             unrecognized = optionValueToQuotes( strToCompare, unrecognized );
             addOptionToClangTidy( unrecognized );
             continue;
         }
-        strToCompare = "header-filter=";
-        if( unrecognized.find( strToCompare ) != std::string::npos ) {
+        strToCompare = "-header-filter=";
+        if( unrecognized.find( strToCompare ) == 0 ) {
             addOptionToAllLinters( unrecognized );
             continue;
         }
-        strToCompare = "checks=";
-        if( unrecognized.find( strToCompare ) != std::string::npos ) {
+        strToCompare = "-checks=";
+        if( unrecognized.find( strToCompare ) == 0 ) {
             addOptionToClangTidy ( unrecognized.append ( "," + m_clangTidyExtraChecks ) );
             continue;
         }
@@ -80,6 +80,7 @@ void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
 
 void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLine ) {
     commandLine.clear();
+    boost::erase_all ( m_clangExtraArgs, "\"" );
     std::istringstream iss ( m_clangExtraArgs );
     m_lintersOptions = { new ClangTidyOptions ( m_pathToWorkDir ),
                        new ClazyOptions ( m_pathToWorkDir, m_clazyChecks,
