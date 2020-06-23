@@ -4,14 +4,16 @@
 
 namespace LintCombine {
     struct BaseLinterOptions {
-        std::vector < std::string > options;
+        stringVector options;
     };
 
     struct ClangTidyOptions : BaseLinterOptions {
         explicit ClangTidyOptions( const std::string & pathToWorkDir ) {
             options.emplace_back( "--sub-linter=clang-tidy" );
-            options.emplace_back( "-p=" + pathToWorkDir );
-            options.emplace_back( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClangTidy.yaml" );
+            if( !pathToWorkDir.empty () ) {
+                options.emplace_back ( "-p=" + pathToWorkDir );
+                options.emplace_back ( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClangTidy.yaml" );
+            }
         }
     };
 
@@ -20,8 +22,10 @@ namespace LintCombine {
                                const std::string & checks,
                                std::vector < std::string > && clangExtraArgs ) {
             options.emplace_back( "--sub-linter=clazy" );
-            options.emplace_back( "-p=" + pathToWorkDir );
-            options.emplace_back( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClazy.yaml" );
+            if( !pathToWorkDir.empty () ) {
+                options.emplace_back ( "-p=" + pathToWorkDir );
+                options.emplace_back ( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClazy.yaml" );
+            }
             if( !checks.empty () ) {
                 options.emplace_back ( "--checks=" + checks );
             }
