@@ -103,7 +103,14 @@ std::vector < LintCombine::stringVector >
 LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & commandLine ) {
     stringVector lintersName;
     m_genericOptDesc.add_options()
-            ( "help", "print this message" )
+            ( "help",
+              "print this message" )
+            ( "verbatim-commands",
+              "pass options verbatim" )
+            ( "clazy-checks",
+              "Comma-separated list of clazy checks. Default is level1")
+            ( "clang-extra-args",
+              " Additional argument to append to the compiler command line" )
             ( "result-yaml", boost::program_options::value < std::string >( & m_mergedYamlPath ),
               "path to yaml with diagnostics from all linters" )
             ( "sub-linter",
