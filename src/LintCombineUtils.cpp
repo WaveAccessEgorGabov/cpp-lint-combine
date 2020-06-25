@@ -42,6 +42,7 @@ void LintCombine::CommandLinePreparer::initLintCombineOptions ( stringVector & c
 }
 
 void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
+    stringVector filesForAnalize;
     for( auto & unrecognized : m_unrecognizedCollection ) {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         std::string strToCompare = "-config=";
@@ -62,10 +63,14 @@ void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
 
         // File to analize
         if( unrecognized[ 0 ] != '-' && unrecognized[ 0 ] != '@' ) {
-            addOptionToAllLinters( unrecognized );
+            filesForAnalize.emplace_back( unrecognized );
             continue;
         }
         addOptionToClangTidy( unrecognized );
+    }
+
+    for( const auto & it : filesForAnalize ) {
+        addOptionToAllLinters( it );
     }
 }
 
@@ -73,6 +78,7 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
     commandLine.clear();
     boost::erase_all ( m_clangExtraArgs, "\"" );
     std::istringstream iss ( m_clangExtraArgs );
+    // ClangTidyOptions class must be first in this vector
     m_lintersOptions = { new ClangTidyOptions ( m_pathToWorkDir ),
                        new ClazyOptions ( m_pathToWorkDir, m_clazyChecks,
                        stringVector ( std::istream_iterator<std::string> { iss },

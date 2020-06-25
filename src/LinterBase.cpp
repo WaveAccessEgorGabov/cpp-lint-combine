@@ -5,7 +5,7 @@
 #include <iostream>
 
 void LintCombine::LinterBase::callLinter() {
-    linterProcess = boost::process::child( name + " " + options + "--export-fixes=" + yamlPath,
+    linterProcess = boost::process::child( name + " --export-fixes=" + yamlPath + " " + options,
                                            boost::process::std_out > stdoutPipe,
                                            boost::process::std_err > stderrPipe );
     readFromPipeToStream( stdoutPipe, std::cout );
