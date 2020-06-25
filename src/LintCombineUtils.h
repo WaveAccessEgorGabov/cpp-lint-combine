@@ -41,6 +41,8 @@ namespace LintCombine {
     public:
         CommandLinePreparer( stringVector & commandLine, std::string && toolName );
 
+        bool getErrorFlag () const;
+
     private:
         void prepareCommandLineForReSharper( stringVector & commandLine );
 
@@ -65,7 +67,7 @@ namespace LintCombine {
         std::string m_pathToWorkDir;
         std::string m_clazyChecks;
         std::string m_clangExtraArgs;
-        std::string m_clangTidyExtraChecks;
+        bool errorFlag = false;
     };
 
     stringVector moveCommandLineToSTLContainer( int argc, char ** argv );

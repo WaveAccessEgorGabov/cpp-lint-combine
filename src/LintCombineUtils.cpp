@@ -62,23 +62,6 @@ void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
             continue;
         }
 
-        // File with diagnostics for clang-tidy
-        if( unrecognized[ 0 ] == '@' && !m_clangTidyExtraChecks.empty() ) {
-            // In file path: remove '@' at the begin of the file with clang-tidy diagnostics
-            std::ifstream ReSharperFile( unrecognized.substr ( 1, unrecognized.size () ) );
-            std::stringstream buffer;
-            buffer << ReSharperFile.rdbuf ();
-            std::string contents = buffer.str ();
-            if( !contents.empty () && contents[ contents.size () - 1 ] == '\n' ) {
-                contents.pop_back ();
-            }
-            std::string clangTidyChecksProxyPath = CURRENT_BINARY_DIR"clang_tidy_checks.rsp";
-            std::ofstream clangTidyChecksProxy ( clangTidyChecksProxyPath, std::ios::trunc );
-            clangTidyChecksProxy << contents << "," << m_clangTidyExtraChecks;
-            addOptionToClangTidy ( "@" + clangTidyChecksProxyPath );
-            continue;
-        }
-
         // File to analize
         if( unrecognized[ 0 ] != '-' && unrecognized[ 0 ] != '@' ) {
             addOptionToAllLinters( unrecognized );
@@ -109,8 +92,6 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
               boost::program_options::value < std::string >( & m_clazyChecks ) )
             ( "clang-extra-args",
               boost::program_options::value < std::string > ( & m_clangExtraArgs ) )
-            ( "clang-tidy-extra-checks",
-              boost::program_options::value < std::string > ( & m_clangTidyExtraChecks ) )
             ( "export-fixes",
               boost::program_options::value < std::string >( & m_pathToCommonYaml ) )
             ( "p",
@@ -129,12 +110,17 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
     }
     catch( const std::exception & ex ) {
         std::cerr << "Exception. What(): " << ex.what () << std::endl;
+        errorFlag = true;
         return;
     }
     if( variablesMap.count( "verbatim-commands" ) ) {
         return;
     }
     initCommandLine( commandLine );
+}
+
+bool LintCombine::CommandLinePreparer::getErrorFlag () const {
+    return errorFlag;
 }
 
 LintCombine::stringVector LintCombine::moveCommandLineToSTLContainer( const int argc, char ** argv ) {

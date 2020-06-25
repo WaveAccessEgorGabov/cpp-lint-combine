@@ -1141,24 +1141,4 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         compareVectors ( commandLine, result );
     }
 
-    BOOST_AUTO_TEST_CASE ( TestClangTidyExtraChecks ) {
-        LintCombine::stringVector commandLine = { "@" CURRENT_SOURCE_DIR "rspFiles/rsp_1_src.rsp",
-                                                  "--clang-tidy-extra-checks=-check_1,-check_2" };
-        const LintCombine::stringVector result = {
-                "--sub-linter=clang-tidy",
-                "@" CURRENT_BINARY_DIR "clang_tidy_checks.rsp",
-                "--sub-linter=clazy" };
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
-        compareVectors ( commandLine, result );
-
-        BOOST_REQUIRE ( std::filesystem::exists ( CURRENT_BINARY_DIR "clang_tidy_checks.rsp" ) );
-        std::ifstream checksAfterPrepare( CURRENT_BINARY_DIR "clang_tidy_checks.rsp" );
-        std::ifstream checksToCompare ( CURRENT_SOURCE_DIR"rspFiles/rsp_1_result.rsp" );
-        std::istream_iterator < char > checksAfterPrepareIt ( checksAfterPrepare ), checksAP_end;
-        std::istream_iterator < char > checksToCompareIt ( checksToCompare ), checksTC_end;
-        BOOST_CHECK_EQUAL_COLLECTIONS ( checksAfterPrepareIt, checksAP_end, checksToCompareIt, checksTC_end );
-        checksAfterPrepare.close ();
-        std::filesystem::remove ( CURRENT_BINARY_DIR "clang_tidy_checks.rsp" );
-    }
-
 BOOST_AUTO_TEST_SUITE_END()
