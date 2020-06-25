@@ -3,7 +3,6 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <iostream>
 #include <fstream>
 
 LintCombine::CommandLinePreparer::CommandLinePreparer( stringVector & commandLine, std::string && toolName ) {
@@ -85,7 +84,8 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
     std::istringstream iss ( m_clangExtraArgs );
     for( auto & it : m_lintersName ) {
         if( it != "clang-tidy" && it != "clazy" ) {
-            std::cerr << it << " is incorrect linter name" << std::endl;
+            Logger::getInstance ().errors << it << " is incorrect linter name" << std::endl;
+            isErrorWhilePrepareOccur = true;
             continue;
         }
         if( it == "clang-tidy" ) {
@@ -97,15 +97,13 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
                std::istream_iterator<std::string> {} ) ) );
         }
     }
+    if( isErrorWhilePrepareOccur ) {
+        return;
+    }
     if( m_lintersOptions.empty () ) {
-        if( !m_lintersName.empty() ) {
-            std::cerr << "Linters name that was set are incorrect! "
-                    << "Used all linters by default: clang-tidy and clazy" << std::endl;
-        }
-        else {
-            std::cerr << "Linters was not set (for set linters use \"--sub-linter=\"). "
-                << "Used all linters by default: clang-tidy and clazy" << std::endl;
-        }
+        Logger::getInstance().warnings
+            << "Linters were not set (set linters by \"--sub-linter=\"). "
+            << "Used all linters by default: clang-tidy and clazy" << std::endl;
         m_lintersOptions = { new ClangTidyOptions ( m_pathToWorkDir ),
            new ClazyOptions ( m_pathToWorkDir, m_clazyChecks,
            stringVector ( std::istream_iterator<std::string> { iss },
@@ -154,6 +152,7 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper ( stringVe
         return;
     }
     initCommandLine ( commandLine );
+    Logger::getInstance().printLog ();
 }
 
 LintCombine::stringVector LintCombine::moveCommandLineToSTLContainer( const int argc, char ** argv ) {
