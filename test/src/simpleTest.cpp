@@ -1162,4 +1162,40 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         compareVectors ( commandLine, result );
     }
 
+    BOOST_AUTO_TEST_CASE ( TestEmptyCommandLine ) {
+        LintCombine::stringVector commandLine = {};
+        const LintCombine::stringVector result = {
+                "--sub-linter=clang-tidy",
+                "--sub-linter=clazy" };
+
+        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( TestIncorrectLinterName ) {
+        LintCombine::stringVector commandLine = { "--sub-linter=clang-clazy-tidy" };
+        const LintCombine::stringVector result = {
+                "--sub-linter=clang-tidy",
+                "--sub-linter=clazy" };
+
+        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( OnlyClangTidyExists ) {
+        LintCombine::stringVector commandLine = { "--sub-linter=clang-tidy" };
+        const LintCombine::stringVector result = { "--sub-linter=clang-tidy" };
+
+        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        compareVectors ( commandLine, result );
+    }
+
+    BOOST_AUTO_TEST_CASE ( OnlyClazyExists ) {
+        LintCombine::stringVector commandLine = { "--sub-linter=clazy" };
+        const LintCombine::stringVector result = { "--sub-linter=clazy" };
+
+        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        compareVectors ( commandLine, result );
+    }
+
 BOOST_AUTO_TEST_SUITE_END()
