@@ -89,6 +89,7 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
         StreamCapture stderrCapture( std::cerr );
         LintCombine::stringVector commandLineSTL = {};
         LintCombine::LinterCombine linterCombine( commandLineSTL );
+        BOOST_CHECK( linterCombine.printTextIfRequested() == true );
         BOOST_CHECK( linterCombine.numLinters() == 0 );
         const std::string str = stderrCapture.getBufferData();
         BOOST_CHECK ( str.find ( "Product name" ) != std::string::npos );
