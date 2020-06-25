@@ -28,9 +28,11 @@ int main( int argc, char * argv[] ) {
     }
     catch( const std::logic_error & ex ) {
         std::cerr << "std::logic_error exception. What(): " << ex.what() << std::endl;
+        return 1;
     }
     catch( const std::exception & ex ) {
         std::cerr << "Exception. What(): " << ex.what() << std::endl;
+        return 1;
     }
     return 0;
 }

@@ -26,12 +26,15 @@ namespace LintCombine {
                 options.emplace_back ( "-p=" + pathToWorkDir );
                 options.emplace_back ( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClazy.yaml" );
             }
-            if( !checks.empty () ) {
+            if( !checks.empty () && checks.find("--") == std::string::npos ) {
                 options.emplace_back ( "--checks=" + checks );
             }
             if( !clangExtraArgs.empty () ) {
-                for( const auto & it : clangExtraArgs )
-                    options.emplace_back ( "--extra-arg=" + it );
+                for( const auto & it : clangExtraArgs ) {
+                    if( !it.empty () && it.find("--") == std::string::npos ) {
+                        options.emplace_back ( "--extra-arg=" + it );
+                    }
+                }
             }
         }
     };
@@ -40,8 +43,6 @@ namespace LintCombine {
 
     public:
         CommandLinePreparer( stringVector & commandLine, std::string && toolName );
-
-        bool getErrorFlag () const;
 
     private:
         void prepareCommandLineForReSharper( stringVector & commandLine );
@@ -67,7 +68,6 @@ namespace LintCombine {
         std::string m_pathToWorkDir;
         std::string m_clazyChecks;
         std::string m_clangExtraArgs;
-        bool errorFlag = false;
     };
 
     stringVector moveCommandLineToSTLContainer( int argc, char ** argv );

@@ -84,43 +84,32 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
     appendLintersOptionToCommandLine( commandLine );
 }
 
-void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVector & commandLine ) {
+void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper ( stringVector & commandLine ) {
     boost::program_options::options_description programOptions;
-    programOptions.add_options()
-            ( "verbatim-commands", "pass options verbatim" )
-            ( "clazy-checks",
-              boost::program_options::value < std::string >( & m_clazyChecks ) )
-            ( "clang-extra-args",
-              boost::program_options::value < std::string > ( & m_clangExtraArgs ) )
-            ( "export-fixes",
-              boost::program_options::value < std::string >( & m_pathToCommonYaml ) )
-            ( "p",
-              boost::program_options::value < std::string >( & m_pathToWorkDir ) );
+    programOptions.add_options ()
+        ( "verbatim-commands", "pass options verbatim" )
+        ( "clazy-checks",
+          boost::program_options::value < std::string > ( &m_clazyChecks )->implicit_value( std::string() ) )
+        ( "clang-extra-args",
+          boost::program_options::value < std::string > ( &m_clangExtraArgs )->implicit_value( std::string () ) )
+        ( "export-fixes",
+          boost::program_options::value < std::string > ( &m_pathToCommonYaml ) )
+        ( "p",
+          boost::program_options::value < std::string > ( &m_pathToWorkDir ) );
     boost::program_options::variables_map variablesMap;
-    try {
-        const boost::program_options::parsed_options parsed =
-            boost::program_options::command_line_parser ( commandLine ).options ( programOptions )
-            .style ( boost::program_options::command_line_style::default_style |
-                     boost::program_options::command_line_style::allow_long_disguise )
-            .allow_unregistered ().run ();
-        store ( parsed, variablesMap );
-        notify ( variablesMap );
-        m_unrecognizedCollection =
-            collect_unrecognized ( parsed.options, boost::program_options::include_positional );
-    }
-    catch( const std::exception & ex ) {
-        std::cerr << "Exception. What(): " << ex.what () << std::endl;
-        errorFlag = true;
+    const boost::program_options::parsed_options parsed =
+        boost::program_options::command_line_parser ( commandLine ).options ( programOptions )
+        .style ( boost::program_options::command_line_style::default_style |
+                 boost::program_options::command_line_style::allow_long_disguise )
+        .allow_unregistered ().run ();
+    store ( parsed, variablesMap );
+    notify ( variablesMap );
+    m_unrecognizedCollection =
+        collect_unrecognized ( parsed.options, boost::program_options::include_positional );
+    if( variablesMap.count ( "verbatim-commands" ) ) {
         return;
     }
-    if( variablesMap.count( "verbatim-commands" ) ) {
-        return;
-    }
-    initCommandLine( commandLine );
-}
-
-bool LintCombine::CommandLinePreparer::getErrorFlag () const {
-    return errorFlag;
+    initCommandLine ( commandLine );
 }
 
 LintCombine::stringVector LintCombine::moveCommandLineToSTLContainer( const int argc, char ** argv ) {
