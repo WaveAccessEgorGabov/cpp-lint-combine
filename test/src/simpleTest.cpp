@@ -1068,6 +1068,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( TestVerbatimOptionNotExists ) {
@@ -1084,6 +1085,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( TestOptionForClangTidy ) {
@@ -1095,6 +1097,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( TestFilesToAnalizeAreSet ) {
@@ -1107,6 +1110,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( TestHeaderFilterSet ) {
@@ -1118,6 +1122,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( TestClazyChecksAreSet ) {
@@ -1129,6 +1134,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( TestClangExtraArgs ) {
@@ -1140,6 +1146,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( TestEmptyClazyChecks ) {
@@ -1150,6 +1157,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( TestEmptyParams ) {
@@ -1160,6 +1168,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( TestEmptyCommandLine ) {
@@ -1170,32 +1179,35 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
         LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
-    BOOST_AUTO_TEST_CASE ( TestIncorrectLinterName ) {
+    BOOST_AUTO_TEST_CASE ( TestOneIncorrectLinterName ) {
         LintCombine::stringVector commandLine = { "--sub-linter=clang-clazy-tidy" };
-        const LintCombine::stringVector result = {
-                "--sub-linter=clang-tidy",
-                "--sub-linter=clazy" };
-
         LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
-        compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == true );
+    }
+
+    BOOST_AUTO_TEST_CASE ( TestTwoIncorrectLintersNames ) {
+        LintCombine::stringVector commandLine = { "--sub-linter=crazy", "--sub-linter=clang-tudy" };
+        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == true );
     }
 
     BOOST_AUTO_TEST_CASE ( OnlyClangTidyExists ) {
         LintCombine::stringVector commandLine = { "--sub-linter=clang-tidy" };
         const LintCombine::stringVector result = { "--sub-linter=clang-tidy" };
-
         LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
     BOOST_AUTO_TEST_CASE ( OnlyClazyExists ) {
         LintCombine::stringVector commandLine = { "--sub-linter=clazy" };
         const LintCombine::stringVector result = { "--sub-linter=clazy" };
-
         LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
     }
 
 BOOST_AUTO_TEST_SUITE_END()
