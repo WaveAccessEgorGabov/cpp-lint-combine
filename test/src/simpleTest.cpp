@@ -1141,4 +1141,14 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         compareVectors ( commandLine, result );
     }
 
+    BOOST_AUTO_TEST_CASE ( TestEmptyParams ) {
+        LintCombine::stringVector commandLine = { "--clazy-checks= --clang-extra-args=" };
+        const LintCombine::stringVector result = {
+                "--sub-linter=clang-tidy",
+                "--sub-linter=clazy" };
+
+        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        compareVectors ( commandLine, result );
+    }
+
 BOOST_AUTO_TEST_SUITE_END()
