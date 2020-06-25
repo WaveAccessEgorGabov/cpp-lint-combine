@@ -46,14 +46,12 @@ void LintCombine::CommandLinePreparer::initUnrecognizedOptions() {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         std::string strToCompare = "-config=";
         if( unrecognized.find( strToCompare ) == 0 ) {
-            unrecognized = optionValueToQuotes( strToCompare, unrecognized );
-            addOptionToClangTidy( unrecognized );
+            addOptionToClangTidy( optionValueToQuotes ( strToCompare, unrecognized ) );
             continue;
         }
         strToCompare = "-line-filter=";
         if( unrecognized.find( strToCompare ) == 0 ) {
-            unrecognized = optionValueToQuotes( strToCompare, unrecognized );
-            addOptionToClangTidy( unrecognized );
+            addOptionToClangTidy( optionValueToQuotes ( strToCompare, unrecognized ) );
             continue;
         }
         strToCompare = "-header-filter=";
@@ -85,6 +83,13 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
 }
 
 void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper ( stringVector & commandLine ) {
+    // avoid empty value after equal sign exception
+    for( auto & it : commandLine ) {
+        if( ( it.find('-') != std::string::npos || it.find ( "--" ) != std::string::npos ) &&
+              it.find('=') == it.size() - 1 ) {
+            it.pop_back ();
+        }
+    }
     boost::program_options::options_description programOptions;
     programOptions.add_options ()
         ( "verbatim-commands", "pass options verbatim" )
