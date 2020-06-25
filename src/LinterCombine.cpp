@@ -6,6 +6,10 @@
 
 LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine, FactoryBase & factory )
         : m_services( factory.getServices() ) {
+    if( commandLine.empty() ) {
+        m_helpIsRequested = true;
+        return;
+    }
     std::vector < stringVector > subLintersCommandLine = splitCommandLineBySubLinters( commandLine );
     if( m_helpIsRequested ) {
         return;
@@ -14,13 +18,16 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine, Fac
         std::shared_ptr < LinterItf > subLinter = factory.createLinter( it );
         if( subLinter == nullptr ) {
             std::cerr << "Linter not exists!" << std::endl;
+            m_helpIsRequested = true;
+            printTextIfRequested();
             throw std::logic_error( "Linter not exists!" );
         }
         m_linters.emplace_back( subLinter );
     }
     if( m_linters.empty() ) {
         std::cerr << "Warning not one linter was set!" << std::endl;
-        printText ();
+        m_helpIsRequested = true;
+        return;
     }
     checkYamlPathForCorrectness();
 }
@@ -35,11 +42,11 @@ void LintCombine::LinterCombine::callLinter() {
 
 int LintCombine::LinterCombine::waitLinter() {
     if( m_linters.empty() ) { return 0; }
-    unsigned int returnCode = 1;
+    int returnCode = 1;
     m_services.getIO_Service().run();
     for( const auto & subLinterIt : m_linters ) {
-        subLinterIt->waitLinter() == 0 ? ( returnCode &= static_cast< unsigned int >( ~1 ) ) :
-                                         ( returnCode |= static_cast< unsigned int >( 2 ) );
+        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) :
+                                         ( returnCode |= 2 );
     }
     return returnCode;
 }
@@ -81,14 +88,6 @@ size_t LintCombine::LinterCombine::numLinters() const noexcept {
     return m_linters.size();
 }
 
-bool LintCombine::LinterCombine::printText () {
-    const bool saveHelpValue = m_helpIsRequested;
-    m_helpIsRequested = true;
-    const bool result = printTextIfRequested();
-    m_helpIsRequested = saveHelpValue;
-    return result;
-}
-
 bool LintCombine::LinterCombine::printTextIfRequested() const {
     if( m_helpIsRequested ) {
         std::cerr << "Product name: " << PRODUCTNAME_STR << std::endl;
@@ -100,30 +99,38 @@ bool LintCombine::LinterCombine::printTextIfRequested() const {
 }
 
 std::vector < LintCombine::stringVector >
-LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & commandLine ) {
+LintCombine::LinterCombine::splitCommandLineBySubLinters ( const stringVector & commandLine ) {
     stringVector lintersName;
-    m_genericOptDesc.add_options()
+    try {
+        m_genericOptDesc.add_options ()
             ( "help",
               "print this message" )
             ( "verbatim-commands",
               "pass options verbatim" )
             ( "clazy-checks",
-              "Comma-separated list of clazy checks. Default is level1")
+              "Comma-separated list of clazy checks. Default is level1" )
             ( "clang-extra-args",
               " Additional argument to append to the compiler command line" )
-            ( "result-yaml", boost::program_options::value < std::string >( & m_mergedYamlPath ),
+            ( "result-yaml", boost::program_options::value < std::string > ( &m_mergedYamlPath ),
               "path to yaml with diagnostics from all linters" )
             ( "sub-linter",
-              boost::program_options::value < std::vector < std::string > >( & lintersName ),
+              boost::program_options::value < std::vector < std::string > > ( &lintersName ),
               "linter to use" );
 
-    boost::program_options::variables_map vm;
-    store( boost::program_options::command_line_parser( commandLine ).
-           options( m_genericOptDesc ).allow_unregistered().run(), vm );
-    notify( vm );
-
-    if( vm.count( "help" ) ) {
+        boost::program_options::variables_map vm;
+        store ( boost::program_options::command_line_parser ( commandLine ).
+                options ( m_genericOptDesc ).allow_unregistered ().run (), vm );
+        notify ( vm );
+        if( vm.count ( "help" ) ) {
+            m_helpIsRequested = true;
+            return std::vector < LintCombine::stringVector > ();
+        }
+    }
+    catch( const std::exception & ex ) {
+        std::cerr << "Exception while parse command line options. What(): " << ex.what () << std::endl;
         m_helpIsRequested = true;
+        printTextIfRequested();
+        throw;
     }
 
     stringVector currentSubLinter;
