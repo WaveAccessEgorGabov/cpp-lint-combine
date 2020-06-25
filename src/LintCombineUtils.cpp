@@ -20,7 +20,12 @@ std::string LintCombine::CommandLinePreparer::optionValueToQuotes( const std::st
 }
 
 void LintCombine::CommandLinePreparer::addOptionToClangTidy( const std::string & option ) {
-    m_lintersOptions[ 0 ]->options.emplace_back( option );
+    for( auto & it : m_lintersOptions ) {
+        if( it->linterName == "clang-tidy" ) {
+            it->options.emplace_back( option );
+            break;
+        }
+    }
 }
 
 void LintCombine::CommandLinePreparer::addOptionToAllLinters( const std::string & option ) {
@@ -78,11 +83,34 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
     commandLine.clear();
     boost::erase_all ( m_clangExtraArgs, "\"" );
     std::istringstream iss ( m_clangExtraArgs );
-    // ClangTidyOptions class must be first in this vector
-    m_lintersOptions = { new ClangTidyOptions ( m_pathToWorkDir ),
-                       new ClazyOptions ( m_pathToWorkDir, m_clazyChecks,
-                       stringVector ( std::istream_iterator<std::string> { iss },
-                       std::istream_iterator<std::string> {} ) ) };
+    for( auto & it : m_lintersName ) {
+        if( it != "clang-tidy" && it != "clazy" ) {
+            std::cerr << it << " is incorrect linter name" << std::endl;
+            continue;
+        }
+        if( it == "clang-tidy" ) {
+            m_lintersOptions.emplace_back ( new ClangTidyOptions ( m_pathToWorkDir ) );
+        }
+        if( it == "clazy" ) {
+            m_lintersOptions.emplace_back ( new ClazyOptions ( m_pathToWorkDir, m_clazyChecks,
+               stringVector ( std::istream_iterator<std::string> { iss },
+               std::istream_iterator<std::string> {} ) ) );
+        }
+    }
+    if( m_lintersOptions.empty () ) {
+        if( !m_lintersName.empty() ) {
+            std::cerr << "Linters name that was set are incorrect! "
+                    << "Used all linters by default: clang-tidy and clazy" << std::endl;
+        }
+        else {
+            std::cerr << "Linters was not set (for set linters use \"--sub-linter=\"). "
+                << "Used all linters by default: clang-tidy and clazy" << std::endl;
+        }
+        m_lintersOptions = { new ClangTidyOptions ( m_pathToWorkDir ),
+           new ClazyOptions ( m_pathToWorkDir, m_clazyChecks,
+           stringVector ( std::istream_iterator<std::string> { iss },
+           std::istream_iterator<std::string> {} ) ) };
+    }
     initLintCombineOptions( commandLine );
     initUnrecognizedOptions();
     appendLintersOptionToCommandLine( commandLine );
@@ -96,13 +124,18 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper ( stringVe
             it.pop_back ();
         }
     }
+
     boost::program_options::options_description programOptions;
     programOptions.add_options ()
         ( "verbatim-commands", "pass options verbatim" )
+        ( "sub-linter",
+          boost::program_options::value < std::vector < std::string > > ( &m_lintersName ) )
         ( "clazy-checks",
-          boost::program_options::value < std::string > ( &m_clazyChecks )->implicit_value( std::string() ) )
+          boost::program_options::value < std::string > ( &m_clazyChecks )->
+                implicit_value( std::string() ) )
         ( "clang-extra-args",
-          boost::program_options::value < std::string > ( &m_clangExtraArgs )->implicit_value( std::string () ) )
+          boost::program_options::value < std::string > ( &m_clangExtraArgs )->
+                implicit_value( std::string () ) )
         ( "export-fixes",
           boost::program_options::value < std::string > ( &m_pathToCommonYaml ) )
         ( "p",

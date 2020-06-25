@@ -4,11 +4,13 @@
 
 namespace LintCombine {
     struct BaseLinterOptions {
+        std::string linterName;
         stringVector options;
     };
 
     struct ClangTidyOptions : BaseLinterOptions {
         explicit ClangTidyOptions( const std::string & pathToWorkDir ) {
+            linterName = "clang-tidy";
             options.emplace_back( "--sub-linter=clang-tidy" );
             if( !pathToWorkDir.empty () ) {
                 options.emplace_back ( "-p=" + pathToWorkDir );
@@ -21,6 +23,7 @@ namespace LintCombine {
         explicit ClazyOptions( const std::string & pathToWorkDir,
                                const std::string & checks,
                                std::vector < std::string > && clangExtraArgs ) {
+            linterName = "clazy";
             options.emplace_back( "--sub-linter=clazy" );
             if( !pathToWorkDir.empty () ) {
                 options.emplace_back ( "-p=" + pathToWorkDir );
@@ -64,6 +67,7 @@ namespace LintCombine {
 
         std::vector < BaseLinterOptions * > m_lintersOptions;
         stringVector m_unrecognizedCollection;
+        stringVector m_lintersName;
         std::string m_pathToCommonYaml;
         std::string m_pathToWorkDir;
         std::string m_clazyChecks;
