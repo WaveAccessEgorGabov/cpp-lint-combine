@@ -7,6 +7,11 @@ int main( int argc, char * argv[] ) {
     LintCombine::stringVector commandLine = LintCombine::moveCommandLineToSTLContainer( argc, argv );
     // Prepare command line for using in ReSharper
     LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
+    if( commandLinePreparer.getIsErrorWhilePrepareOccur() ) {
+        std::cerr << "an error while prepare the command line is occur" << std::endl;
+        return 1;
+    }
+
     try {
         LintCombine::LinterCombine linterCombine( commandLine );
         if( linterCombine.printTextIfRequested() ) {

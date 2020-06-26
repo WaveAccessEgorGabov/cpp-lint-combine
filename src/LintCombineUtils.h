@@ -47,6 +47,8 @@ namespace LintCombine {
     public:
         CommandLinePreparer( stringVector & commandLine, std::string && toolName );
 
+        bool getIsErrorWhilePrepareOccur () const { return isErrorWhilePrepareOccur; }
+
     private:
         void prepareCommandLineForReSharper( stringVector & commandLine );
 
@@ -72,6 +74,7 @@ namespace LintCombine {
         std::string m_pathToWorkDir;
         std::string m_clazyChecks;
         std::string m_clangExtraArgs;
+        bool isErrorWhilePrepareOccur = false;
     };
 
     stringVector moveCommandLineToSTLContainer( int argc, char ** argv );

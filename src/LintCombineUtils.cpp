@@ -86,6 +86,7 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
     for( auto & it : m_lintersName ) {
         if( it != "clang-tidy" && it != "clazy" ) {
             std::cerr << it << " is incorrect linter name" << std::endl;
+            isErrorWhilePrepareOccur = true;
             continue;
         }
         if( it == "clang-tidy" ) {
@@ -96,6 +97,9 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
                stringVector ( std::istream_iterator<std::string> { iss },
                std::istream_iterator<std::string> {} ) ) );
         }
+    }
+    if( isErrorWhilePrepareOccur ) {
+        return;
     }
     if( m_lintersOptions.empty () ) {
         if( !m_lintersName.empty() ) {
