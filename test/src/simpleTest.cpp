@@ -9,7 +9,7 @@
 #include <fstream>
 #include <filesystem>
 
-struct recoverFiles {
+struct recoverFiles { // rename to recoverYamlFiles
     ~recoverFiles() {
         std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
         std::filesystem::copy_file( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1_save.yaml",
@@ -115,18 +115,18 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( FirstLinterEmptySecondExists ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=", "--sub-linter=clazy" };
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=", "--sub-linter=clazy" };
         BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, std::logic_error );
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersEmpty ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=", "--sub-linter=" };
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=", "--sub-linter=" };
         BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, std::logic_error );
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersExist ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy", "--sub-linter=clazy" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy", "--sub-linter=clazy" };
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
 
         BOOST_CHECK( linterCombine.numLinters() == 2 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
@@ -142,9 +142,9 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersExistAndHasOptions ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
                                                      "--sub-linter=clazy", "CSParam_1", "CSParam_1" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 2 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
@@ -159,8 +159,8 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( LinterIsClazyStandalone ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy" };
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 1 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
@@ -170,8 +170,8 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( LinterIsClangTidy ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy" };
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 1 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
@@ -181,9 +181,9 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( LinterIsClazyStandaloneAndOptionsExist ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy", "lintParam_1",
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy", "lintParam_1",
                                                      "lintParam_2" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 1 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
@@ -193,10 +193,10 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( LinterIsClazyStandaloneAndYamlPathExists ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy",
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy",
                                                      "--export-fixes="
                                                      CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 1 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
@@ -206,10 +206,10 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( LinterIsClazyStandaloneAndOptionsAndYamlPathExist ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy",
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
                                                      "lintParam_1", "lintParam_2" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 1 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
@@ -219,9 +219,9 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersExistFirstYamlPathNotSetSecondYamlPathIsEmpty ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy",
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy",
                                                      "--sub-linter=clazy", "--export-fixes= " };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 2 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
@@ -236,10 +236,10 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersExistAndFirstHasOptionsAndYamlPath ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy", "--export-fixes=\\\\",
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy", "--export-fixes=\\\\",
                                                      "--sub-linter=clazy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 2 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
@@ -254,14 +254,14 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
     }
 
     BOOST_AUTO_TEST_CASE( BothLintersExistAndHasOptionsAndYamlPath ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy",
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
                                                      "CTParam_1", "CTParam_2",
                                                      "--sub-linter=clazy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml",
                                                      "CSParam_1",
                                                      "CSParam_2" };
-        LintCombine::LinterCombine linterCombine( commandLineSTL );
+        const LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.numLinters() == 2 );
         BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
                              ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
@@ -845,20 +845,20 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 
     BOOST_AUTO_TEST_CASE( mergedYamlPathIsEmptyLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml=", "--sub-linter=clang-tidy",
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml=", "--sub-linter=clang-tidy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, boost::program_options::error );
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlPathSetLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy",
+        const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlPathNotValidLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml=\\\\", "--sub-linter=clang-tidy",
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml=\\\\", "--sub-linter=clang-tidy",
                                                      "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
         std::cout << "\"" << linterCombine.getYamlPath() << "\"" << std::endl;
@@ -866,13 +866,13 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlPathNotSetLintersYamlPathNotSet ) {
-        LintCombine::stringVector commandLineSTL = { "", "--sub-linter=clang-tidy" };
+        const LintCombine::stringVector commandLineSTL = { "", "--sub-linter=clang-tidy" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
         BOOST_CHECK( linterCombine.getYamlPath().empty() );
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathNotSet ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -881,14 +881,14 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathIsEmpty ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=" };
         BOOST_CHECK_THROW( LintCombine::LinterCombine { commandLineSTL }, boost::program_options::error );
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathNotValid ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -897,7 +897,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidLintersYamlPathNotExists ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile" };
         LintCombine::LinterCombine linterCombine( commandLineSTL );
@@ -943,7 +943,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathNotSet ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--sub-linter=clang-tidy" };
@@ -952,7 +952,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidFirstLintersYamlPathIsEmptySecondValid ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=",
                                                      "--sub-linter=clang-tidy",
@@ -962,7 +962,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathIsEmpty ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=",
                                                      "--sub-linter=clang-tidy", "--export-fixes=" };
@@ -989,7 +989,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathNotValid ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\",
                                                      "--sub-linter=clang-tidy", "--export-fixes=\\\\" };
@@ -1017,7 +1017,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathNotExists ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile",
                                                      "--sub-linter=clang-tidy", "--export-fixes=NotExistentFile" };
@@ -1026,7 +1026,7 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
     }
 
     BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathValid ) {
-        LintCombine::stringVector commandLineSTL = { "--result-yaml="
+        const LintCombine::stringVector commandLineSTL = { "--result-yaml="
                                                      CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
                                                      "--sub-linter=clang-tidy",
                                                      "--export-fixes="
@@ -1048,10 +1048,12 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-//TODO: Figure out: why memory leak occurs in Debug
+// TODO: Figure out: why memory leak occurs in Debug
+// TODO: use std::array instead std::vector into result command line variable type
 BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
-    void compareVectors( const LintCombine::stringVector & lhs, const LintCombine::stringVector & rhs ) {
+    template < int T >
+    void compareVectors( const LintCombine::stringVector & lhs, const std::array < std::string, T > & rhs ) {
         BOOST_REQUIRE ( lhs.size () == rhs.size () );
         for( size_t i = 0; i < lhs.size (); ++i ) {
             BOOST_CHECK ( lhs[ i ] == rhs[ i ] );
@@ -1071,14 +1073,14 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "--verbatim-commands", "param1",
                                                   "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml", "param2" };
-        const LintCombine::stringVector result      = { "param1", "-p=pathToCompilationDataBase",
+        const std::array < std::string, 4 > result = { "param1", "-p=pathToCompilationDataBase",
                                                     "--export-fixes=pathToResultYaml", "param2" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Info: Option \"--verbatim-commands\" was set, \
-                                                            so options is passed to combine verbatim.\n" );
+        BOOST_CHECK ( stderrCapture.getBufferData () ==
+            "Info: Option \"--verbatim-commands\" was set so options are passed to combine verbatim.\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestPathToYamlFileIsEmpty ) {
@@ -1101,7 +1103,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         StreamCapture stderrCapture ( std::cerr );
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml" };
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 7 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1110,7 +1112,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData().empty () );
@@ -1122,7 +1124,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                                                   "--export-fixes=pathToResultYaml",
                                                   "-param_1", "@param_2" };
 
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 9 > result = {
             "--result-yaml=pathToResultYaml",
             "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase",
@@ -1132,7 +1134,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
             "-p=pathToCompilationDataBase",
             "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData ().empty () );
@@ -1143,7 +1145,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "file_1.cpp", "file_2.cpp" };
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 11 > result = {
             "--result-yaml=pathToResultYaml",
             "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase",
@@ -1154,7 +1156,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
             "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml",
             "file_1.cpp", "file_2.cpp" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData ().empty () );
@@ -1166,7 +1168,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                                                   "--export-fixes=pathToResultYaml",
                                                   "-header-filter=file.cpp" };
 
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 9 > result = {
             "--result-yaml=pathToResultYaml",
             "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase",
@@ -1177,7 +1179,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
             "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml",
             "-header-filter=file.cpp" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData ().empty () );
@@ -1188,7 +1190,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--clazy-checks=" };
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 7 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1197,12 +1199,12 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
-        compareVectors ( commandLine, result );
-        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData() == "Warning: Parameter “--clazy-checks” was  \
-                                                        set but the parameter’s value was not set.\ 
-                                                        The parameter will be ignored.\n");
+        const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
+        compareVectors( commandLine, result );
+        BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
+        BOOST_CHECK( stderrCapture.getBufferData() == "Warning: Parameter \"--clazy-checks=\" was "
+                                                      "set but the parameter's value was not set. "
+                                                      "The parameter will be ignored.\n");
     }
 
     BOOST_AUTO_TEST_CASE ( TestClangExtraArgsEmptyAfterEqualSign ) {
@@ -1210,7 +1212,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--clang-extra-args=" };
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 7 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1219,20 +1221,20 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Parameter \"--clang-extra-checks\" was \
-                                                         set but the parameter's value was not set.     \ 
-                                                         The parameter will be ignored.\n");
+        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Parameter \"--clang-extra-args=\" was "
+                                                        "set but the parameter's value was not set. "
+                                                        "The parameter will be ignored.\n");
     }
 
     BOOST_AUTO_TEST_CASE ( TestAllParamsHaveEmptyValue ) {
         StreamCapture stderrCapture ( std::cerr );
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
-                                                  "--clazy-checks= --clang-extra-args=" };
-        const LintCombine::stringVector result = {
+                                                  "--clazy-checks=", "--clang-extra-args=" };
+        const std::array < std::string, 7 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1241,15 +1243,15 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Parameter \"--clazy-checks\" was    \
-                                                         set but the parameter's value was not set.    \
-                                                         The parameter will be ignored.\n             \
-                                                         Warning: Parameter \"--clang-extra-checks\"  \
-                                                         was set but the parameter’s value was not set.\
-                                                         The parameter will be ignored.\n" );
+        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Parameter \"--clazy-checks=\" was "
+                                                        "set but the parameter's value was not set. "
+                                                        "The parameter will be ignored.\n"
+                                                        "Warning: Parameter \"--clang-extra-args=\" was "
+                                                        "set but the parameter's value was not set. "
+                                                        "The parameter will be ignored.\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestClazyChecksSyntaxError ) {
@@ -1257,7 +1259,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--clazy-checks" };
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 7 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1266,12 +1268,12 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Incorrect syntax in \"--clazy-checks\". \
-                                                         Expected: \"--param-name=<param-value>\".        \
-                                                         The parameter will be ignored.\n" );
+        BOOST_CHECK( stderrCapture.getBufferData() == "Warning: Parameter \"--clazy-checks\" was set "
+                                                      "but the parameter's value was not set. "
+                                                      "The parameter will be ignored.\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestClangExtraArgsSyntaxError ) {
@@ -1279,7 +1281,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--clang-extra-args" };
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 7 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1288,20 +1290,20 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Incorrect syntax in \"--clang-extra-args\". \
-                                                         Expected: \"--param-name=<param-value>\".            \
-                                                         The parameter will be ignored.\n" );
+        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Parameter \"--clang-extra-args\" was set "
+                                                        "but the parameter's value was not set. "
+                                                        "The parameter will be ignored.\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestAllParamsHaveSyntaxError ) {
         StreamCapture stderrCapture ( std::cerr );
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
-                                                  "--clazy-checks --clang-extra-args" };
-        const LintCombine::stringVector result = {
+                                                  "--clazy-checks", "--clang-extra-args" };
+        const std::array < std::string, 7 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1310,23 +1312,23 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Incorrect syntax in \"--clazy-checks\".     \
-                                                         Expected: \"--param-name=<param-value>\".            \
-                                                         The parameter will be ignored.\n                     \
-                                                         Warning: Incorrect syntax in \"--clang-extra-args\". \
-                                                         Expected: \"--param-name=<param-value>\".            \
-                                                         The parameter will be ignored.\n" );
+        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Parameter \"--clang-extra-args\" was set "
+                                                        "but the parameter's value was not set. "
+                                                        "The parameter will be ignored.\n"
+                                                        "Warning: Parameter \"--clazy-checks\" was set "
+                                                        "but the parameter's value was not set. "
+                                                        "The parameter will be ignored.\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestClazyChecksExist ) {
         StreamCapture stderrCapture ( std::cerr );
-        LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
+        LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase", 
                                                   "--export-fixes=pathToResultYaml",
-                                                  "--clazy-checks=level0,level1" };
-        const LintCombine::stringVector result = {
+                                                  "--clazy-checks", "level0,level1" };
+        const std::array < std::string, 8 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1336,7 +1338,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml",
                 "--checks=level0,level1" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData().empty() );
@@ -1346,8 +1348,8 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         StreamCapture stderrCapture ( std::cerr );
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
-                                                  "--clang-extra-args=\"arg_1 arg_2\" "}; // think about quotes
-        const LintCombine::stringVector result = {
+                                                  "--clang-extra-args=\"arg_1 arg_2\" "}; // check quotes
+        const std::array < std::string, 9 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1357,7 +1359,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml",
                 "--extra-arg=arg_1", "--extra-arg=arg_2" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData().empty() );
@@ -1367,9 +1369,9 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         StreamCapture stderrCapture ( std::cerr );
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
-                                                  "--clazy-checks=level0,level1 \
-                                                   --clang-extra-args=\"arg_1 arg_2\"" };
-        const LintCombine::stringVector result = {
+                                                  "--clazy-checks=level0,level1",
+                                                  "--clang-extra-args=\"arg_1 arg_2\"" };
+        const std::array < std::string, 10 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
@@ -1380,7 +1382,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                 "--checks=level0,level1",
                 "--extra-arg=arg_1", "--extra-arg=arg_2" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData().empty() );
@@ -1391,21 +1393,11 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--sub-linter=" };
-        const LintCombine::stringVector result = {
-                "--result-yaml=pathToResultYaml",
-                "--sub-linter=clang-tidy",
-                "-p=pathToCompilationDataBase",
-                "--export-fixes=pathToCompilationDataBase\\diagnosticsClangTidy.yaml",
-                "--sub-linter=clazy",
-                "-p=pathToCompilationDataBase",
-                "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
-        compareVectors ( commandLine, result );
-        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Parameter \"--sub-linter\" was set \
-                                                         but the parameter's value was not set.       \
-                                                         The parameter will be ignored.\n" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == true );
+        BOOST_CHECK ( stderrCapture.getBufferData () == "Error: Value of parameter \"--sub-linter=\" "
+                                                        "must follow after the equal sign\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestTwoSublinterValuesEmptyAfterEqualSign ) {
@@ -1413,24 +1405,13 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--sub-linter=", "--sub-linter=" };
-        const LintCombine::stringVector result = {
-                "--result-yaml=pathToResultYaml",
-                "--sub-linter=clang-tidy",
-                "-p=pathToCompilationDataBase",
-                "--export-fixes=pathToCompilationDataBase\\diagnosticsClangTidy.yaml",
-                "--sub-linter=clazy",
-                "-p=pathToCompilationDataBase",
-                "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
-        compareVectors ( commandLine, result );
-        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData() == "Warning: Parameter \"--sub-linter\" was set  \
-                                                        but the parameter’s value was not set.       \
-                                                        The parameter will be ignored.\n             \
-                                                        Warning: Parameter \"--sub-linter\" was set  \
-                                                        but the parameter’s value was not set.       \
-                                                        The parameter will be ignored.\n" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == true );
+        BOOST_CHECK ( stderrCapture.getBufferData() == "Error: Value of parameter \"--sub-linter=\" "
+                                                       "must follow after the equal sign\n"
+                                                       "Error: Value of parameter \"--sub-linter=\" "
+                                                       "must follow after the equal sign\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestOneSublinterHaveSyntaxError ) {
@@ -1438,21 +1419,10 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--sub-linter" };
-        const LintCombine::stringVector result = {
-                "--result-yaml=pathToResultYaml",
-                "--sub-linter=clang-tidy",
-                "-p=pathToCompilationDataBase",
-                "--export-fixes=pathToCompilationDataBase\\diagnosticsClangTidy.yaml",
-                "--sub-linter=clazy",
-                "-p=pathToCompilationDataBase",
-                "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
-        compareVectors ( commandLine, result );
-        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Incorrect syntax in \"--sub-linter\". \
-                                                         Expected: \"--param-name=<param-value>\".      \
-                                                         The parameter will be ignored.\n" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == true );
+        BOOST_CHECK ( stderrCapture.getBufferData () == "Error: Unknown linter name: \"\"\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestTwoSublinterHaveSyntaxError ) {
@@ -1460,24 +1430,11 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--sub-linter", "--sub-linter" };
-        const LintCombine::stringVector result = {
-                "--result-yaml=pathToResultYaml",
-                "--sub-linter=clang-tidy",
-                "-p=pathToCompilationDataBase",
-                "--export-fixes=pathToCompilationDataBase\\diagnosticsClangTidy.yaml",
-                "--sub-linter=clazy",
-                "-p=pathToCompilationDataBase",
-                "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
-        compareVectors ( commandLine, result );
-        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Warning: Incorrect syntax in \"--sub-linter\". \
-                                                         Expected: \"--param-name=<param-value>\".      \
-                                                         The parameter will be ignored.\n               \
-                                                         Warning: Incorrect syntax in \"--sub-linter\". \
-                                                         Expected: \"--param-name=<param-value>\".      \
-                                                         The parameter will be ignored.\n" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur() == true );
+        BOOST_CHECK ( stderrCapture.getBufferData() == "Error: Unknown linter name: \"--sub-linter\"\n"
+                                                       "Error: Unknown linter name: \"\"\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestOneSublinterIncorrectName ) {
@@ -1486,7 +1443,7 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                                                   "--export-fixes=pathToResultYaml",
                                                   "--sub-linter=IncorrectName_1" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == true );
         BOOST_CHECK ( stderrCapture.getBufferData () == "Error: Unknown linter name: \"IncorrectName_1\"\n" );
     }
@@ -1498,10 +1455,10 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                                                   "--sub-linter=IncorrectName_1",
                                                   "--sub-linter=IncorrectName_2" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == true );
-        BOOST_CHECK ( stderrCapture.getBufferData () == "Error: Unknown linter name: \"IncorrectName_1\"\n\
-                                                         Error: Unknown linter name: \"IncorrectName_2\"\n" );
+        BOOST_CHECK ( stderrCapture.getBufferData () == "Error: Unknown linter name: \"IncorrectName_1\"\n"
+                                                        "Error: Unknown linter name: \"IncorrectName_2\"\n" );
     }
 
     BOOST_AUTO_TEST_CASE ( TestSublinterIsClangTidy ) {
@@ -1509,13 +1466,13 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--sub-linter=clang-tidy" };
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 4 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClangTidy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData().empty() );
@@ -1526,13 +1483,13 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
         LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                                   "--export-fixes=pathToResultYaml",
                                                   "--sub-linter=clazy" };
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 4 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clazy",
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData ().empty () );
@@ -1544,16 +1501,16 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
                                                   "--export-fixes=pathToResultYaml",
                                                   "--sub-linter=clang-tidy",
                                                   "--sub-linter=clazy" };
-        const LintCombine::stringVector result = {
+        const std::array < std::string, 7 > result = {
                 "--result-yaml=pathToResultYaml",
                 "--sub-linter=clang-tidy",
                 "-p=pathToCompilationDataBase",
-                "--export-fixes=pathToCompilationDataBase\\diagnosticsClangTidy.yaml"
+                "--export-fixes=pathToCompilationDataBase\\diagnosticsClangTidy.yaml",
                 "--sub-linter=clazy",
                 "-p=pathToCompilationDataBase",
                 "--export-fixes=pathToCompilationDataBase\\diagnosticsClazy.yaml" };
 
-        LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
+        const LintCombine::CommandLinePreparer commandLinePreparer ( commandLine, "ReSharper" );
         compareVectors ( commandLine, result );
         BOOST_CHECK ( commandLinePreparer.getIsErrorWhilePrepareOccur () == false );
         BOOST_CHECK ( stderrCapture.getBufferData ().empty () );
