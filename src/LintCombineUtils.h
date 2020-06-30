@@ -9,20 +9,22 @@ namespace LintCombine {
     public:
         CommandLinePreparer( stringVector & commandLine, std::string && toolName );
 
-        bool getIsErrorWhilePrepareOccur () const { return m_isErrorWhilePrepareOccur; }
+        bool getIsErrorWhilePrepareOccur() const {
+            return m_isErrorWhilePrepareOccur;
+        }
 
     private:
         struct OutputRecord {
             std::string level;
             std::string text;
-            unsigned int startPosInCL;
+            unsigned int beginPosInCL;
             unsigned int endPosInCL;
 
             OutputRecord( const std::string & levelInit, const std::string & textInit,
                           const unsigned int startPosInCLInit,
                           const unsigned int endPosInCLInit )
                 : level( levelInit ), text( textInit ),
-                  startPosInCL( startPosInCLInit ), endPosInCL( endPosInCLInit ) {}
+                beginPosInCL( startPosInCLInit ), endPosInCL( endPosInCLInit ) {}
         };
 
         struct BaseLinterOptions {
@@ -31,33 +33,33 @@ namespace LintCombine {
         };
 
         struct ClangTidyOptions : BaseLinterOptions {
-            explicit ClangTidyOptions ( const std::string & pathToWorkDir ) {
+            explicit ClangTidyOptions( const std::string & pathToWorkDir ) {
                 linterName = "clang-tidy";
-                options.emplace_back ( "--sub-linter=clang-tidy" );
-                if( !pathToWorkDir.empty () ) {
-                    options.emplace_back ( "-p=" + pathToWorkDir );
-                    options.emplace_back ( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClangTidy.yaml" );
+                options.emplace_back( "--sub-linter=clang-tidy" );
+                if( !pathToWorkDir.empty() ) {
+                    options.emplace_back( "-p=" + pathToWorkDir );
+                    options.emplace_back( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClangTidy.yaml" );
                 }
             }
         };
 
         struct ClazyOptions : BaseLinterOptions {
-            explicit ClazyOptions ( const std::string & pathToWorkDir,
+            explicit ClazyOptions( const std::string & pathToWorkDir,
                                     const std::string & checks,
                                     std::vector < std::string > && clangExtraArgs ) {
                 linterName = "clazy";
-                options.emplace_back ( "--sub-linter=clazy" );
-                if( !pathToWorkDir.empty () ) {
-                    options.emplace_back ( "-p=" + pathToWorkDir );
-                    options.emplace_back ( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClazy.yaml" );
+                options.emplace_back( "--sub-linter=clazy" );
+                if( !pathToWorkDir.empty() ) {
+                    options.emplace_back( "-p=" + pathToWorkDir );
+                    options.emplace_back( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClazy.yaml" );
                 }
-                if( !checks.empty () && checks.find ( "--" ) == std::string::npos ) {
-                    options.emplace_back ( "--checks=" + checks );
+                if( !checks.empty() && checks.find( "--" ) == std::string::npos ) {
+                    options.emplace_back( "--checks=" + checks );
                 }
-                if( !clangExtraArgs.empty () ) {
+                if( !clangExtraArgs.empty() ) {
                     for( const auto & it : clangExtraArgs ) {
-                        if( !it.empty () && it.find ( "--" ) == std::string::npos ) {
-                            options.emplace_back ( "--extra-arg=" + it );
+                        if( !it.empty() && it.find( "--" ) == std::string::npos ) {
+                            options.emplace_back( "--extra-arg=" + it );
                         }
                     }
                 }
@@ -67,7 +69,7 @@ namespace LintCombine {
         void prepareCommandLineForReSharper( stringVector & commandLine );
 
         static std::string
-        optionValueToQuotes( const std::string & optionName, const std::string & optionNameWithValue );
+            optionValueToQuotes( const std::string & optionName, const std::string & optionNameWithValue );
 
         void initCommandLine( stringVector & commandLine );
 

@@ -8,10 +8,17 @@
 
 LintCombine::CommandLinePreparer::CommandLinePreparer( stringVector & commandLine,
                                                         std::string && toolName ) {
+    m_sourceCL = boost::algorithm::join( commandLine, " " );
     for( const auto & it : commandLine ) {
         if( it == "--verbatim-commands" ) {
-            m_output.emplace_back( "Info",
-                                    "Option \"--verbatim-commands\" was set so options are passed to combine verbatim.", 0, 0 );
+            // code duplication
+            const unsigned int warningBeginInCL
+                = static_cast< const unsigned int >( m_sourceCL.find( std::string( it ) ) );
+            const unsigned int warningEndInCL
+                = warningBeginInCL + static_cast< const unsigned int >( std::string( it ).size() - 1 );
+            m_output.emplace_back( "Info", "Option \"--verbatim-commands\" was set "
+                                   "so options are passed to combine verbatim.",
+                                   warningBeginInCL, warningEndInCL );
             toolName.clear();
             commandLine.erase(
                 std::remove( commandLine.begin(), commandLine.end(),
@@ -23,7 +30,6 @@ LintCombine::CommandLinePreparer::CommandLinePreparer( stringVector & commandLin
     boost::algorithm::to_lower( toolName );
     if( !commandLine.empty() ) {
         if( toolName == "resharper" ) {
-            m_sourceCL = boost::algorithm::join( commandLine, " " );
             prepareCommandLineForReSharper( commandLine );
         }
     }
@@ -120,18 +126,29 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
         []( const std::string & str ) -> bool {
             return str.find( "clang-extra-args" ) != std::string::npos; } ) != std::end( commandLine )
                 && m_clangExtraArgs.empty() ) {
+        // code duplication
+        const unsigned int warningBeginInCL
+            = static_cast< const unsigned int >( m_sourceCL.find( std::string( "clang-extra-args" ) ) );
+        const unsigned int warningEndInCL
+            = warningBeginInCL + static_cast< const unsigned int >( std::string( "clang-extra-args" ).size() - 1 );
         m_output.emplace_back( OutputRecord( "Warning", "Parameter "
                                "\"--clang-extra-args\" was set but the parameter's "
-                               "value was not set. The parameter will be ignored.", 0, 0 ) );
+                               "value was not set. The parameter will be ignored.",
+                               warningBeginInCL, warningEndInCL ) );
     }
-
+    // code duplication
     if( std::find_if( std::begin( commandLine ), std::end( commandLine ),
         []( const std::string & str ) -> bool {
             return str.find( "clazy-checks" ) != std::string::npos; } ) != std::end( commandLine )
                 && m_clazyChecks.empty() ) {
+        const unsigned int warningBeginInCL
+            = static_cast< const unsigned int >( m_sourceCL.find( std::string( "clazy-checks" ) ) );
+        const unsigned int warningEndInCL
+            = warningBeginInCL + static_cast< const unsigned int >( std::string( "clazy-checks" ).size() - 1 );
         m_output.emplace_back( OutputRecord( "Warning", "Parameter "
                                "\"--clazy-checks\" was set but the parameter's "
-                               "value was not set. The parameter will be ignored.", 0, 0 ) );
+                               "value was not set. The parameter will be ignored.",
+                               warningBeginInCL, warningEndInCL ) );
     }
 
     commandLine.clear();
@@ -139,7 +156,13 @@ void LintCombine::CommandLinePreparer::initCommandLine( stringVector & commandLi
     std::istringstream iss( m_clangExtraArgs );
     for( auto & it : m_lintersNames ) {
         if( it != "clang-tidy" && it != "clazy" ) {
-            m_output.emplace_back( OutputRecord( "Error", "Unknown linter name: \"" + it + "\"", 0, 0 ) );
+            // code duplication
+            const unsigned int warningBeginInCL
+                = static_cast< const unsigned int >( m_sourceCL.find( it ) );
+            const unsigned int warningEndInCL
+                = warningBeginInCL + static_cast< const unsigned int >( it.size() - 1 );
+            m_output.emplace_back( OutputRecord( "Error", "Unknown linter name: \"" + it + "\"",
+                                   warningBeginInCL, warningEndInCL ) );
             m_isErrorWhilePrepareOccur = true;
             continue;
         }
@@ -176,20 +199,30 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
             // if parameter is clazy-checks or clang-extra-args - Ignore them.
             if( commandLine[i].find( "clazy-checks" ) != std::string::npos
                 || commandLine[i].find( "clang-extra-args" ) != std::string::npos ) {
+                // code duplication
+                const unsigned int warningBeginInCL
+                    = static_cast< const unsigned int >( m_sourceCL.find( commandLine[i] ) );
+                const unsigned int warningEndInCL
+                    = warningBeginInCL + static_cast< const unsigned int >( commandLine[i].size() - 1 );
                 m_output.emplace_back(
                     OutputRecord( "Warning", "Parameter \"" +
                     commandLine[i] + "\" was set but the parameter's value was not set. "
-                    "The parameter will be ignored.", 0, 0 ) );
-                commandLine.erase( std::begin( commandLine ) + i );
-                --i;
+                    "The parameter will be ignored.",
+                    warningBeginInCL, warningEndInCL ) );
+                commandLine.erase( std::begin( commandLine ) + i-- );
             }
             else {
+                // code duplication
+                const auto warningBeginInCL
+                    = static_cast< const unsigned int >( m_sourceCL.find( commandLine[i] ) );
+                const auto warningEndInCL
+                    = warningBeginInCL + static_cast< const unsigned int >( commandLine[i].size() - 1 );
                 m_output.emplace_back(
                     OutputRecord( "Error", "Value of parameter \"" +
-                    commandLine[i] + "\" must follow after the equal sign", 0, 0 ) );
+                    commandLine[i] + "\" must follow after the equal sign",
+                    warningBeginInCL, warningEndInCL ) );
                 m_isErrorWhilePrepareOccur = true;
-                commandLine.erase( std::begin( commandLine ) + i );
-                --i;
+                commandLine.erase( std::begin( commandLine ) + i-- );
             }
             continue;
         }
@@ -198,8 +231,7 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
         if( commandLine[i].find( "--sub-linter=" ) == 0 ) {
             m_lintersNames.emplace_back( commandLine[i].substr(
                 std::string( "--sub-linter=" ).size(), commandLine[i].size() ) );
-            commandLine.erase( std::begin( commandLine ) + i );
-            --i;
+            commandLine.erase( std::begin( commandLine ) + i-- );
             continue;
         }
 
@@ -211,8 +243,7 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
             else {
                 m_lintersNames.emplace_back( std::string() );
             }
-            commandLine.erase( std::begin( commandLine ) + i );
-            --i;
+            commandLine.erase( std::begin( commandLine ) + i-- );
         }
     }
 
@@ -240,12 +271,12 @@ void LintCombine::CommandLinePreparer::prepareCommandLineForReSharper( stringVec
         collect_unrecognized( parsed.options, boost::program_options::include_positional );
     // TODO: separate function for data validation here
     if( m_pathToWorkDir.empty() ) {
-        m_output.emplace_back( "Error", "Path to compilation database is empty.", 0, 0 );
+        m_output.emplace_back( "Error", "Path to compilation database is empty.", 0, m_sourceCL.size() - 1 );
         m_isErrorWhilePrepareOccur = true;
         return;
     }
     if( m_pathToGeneralYaml.empty() ) {
-        m_output.emplace_back( "Error", "Path to yaml-file is empty.", 0, 0 );
+        m_output.emplace_back( "Error", "Path to yaml-file is empty.", 0, m_sourceCL.size() - 1 );
         m_isErrorWhilePrepareOccur = true;
         return;
     }
