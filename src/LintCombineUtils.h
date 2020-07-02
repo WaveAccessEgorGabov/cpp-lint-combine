@@ -83,9 +83,9 @@ namespace LintCombine {
 
         void initLintCombineOptions( stringVector & commandLine ) const;
 
-        stringVector prepareOutput() const;
+        stringVector prepareOutput();
 
-        void printOutput() const;
+        void printOutput();
 
         void getStringPlaceInSourceCL( unsigned int & beginInCL,
                                        unsigned int & endInCL,

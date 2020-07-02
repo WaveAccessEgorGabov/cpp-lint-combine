@@ -5,6 +5,7 @@
 
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector commandLine = LintCombine::moveCommandLineToSTLContainer( argc, argv );
+    // TODO: #ifdef useFromIDE (is defined by cmake)
     // Prepare command line for using in ReSharper
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     if( commandLinePreparer.getIsErrorWhilePrepareOccur() ) {
