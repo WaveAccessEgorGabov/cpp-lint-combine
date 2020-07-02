@@ -9,8 +9,8 @@
 #include <fstream>
 #include <filesystem>
 
-struct recoverFiles { // rename to recoverYamlFiles
-    ~recoverFiles() {
+struct recoverYamlFiles {
+    ~recoverYamlFiles() {
         std::filesystem::remove( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
         std::filesystem::copy_file( CURRENT_SOURCE_DIR"yamlFiles/linterFile_1_save.yaml",
                                     CURRENT_SOURCE_DIR"yamlFiles/linterFile_1.yaml" );
@@ -807,7 +807,7 @@ BOOST_AUTO_TEST_CASE( BothLintersHaveExistYamlPath ) {
     BOOST_CHECK_EQUAL_COLLECTIONS( fileIter_2, end_2, fileIter_2_save, end_2_save );
 }
 
-BOOST_FIXTURE_TEST_CASE( clangTidyTest, recoverFiles ) {
+BOOST_FIXTURE_TEST_CASE( clangTidyTest, recoverYamlFiles ) {
     LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy",
                                                  "--export-fixes="
                                                  CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" };
@@ -823,7 +823,7 @@ BOOST_FIXTURE_TEST_CASE( clangTidyTest, recoverFiles ) {
     BOOST_CHECK_EQUAL_COLLECTIONS( fileIter_1, end_1, fileIter_1_save, end_1_save );
 }
 
-BOOST_FIXTURE_TEST_CASE( clazyTest, recoverFiles ) {
+BOOST_FIXTURE_TEST_CASE( clazyTest, recoverYamlFiles ) {
     LintCombine::stringVector commandLine = { "--sub-linter=clazy",
                                                  "--export-fixes="
                                                  CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml" };
@@ -1078,7 +1078,11 @@ BOOST_AUTO_TEST_CASE( TestVerbatimOptionExists ) {
     compareVectors( commandLine, result );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == false );
     BOOST_CHECK( stderrCapture.getBufferData() ==
-        "Info: Option \"--verbatim-commands\" was set so options are passed to combine verbatim.\n" );
+                    "Info: Option \"--verbatim-commands\" "
+                    "was set so options are passed to combine verbatim.\n"
+                    "--verbatim-commands param1 -p=pathToCompilationDataBase "
+                    "--export-fixes=pathToResultYaml param2\n"
+                    "~~~~~~~~~~~~~~~~~~~\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestPathToYamlFileIsEmpty ) {
@@ -1086,7 +1090,9 @@ BOOST_AUTO_TEST_CASE( TestPathToYamlFileIsEmpty ) {
     LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase" };
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == true );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Error: Path to yaml-file is empty.\n" );
+    BOOST_CHECK( stderrCapture.getBufferData() == "Error: Path to yaml-file is empty.\n"
+                                                  "-p=pathToCompilationDataBase\n"
+                                                  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestPathToComilationDataBaseIsEmpty ) {
@@ -1094,7 +1100,9 @@ BOOST_AUTO_TEST_CASE( TestPathToComilationDataBaseIsEmpty ) {
     LintCombine::stringVector commandLine = { "-export-fixes=pathToResultYaml" };
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == true );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Error: Path to compilation database is empty.\n" );
+    BOOST_CHECK( stderrCapture.getBufferData() == "Error: Path to compilation database is empty.\n"
+                                                  "-export-fixes=pathToResultYaml\n"
+                                                  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestMinimalRequiredOptionsExist ) {
@@ -1200,9 +1208,16 @@ BOOST_AUTO_TEST_CASE( TestClazyChecksEmptyAfterEqualSign ) {
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     compareVectors( commandLine, result );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == false );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Warning: Parameter \"--clazy-checks=\" was "
-                                                  "set but the parameter's value was not set. "
-                                                  "The parameter will be ignored.\n" );
+    std::string strClazyChecksUnderLine( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strClazyChecksUnderLine.append( std::string( "--clazy-checks=" ).size(), '~' );
+    BOOST_CHECK( stderrCapture.getBufferData() ==
+                 "Warning: Parameter \"--clazy-checks=\" was "
+                 "set but the parameter's value was not set. "
+                 "The parameter will be ignored.\n"
+                 "-p=pathToCompilationDataBase "
+                 "--export-fixes=pathToResultYaml "
+                 "--clazy-checks=\n" + strClazyChecksUnderLine + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestClangExtraArgsEmptyAfterEqualSign ) {
@@ -1222,9 +1237,16 @@ BOOST_AUTO_TEST_CASE( TestClangExtraArgsEmptyAfterEqualSign ) {
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     compareVectors( commandLine, result );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == false );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Warning: Parameter \"--clang-extra-args=\" was "
-                                                    "set but the parameter's value was not set. "
-                                                    "The parameter will be ignored.\n" );
+    std::string strClangArgsUnderline( std::string( "-p=pathToCompilationDataBase "
+                                       "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strClangArgsUnderline.append( std::string( "--clang-extra-args=" ).size(), '~' );
+    BOOST_CHECK( stderrCapture.getBufferData() ==
+                 "Warning: Parameter \"--clang-extra-args=\" was "
+                  "set but the parameter's value was not set. "
+                  "The parameter will be ignored.\n"
+                  "-p=pathToCompilationDataBase "
+                  "--export-fixes=pathToResultYaml "
+                  "--clang-extra-args=\n" + strClangArgsUnderline + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestAllParamsHaveEmptyValue ) {
@@ -1244,12 +1266,26 @@ BOOST_AUTO_TEST_CASE( TestAllParamsHaveEmptyValue ) {
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     compareVectors( commandLine, result );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == false );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Warning: Parameter \"--clazy-checks=\" was "
-                                                    "set but the parameter's value was not set. "
-                                                    "The parameter will be ignored.\n"
-                                                    "Warning: Parameter \"--clang-extra-args=\" was "
-                                                    "set but the parameter's value was not set. "
-                                                    "The parameter will be ignored.\n" );
+    std::string strClazyChecksUnderline( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strClazyChecksUnderline.append( std::string( "--clazy-checks=" ).size(), '~' );
+    std::string strClangArgsUnderline( std::string( "-p=pathToCompilationDataBase "
+                                       "--export-fixes=pathToResultYaml --clazy-checks= " ).size(), ' ' );
+    strClangArgsUnderline.append( std::string( "--clang-extra-args=" ).size(), '~' );
+
+    BOOST_CHECK( stderrCapture.getBufferData() ==
+                 "Warning: Parameter \"--clazy-checks=\" was "
+                 "set but the parameter's value was not set. "
+                 "The parameter will be ignored.\n"
+                 "-p=pathToCompilationDataBase "
+                 "--export-fixes=pathToResultYaml "
+                 "--clazy-checks= --clang-extra-args=\n" + strClazyChecksUnderline + "\n"
+                 "Warning: Parameter \"--clang-extra-args=\" was "
+                 "set but the parameter's value was not set. "
+                 "The parameter will be ignored.\n"
+                 "-p=pathToCompilationDataBase "
+                 "--export-fixes=pathToResultYaml "
+                 "--clazy-checks= --clang-extra-args=\n" + strClangArgsUnderline + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestClazyChecksSyntaxError ) {
@@ -1269,9 +1305,16 @@ BOOST_AUTO_TEST_CASE( TestClazyChecksSyntaxError ) {
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     compareVectors( commandLine, result );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == false );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Warning: Parameter \"--clazy-checks\" was set "
-                                                  "but the parameter's value was not set. "
-                                                  "The parameter will be ignored.\n" );
+    std::string strClazyChecksUnderLine( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strClazyChecksUnderLine.append( std::string( "--clazy-checks" ).size(), '~' );
+    BOOST_CHECK( stderrCapture.getBufferData() == 
+                 "Warning: Parameter \"--clazy-checks\" was set "
+                 "but the parameter's value was not set. "
+                 "The parameter will be ignored.\n"
+                 "-p=pathToCompilationDataBase "
+                 "--export-fixes=pathToResultYaml "
+                 "--clazy-checks\n" + strClazyChecksUnderLine + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestClangExtraArgsSyntaxError ) {
@@ -1291,9 +1334,16 @@ BOOST_AUTO_TEST_CASE( TestClangExtraArgsSyntaxError ) {
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     compareVectors( commandLine, result );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == false );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Warning: Parameter \"--clang-extra-args\" was set "
-                                                    "but the parameter's value was not set. "
-                                                    "The parameter will be ignored.\n" );
+    std::string strClangArgsUnderline( std::string( "-p=pathToCompilationDataBase "
+                                       "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strClangArgsUnderline.append( std::string( "--clang-extra-args" ).size(), '~' );
+    BOOST_CHECK( stderrCapture.getBufferData() == 
+                 "Warning: Parameter \"--clang-extra-args\" was set "
+                 "but the parameter's value was not set. "
+                 "The parameter will be ignored.\n"
+                 "-p=pathToCompilationDataBase "
+                 "--export-fixes=pathToResultYaml "
+                 "--clang-extra-args\n" + strClangArgsUnderline + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestAllParamsHaveSyntaxError ) {
@@ -1313,12 +1363,25 @@ BOOST_AUTO_TEST_CASE( TestAllParamsHaveSyntaxError ) {
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     compareVectors( commandLine, result );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == false );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Warning: Parameter \"--clang-extra-args\" was set "
-                                                    "but the parameter's value was not set. "
-                                                    "The parameter will be ignored.\n"
-                                                    "Warning: Parameter \"--clazy-checks\" was set "
-                                                    "but the parameter's value was not set. "
-                                                    "The parameter will be ignored.\n" );
+    std::string strClazyChecksUnderLine( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strClazyChecksUnderLine.append( std::string( "--clazy-checks" ).size(), '~' );
+    std::string strClangArgsUnderline( std::string( "-p=pathToCompilationDataBase "
+                                       "--export-fixes=pathToResultYaml --clazy-checks " ).size(), ' ' );
+    strClangArgsUnderline.append( std::string( "--clang-extra-args" ).size(), '~' );
+    BOOST_CHECK( stderrCapture.getBufferData() == 
+                 "Warning: Parameter \"--clang-extra-args\" was set "
+                 "but the parameter's value was not set. "
+                 "The parameter will be ignored.\n"
+                 "-p=pathToCompilationDataBase "
+                 "--export-fixes=pathToResultYaml "
+                 "--clazy-checks --clang-extra-args\n" + strClangArgsUnderline + "\n"
+                 "Warning: Parameter \"--clazy-checks\" was set "
+                 "but the parameter's value was not set. "
+                 "The parameter will be ignored.\n"
+                 "-p=pathToCompilationDataBase "
+                 "--export-fixes=pathToResultYaml "
+                 "--clazy-checks --clang-extra-args\n" + strClazyChecksUnderLine + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestClazyChecksExist ) {
@@ -1346,7 +1409,7 @@ BOOST_AUTO_TEST_CASE( TestClangExtraArgsExist ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
                                               "--export-fixes=pathToResultYaml",
-                                              "--clang-extra-args=\"arg_1 arg_2\" " }; // check quotes
+                                              "--clang-extra-args=arg_1 arg_2 " };
     const std::array < std::string, 9 > result = {
             "--result-yaml=pathToResultYaml",
             "--sub-linter=clang-tidy",
@@ -1394,8 +1457,14 @@ BOOST_AUTO_TEST_CASE( TestOneSublinterValueEmptyAfterEqualSign ) {
 
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == true );
+    std::string strSublinterUnderline( std::string( "-p=pathToCompilationDataBase "
+                                       "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strSublinterUnderline.append( std::string( "--sub-linter=" ).size(), '~' );
     BOOST_CHECK( stderrCapture.getBufferData() == "Error: Value of parameter \"--sub-linter=\" "
-                                                    "must follow after the equal sign\n" );
+                                                   "must follow after the equal sign\n"
+                                                   "-p=pathToCompilationDataBase "
+                                                   "--export-fixes=pathToResultYaml "
+                                                   "--sub-linter=\n" + strSublinterUnderline + "\n");
 }
 
 BOOST_AUTO_TEST_CASE( TestTwoSublinterValuesEmptyAfterEqualSign ) {
@@ -1406,12 +1475,26 @@ BOOST_AUTO_TEST_CASE( TestTwoSublinterValuesEmptyAfterEqualSign ) {
 
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == true );
+    std::string strSublinterUnderline_1( std::string( "-p=pathToCompilationDataBase "
+                                       "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strSublinterUnderline_1.append( std::string( "--sub-linter=" ).size(), '~' );
+    std::string strSublinterUnderline_2( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml --sub-linter= " ).size(), ' ' );
+    strSublinterUnderline_2.append( std::string( "--sub-linter=" ).size(), '~' );
     BOOST_CHECK( stderrCapture.getBufferData() == "Error: Value of parameter \"--sub-linter=\" "
-                                                   "must follow after the equal sign\n"
-                                                   "Error: Value of parameter \"--sub-linter=\" "
-                                                   "must follow after the equal sign\n" );
+                                                  "must follow after the equal sign\n"
+                                                  "-p=pathToCompilationDataBase "
+                                                  "--export-fixes=pathToResultYaml "
+                                                  "--sub-linter= --sub-linter=\n" 
+                                                  + strSublinterUnderline_1 + "\n"
+                                                  "Error: Value of parameter \"--sub-linter=\" "
+                                                  "must follow after the equal sign\n"
+                                                   "-p=pathToCompilationDataBase "
+                                                  "--export-fixes=pathToResultYaml "
+                                                  "--sub-linter= --sub-linter=\n"
+                                                  + strSublinterUnderline_2 + "\n" );
 }
-
+// TODO TEST: correct --sub-linter before incorrect
 BOOST_AUTO_TEST_CASE( TestOneSublinterHaveSyntaxError ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
@@ -1420,9 +1503,16 @@ BOOST_AUTO_TEST_CASE( TestOneSublinterHaveSyntaxError ) {
 
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == true );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Error: Unknown linter name: \"\"\n" );
+    std::string strSublinterUnderline( std::string( "-p=pathToCompilationDataBase "
+                                       "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strSublinterUnderline.append( std::string( "--sub-linter" ).size(), '~' );
+    BOOST_CHECK( stderrCapture.getBufferData() ==
+                 "Error: Unknown linter name: \"\"\n"
+                 "-p=pathToCompilationDataBase --export-fixes=pathToResultYaml "
+                 "--sub-linter\n" + strSublinterUnderline + "\n" );
 }
 
+// It's not very correct (incorrect underlines)
 BOOST_AUTO_TEST_CASE( TestTwoSublinterHaveSyntaxError ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector commandLine = { "-p=pathToCompilationDataBase",
@@ -1431,8 +1521,23 @@ BOOST_AUTO_TEST_CASE( TestTwoSublinterHaveSyntaxError ) {
 
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == true );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Error: Unknown linter name: \"--sub-linter\"\n"
-                                                   "Error: Unknown linter name: \"\"\n" );
+    std::string strSublinterUnderline_1( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml " ).size(), ' ' );
+    strSublinterUnderline_1.append( std::string( "--sub-linter" ).size(), '~' );
+    std::string strSublinterUnderline_2( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml --sub-linter " ).size(), ' ' );
+    strSublinterUnderline_2.append( std::string( "--sub-linter" ).size(), '~' );
+    BOOST_CHECK( stderrCapture.getBufferData() 
+                 == "Error: Unknown linter name: \"--sub-linter\"\n"
+                    "-p=pathToCompilationDataBase "
+                    "--export-fixes=pathToResultYaml "
+                    "--sub-linter --sub-linter\n"
+                    + strSublinterUnderline_1 + "\n"
+                    "Error: Unknown linter name: \"\"\n"
+                    "-p=pathToCompilationDataBase "
+                    "--export-fixes=pathToResultYaml "
+                    "--sub-linter --sub-linter\n"
+                    + strSublinterUnderline_2 + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestOneSublinterIncorrectName ) {
@@ -1443,7 +1548,13 @@ BOOST_AUTO_TEST_CASE( TestOneSublinterIncorrectName ) {
 
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == true );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Error: Unknown linter name: \"IncorrectName_1\"\n" );
+    std::string strSublinterUnderline_1( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml --sub-linter=" ).size(), ' ' );
+    strSublinterUnderline_1.append( std::string( "IncorrectName_1" ).size(), '~' );
+    BOOST_CHECK( stderrCapture.getBufferData() ==
+                 "Error: Unknown linter name: \"IncorrectName_1\"\n"
+                 "-p=pathToCompilationDataBase --export-fixes=pathToResultYaml "
+                 "--sub-linter=IncorrectName_1\n" + strSublinterUnderline_1 + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestTwoSublinterIncorrectName ) {
@@ -1455,8 +1566,23 @@ BOOST_AUTO_TEST_CASE( TestTwoSublinterIncorrectName ) {
 
     const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
     BOOST_CHECK( commandLinePreparer.getIsErrorWhilePrepareOccur() == true );
-    BOOST_CHECK( stderrCapture.getBufferData() == "Error: Unknown linter name: \"IncorrectName_1\"\n"
-                                                    "Error: Unknown linter name: \"IncorrectName_2\"\n" );
+    std::string strSublinterUnderline_1( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml --sub-linter=" ).size(), ' ' );
+    strSublinterUnderline_1.append( std::string( "IncorrectName_1" ).size(), '~' );
+    std::string strSublinterUnderline_2( std::string( "-p=pathToCompilationDataBase "
+                                         "--export-fixes=pathToResultYaml "
+                                         "--sub-linter=IncorrectName_1 --sub-linter=" ).size(), ' ' );
+    strSublinterUnderline_2.append( std::string( "IncorrectName_2" ).size(), '~' );
+
+    BOOST_CHECK( stderrCapture.getBufferData() 
+                 == "Error: Unknown linter name: \"IncorrectName_1\"\n"
+                    "-p=pathToCompilationDataBase --export-fixes=pathToResultYaml "
+                    "--sub-linter=IncorrectName_1 --sub-linter=IncorrectName_2\n"
+                    + strSublinterUnderline_1 + "\n"
+                    "Error: Unknown linter name: \"IncorrectName_2\"\n" 
+                    "-p=pathToCompilationDataBase --export-fixes=pathToResultYaml "
+                    "--sub-linter=IncorrectName_1 --sub-linter=IncorrectName_2\n"
+                    + strSublinterUnderline_2 + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE( TestSublinterIsClangTidy ) {
