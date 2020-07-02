@@ -17,8 +17,8 @@ namespace LintCombine {
         struct OutputRecord {
             std::string level;
             std::string text;
-            unsigned int beginPosInCL;
-            unsigned int endPosInCL;
+            unsigned int beginPosInCL; // size_t
+            unsigned int endPosInCL; // size_t
 
             OutputRecord( const std::string & levelInit, const std::string & textInit,
                           const unsigned int startPosInCLInit,
@@ -86,6 +86,15 @@ namespace LintCombine {
         stringVector prepareOutput() const;
 
         void printOutput() const;
+
+        void getStringPlaceInSourceCL( unsigned int & beginInCL,
+                                       unsigned int & endInCL,
+                                       unsigned int & findFrom,
+                                       const std::string & str ) const;
+
+        void checkIsOptionsValueInit( const stringVector & commandLine,
+                                     const std::string & optionName,
+                                     const std::string & option );
 
         std::vector < BaseLinterOptions * > m_lintersOptions;
         std::vector < OutputRecord > m_output;
