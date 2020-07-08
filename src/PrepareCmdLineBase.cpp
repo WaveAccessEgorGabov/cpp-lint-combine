@@ -18,7 +18,7 @@ LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
     if( initLinters() ) {
         return stringVector();
     }
-    appendOptionsToSpecificIDE();
+    initCmdLine();
     return m_cmdLine;
 }
 
@@ -36,6 +36,7 @@ LintCombine::PrepareCmdLineBase::diagnostics() {
 }
 
 // TODO: validate implicit value
+// TODO: delete options witch implicit
 bool LintCombine::PrepareCmdLineBase::parseSourceCmdLine() {
     boost::program_options::options_description programOptions;
     programOptions.add_options()
@@ -145,6 +146,18 @@ bool LintCombine::PrepareCmdLineBase::initLinters() {
            std::istream_iterator<std::string> {} ) ) };
     }
     return isErrorOccur;
+}
+
+void LintCombine::PrepareCmdLineBase::initCmdLine() {
+    m_cmdLine.clear();
+    initCommonOptions();
+    initOptionsToSpecificIDE();
+}
+
+void LintCombine::PrepareCmdLineBase::initCommonOptions() {
+    if( !m_pathToGeneralYaml.empty() ) {
+        m_cmdLine.emplace_back( "--result-yaml=" + m_pathToGeneralYaml );
+    }
 }
 
 void LintCombine::PrepareCmdLineBase::realeaseClassField() {

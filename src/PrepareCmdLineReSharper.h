@@ -4,10 +4,7 @@
 
 namespace LintCombine {
     class PrepareCmdLineReSharper final : public PrepareCmdLineBase {
-    public:
-        void appendOptionsToSpecificIDE() override;
-    private:
-        void initCommonOptions();
+        void initOptionsToSpecificIDE() override;
 
         void initUnrecognizedOptions();
 
@@ -17,8 +14,8 @@ namespace LintCombine {
         void addOptionToAllLinters( const std::string & option );
 
         static std::string
-        optionValueToQuotes( const std::string & optionName,
-                             const std::string & optionNameWithValue );
+            optionValueToQuotes( const std::string & optionName,
+                                 const std::string & optionNameWithValue );
 
         void appendLintersOptionToCmdLine();
     };

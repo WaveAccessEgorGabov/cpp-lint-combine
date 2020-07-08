@@ -8,7 +8,9 @@ int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
     LintCombine::fixHyphensInCmdLine( cmdLine );
     auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
+    const auto saveCmdLine = cmdLine;
     cmdLine = prepareCmdLine->transform( cmdLine );
+    printDiagnostics( saveCmdLine, prepareCmdLine->diagnostics() );
     if( cmdLine.empty() ) {
         return 1;
     }

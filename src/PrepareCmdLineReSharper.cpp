@@ -2,17 +2,9 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
-void LintCombine::PrepareCmdLineReSharper::appendOptionsToSpecificIDE() {
-    m_cmdLine.clear();
-    initCommonOptions();
+void LintCombine::PrepareCmdLineReSharper::initOptionsToSpecificIDE() {
     initUnrecognizedOptions();
     appendLintersOptionToCmdLine();
-}
-
-void LintCombine::PrepareCmdLineReSharper::initCommonOptions() {
-    if( !m_pathToGeneralYaml.empty() ) {
-        m_cmdLine.emplace_back( "--result-yaml=" + m_pathToGeneralYaml );
-    }
 }
 
 void LintCombine::PrepareCmdLineReSharper::initUnrecognizedOptions() {
@@ -50,7 +42,6 @@ void LintCombine::PrepareCmdLineReSharper::initUnrecognizedOptions() {
     }
 }
 
-// list of linters to enum
 void LintCombine::PrepareCmdLineReSharper::addOptionToLinterByName( const std::string & name,
                                                                     const std::string & option ) {
     for( auto & it : m_lintersOptions ) {
