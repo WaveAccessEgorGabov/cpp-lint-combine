@@ -1,7 +1,7 @@
 #pragma once
 
 #include "yaml-cpp/yaml.h"
-#include "UsualFactory.h"
+#include "UsualLinterFactory.h"
 #include "LinterItf.h"
 
 #include <boost/program_options.hpp>
@@ -13,7 +13,7 @@ namespace LintCombine {
 
     public:
         explicit LinterCombine( const stringVector & commandLine,
-                                FactoryBase & factory = UsualFactory::getInstance() );
+                                LinterFactoryBase & factory = UsualLinterFactory::getInstance() );
 
         void callLinter() override;
 
@@ -40,7 +40,7 @@ namespace LintCombine {
 
         std::vector < std::shared_ptr < LinterItf > > m_linters;
         std::string m_mergedYamlPath;
-        FactoryBase::Services & m_services;
+        LinterFactoryBase::Services & m_services;
         bool m_helpIsRequested = false;
         // contain program options
         boost::program_options::options_description m_genericOptDesc;

@@ -1,7 +1,7 @@
 #include "ClazyWrapper.h"
 
 LintCombine::ClazyWrapper::ClazyWrapper( stringVector && commandLineSTL,
-                                         FactoryBase::Services & service )
+                                         LinterFactoryBase::Services & service )
         : LinterBase( commandLineSTL, service ) {
     name = "clazy-standalone";
 }

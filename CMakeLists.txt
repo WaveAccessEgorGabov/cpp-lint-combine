@@ -40,10 +40,10 @@ set(executableName cpp-lint-combine)
 add_executable(${executableName}
         src/PrepareCmdLineItf.h       src/PrepareCmdLineFactory.h
         src/main.cpp                  src/CallTotals.h
-        src/FactoryBase.h             src/LinterItf.h
+        src/LinterFactoryBase.h       src/LinterItf.h
         src/ClazyWrapper.h            src/ClazyWrapper.cpp
         src/LinterCombine.h           src/LinterCombine.cpp
-        src/UsualFactory.h            src/UsualFactory.cpp
+        src/UsualLinterFactory.h      src/UsualLinterFactory.cpp
         src/ClangTidyWrapper.h        src/ClangTidyWrapper.cpp
         src/LinterBase.h              src/LinterBase.cpp
         src/LintCombineUtils.h        src/LintCombineUtils.cpp

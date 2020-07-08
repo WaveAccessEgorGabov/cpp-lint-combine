@@ -1,7 +1,7 @@
 #include "ClangTidyWrapper.h"
 
 LintCombine::ClangTidyWrapper::ClangTidyWrapper( stringVector && commandLine,
-                                                 FactoryBase::Services & service )
+                                                 LinterFactoryBase::Services & service )
         : LinterBase( commandLine, service ) {
     name = "clang-tidy";
 }

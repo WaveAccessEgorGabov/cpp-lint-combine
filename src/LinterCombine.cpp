@@ -4,7 +4,8 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 
-LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine, FactoryBase & factory )
+LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine,
+                                           LinterFactoryBase & factory )
         : m_services( factory.getServices() ) {
     if( commandLine.empty() ) {
         m_helpIsRequested = true;

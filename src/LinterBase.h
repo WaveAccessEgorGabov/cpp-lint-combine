@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FactoryBase.h"
+#include "LinterFactoryBase.h"
 #include "LinterItf.h"
 #include "yaml-cpp/yaml.h"
 
@@ -25,9 +25,10 @@ namespace LintCombine {
         ~LinterBase() override = default;
 
     protected:
-        explicit LinterBase( FactoryBase::Services & service );
+        explicit LinterBase( LinterFactoryBase::Services & service );
 
-        explicit LinterBase( const stringVector & commandLine, FactoryBase::Services & service );
+        explicit LinterBase( const stringVector & commandLine,
+                             LinterFactoryBase::Services & service );
 
         void parseCommandLine( const stringVector & commandLine );
 

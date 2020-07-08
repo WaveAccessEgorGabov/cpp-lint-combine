@@ -44,8 +44,8 @@ private:
 };
 
 namespace LintCombine {
-    struct MockWrapper : LinterBase {
-        MockWrapper( const stringVector & commandLine, FactoryBase::Services & service ) : LinterBase( service ) {
+    struct MockLinterWrapper : LinterBase {
+        MockLinterWrapper( const stringVector & commandLine, LinterFactoryBase::Services & service ) : LinterBase( service ) {
             name = commandLine[1];
             if( commandLine.size() >= 3 ) {
                 yamlPath = commandLine[2];
@@ -55,32 +55,32 @@ namespace LintCombine {
         void updateYamlAction( const YAML::Node & ) const override {}
     };
 
-    class MocksFactory : public FactoryBase {
+    class MocksLinterFactory : public LinterFactoryBase {
 
     public:
-        MocksFactory( const MocksFactory & ) = delete;
+        MocksLinterFactory( const MocksLinterFactory & ) = delete;
 
-        MocksFactory( MocksFactory && ) = delete;
+        MocksLinterFactory( MocksLinterFactory && ) = delete;
 
-        MocksFactory & operator=( MocksFactory const & ) = delete;
+        MocksLinterFactory & operator=( MocksLinterFactory const & ) = delete;
 
-        MocksFactory & operator=( MocksFactory const && ) = delete;
+        MocksLinterFactory & operator=( MocksLinterFactory const && ) = delete;
 
-        static MocksFactory & getInstance() {
-            static MocksFactory mockFactory;
+        static MocksLinterFactory & getInstance() {
+            static MocksLinterFactory mockFactory;
             return mockFactory;
         }
 
         std::shared_ptr < LinterItf >
             createLinter( const stringVector & commandLineSTL ) override {
-            if( commandLineSTL[0] == "MockWrapper" ) {
-                return std::make_shared < MockWrapper >( commandLineSTL, getServices() );
+            if( commandLineSTL[0] == "MockLinterWrapper" ) {
+                return std::make_shared < MockLinterWrapper >( commandLineSTL, getServices() );
             }
             return nullptr;
         }
 
     private:
-        MocksFactory() = default;
+        MocksLinterFactory() = default;
     };
 }
 
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
 
 BOOST_AUTO_TEST_CASE( LinterTerminate ) {
     StreamCapture stdoutCapture( std::cout );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back(
                 "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE( LinterTerminate ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( LinterTerminate ) {
 BOOST_AUTO_TEST_CASE( LinterReturn1 ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
     }
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( LinterReturn1 ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -323,21 +323,21 @@ BOOST_AUTO_TEST_CASE( LinterReturn1 ) {
 BOOST_AUTO_TEST_CASE( FirstTerminateSecondReturn0WriteToStreamsWriteToFile ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector cmdLine = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector cmdLine = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
                 "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
-        cmdLine.emplace_back( "--sub-linter=MockWrapper" );
+        cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
-        cmdLine.emplace_back( "--sub-linter=MockWrapper" );
+        cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR
                                      "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( cmdLine, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -355,21 +355,21 @@ BOOST_AUTO_TEST_CASE( FirstTerminateSecondReturn0WriteToStreamsWriteToFile ) {
 
 BOOST_AUTO_TEST_CASE( BothLintersTerminate ) {
     StreamCapture stdoutCapture( std::cout );
-    LintCombine::stringVector cmdLine = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector cmdLine = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
                 "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
-        cmdLine.emplace_back( "--sub-linter=MockWrapper" );
+        cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back(
                 "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
-        cmdLine.emplace_back( "--sub-linter=MockWrapper" );
+        cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( cmdLine, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -381,21 +381,21 @@ BOOST_AUTO_TEST_CASE( BothLintersTerminate ) {
 BOOST_AUTO_TEST_CASE( FirstReturn1SecondReturn0WriteToStreamsWriteToFile ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector cmdLine = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector cmdLine = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
-        cmdLine.emplace_back( "--sub-linter=MockWrapper" );
+        cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back( CURRENT_SOURCE_DIR
                                      "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
-        cmdLine.emplace_back( "--sub-linter=MockWrapper" );
+        cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR
                                      "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( cmdLine, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -415,19 +415,19 @@ BOOST_AUTO_TEST_CASE( FirstReturn1SecondReturn0WriteToStreamsWriteToFile ) {
 BOOST_AUTO_TEST_CASE( BothLintersReturn1 ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_2.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -442,7 +442,7 @@ BOOST_AUTO_TEST_CASE( BothLintersReturn1 ) {
 BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreams ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
     }
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreams ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreams ) {
 BOOST_AUTO_TEST_CASE( LinterReturn0WriteToFile ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat" );
     }
@@ -471,7 +471,7 @@ BOOST_AUTO_TEST_CASE( LinterReturn0WriteToFile ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     BOOST_CHECK( linterCombine.waitLinter() == 0 );
     BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
@@ -484,7 +484,7 @@ BOOST_AUTO_TEST_CASE( LinterReturn0WriteToFile ) {
 BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreamsWriteToFile ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat" );
     }
@@ -493,7 +493,7 @@ BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreamsWriteToFile ) {
                                      "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -511,19 +511,19 @@ BOOST_AUTO_TEST_CASE( LinterReturn0WriteToStreamsWriteToFile ) {
 BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToStreams ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_2.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -538,19 +538,19 @@ BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToStreams ) {
 BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToFiles ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     BOOST_CHECK( linterCombine.waitLinter() == 0 );
     BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
@@ -568,19 +568,19 @@ BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToFiles ) {
 BOOST_AUTO_TEST_CASE( FirstReturn0WriteToStreamsSecondReturn0WriteToFile ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -598,23 +598,23 @@ BOOST_AUTO_TEST_CASE( FirstReturn0WriteToStreamsSecondReturn0WriteToFile ) {
 BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToStreamsWriteToFiles ) {
     StreamCapture stdoutCapture( std::cout );
     StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR
                                      "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( CURRENT_SOURCE_DIR
                                      "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
                                      "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
                                      "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -638,19 +638,19 @@ BOOST_AUTO_TEST_CASE( BothLintersReturn0WriteToStreamsWriteToFiles ) {
 
 BOOST_AUTO_TEST_CASE( TestParallelWorking ) {
     StreamCapture stdoutCapture( std::cout );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     int linterCombineReturnCode = linterCombine.waitLinter();
     std::string stdoutData = stdoutCapture.getBufferData();
@@ -660,7 +660,7 @@ BOOST_AUTO_TEST_CASE( TestParallelWorking ) {
 
 BOOST_AUTO_TEST_CASE( OneLinterEndsEarlierThatCombine ) {
     std::ofstream( CURRENT_SOURCE_DIR "file_1.txt" );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
                                      CURRENT_SOURCE_DIR "file_1.txt" );
@@ -670,7 +670,7 @@ BOOST_AUTO_TEST_CASE( OneLinterEndsEarlierThatCombine ) {
                                      CURRENT_SOURCE_DIR "file_1.txt" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     BOOST_CHECK( linterCombine.waitLinter() == 0 );
     BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR "file_1.txt" ) );
@@ -680,23 +680,23 @@ BOOST_AUTO_TEST_CASE( OneLinterEndsEarlierThatCombine ) {
 BOOST_AUTO_TEST_CASE( TwoLinterEndsEarlierThatCombine ) {
     std::ofstream( CURRENT_SOURCE_DIR "file_1.txt" );
     std::ofstream( CURRENT_SOURCE_DIR "file_2.txt" );
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper" };
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
                                      CURRENT_SOURCE_DIR"file_1.txt" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh.exe " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
                                      CURRENT_SOURCE_DIR"file_2.txt" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
                                      CURRENT_SOURCE_DIR "file_1.txt" );
-        commandLineSTL.emplace_back( "--sub-linter=MockWrapper" );
+        commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
                                      CURRENT_SOURCE_DIR "file_2.txt" );
     }
 
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     linterCombine.callLinter();
     BOOST_CHECK( linterCombine.waitLinter() == 0 );
     BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR "file_1.txt" ) );
@@ -710,27 +710,27 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
 
 BOOST_AUTO_TEST_CASE( NotExistentYamlPath ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper", "defaultLinter",
+    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper", "defaultLinter",
                                                  "NotExistentFile" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     const LintCombine::CallTotals callTotals = linterCombine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 0 );
     BOOST_CHECK( callTotals.failNum == 1 );
 }
 
 BOOST_AUTO_TEST_CASE( EmptyYamlPath ) {
-    const LintCombine::stringVector commandLineSTL = { "", "--sub-linter=MockWrapper", "defaultLinter", "" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    const LintCombine::stringVector commandLineSTL = { "", "--sub-linter=MockLinterWrapper", "defaultLinter", "" };
+    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     const LintCombine::CallTotals callTotals = linterCombine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 0 );
     BOOST_CHECK( callTotals.failNum == 1 );
 }
 
 BOOST_AUTO_TEST_CASE( FirstHasEmptyYamlPathSecondHasPathToExistsYaml ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper", "defaultLinter", "",
-                                                 "--sub-linter=MockWrapper", "defaultLinter",
+    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper", "defaultLinter", "",
+                                                 "--sub-linter=MockLinterWrapper", "defaultLinter",
                                                  CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     const LintCombine::CallTotals callTotals = linterCombine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 1 );
     BOOST_CHECK( callTotals.failNum == 1 );
@@ -742,19 +742,19 @@ BOOST_AUTO_TEST_CASE( FirstHasEmptyYamlPathSecondHasPathToExistsYaml ) {
 }
 
 BOOST_AUTO_TEST_CASE( BothLintersHaveEmptyYamlPath ) {
-    const LintCombine::stringVector commandLineSTL = { "", "--sub-linter=MockWrapper", "defaultLinter", "",
-                                                 "--sub-linter=MockWrapper", "defaultLinter", "" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    const LintCombine::stringVector commandLineSTL = { "", "--sub-linter=MockLinterWrapper", "defaultLinter", "",
+                                                 "--sub-linter=MockLinterWrapper", "defaultLinter", "" };
+    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     const LintCombine::CallTotals callTotals = linterCombine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 0 );
     BOOST_CHECK( callTotals.failNum == 2 );
 }
 
 BOOST_AUTO_TEST_CASE( FirstHasNotExistentYamlPathSecondHasPathToExistsYaml ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper", "defaultLinter", "NotExistentFile",
-                                                 "--sub-linter=MockWrapper", "defaultLinter",
+    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile",
+                                                 "--sub-linter=MockLinterWrapper", "defaultLinter",
                                                  CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     const LintCombine::CallTotals callTotals = linterCombine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 1 );
     BOOST_CHECK( callTotals.failNum == 1 );
@@ -766,18 +766,18 @@ BOOST_AUTO_TEST_CASE( FirstHasNotExistentYamlPathSecondHasPathToExistsYaml ) {
 }
 
 BOOST_AUTO_TEST_CASE( BothLintersHaveNotExistentYamlPath ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper", "defaultLinter", "NotExistentFile",
-                                                 "--sub-linter=MockWrapper", "defaultLinter", "NotExistentFile" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile",
+                                                 "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile" };
+    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     const LintCombine::CallTotals callTotals = linterCombine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 0 );
     BOOST_CHECK( callTotals.failNum == 2 );
 }
 
 BOOST_AUTO_TEST_CASE( YamlPathExists ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper", "defaultLinter",
+    const LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper", "defaultLinter",
                                                  CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    const LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     const LintCombine::CallTotals callTotals = linterCombine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 1 );
     BOOST_CHECK( callTotals.failNum == 0 );
@@ -789,11 +789,11 @@ BOOST_AUTO_TEST_CASE( YamlPathExists ) {
 }
 
 BOOST_AUTO_TEST_CASE( BothLintersHaveExistYamlPath ) {
-    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockWrapper", "defaultLinter",
+    LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper", "defaultLinter",
                                                  CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml",
-                                                 "--sub-linter=MockWrapper", "defaultLinter",
+                                                 "--sub-linter=MockLinterWrapper", "defaultLinter",
                                                  CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
-    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksFactory::getInstance() );
+    LintCombine::LinterCombine linterCombine( commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     LintCombine::CallTotals callTotals = linterCombine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 2 );
     BOOST_CHECK( callTotals.failNum == 0 );

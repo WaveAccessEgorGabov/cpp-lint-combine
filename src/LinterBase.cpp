@@ -61,12 +61,15 @@ const std::string & LintCombine::LinterBase::getYamlPath() {
     return yamlPath;
 }
 
-LintCombine::LinterBase::LinterBase( FactoryBase::Services & service )
-        : stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
+LintCombine::LinterBase::LinterBase( LinterFactoryBase::Services & service )
+        : stdoutPipe( service.getIO_Service() ),
+          stderrPipe( service.getIO_Service() ) {
 }
 
-LintCombine::LinterBase::LinterBase( const stringVector & commandLine, FactoryBase::Services & service )
-        : stdoutPipe( service.getIO_Service() ), stderrPipe( service.getIO_Service() ) {
+LintCombine::LinterBase::LinterBase( const stringVector & commandLine,
+                                     LinterFactoryBase::Services & service )
+        : stdoutPipe( service.getIO_Service() ),
+          stderrPipe( service.getIO_Service() ) {
     parseCommandLine( commandLine );
     checkYamlPathForCorrectness();
 }

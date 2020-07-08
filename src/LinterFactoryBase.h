@@ -7,10 +7,10 @@
 #include <vector>
 
 namespace LintCombine {
-    class FactoryBase {
+    class LinterFactoryBase {
 
     public:
-        virtual ~FactoryBase() = default;
+        virtual ~LinterFactoryBase() = default;
 
         class Services {
 

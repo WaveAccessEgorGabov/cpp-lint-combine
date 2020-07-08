@@ -16,7 +16,7 @@ add_executable(${executableName} src/simpleTest.cpp
         ../src/LinterItf.h               ../src/CallTotals.h
         ../src/LinterBase.h              ../src/LinterBase.cpp
         ../src/ClazyWrapper.h            ../src/ClazyWrapper.cpp
-        ../src/UsualFactory.h            ../src/UsualFactory.cpp
+        ../src/UsualLinterFactory.h      ../src/UsualLinterFactory.cpp
         ../src/LinterCombine.h           ../src/LinterCombine.cpp
         ../src/LintCombineUtils.h        ../src/LintCombineUtils.cpp
         ../src/ClangTidyWrapper.h        ../src/ClangTidyWrapper.cpp

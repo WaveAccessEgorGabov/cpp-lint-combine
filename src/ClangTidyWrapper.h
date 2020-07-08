@@ -1,13 +1,13 @@
 #pragma once
 
-#include "FactoryBase.h"
+#include "LinterFactoryBase.h"
 #include "LinterBase.h"
 
 namespace LintCombine {
     class ClangTidyWrapper final : public LinterBase {
 
     public:
-        ClangTidyWrapper( stringVector && commandLine, FactoryBase::Services & service );
+        ClangTidyWrapper( stringVector && commandLine, LinterFactoryBase::Services & service );
 
     private:
         void updateYamlAction( const YAML::Node & yamlNode ) const override;
