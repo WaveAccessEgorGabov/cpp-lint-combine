@@ -38,14 +38,17 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in ${CMAKE_CURRENT_BINAR
 
 set(executableName cpp-lint-combine)
 add_executable(${executableName}
-        src/main.cpp src/CallTotals.h
-        src/FactoryBase.h src/LinterItf.h
-        src/ClazyWrapper.h src/ClazyWrapper.cpp
-        src/LinterCombine.h src/LinterCombine.cpp
-        src/UsualFactory.h src/UsualFactory.cpp
-        src/ClangTidyWrapper.h src/ClangTidyWrapper.cpp
-        src/LinterBase.h src/LinterBase.cpp
-        src/LintCombineUtils.h src/LintCombineUtils.cpp)
+        src/PrepareCmdLineItf.h       src/PrepareCmdLineFactory.h
+        src/main.cpp                  src/CallTotals.h
+        src/FactoryBase.h             src/LinterItf.h
+        src/ClazyWrapper.h            src/ClazyWrapper.cpp
+        src/LinterCombine.h           src/LinterCombine.cpp
+        src/UsualFactory.h            src/UsualFactory.cpp
+        src/ClangTidyWrapper.h        src/ClangTidyWrapper.cpp
+        src/LinterBase.h              src/LinterBase.cpp
+        src/LintCombineUtils.h        src/LintCombineUtils.cpp
+        src/PrepareCmdLineBase.h      src/PrepareCmdLineBase.cpp
+        src/PrepareCmdLineReSharper.h src/PrepareCmdLineReSharper.cpp )
 
 if (WIN32)
     target_link_directories(${executableName} PRIVATE ${Boost_LIBRARY_DIRS})

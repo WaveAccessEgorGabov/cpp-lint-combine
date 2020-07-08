@@ -12,13 +12,16 @@ endif ()
 
 set(executableName cpp-lint-combineTesting)
 add_executable(${executableName} src/simpleTest.cpp
-        ../src/LinterItf.h        ../src/CallTotals.h
-        ../src/LinterBase.h       ../src/LinterBase.cpp
-        ../src/ClazyWrapper.h     ../src/ClazyWrapper.cpp
-        ../src/UsualFactory.h     ../src/UsualFactory.cpp
-        ../src/LinterCombine.h    ../src/LinterCombine.cpp
-        ../src/LintCombineUtils.h ../src/LintCombineUtils.cpp
-        ../src/ClangTidyWrapper.h ../src/ClangTidyWrapper.cpp )
+        ../src/PrepareCmdLineItf.h       ../src/PrepareCmdLineFactory.h
+        ../src/LinterItf.h               ../src/CallTotals.h
+        ../src/LinterBase.h              ../src/LinterBase.cpp
+        ../src/ClazyWrapper.h            ../src/ClazyWrapper.cpp
+        ../src/UsualFactory.h            ../src/UsualFactory.cpp
+        ../src/LinterCombine.h           ../src/LinterCombine.cpp
+        ../src/LintCombineUtils.h        ../src/LintCombineUtils.cpp
+        ../src/ClangTidyWrapper.h        ../src/ClangTidyWrapper.cpp
+        ../src/PrepareCmdLineBase.h      ../src/PrepareCmdLineBase.cpp
+        ../src/PrepareCmdLineReSharper.h ../src/PrepareCmdLineReSharper.cpp )
 target_compile_definitions(${executableName} PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 if (WIN32)
