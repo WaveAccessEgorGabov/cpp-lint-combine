@@ -3,8 +3,6 @@
 #include "PrepareCmdLineReSharper.h"
 
 #include <boost/program_options.hpp>
-#include <boost/algorithm/string.hpp>
-#include <iostream>
 #include <algorithm>
 
 namespace LintCombine {
@@ -37,9 +35,5 @@ namespace LintCombine {
         };
 
         static PrepareCmdLineItf * createInstancePrepareCmdLine( stringVector & cmdLine );
-
-        // TODO: fix hyphens number in moveCommandLineToSTLContainer() ?
-    private:
-        static void fixHyphensInCmdLine( stringVector & cmdLine );
     };
 }

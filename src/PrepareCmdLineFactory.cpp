@@ -1,12 +1,13 @@
 #include "PrepareCmdLineFactory.h"
 
+#include <boost/algorithm/string/case_conv.hpp>
+
 LintCombine::PrepareCmdLineItf *
 LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector & cmdLine ) {
     if( cmdLine.empty() ) {
         return new PrepareCmdLineOnError( "Command line is empty",
                                      Level::Error, 1, 0 );
     }
-    fixHyphensInCmdLine( cmdLine );
     std::string ideName;
     boost::program_options::options_description programDesc;
     programDesc.add_options()
@@ -38,33 +39,4 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
     return new PrepareCmdLineOnError( "\"" + ideNameCopy +
                                       "\" isn't supported by cpp-lint-combine",
                                       Level::Error, 1, 0 );
-}
-
-void LintCombine::PrepareCmdLineFactory::fixHyphensInCmdLine( stringVector & cmdLine ) {
-    for( auto & it : cmdLine ) {
-        if( it.find( "--" ) != 0 && it.find( '-' ) == 0 ) {
-            if( it.find( '=' ) != std::string::npos ) {
-                // -param=value -> --param=value
-                if( it.find( '=' ) != std::string( "-p" ).size() ) {
-                    it.insert( 0, "-" );
-                }
-            }
-            // -param value -> --param value
-            else if( it.size() > std::string( "-p" ).size() ) {
-                it.insert( 0, "-" );
-            }
-        }
-        if( it.find( "--" ) == 0 ) {
-            if( it.find( '=' ) != std::string::npos ) {
-                // --p=value -> -p=value
-                if( it.find( '=' ) == std::string( "--p" ).size() ) {
-                    it.erase( it.begin() );
-                }
-            }
-            // --p value -> -p value
-            else if( it.size() == std::string( "--p" ).size() ) {
-                it.erase( it.begin() );
-            }
-        }
-    }
 }

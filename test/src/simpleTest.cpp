@@ -2,7 +2,6 @@
 
 #include "../../src/LinterCombine.h"
 #include "../../src/LinterBase.h"
-#include "../../src/LintCombineUtils.h"
 #include "../../src/PrepareCmdLineFactory.h"
 #include "../../src/PrepareCmdLineItf.h"
 
@@ -1050,8 +1049,6 @@ BOOST_AUTO_TEST_CASE( mergedYamlValidBothLintersYamlPathValid ) {
 BOOST_AUTO_TEST_SUITE_END()
 
 // TODO: Figure out: why memory leak occurs in Debug
-// TODO: Rename syntax error to emptyValueWithoutEquelSign
-// TODO: TEST moveCommandLineToSTLContainer()
 BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
 template < int T >
@@ -1060,19 +1057,6 @@ void compareContainers( const LintCombine::stringVector & lhs, const std::array 
     for( size_t i = 0; i < lhs.size(); ++i ) {
         BOOST_CHECK( lhs[i] == rhs[i] );
     }
-}
-
-BOOST_AUTO_TEST_CASE( TestFixHyphens ) {
-    LintCombine::stringVector cmdLine = {
-        "-p", "value", "-p=value", "--param",
-        "value", "--param=value", "--p", "value",
-        "--p=value", "-param", "value", "-param=value" };
-    LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
-    const std::array< std::string, 12 > result =
-    { "-p", "value", "-p=value", "--param",
-      "value", "--param=value", "-p", "value",
-      "-p=value", "--param", "value", "--param=value" };
-    compareContainers( cmdLine, result );
 }
 
 BOOST_AUTO_TEST_CASE( TestFactoryDeleteIdeProfile_ValueAfterEqualSign ) {
@@ -1103,7 +1087,7 @@ BOOST_AUTO_TEST_CASE( TestEmptyCommandLine ) {
     BOOST_CHECK( diagnostic_0.text == "Command line is empty" );
 }
 
-BOOST_AUTO_TEST_CASE( TestVerbatimOptionExists ) {
+BOOST_AUTO_TEST_CASE( TestOptionWasPassedVerbatim ) {
     LintCombine::stringVector cmdLine = {
         "param1", "-p=pathToCompilationDataBase", "--export-fixes=pathToResultYaml", "param2" };
     auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
@@ -1186,7 +1170,7 @@ BOOST_AUTO_TEST_CASE( TestOptionForClangTidy ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "-param_1", "@param_2" };
+        "--export-fixes=pathToResultYaml", "--param_1", "@param_2" };
 
     const std::array < std::string, 9 > result = {
         "--result-yaml=pathToResultYaml",
@@ -1226,7 +1210,7 @@ BOOST_AUTO_TEST_CASE( TestFilesToAnalizeAreSet ) {
 BOOST_AUTO_TEST_CASE( TestHeaderFilterSet ) {
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "-header-filter=file.cpp" };
+        "--export-fixes=pathToResultYaml", "--header-filter=file.cpp" };
 
     const std::array < std::string, 9 > result = {
         "--result-yaml=pathToResultYaml",
@@ -1276,7 +1260,7 @@ BOOST_AUTO_TEST_CASE( TestClangExtraArgsEmptyAfterEqualSign ) {
                                       " should follow immediately after the equal sign" );
 }
 
-BOOST_AUTO_TEST_CASE( TestAllParamsHaveEmptyValue ) {
+BOOST_AUTO_TEST_CASE( TestAllParamsEmptyAfterEqualSign ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
                                               "--export-fixes=pathToResultYaml",
@@ -1292,7 +1276,7 @@ BOOST_AUTO_TEST_CASE( TestAllParamsHaveEmptyValue ) {
                                       " should follow immediately after the equal sign" );
 }
 
-BOOST_AUTO_TEST_CASE( TestClazyChecksSyntaxError ) {
+BOOST_AUTO_TEST_CASE( TestClazyChecksEmptyAfterSpace ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
                                               "--export-fixes=pathToResultYaml",
@@ -1317,7 +1301,7 @@ BOOST_AUTO_TEST_CASE( TestClazyChecksSyntaxError ) {
                                       "The parameter will be ignored." );
 }
 
-BOOST_AUTO_TEST_CASE( TestClangExtraArgsSyntaxError ) {
+BOOST_AUTO_TEST_CASE( TestClangExtraArgsEmptyAfterSpace ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
                                               "--export-fixes=pathToResultYaml",
@@ -1342,7 +1326,7 @@ BOOST_AUTO_TEST_CASE( TestClangExtraArgsSyntaxError ) {
                                       "The parameter will be ignored." );
 }
 
-BOOST_AUTO_TEST_CASE( TestAllParamsHaveSyntaxError ) {
+BOOST_AUTO_TEST_CASE( TestAllParamsEmptyAfterSpace ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
                                               "--export-fixes=pathToResultYaml",
@@ -1560,29 +1544,13 @@ BOOST_AUTO_TEST_CASE( TestFirstSubLinterHasEmptyValueAfterSpaceSecondIncorrect )
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
-    BOOST_CHECK( diagnostic_0.firstPos == 1 );
-    BOOST_CHECK( diagnostic_0.lastPos == 0 );
+//-p=pathToCompilationDataBase --export-fixes=pathToResultYaml --sub-linter --sub-linter IncorrectName_1
+    BOOST_CHECK( diagnostic_0.firstPos == 74 );
+    BOOST_CHECK( diagnostic_0.lastPos == 86 );
     BOOST_CHECK( diagnostic_0.text == "Unknown linter name \"--sub-linter\"" );
 }
 
-// TODO: delete this test
-BOOST_AUTO_TEST_CASE( TestSeveralSubLinterHasEmptyValueAfterSpace ) {
-    LintCombine::stringVector cmdLine = {
-            "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-            "--export-fixes=pathToResultYaml",
-            "--sub-linter", "--sub-linter", "--sub-linter" };
-
-    auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() == true );
-    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
-    const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
-    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
-    BOOST_CHECK( diagnostic_0.firstPos == 1 );
-    BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "the required argument for option '--sub-linter' is missing" );
-}
-
-BOOST_AUTO_TEST_CASE( TestTwoSublinterHaveSyntaxError ) {
+BOOST_AUTO_TEST_CASE( TestAllSublintersHaveEmptyValueAfterSpace ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
@@ -1593,12 +1561,12 @@ BOOST_AUTO_TEST_CASE( TestTwoSublinterHaveSyntaxError ) {
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
-    BOOST_CHECK( diagnostic_0.firstPos == 1 );
-    BOOST_CHECK( diagnostic_0.lastPos == 0 );
+    BOOST_CHECK( diagnostic_0.firstPos == 74 );
+    BOOST_CHECK( diagnostic_0.lastPos == 86 );
     BOOST_CHECK( diagnostic_0.text == "Unknown linter name \"--sub-linter\"" );
 }
 
-BOOST_AUTO_TEST_CASE( TestOneSublinterIncorrectName ) {
+BOOST_AUTO_TEST_CASE( TestOneSublinterWithIncorrectName ) {
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--sub-linter=IncorrectName_1" };
@@ -1607,12 +1575,12 @@ BOOST_AUTO_TEST_CASE( TestOneSublinterIncorrectName ) {
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
-    BOOST_CHECK( diagnostic_0.firstPos == 1 );
-    BOOST_CHECK( diagnostic_0.lastPos == 0 );
+    BOOST_CHECK( diagnostic_0.firstPos == 74 );
+    BOOST_CHECK( diagnostic_0.lastPos == 89 );
     BOOST_CHECK( diagnostic_0.text == "Unknown linter name \"IncorrectName_1\"" );
 }
 
-BOOST_AUTO_TEST_CASE( TestTwoSublinterIncorrectName ) {
+BOOST_AUTO_TEST_CASE( TestTwoSublinterWithIncorrectName ) {
     StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
@@ -1623,13 +1591,13 @@ BOOST_AUTO_TEST_CASE( TestTwoSublinterIncorrectName ) {
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
-    BOOST_CHECK( diagnostic_0.firstPos == 1 );
-    BOOST_CHECK( diagnostic_0.lastPos == 0 );
+    BOOST_CHECK( diagnostic_0.firstPos == 74 );
+    BOOST_CHECK( diagnostic_0.lastPos == 89 );
     BOOST_CHECK( diagnostic_0.text == "Unknown linter name \"IncorrectName_1\"" );
     const auto diagnostic_1 = prepareCmdLine->diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
-    BOOST_CHECK( diagnostic_1.firstPos == 1 );
-    BOOST_CHECK( diagnostic_1.lastPos == 0 );
+    BOOST_CHECK( diagnostic_1.firstPos == 103 );
+    BOOST_CHECK( diagnostic_1.lastPos == 118 );
     BOOST_CHECK( diagnostic_1.text == "Unknown linter name \"IncorrectName_2\"" );
 }
 

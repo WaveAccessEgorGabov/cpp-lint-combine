@@ -5,7 +5,7 @@
 namespace LintCombine {
     class PrepareCmdLineReSharper final : public PrepareCmdLineBase {
     public:
-        void appendOptionsForSpecificIDE() override;
+        void appendOptionsToSpecificIDE() override;
     private:
         void initCommonOptions();
 

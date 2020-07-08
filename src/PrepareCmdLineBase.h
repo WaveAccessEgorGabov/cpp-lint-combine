@@ -24,7 +24,7 @@ namespace LintCombine {
         void realeaseClassField();
 
     protected:
-        virtual void appendOptionsForSpecificIDE() = 0;
+        virtual void appendOptionsToSpecificIDE() = 0;
 
         struct LinterOptionsBase {
             std::string name;
@@ -66,7 +66,7 @@ namespace LintCombine {
         };
         // TODO : something is private
         // TODO : may be not delet all class fields
-        stringVector cmdLine;
+        stringVector m_cmdLine;
         std::string  m_sourceCL;
         std::vector< Diagnostic > m_diagnostics;
         std::string  m_pathToGeneralYaml;

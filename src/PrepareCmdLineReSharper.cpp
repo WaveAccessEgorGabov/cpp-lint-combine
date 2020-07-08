@@ -2,8 +2,8 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
-void LintCombine::PrepareCmdLineReSharper::appendOptionsForSpecificIDE() {
-    cmdLine.clear();
+void LintCombine::PrepareCmdLineReSharper::appendOptionsToSpecificIDE() {
+    m_cmdLine.clear();
     initCommonOptions();
     initUnrecognizedOptions();
     appendLintersOptionToCmdLine();
@@ -11,7 +11,7 @@ void LintCombine::PrepareCmdLineReSharper::appendOptionsForSpecificIDE() {
 
 void LintCombine::PrepareCmdLineReSharper::initCommonOptions() {
     if( !m_pathToGeneralYaml.empty() ) {
-        cmdLine.emplace_back( "--result-yaml=" + m_pathToGeneralYaml );
+        m_cmdLine.emplace_back( "--result-yaml=" + m_pathToGeneralYaml );
     }
 }
 
@@ -50,6 +50,7 @@ void LintCombine::PrepareCmdLineReSharper::initUnrecognizedOptions() {
     }
 }
 
+// list of linters to enum
 void LintCombine::PrepareCmdLineReSharper::addOptionToLinterByName( const std::string & name,
                                                                     const std::string & option ) {
     for( auto & it : m_lintersOptions ) {
@@ -73,9 +74,8 @@ LintCombine::PrepareCmdLineReSharper::optionValueToQuotes( const std::string & o
         optionNameWithValue.substr( optionName.size(), std::string::npos ) + "\"";
 }
 
-void
-LintCombine::PrepareCmdLineReSharper::appendLintersOptionToCmdLine() {
+void LintCombine::PrepareCmdLineReSharper::appendLintersOptionToCmdLine() {
     for( const auto & it : m_lintersOptions ) {
-        std::copy( it->options.begin(), it->options.end(), std::back_inserter( cmdLine ) );
+        std::copy( it->options.begin(), it->options.end(), std::back_inserter( m_cmdLine ) );
     }
 }

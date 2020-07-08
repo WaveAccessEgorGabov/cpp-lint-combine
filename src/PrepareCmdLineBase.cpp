@@ -3,11 +3,11 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/join.hpp>
 
-// all variable must be emtry before used
+// all variable must be emtpy before used
 LintCombine::stringVector
 LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
     realeaseClassField();
-    cmdLine = cmdLineVal;
+    m_cmdLine = cmdLineVal;
     m_sourceCL = boost::algorithm::join( cmdLineVal, " " );
     if( parseSourceCmdLine() ) {
         return stringVector();
@@ -18,17 +18,19 @@ LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
     if( initLinters() ) {
         return stringVector();
     }
-    appendOptionsForSpecificIDE();
-    return cmdLine;
+    appendOptionsToSpecificIDE();
+    return m_cmdLine;
 }
 
-// TODO: may be remove sort from here, and make diagnostics() const
+// TODO: may be sort in another place, and make diagnostics() const
 std::vector<LintCombine::PrepareCmdLineItf::Diagnostic>
 LintCombine::PrepareCmdLineBase::diagnostics() {
     std::sort( std::begin( m_diagnostics ),
            std::end( m_diagnostics ),
            []( const Diagnostic & lhs, const Diagnostic & rhs ) {
-               return lhs.firstPos < rhs.firstPos;
+               if( lhs.level == rhs.level )
+                   return lhs.firstPos < rhs.firstPos;
+               return lhs.level < rhs.level;
            } );
     return m_diagnostics;
 }
@@ -54,7 +56,7 @@ bool LintCombine::PrepareCmdLineBase::parseSourceCmdLine() {
     boost::program_options::variables_map variablesMap;
     try {
         const boost::program_options::parsed_options parsed =
-            boost::program_options::command_line_parser( cmdLine ).options( programOptions )
+            boost::program_options::command_line_parser( m_cmdLine ).options( programOptions )
             .style( boost::program_options::command_line_style::default_style |
                      boost::program_options::command_line_style::allow_long_disguise )
             .allow_unregistered().run();
@@ -91,9 +93,9 @@ bool LintCombine::PrepareCmdLineBase::validateParsedData() {
 
 void LintCombine::PrepareCmdLineBase::checkIsOptionsValueInit( const std::string & optionName,
                                                                const std::string & option ) {
-    if( std::find_if( std::begin( cmdLine ), std::end( cmdLine ),
+    if( std::find_if( std::begin( m_cmdLine ), std::end( m_cmdLine ),
         [&]( const std::string & str ) -> bool {
-            return str.find( optionName ) != std::string::npos; } ) != std::end( cmdLine )
+            return str.find( optionName ) != std::string::npos; } ) != std::end( m_cmdLine )
                 && option.empty() ) {
         const auto warningBeginInCL =
             static_cast< const unsigned int >( m_sourceCL.find( std::string( optionName ) ) );
@@ -120,8 +122,16 @@ bool LintCombine::PrepareCmdLineBase::initLinters() {
                 std::istream_iterator<std::string> {} ) ) );
         }
         else {
+            unsigned findFrom = 0;
+            if( it == "--sub-linter" ) {
+                const auto firstPos = static_cast< unsigned >( m_sourceCL.find( it ) );
+                const auto lastPos = firstPos + static_cast< unsigned >( it.size() );
+                findFrom = lastPos;
+            }
+            const auto firstPos = static_cast< unsigned >( m_sourceCL.find( it, findFrom ) );
+            const auto lastPos = firstPos + static_cast< unsigned >( it.size() );
             m_diagnostics.emplace_back( Diagnostic( "Unknown linter name \""
-                                        + it + "\"", Level::Error, 1, 0 ) );
+                                        + it + "\"", Level::Error, firstPos, lastPos ) );
             isErrorOccur = true;
         }
     }
@@ -138,7 +148,7 @@ bool LintCombine::PrepareCmdLineBase::initLinters() {
 }
 
 void LintCombine::PrepareCmdLineBase::realeaseClassField() {
-    cmdLine.clear();
+    m_cmdLine.clear();
     m_sourceCL.clear();
     m_diagnostics.clear();
     m_pathToGeneralYaml.clear();

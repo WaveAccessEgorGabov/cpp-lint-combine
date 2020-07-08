@@ -1,20 +1,20 @@
 #include "LinterCombine.h"
 #include "LintCombineUtils.h"
+#include "PrepareCmdLineFactory.h"
 
 #include <iostream>
 
 int main( int argc, char * argv[] ) {
-    LintCombine::stringVector commandLine = LintCombine::moveCommandLineToSTLContainer( argc, argv );
-    // TODO: #ifdef useFromIDE (is defined by cmake)
-    // Prepare command line for using in ReSharper
-    const LintCombine::CommandLinePreparer commandLinePreparer( commandLine, "ReSharper" );
-    if( commandLinePreparer.getIsErrorWhilePrepareOccur() ) {
-        std::cerr << "An error while prepare the command line is occur" << std::endl;
+    LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
+    LintCombine::fixHyphensInCmdLine( cmdLine );
+    auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
+    cmdLine = prepareCmdLine->transform( cmdLine );
+    if( cmdLine.empty() ) {
         return 1;
     }
 
     try {
-        LintCombine::LinterCombine linterCombine( commandLine );
+        LintCombine::LinterCombine linterCombine( cmdLine );
         if( linterCombine.printTextIfRequested() ) {
             return 0;
         }
