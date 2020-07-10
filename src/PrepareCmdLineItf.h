@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LinterItf.h""
+#include "LinterItf.h"
 
 namespace LintCombine {
 

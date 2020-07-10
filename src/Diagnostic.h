@@ -7,11 +7,12 @@ namespace LintCombine {
         Trace, Debug, Info, Warning, Error, Fatal
     };
 
+    // TODO: change params order while add new diagnostic
     struct Diagnostic {
         Diagnostic( std::string && textVal, const std::string && originVal,
                     const Level levelVal, const unsigned firstPosVal,
                     const unsigned lastPosVal )
-            : text( textVal ), origin( originVal ), level( levelVal ),
+            : level( levelVal ), text( textVal ), origin( originVal ),
             firstPos( firstPosVal ), lastPos( lastPosVal ) {}
         Level level;
         std::string text;

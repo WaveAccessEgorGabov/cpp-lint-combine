@@ -118,7 +118,7 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
         notify( vm );
     }
     catch( const boost::program_options::error & error ) {
-        m_diagnostics.emplace_back( new Diagnostic( error.what(), "Combine",
+        m_diagnostics.push_back( Diagnostic( error.what(), "Combine",
                                     Level::Error, 1, 0 ) );
         throw; // ??
     }
