@@ -58,6 +58,8 @@ bool LintCombine::PrepareCmdLineBase::parseSourceCmdLine() {
     try {
         const boost::program_options::parsed_options parsed =
             boost::program_options::command_line_parser( m_cmdLine )
+        .style( boost::program_options::command_line_style::default_style |
+        boost::program_options::command_line_style::allow_long_disguise )
             .options( programOptions ).allow_unregistered().run();
         store( parsed, variablesMap );
         notify( variablesMap );
