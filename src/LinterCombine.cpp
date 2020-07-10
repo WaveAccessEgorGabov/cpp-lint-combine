@@ -4,30 +4,29 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 
+std::vector<LintCombine::Diagnostic> LintCombine::LinterCombine::diagnostics() {
+    for( const auto & subLinterIt : m_linters ) {
+        const auto & diags = subLinterIt->diagnostics();
+        m_diagnostics.insert( m_diagnostics.end(), std::make_move_iterator( diags.begin() ),
+                              std::make_move_iterator( diags.end() ) );
+    }
+    return m_diagnostics;
+}
+
 LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine,
                                            LinterFactoryBase & factory )
-        : m_services( factory.getServices() ) {
-    if( commandLine.empty() ) {
-        m_helpIsRequested = true;
-        return;
-    }
+    : m_services( factory.getServices() ) {
     std::vector < stringVector > subLintersCommandLine = splitCommandLineBySubLinters( commandLine );
-    if( m_helpIsRequested ) {
-        return;
-    }
     for( const auto & it : subLintersCommandLine ) {
         std::shared_ptr < LinterItf > subLinter = factory.createLinter( it );
         if( subLinter == nullptr ) {
             std::cerr << "Linter not exists!" << std::endl;
-            m_helpIsRequested = true;
-            printTextIfRequested();
             throw std::logic_error( "Linter not exists!" );
         }
         m_linters.emplace_back( subLinter );
     }
     if( m_linters.empty() ) {
         std::cerr << "Warning not one linter was set!" << std::endl;
-        m_helpIsRequested = true;
         return;
     }
     checkYamlPathForCorrectness();
@@ -41,13 +40,16 @@ void LintCombine::LinterCombine::callLinter() {
     }
 }
 
+// TODO: Why return code is used here ??? we have diagnostics
 int LintCombine::LinterCombine::waitLinter() {
-    if( m_linters.empty() ) { return 0; }
+    if( m_linters.empty() ) {
+        return 0;
+    }
     int returnCode = 1;
     m_services.getIO_Service().run();
     for( const auto & subLinterIt : m_linters ) {
         subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) :
-                                         ( returnCode |= 2 );
+            ( returnCode |= 2 );
     }
     return returnCode;
 }
@@ -79,77 +81,68 @@ LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() const {
     return callTotals;
 }
 
-std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( const int pos ) const {
-    if( pos >= static_cast < int > ( m_linters.size() ) )
+std::shared_ptr < LintCombine::LinterItf > LintCombine::LinterCombine::linterAt( const size_t pos ) const {
+    if( pos >= m_linters.size() )
         throw std::out_of_range( "index out of bounds" );
-    return m_linters[ pos ];
+    return m_linters[pos];
 }
 
 size_t LintCombine::LinterCombine::numLinters() const noexcept {
     return m_linters.size();
 }
 
-bool LintCombine::LinterCombine::printTextIfRequested() const {
-    if( m_helpIsRequested ) {
-        std::cerr << "Product name: " << PRODUCTNAME_STR << std::endl;
-        std::cerr << "Product version: " << PRODUCTVERSION_STR << std::endl;
-        std::cerr << "Program options: " << std::endl;
-        std::cerr << m_genericOptDesc << std::endl;
-    }
-    return m_helpIsRequested;
-}
+//bool LintCombine::LinterCombine::printTextIfRequested() const {
+//    if( m_helpIsRequested ) {
+//        std::cerr << "Product name: " << PRODUCTNAME_STR << std::endl;
+//        std::cerr << "Product version: " << PRODUCTVERSION_STR << std::endl;
+//        std::cerr << "Program options: " << std::endl;
+//        std::cerr << m_genericOptDesc << std::endl;
+//    }
+//    return m_helpIsRequested;
+//}
 
 std::vector < LintCombine::stringVector >
-LintCombine::LinterCombine::splitCommandLineBySubLinters ( const stringVector & commandLine ) {
+LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & commandLine ) {
     stringVector lintersName;
-    try {
-        m_genericOptDesc.add_options ()
-            ( "help",
-              "print this message" )
-            ( "verbatim-commands",
-              "pass options verbatim" )
-            ( "clazy-checks",
-              "Comma-separated list of clazy checks. Default is level1" )
-            ( "clang-extra-args",
-              " Additional argument to append to the compiler command line" )
-            ( "result-yaml", boost::program_options::value < std::string > ( &m_mergedYamlPath ),
-              "path to yaml with diagnostics from all linters" )
-            ( "sub-linter",
-              boost::program_options::value < std::vector < std::string > > ( &lintersName ),
-              "linter to use" );
+    boost::program_options::options_description combineOptDesc;
+    combineOptDesc.add_options()
+        ( "result-yaml",
+          boost::program_options::value < std::string >( &m_mergedYamlPath ) )
+        ( "sub-linter",
+          boost::program_options::value < std::vector < std::string > >( &lintersName ) );
 
-        boost::program_options::variables_map vm;
-        store ( boost::program_options::command_line_parser ( commandLine ).
-                options ( m_genericOptDesc ).allow_unregistered ().run (), vm );
-        notify ( vm );
-        if( vm.count ( "help" ) ) {
-            m_helpIsRequested = true;
-            return std::vector < LintCombine::stringVector > ();
-        }
+    boost::program_options::variables_map vm;
+    try {
+        store( boost::program_options::command_line_parser( commandLine ).
+                options( combineOptDesc ).allow_unregistered().run(), vm );
+        notify( vm );
+    }
+    catch( const boost::program_options::error & error ) {
+        m_diagnostics.emplace_back( new Diagnostic( error.what(), "Combine",
+                                    Level::Error, 1, 0 ) );
+        throw; // ??
     }
     catch( const std::exception & ex ) {
-        std::cerr << "Exception while parse command line options. What(): " << ex.what () << std::endl;
-        m_helpIsRequested = true;
-        printTextIfRequested();
-        throw;
+        std::cerr << "Exception while parse command line options. What(): " << ex.what() << std::endl;
+        throw; // ??
     }
 
     stringVector currentSubLinter;
     std::vector < stringVector > subLintersVec;
     for( size_t i = 0, linterNum = 0; i < commandLine.size(); ++i ) {
-        if( linterNum != lintersName.size() && commandLine[ i ] == "--sub-linter=" + lintersName[ linterNum ] ) {
+        if( linterNum != lintersName.size() && commandLine[i] == "--sub-linter=" + lintersName[linterNum] ) {
             if( linterNum != 0 ) {
                 subLintersVec.emplace_back( currentSubLinter );
                 currentSubLinter.clear();
             }
-            currentSubLinter.emplace_back( lintersName[ linterNum ] );
+            currentSubLinter.emplace_back( lintersName[linterNum] );
             if( i == commandLine.size() - 1 ) {
                 subLintersVec.emplace_back( currentSubLinter );
             }
             ++linterNum;
         }
         else if( !currentSubLinter.empty() ) {
-            currentSubLinter.emplace_back( commandLine[ i ] );
+            currentSubLinter.emplace_back( commandLine[i] );
             if( i == commandLine.size() - 1 ) {
                 subLintersVec.emplace_back( currentSubLinter );
             }
@@ -173,7 +166,7 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
         }
         catch( const boost::filesystem::filesystem_error & ex ) {
             std::cerr << "boost::filesystem::filesystem_error exception while merging. What(): "
-                      << ex.what() << std::endl;
+                << ex.what() << std::endl;
         }
         catch( std::exception & ex ) {
             std::cerr << "Exception while merging. What(): " << ex.what() << std::endl;
@@ -183,8 +176,8 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
         YAML::Node yamlNodeResult = loadYamlNode( m_mergedYamlPath );
         YAML::Node yamlNodeForAdd = loadYamlNode( yamlPathToMerge );
 
-        for( const auto & diagnosticsIt : yamlNodeForAdd[ "Diagnostics" ] ) {
-            yamlNodeResult[ "Diagnostics" ].push_back( diagnosticsIt );
+        for( const auto & diagnosticsIt : yamlNodeForAdd["Diagnostics"] ) {
+            yamlNodeResult["Diagnostics"].push_back( diagnosticsIt );
         }
 
         try {

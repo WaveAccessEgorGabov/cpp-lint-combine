@@ -1,7 +1,6 @@
 #pragma once
 
 #include "LinterItf.h"
-#include "PrepareCmdLineItf.h"
 
 namespace LintCombine {
     stringVector cmdLineToSTLContainer( int argc, char ** argv );
@@ -9,10 +8,10 @@ namespace LintCombine {
     void fixHyphensInCmdLine( stringVector & cmdLine );
 
     static stringVector prepareDiagnostics( const stringVector & cmdLine,
-                                     const std::vector< PrepareCmdLineItf::Diagnostic > & diagnostics );
+                                     const std::vector< Diagnostic > & diagnostics );
 
     void printDiagnostics( const stringVector & cmdLine,
-                           const std::vector< PrepareCmdLineItf::Diagnostic > & diagnostics );
+                           const std::vector< Diagnostic > & diagnostics );
 }
 
 

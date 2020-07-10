@@ -38,7 +38,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in ${CMAKE_CURRENT_BINAR
 
 set(executableName cpp-lint-combine)
 add_executable(${executableName}
-        src/PrepareCmdLineItf.h
+        src/PrepareCmdLineItf.h       src/Diagnostic.h
         src/main.cpp                  src/CallTotals.h
         src/LinterFactoryBase.h       src/LinterItf.h
         src/ClazyWrapper.h            src/ClazyWrapper.cpp
@@ -46,6 +46,7 @@ add_executable(${executableName}
         src/UsualLinterFactory.h      src/UsualLinterFactory.cpp
         src/ClangTidyWrapper.h        src/ClangTidyWrapper.cpp
         src/LinterBase.h              src/LinterBase.cpp
+        src/DiagnosticWorker.h        src/DiagnosticWorker.cpp
         src/LintCombineUtils.h        src/LintCombineUtils.cpp
         src/PrepareCmdLineBase.h      src/PrepareCmdLineBase.cpp
         src/PrepareCmdLineFactory.h   src/PrepareCmdLineFactory.cpp

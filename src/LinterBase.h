@@ -22,6 +22,8 @@ namespace LintCombine {
 
         const std::string & getYamlPath() final;
 
+        std::vector< Diagnostic > diagnostics() override;
+
         ~LinterBase() override = default;
 
     protected:
@@ -40,6 +42,7 @@ namespace LintCombine {
         boost::process::child linterProcess;
         boost::process::async_pipe stdoutPipe;
         boost::process::async_pipe stderrPipe;
+        std::vector< Diagnostic > m_diagnostics;
 
     private:
         // Buffer for reading from pipes

@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+// TODO: --help to Diagnostics into factory
+
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
     LintCombine::fixHyphensInCmdLine( cmdLine );
@@ -15,24 +17,10 @@ int main( int argc, char * argv[] ) {
         return 1;
     }
 
+    LintCombine::LinterCombine * pCombine;
     try {
-        LintCombine::LinterCombine linterCombine( cmdLine );
-        if( linterCombine.printTextIfRequested() ) {
-            return 0;
-        }
-        linterCombine.callLinter();
-        const int linterReturnCode = linterCombine.waitLinter();
-        if( linterReturnCode == 2 ) {
-            std::cerr << "some linters are failed" << std::endl;
-        }
-        if( linterReturnCode == 3 ) {
-            std::cerr << "all linters are failed" << std::endl;
-        }
-        const LintCombine::CallTotals callTotals = linterCombine.updateYaml();
-        if( callTotals.failNum ) {
-            std::cout << "Updating " << callTotals.failNum << " yaml-files was failed" << std::endl;
-        }
-        linterCombine.getYamlPath();
+        LintCombine::LinterCombine combine( cmdLine );
+        pCombine = &combine;
     }
     catch( const std::logic_error & ex ) {
         std::cerr << "std::logic_error exception. What(): " << ex.what() << std::endl;
@@ -42,5 +30,20 @@ int main( int argc, char * argv[] ) {
         std::cerr << "Exception. What(): " << ex.what() << std::endl;
         return 1;
     }
+
+    pCombine->callLinter();
+    const int combineCallReturnCode = pCombine->waitLinter();
+    if( combineCallReturnCode == 2 ) {
+        std::cerr << "some linters are failed" << std::endl;
+    }
+    if( combineCallReturnCode == 3 ) {
+        std::cerr << "all linters are failed" << std::endl;
+    }
+    const LintCombine::CallTotals callTotals = pCombine->updateYaml();
+    if( callTotals.failNum ) {
+        std::cout << "Updating " << callTotals.failNum << " yaml-files was failed" << std::endl;
+    }
+    pCombine->getYamlPath();
+
     return 0;
 }

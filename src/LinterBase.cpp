@@ -4,6 +4,10 @@
 #include <fstream>
 #include <iostream>
 
+std::vector<LintCombine::Diagnostic> LintCombine::LinterBase::diagnostics() {
+    return m_diagnostics;
+}
+
 void LintCombine::LinterBase::callLinter() {
     linterProcess = boost::process::child( name + " --export-fixes=" + yamlPath + " " + options,
                                            boost::process::std_out > stdoutPipe,

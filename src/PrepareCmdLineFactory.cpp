@@ -6,7 +6,7 @@ LintCombine::PrepareCmdLineItf *
 LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector & cmdLine ) {
     if( cmdLine.empty() ) {
         return new PrepareCmdLineOnError( "Command line is empty",
-                                     Level::Error, 1, 0 );
+                                          "PrepareCmdLineFactory", Level::Error, 1, 0 );
     }
     std::string ideName;
     boost::program_options::options_description programDesc;
@@ -20,7 +20,7 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
         notify( vm );
     }
     catch( const std::exception & ex ) {
-        return new PrepareCmdLineOnError( ex.what(), Level::Error, 1, 0 );
+        return new PrepareCmdLineOnError( ex.what(), "PrepareCmdLineFactory", Level::Error, 1, 0 );
     }
     cmdLine.erase( std::remove_if( std::begin( cmdLine ), std::end( cmdLine ),
                    [ideName]( const std::string & str ) -> bool {
@@ -28,6 +28,7 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
                    } ), std::end( cmdLine ) );
     if( ideName.empty() ) {
         return new PrepareCmdLineOnError( "Options were passed verbatim",
+                                          "PrepareCmdLineFactory",
                                           Level::Info, 1, 0 );
     }
     const auto ideNameCopy = ideName;
@@ -38,5 +39,5 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
     // TODO: find position of incorrect IDE
     return new PrepareCmdLineOnError( "\"" + ideNameCopy +
                                       "\" isn't supported by cpp-lint-combine",
-                                      Level::Error, 1, 0 );
+                                      "PrepareCmdLineFactory", Level::Error, 1, 0 );
 }

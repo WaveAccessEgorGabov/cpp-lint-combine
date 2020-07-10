@@ -21,6 +21,7 @@ struct recoverYamlFiles {
     }
 };
 
+// Is we need this class? - we have diagnostics now
 class StreamCapture {
 public:
     explicit StreamCapture( std::ostream & stream ) : stream( &stream ) {
@@ -54,9 +55,7 @@ namespace LintCombine {
         void updateYamlAction( const YAML::Node & ) const override {}
     };
 
-    class MocksLinterFactory : public LinterFactoryBase {
-
-    public:
+    struct MocksLinterFactory : LinterFactoryBase {
         MocksLinterFactory( const MocksLinterFactory & ) = delete;
 
         MocksLinterFactory( MocksLinterFactory && ) = delete;
@@ -85,104 +84,72 @@ namespace LintCombine {
 
 BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
 
-BOOST_AUTO_TEST_CASE( emptyCommandLine ) {
-    StreamCapture stderrCapture( std::cerr );
-    LintCombine::stringVector commandLineSTL = {};
-    LintCombine::LinterCombine linterCombine( commandLineSTL );
-    BOOST_CHECK( linterCombine.printTextIfRequested() == true );
-    BOOST_CHECK( linterCombine.numLinters() == 0 );
-    const std::string str = stderrCapture.getBufferData();
-    BOOST_CHECK( str.find( "Product name" ) != std::string::npos );
-    BOOST_CHECK( str.find( "Product version" ) != std::string::npos );
-    BOOST_CHECK( str.find( "Program options" ) != std::string::npos );
-    BOOST_CHECK( str.find( "Product name" ) != std::string::npos );
+BOOST_AUTO_TEST_CASE( ClangTidyAndClazyExist ) {
+    const LintCombine::stringVector cmdLine = {
+        "--sub-linter=clang-tidy", "--sub-linter=clazy" };
+    const LintCombine::LinterCombine combine( cmdLine );
+    BOOST_REQUIRE( combine.numLinters() == 2 );
+    const auto & linter_1 = std::dynamic_pointer_cast < LintCombine::LinterBase >
+        ( combine.linterAt( 0 ) );
+    const auto & linter_2 = std::dynamic_pointer_cast < LintCombine::LinterBase >
+        ( combine.linterAt( 1 ) );
+    BOOST_CHECK( linter_1->getName() == "clang-tidy" );
+    BOOST_CHECK( linter_1->getOptions().empty() );
+    BOOST_CHECK( linter_1->getYamlPath().empty() );
+    BOOST_CHECK( linter_2->getName() == "clazy-standalone" );
+    BOOST_CHECK( linter_2->getOptions().empty() );
+    BOOST_CHECK( linter_2->getYamlPath().empty() );
 }
 
-BOOST_AUTO_TEST_CASE( OneNotExistentLinter ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=NotExistentLinter" };
-    BOOST_CHECK_THROW( LintCombine::LinterCombine{ commandLineSTL }, std::logic_error );
+BOOST_AUTO_TEST_CASE( ClangTidyAndClazyExistAndHaveOptions ) {
+    const LintCombine::stringVector cmdLine = {
+        "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
+        "--sub-linter=clazy", "CSParam_1", "CSParam_1" };
+    const LintCombine::LinterCombine combine( cmdLine );
+    BOOST_REQUIRE( combine.numLinters() == 2 );
+    const auto & linter_1 =
+        std::dynamic_pointer_cast < LintCombine::LinterBase > (
+        combine.linterAt( 0 ) );
+    const auto & linter_2 =
+        std::dynamic_pointer_cast < LintCombine::LinterBase > (
+        combine.linterAt( 1 ) );
+    BOOST_CHECK( linter_1->getName() == "clang-tidy" );
+    BOOST_CHECK( linter_1->getOptions() == "CTParam_1 CTParam_2 " );
+    BOOST_CHECK( linter_1->getYamlPath().empty() );
+    BOOST_CHECK( linter_2->getName() == "clazy-standalone" );
+    BOOST_CHECK( linter_2->getOptions() == "CSParam_1 CSParam_1 " );
+    BOOST_CHECK( linter_2->getYamlPath().empty() );
 }
 
-BOOST_AUTO_TEST_CASE( FirstLinterNotExistentSecondExists ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=NotExistentLinter", "--sub-linter=clazy" };
-    BOOST_CHECK_THROW( LintCombine::LinterCombine{ commandLineSTL }, std::logic_error );
+BOOST_AUTO_TEST_CASE( ClazyStandaloneExists ) {
+    const LintCombine::stringVector cmdLine = { "--sub-linter=clazy" };
+    const LintCombine::LinterCombine combine( cmdLine );
+    BOOST_REQUIRE( combine.numLinters() == 1 );
+    const auto & linter_1 =
+        std::dynamic_pointer_cast < LintCombine::LinterBase > (
+        combine.linterAt( 0 ) );
+
+    BOOST_CHECK( linter_1->getName() == "clazy-standalone" );
+    BOOST_CHECK( linter_1->getOptions().empty() );
+    BOOST_CHECK( linter_1->getYamlPath().empty() );
 }
 
-BOOST_AUTO_TEST_CASE( BothLintersNotExistent ) {
-    const LintCombine::stringVector commandLineSTL = { "", "--sub-linter=NotExistentLinter_1",
-                                                     "--sub-linter=NotExistentLinter_2" };
-    BOOST_CHECK_THROW( LintCombine::LinterCombine{ commandLineSTL }, std::logic_error );
+BOOST_AUTO_TEST_CASE( ClangTidyExists ) {
+    const LintCombine::stringVector cmdLine = { "--sub-linter=clang-tidy" };
+    const LintCombine::LinterCombine combine( cmdLine );
+    BOOST_REQUIRE( combine.numLinters() == 1 );
+    const auto & linter_1 =
+        std::dynamic_pointer_cast < LintCombine::LinterBase > (
+        combine.linterAt( 0 ) );
+
+    BOOST_CHECK( linter_1->getName() == "clang-tidy" );
+    BOOST_CHECK( linter_1->getOptions().empty() );
+    BOOST_CHECK( linter_1->getYamlPath().empty() );
 }
 
-BOOST_AUTO_TEST_CASE( FirstLinterEmptySecondExists ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=", "--sub-linter=clazy" };
-    BOOST_CHECK_THROW( LintCombine::LinterCombine{ commandLineSTL }, std::logic_error );
-}
-
-BOOST_AUTO_TEST_CASE( BothLintersEmpty ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=", "--sub-linter=" };
-    BOOST_CHECK_THROW( LintCombine::LinterCombine{ commandLineSTL }, std::logic_error );
-}
-
-BOOST_AUTO_TEST_CASE( BothLintersExist ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy", "--sub-linter=clazy" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL );
-
-    BOOST_CHECK( linterCombine.numLinters() == 2 );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
-    BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 1 ) )->getOptions().empty() );
-    BOOST_CHECK( linterCombine.linterAt( 1 )->getYamlPath().empty() );
-}
-
-BOOST_AUTO_TEST_CASE( BothLintersExistAndHasOptions ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
-                                                 "--sub-linter=clazy", "CSParam_1", "CSParam_1" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL );
-    BOOST_CHECK( linterCombine.numLinters() == 2 );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 0 ) )->getOptions() == "CTParam_1 CTParam_2 " );
-    BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 1 ) )->getName() == "clazy-standalone" );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 1 ) )->getOptions() == "CSParam_1 CSParam_1 " );
-    BOOST_CHECK( linterCombine.linterAt( 1 )->getYamlPath().empty() );
-}
-
-BOOST_AUTO_TEST_CASE( LinterIsClazyStandalone ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL );
-    BOOST_CHECK( linterCombine.numLinters() == 1 );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 0 ) )->getName() == "clazy-standalone" );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
-    BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
-}
-
-BOOST_AUTO_TEST_CASE( LinterIsClangTidy ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=clang-tidy" };
-    const LintCombine::LinterCombine linterCombine( commandLineSTL );
-    BOOST_CHECK( linterCombine.numLinters() == 1 );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 0 ) )->getName() == "clang-tidy" );
-    BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
-                         ( linterCombine.linterAt( 0 ) )->getOptions().empty() );
-    BOOST_CHECK( linterCombine.linterAt( 0 )->getYamlPath().empty() );
-}
-
-BOOST_AUTO_TEST_CASE( LinterIsClazyStandaloneAndOptionsExist ) {
-    const LintCombine::stringVector commandLineSTL = { "--sub-linter=clazy", "lintParam_1",
-                                                 "lintParam_2" };
+BOOST_AUTO_TEST_CASE( ClazyStandaloneExistsAndHasOptions ) {
+    const LintCombine::stringVector commandLineSTL = {
+        "--sub-linter=clazy", "lintParam_1", "lintParam_2" };
     const LintCombine::LinterCombine linterCombine( commandLineSTL );
     BOOST_CHECK( linterCombine.numLinters() == 1 );
     BOOST_CHECK( std::dynamic_pointer_cast < LintCombine::LinterBase >
@@ -1544,7 +1511,7 @@ BOOST_AUTO_TEST_CASE( TestFirstSubLinterHasEmptyValueAfterSpaceSecondIncorrect )
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
-//-p=pathToCompilationDataBase --export-fixes=pathToResultYaml --sub-linter --sub-linter IncorrectName_1
+    //-p=pathToCompilationDataBase --export-fixes=pathToResultYaml --sub-linter --sub-linter IncorrectName_1
     BOOST_CHECK( diagnostic_0.firstPos == 74 );
     BOOST_CHECK( diagnostic_0.lastPos == 86 );
     BOOST_CHECK( diagnostic_0.text == "Unknown linter name \"--sub-linter\"" );

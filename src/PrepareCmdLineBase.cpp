@@ -23,7 +23,7 @@ LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
 }
 
 // TODO: may be sort in another place, and make diagnostics() const
-std::vector<LintCombine::PrepareCmdLineItf::Diagnostic>
+std::vector<LintCombine::Diagnostic>
 LintCombine::PrepareCmdLineBase::diagnostics() {
     std::sort( std::begin( m_diagnostics ),
            std::end( m_diagnostics ),
@@ -57,10 +57,8 @@ bool LintCombine::PrepareCmdLineBase::parseSourceCmdLine() {
     boost::program_options::variables_map variablesMap;
     try {
         const boost::program_options::parsed_options parsed =
-            boost::program_options::command_line_parser( m_cmdLine ).options( programOptions )
-            .style( boost::program_options::command_line_style::default_style |
-                     boost::program_options::command_line_style::allow_long_disguise )
-            .allow_unregistered().run();
+            boost::program_options::command_line_parser( m_cmdLine )
+            .options( programOptions ).allow_unregistered().run();
         store( parsed, variablesMap );
         notify( variablesMap );
         m_unrecognizedCollection =
@@ -68,7 +66,7 @@ bool LintCombine::PrepareCmdLineBase::parseSourceCmdLine() {
     }
     catch( const std::exception & ex ) {
         m_diagnostics.emplace_back(
-            Diagnostic( ex.what(), Level::Error, 1, 0 ) );
+            Diagnostic( ex.what(), "Preparer", Level::Error, 1, 0 ) );
         return true;
     }
     return false;
@@ -78,12 +76,12 @@ bool LintCombine::PrepareCmdLineBase::validateParsedData() {
     auto isErrorOccur = false;
     if( m_pathToWorkDir.empty() ) {
         m_diagnostics.emplace_back(
-            Diagnostic( "Path to compilation database is empty.", Level::Error, 1, 0 ) );
+            Diagnostic( "Path to compilation database is empty.", "Preparer", Level::Error, 1, 0 ) );
         isErrorOccur = true;
     }
     if( m_pathToGeneralYaml.empty() ) {
         m_diagnostics.emplace_back(
-            Diagnostic( "Path to yaml-file is empty.", Level::Error, 1, 0 ) );
+            Diagnostic( "Path to yaml-file is empty.", "Preparer", Level::Error, 1, 0 ) );
         isErrorOccur = true;
     }
     checkIsOptionsValueInit( "clang-extra-args", m_clangExtraArgs );
@@ -105,7 +103,7 @@ void LintCombine::PrepareCmdLineBase::checkIsOptionsValueInit( const std::string
         m_diagnostics.emplace_back( Diagnostic( "Parameter "
                                     "\"" + optionName + "\" was set but the parameter's "
                                     "value was not set. The parameter will be ignored.",
-                                    Level::Warning, warningBeginInCL, warningEndInCL ) );
+                                    "Preparer", Level::Warning, warningBeginInCL, warningEndInCL ) );
     }
 }
 
@@ -132,7 +130,7 @@ bool LintCombine::PrepareCmdLineBase::initLinters() {
             const auto firstPos = static_cast< unsigned >( m_sourceCL.find( it, findFrom ) );
             const auto lastPos = firstPos + static_cast< unsigned >( it.size() );
             m_diagnostics.emplace_back( Diagnostic( "Unknown linter name \""
-                                        + it + "\"", Level::Error, firstPos, lastPos ) );
+                                        + it + "\"", "Preparer", Level::Error, firstPos, lastPos ) );
             isErrorOccur = true;
         }
     }

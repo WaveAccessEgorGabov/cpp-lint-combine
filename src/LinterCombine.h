@@ -23,11 +23,11 @@ namespace LintCombine {
 
         CallTotals updateYaml() const override;
 
-        std::shared_ptr < LinterItf > linterAt( int pos ) const;
+        std::shared_ptr < LinterItf > linterAt( size_t pos ) const;
 
         size_t numLinters() const noexcept;
 
-        bool printTextIfRequested() const;
+        std::vector< Diagnostic > diagnostics() override;
 
     private:
         std::vector < stringVector > splitCommandLineBySubLinters( const stringVector & commandLine );
@@ -41,8 +41,6 @@ namespace LintCombine {
         std::vector < std::shared_ptr < LinterItf > > m_linters;
         std::string m_mergedYamlPath;
         LinterFactoryBase::Services & m_services;
-        bool m_helpIsRequested = false;
-        // contain program options
-        boost::program_options::options_description m_genericOptDesc;
+        std::vector< Diagnostic > m_diagnostics;
     };
 }

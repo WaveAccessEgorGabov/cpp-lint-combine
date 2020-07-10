@@ -44,7 +44,7 @@ void LintCombine::fixHyphensInCmdLine( stringVector & cmdLine ) {
 
 LintCombine::stringVector
 LintCombine::prepareDiagnostics( const stringVector & cmdLine,
-                                 const std::vector< PrepareCmdLineItf::Diagnostic > & diagnostics ) {
+                                 const std::vector< Diagnostic > & diagnostics ) {
     const auto sourceCL = boost::algorithm::join( cmdLine, " " );
     stringVector preparedOutput;
     for( const auto & it : diagnostics ) {
@@ -69,7 +69,7 @@ LintCombine::prepareDiagnostics( const stringVector & cmdLine,
 }
 
 void LintCombine::printDiagnostics( const stringVector & cmdLine,
-                                    const std::vector< PrepareCmdLineItf::Diagnostic > & diagnostics ) {
+                                    const std::vector< Diagnostic > & diagnostics ) {
     for( const auto & it : prepareDiagnostics( cmdLine, diagnostics ) ) {
         std::cerr << it << std::endl;
     }
