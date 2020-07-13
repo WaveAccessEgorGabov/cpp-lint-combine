@@ -1,5 +1,5 @@
 #include "LinterCombine.h"
-#include PATH_TO_VERSION_RESOURCE
+#include PATH_TO_VERSION_RESOURCE // ?
 
 #include <iostream>
 #include <boost/filesystem.hpp>
@@ -13,6 +13,7 @@ std::vector<LintCombine::Diagnostic> LintCombine::LinterCombine::diagnostics() {
     return m_diagnostics;
 }
 
+// TODO: check empty command line and incorrect sub-linter anyway
 LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine,
                                            LinterFactoryBase & factory )
     : m_services( factory.getServices() ) {
@@ -27,7 +28,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & commandLine,
     }
     if( m_linters.empty() ) {
         std::cerr << "Warning not one linter was set!" << std::endl;
-        return;
+        return; // ?
     }
     checkYamlPathForCorrectness();
 }
@@ -119,7 +120,7 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
     }
     catch( const boost::program_options::error & error ) {
         m_diagnostics.push_back( Diagnostic( error.what(), "Combine",
-                                    Level::Error, 1, 0 ) );
+                                 Level::Error, 1, 0 ) );
         throw; // ??
     }
     catch( const std::exception & ex ) {
