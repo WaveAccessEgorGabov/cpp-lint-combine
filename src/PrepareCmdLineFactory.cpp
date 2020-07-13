@@ -1,4 +1,6 @@
 #include "PrepareCmdLineFactory.h"
+#include "PrepareCmdLineReSharper.h"
+#include "PrepareCmdLineVerbatim.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
 
@@ -27,9 +29,7 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
                        return str.find( "--ide-profile" ) == 0 || str == ideName;
                    } ), std::end( cmdLine ) );
     if( ideName.empty() ) {
-        return new PrepareCmdLineOnError( "Options were passed verbatim",
-                                          "PrepareCmdLineFactory",
-                                          Level::Info, 1, 0 );
+        return new PrepareCmdLineVerbatim();
     }
     const auto ideNameCopy = ideName;
     boost::algorithm::to_lower( ideName );

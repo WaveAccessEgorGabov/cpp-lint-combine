@@ -50,6 +50,7 @@ add_executable(${executableName}
         src/LintCombineUtils.h        src/LintCombineUtils.cpp
         src/PrepareCmdLineBase.h      src/PrepareCmdLineBase.cpp
         src/PrepareCmdLineFactory.h   src/PrepareCmdLineFactory.cpp
+        src/PrepareCmdLineVerbatim.h  src/PrepareCmdLineVerbatim.cpp
         src/PrepareCmdLineReSharper.h src/PrepareCmdLineReSharper.cpp )
 
 if (WIN32)
