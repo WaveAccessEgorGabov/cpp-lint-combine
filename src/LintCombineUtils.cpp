@@ -6,11 +6,12 @@
 #include <boost/program_options.hpp>
 
 LintCombine::stringVector LintCombine::cmdLineToSTLContainer( const int argc, char ** argv ) {
-    stringVector commandLine;
+    stringVector cmdLine;
     for( auto i = 1; i < argc; ++i ) {
-        commandLine.emplace_back( std::string( argv[i] ) );
+        cmdLine.emplace_back( std::string( argv[i] ) );
     }
-    return commandLine;
+    fixHyphensInCmdLine( cmdLine );
+    return cmdLine;
 }
 
 void LintCombine::fixHyphensInCmdLine( stringVector & cmdLine ) {
