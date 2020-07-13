@@ -1063,6 +1063,7 @@ BOOST_AUTO_TEST_CASE( VerbatimLintersDontExist ) {
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() == true );
+    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );//
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
@@ -1106,7 +1107,7 @@ BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithCorrectName ) {
     LintCombine::stringVector cmdLine = {
         "--result-yaml=file.yaml", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" };
-    const std::array < std::string, 7 > result = {
+    const std::array < std::string, 6 > result = {
         "--result-yaml=file.yaml", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" };
     auto * prepareCmdLine =
@@ -1133,10 +1134,10 @@ BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithCorrectNames ) {
 BOOST_AUTO_TEST_CASE( VerbatimResultYamlPathNotExists ) {
     LintCombine::stringVector cmdLine = {
         "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" };
-    const std::array < std::string, 7 > result = {
-        "--result-yaml=" CURRENT_BINARY_DIR "LintersDiagnostics.yaml",
+    const std::array < std::string, 6 > result = {
         "--sub-linter=clazy", "--param=value",
-        "-p=val", "--param", "val" };
+        "-p=val", "--param", "val",
+        "--result-yaml=" CURRENT_BINARY_DIR "LintersDiagnostics.yaml" };
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
@@ -1151,10 +1152,10 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
     LintCombine::stringVector cmdLine = {
         "--result-yaml=\\\\", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" };
-    const std::array < std::string, 7 > result = {
-        "--result-yaml=" CURRENT_BINARY_DIR "LintersDiagnostics.yaml",
+    const std::array < std::string, 6 > result = {
         "--sub-linter=clazy", "--param=value",
-        "-p=val", "--param", "val" };
+        "-p=val", "--param", "val",
+        "--result-yaml=" CURRENT_BINARY_DIR "LintersDiagnostics.yaml", };
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
@@ -1162,7 +1163,7 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Warning );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "result-yaml path is invalid." );
+    BOOST_CHECK( diagnostic_0.text == "result-yaml path \"\\\\\" is invalid." );
 }
 
 BOOST_AUTO_TEST_CASE( UnsupportedIDE ) {
@@ -1609,7 +1610,6 @@ BOOST_AUTO_TEST_CASE( FirstSubLinterHasEmptyValueAfterSpaceSecondIncorrect ) {
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
-    //-p=pathToCompilationDataBase --export-fixes=pathToResultYaml --sub-linter --sub-linter IncorrectName_1
     BOOST_CHECK( diagnostic_0.firstPos == 74 );
     BOOST_CHECK( diagnostic_0.lastPos == 86 );
     BOOST_CHECK( diagnostic_0.text == "Unknown linter name \"--sub-linter\"" );
