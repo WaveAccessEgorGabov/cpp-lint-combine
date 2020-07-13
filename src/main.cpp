@@ -8,14 +8,10 @@
 
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
-    LintCombine::fixHyphensInCmdLine( cmdLine );
     auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
-    const auto saveCmdLine = cmdLine;
     cmdLine = prepareCmdLine->transform( cmdLine );
-    printDiagnostics( saveCmdLine, prepareCmdLine->diagnostics() );
-    if( cmdLine.empty() ) {
-        return 1;
-    }
+    // TODO: Print diagnostics after PrepareCmdLine here
+    if( cmdLine.empty() ) { return 1; }
 
     LintCombine::LinterCombine * pCombine;
     try {
@@ -23,16 +19,17 @@ int main( int argc, char * argv[] ) {
         pCombine = &combine;
     }
     catch( const std::logic_error & ex ) {
-        std::cerr << "std::logic_error exception. What(): " << ex.what() << std::endl;
+        std::cerr << ex.what() << std::endl;
         return 1;
     }
     catch( const std::exception & ex ) {
-        std::cerr << "Exception. What(): " << ex.what() << std::endl;
+        std::cerr << ex.what() << std::endl;
         return 1;
     }
 
+    // TODO: Do we realy need to write into stderr warnings? Or we can make it through diagnostics
     pCombine->callLinter();
-    const int combineCallReturnCode = pCombine->waitLinter();
+    const auto combineCallReturnCode = pCombine->waitLinter();
     if( combineCallReturnCode == 2 ) {
         std::cerr << "some linters are failed" << std::endl;
     }

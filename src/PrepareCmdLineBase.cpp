@@ -3,7 +3,9 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/join.hpp>
 
-// all variable must be emtpy before used
+#include <execution>
+
+// all variable must be empty before used
 LintCombine::stringVector
 LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
     realeaseClassField();
@@ -25,7 +27,7 @@ LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
 // TODO: may be sort in another place, and make diagnostics() const
 std::vector<LintCombine::Diagnostic>
 LintCombine::PrepareCmdLineBase::diagnostics() {
-    std::sort( std::begin( m_diagnostics ),
+    std::sort( std::execution::par, std::begin( m_diagnostics ),
            std::end( m_diagnostics ),
            []( const Diagnostic & lhs, const Diagnostic & rhs ) {
                if( lhs.level == rhs.level )
@@ -38,6 +40,7 @@ LintCombine::PrepareCmdLineBase::diagnostics() {
 // TODO: validate implicit value
 // TODO: delete options witch implicit
 bool LintCombine::PrepareCmdLineBase::parseSourceCmdLine() {
+    // TODO : parse here --result-yaml. Or make this method virtual.
     boost::program_options::options_description programOptions;
     programOptions.add_options()
         ( "clazy-checks",
@@ -78,6 +81,7 @@ bool LintCombine::PrepareCmdLineBase::validateParsedData() {
     auto isErrorOccur = false;
     if( m_pathToWorkDir.empty() ) {
         m_diagnostics.emplace_back(
+            // TODO: origin value: Preparer -> BasePreparer
             Diagnostic( "Path to compilation database is empty.", "Preparer", Level::Error, 1, 0 ) );
         isErrorOccur = true;
     }
@@ -160,6 +164,7 @@ void LintCombine::PrepareCmdLineBase::initCommonOptions() {
     }
 }
 
+// TODO: Think about this method
 void LintCombine::PrepareCmdLineBase::realeaseClassField() {
     m_cmdLine.clear();
     m_sourceCL.clear();

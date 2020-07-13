@@ -36,7 +36,7 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
     if( ideName == "resharper" ) {
         return new PrepareCmdLineReSharper();
     }
-    // TODO: find position of incorrect IDE
+    // TODO: find position of incorrect IDE in source cmdLine
     return new PrepareCmdLineOnError( "\"" + ideNameCopy +
                                       "\" isn't supported by cpp-lint-combine",
                                       "PrepareCmdLineFactory", Level::Error, 1, 0 );
