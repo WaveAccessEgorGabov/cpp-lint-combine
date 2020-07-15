@@ -2,8 +2,7 @@
 
 LintCombine::ClazyWrapper::ClazyWrapper( stringVector && commandLineSTL,
                                          LinterFactoryBase::Services & service )
-        : LinterBase( commandLineSTL, service ) {
-    name = "clazy-standalone";
+        : LinterBase( commandLineSTL, service, "clazy-standalone" ) {
 }
 
 void LintCombine::ClazyWrapper::updateYamlAction( const YAML::Node & yamlNode ) const {

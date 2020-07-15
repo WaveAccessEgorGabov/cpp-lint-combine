@@ -9,9 +9,9 @@ namespace LintCombine {
 
     // TODO: change params order while add new diagnostic
     struct Diagnostic {
-        Diagnostic( std::string && textVal, const std::string && originVal,
-                    const Level levelVal, const unsigned firstPosVal,
-                    const unsigned lastPosVal )
+        Diagnostic( const Level levelVal,
+                    std::string && textVal, const std::string && originVal,
+                    const unsigned firstPosVal, const unsigned lastPosVal )
             : level( levelVal ), text( textVal ), origin( originVal ),
             firstPos( firstPosVal ), lastPos( lastPosVal ) {}
         Level level;

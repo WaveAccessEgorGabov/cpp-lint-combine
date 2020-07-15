@@ -7,8 +7,8 @@
 LintCombine::PrepareCmdLineItf *
 LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector & cmdLine ) {
     if( cmdLine.empty() ) {
-        return new PrepareCmdLineOnError( "Command line is empty",
-                                          "PrepareCmdLineFactory", Level::Error, 1, 0 );
+        return new PrepareCmdLineOnError( Level::Error, "Command Line is empty",
+                                          "FactoryPreparer",  1, 0 );
     }
     std::string ideName;
     boost::program_options::options_description programDesc;
@@ -22,7 +22,8 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
         notify( vm );
     }
     catch( const std::exception & ex ) {
-        return new PrepareCmdLineOnError( ex.what(), "PrepareCmdLineFactory", Level::Error, 1, 0 );
+        return new PrepareCmdLineOnError( Level::Error, ex.what(),
+                                          "FactoryPreparer",  1, 0 );
     }
     cmdLine.erase( std::remove_if( std::begin( cmdLine ), std::end( cmdLine ),
                    [ideName]( const std::string & str ) -> bool {
@@ -37,7 +38,7 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
         return new PrepareCmdLineReSharper();
     }
     // TODO: find position of incorrect IDE in source cmdLine
-    return new PrepareCmdLineOnError( "\"" + ideNameCopy +
+    return new PrepareCmdLineOnError( Level::Error, "\"" + ideNameCopy +
                                       "\" isn't supported by cpp-lint-combine",
-                                      "PrepareCmdLineFactory", Level::Error, 1, 0 );
+                                      "FactoryPreparer",  1, 0 );
 }

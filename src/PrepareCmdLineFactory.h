@@ -12,11 +12,14 @@ namespace LintCombine {
         class PrepareCmdLineOnError final : public PrepareCmdLineItf {
 
         public:
-            PrepareCmdLineOnError( std::string && textVal, std::string && originVal,
-                                   const Level levelVal, const unsigned firstPosVal,
+            PrepareCmdLineOnError( const Level levelVal,
+                                   std::string && textVal,
+                                   std::string && originVal,
+                                   const unsigned firstPosVal,
                                    const unsigned lastPosVal )
-                : m_diagnostics{ Diagnostic( std::move( textVal ), std::move( originVal ),
-                                             levelVal, firstPosVal, lastPosVal ) } {}
+                : m_diagnostics{ Diagnostic( levelVal, std::move( textVal ),
+                                             std::move( originVal ),
+                                             firstPosVal, lastPosVal ) } {}
 
             stringVector transform( stringVector commandLine ) override {
                 for( const auto & it : m_diagnostics ) {

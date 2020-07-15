@@ -14,7 +14,7 @@ namespace LintCombine {
 
         int waitLinter() override;
 
-        CallTotals updateYaml() const override;
+        CallTotals updateYaml() override;
 
         const std::string & getName() const;
 
@@ -29,10 +29,11 @@ namespace LintCombine {
     protected:
         explicit LinterBase( LinterFactoryBase::Services & service );
 
-        explicit LinterBase( const stringVector & commandLine,
-                             LinterFactoryBase::Services & service );
+        explicit LinterBase( const stringVector & cmdLine,
+                             LinterFactoryBase::Services & service,
+                             std::string && nameVal );
 
-        void parseCommandLine( const stringVector & commandLine );
+        void parseCommandLine( const stringVector & cmdLine );
 
         virtual void updateYamlAction( const YAML::Node & yamlNode ) const = 0;
 
@@ -48,8 +49,7 @@ namespace LintCombine {
         // Buffer for reading from pipes
         std::array < char, 64 > m_buffer = {};
 
-        void checkYamlPathForCorrectness();
-
-        void readFromPipeToStream( boost::process::async_pipe & pipe, std::ostream & outputStream );
+        void readFromPipeToStream( boost::process::async_pipe & pipe, 
+                                   std::ostream & outputStream );
     };
 }

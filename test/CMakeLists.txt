@@ -25,6 +25,7 @@ add_executable(${executableName} src/simpleTest.cpp
         ../src/PrepareCmdLineFactory.h   ../src/PrepareCmdLineFactory.cpp
         ../src/PrepareCmdLineVerbatim.h  ../src/PrepareCmdLineVerbatim.cpp
         ../src/PrepareCmdLineReSharper.h ../src/PrepareCmdLineReSharper.cpp )
+# for what???
 target_compile_definitions(${executableName} PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 if (WIN32)

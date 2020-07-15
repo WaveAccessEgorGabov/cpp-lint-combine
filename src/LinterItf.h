@@ -17,7 +17,7 @@ namespace LintCombine {
 
         virtual int waitLinter() = 0;
 
-        virtual CallTotals updateYaml() const = 0;
+        virtual CallTotals updateYaml() = 0;
 
         virtual const std::string & getYamlPath() = 0;
 

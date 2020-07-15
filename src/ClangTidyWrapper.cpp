@@ -2,9 +2,7 @@
 
 LintCombine::ClangTidyWrapper::ClangTidyWrapper( stringVector && commandLine,
                                                  LinterFactoryBase::Services & service )
-        : LinterBase( commandLine, service ) {
-    name = "clang-tidy";
-}
+        : LinterBase( commandLine, service, "clang-tidy" ) {}
 
 void LintCombine::ClangTidyWrapper::updateYamlAction( const YAML::Node & yamlNode ) const {
     addDocLinkToYaml( yamlNode );
