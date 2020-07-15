@@ -42,7 +42,7 @@ std::string LintCombine::DiagnosticWorker::getProductInfoStr() {
 // TODO: use std::ostream to prepare output
 bool LintCombine::DiagnosticWorker::printDiagnostics(
     const std::vector< Diagnostic > & diagnostics ) const {
-    if( cmdLine.empty() && diagnostics.empty() ) {
+    if( isCmdLineEmpty ) {
         std::cout << getProductInfoStr();
         std::cout << getHowToPrintHelpStr();
         return true;

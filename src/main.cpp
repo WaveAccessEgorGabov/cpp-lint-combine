@@ -6,7 +6,7 @@
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
     auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
-    const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine );
+    const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );
     cmdLine = prepareCmdLine->transform( cmdLine );
     
     if( diagnosticWorker.printDiagnostics( prepareCmdLine->diagnostics() ) ) {
