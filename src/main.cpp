@@ -11,27 +11,33 @@ int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
     auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     cmdLine = prepareCmdLine->transform( cmdLine );
-    // TODO: Print diagnostics after PrepareCmdLine here
-    if( cmdLine.empty() ) { return 1; }
+    // TODO: Print diagnostics from Preparer
+    if( cmdLine.empty() ) {
+        return 1;
+    }
 
     LintCombine::LinterCombine combine( cmdLine );
-
-    // TODO: Do we realy need to write into stderr warnings? Or we can make it through diagnostics
-    combine.callLinter();
-    const auto combineCallReturnCode = combine.waitLinter();
-    if( combineCallReturnCode == 2 ) {
-        std::cerr << "some linters are failed" << std::endl;
+    if( combine.getIsErrorOccur() ) {
+        // TODO: Print diagnostics from Combine
+        return 1;
     }
-    if( combineCallReturnCode == 3 ) {
-        std::cerr << "all linters are failed" << std::endl;
+
+    combine.callLinter();
+    const auto ñallReturnCode = combine.waitLinter();
+    if( ñallReturnCode == 3 ) {
+        // TODO: Print diagnostics from Combine 
+        return 1;
     }
     const auto callTotals = combine.updateYaml();
-    if( callTotals.failNum ) {
-        std::cout << "Updating " << callTotals.failNum << " yaml-files was failed" << std::endl;
+    if( callTotals.failNum == combine.numLinters() ) {
+        // TODO: Print diagnostics from Combine 
+        return 1;
     }
     if( combine.getYamlPath().empty() ) {
-        // gereral yaml isn't created
+        // TODO: Print diagnostics from Combine
+        return 1;
     }
+    // TODO: Print diagnostics from Combine
 
     return 0;
 }
