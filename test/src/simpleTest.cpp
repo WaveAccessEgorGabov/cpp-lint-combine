@@ -1560,13 +1560,20 @@ BOOST_AUTO_TEST_CASE( VerbatimLintersDontExist ) {
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() == true );
-    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );//
+    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
-    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
+    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
     BOOST_CHECK( diagnostic_0.origin == "VerbatimPreparer" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "No linters specified" );
+    BOOST_CHECK( diagnostic_0.text == "Options were passed verbatim" );
+    const auto diagnostic_1 = prepareCmdLine->diagnostics()[1];
+    BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
+    BOOST_CHECK( diagnostic_1.origin == "VerbatimPreparer" );
+    BOOST_CHECK( diagnostic_1.firstPos == 1 );
+    BOOST_CHECK( diagnostic_1.lastPos == 0 );
+    BOOST_CHECK( diagnostic_1.text == 
+        "No linters specified. Available linters are: clang-tidy, clazy." );
 }
 
 BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithIncorrectName ) {
@@ -1575,13 +1582,19 @@ BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithIncorrectName ) {
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() == true );
-    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
+    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
-    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
+    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
     BOOST_CHECK( diagnostic_0.origin == "VerbatimPreparer" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "Unknown linter name: \"Incorrect\"" );
+    BOOST_CHECK( diagnostic_0.text == "Options were passed verbatim" );
+    const auto diagnostic_1 = prepareCmdLine->diagnostics()[1];
+    BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
+    BOOST_CHECK( diagnostic_1.origin == "VerbatimPreparer" );
+    BOOST_CHECK( diagnostic_1.firstPos == 1 );
+    BOOST_CHECK( diagnostic_1.lastPos == 0 );
+    BOOST_CHECK( diagnostic_1.text == "Unknown linter name: \"Incorrect\"" );
 }
 
 BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithIncorrectNames ) {
@@ -1591,19 +1604,25 @@ BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithIncorrectNames ) {
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() == true );
-    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
+    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
-    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
+    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
     BOOST_CHECK( diagnostic_0.origin == "VerbatimPreparer" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "Unknown linter name: \"Incorrect_1\"" );
+    BOOST_CHECK( diagnostic_0.text == "Options were passed verbatim" );
     const auto diagnostic_1 = prepareCmdLine->diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
-    BOOST_CHECK( diagnostic_0.origin == "VerbatimPreparer" );
+    BOOST_CHECK( diagnostic_1.origin == "VerbatimPreparer" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == "Unknown linter name: \"Incorrect_2\"" );
+    BOOST_CHECK( diagnostic_1.text == "Unknown linter name: \"Incorrect_1\"" );
+    const auto diagnostic_2 = prepareCmdLine->diagnostics()[2];
+    BOOST_CHECK( diagnostic_2.level == LintCombine::Level::Error );
+    BOOST_CHECK( diagnostic_2.origin == "VerbatimPreparer" );
+    BOOST_CHECK( diagnostic_2.firstPos == 1 );
+    BOOST_CHECK( diagnostic_2.lastPos == 0 );
+    BOOST_CHECK( diagnostic_2.text == "Unknown linter name: \"Incorrect_2\"" );
 }
 
 BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithCorrectName ) {
@@ -1616,7 +1635,13 @@ BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithCorrectName ) {
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
-    BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
+    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
+    const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
+    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
+    BOOST_CHECK( diagnostic_0.origin == "VerbatimPreparer" );
+    BOOST_CHECK( diagnostic_0.firstPos == 1 );
+    BOOST_CHECK( diagnostic_0.lastPos == 0 );
+    BOOST_CHECK( diagnostic_0.text == "Options were passed verbatim" );
 }
 
 BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithCorrectNames ) {
@@ -1631,7 +1656,13 @@ BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithCorrectNames ) {
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
-    BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
+    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
+    const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
+    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
+    BOOST_CHECK( diagnostic_0.origin == "VerbatimPreparer" );
+    BOOST_CHECK( diagnostic_0.firstPos == 1 );
+    BOOST_CHECK( diagnostic_0.lastPos == 0 );
+    BOOST_CHECK( diagnostic_0.text == "Options were passed verbatim" );
 }
 
 BOOST_AUTO_TEST_CASE( VerbatimResultYamlPathNotExists ) {
@@ -1644,7 +1675,13 @@ BOOST_AUTO_TEST_CASE( VerbatimResultYamlPathNotExists ) {
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
-    BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
+    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
+    const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
+    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
+    BOOST_CHECK( diagnostic_0.origin == "VerbatimPreparer" );
+    BOOST_CHECK( diagnostic_0.firstPos == 1 );
+    BOOST_CHECK( diagnostic_0.lastPos == 0 );
+    BOOST_CHECK( diagnostic_0.text == "Options were passed verbatim" );
 }
 
 BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
@@ -1658,13 +1695,19 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
-    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
+    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
-    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Warning );
+    BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
     BOOST_CHECK( diagnostic_0.origin == "VerbatimPreparer" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "Incorrect general yaml filename: \"\\\\\"" );
+    BOOST_CHECK( diagnostic_0.text == "Options were passed verbatim" );
+    const auto diagnostic_1 = prepareCmdLine->diagnostics()[1];
+    BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Warning );
+    BOOST_CHECK( diagnostic_1.origin == "VerbatimPreparer" );
+    BOOST_CHECK( diagnostic_1.firstPos == 1 );
+    BOOST_CHECK( diagnostic_1.lastPos == 0 );
+    BOOST_CHECK( diagnostic_1.text == "Incorrect general yaml filename: \"\\\\\"" );
 }
 
 BOOST_AUTO_TEST_CASE( UnsupportedIDE ) {

@@ -2,14 +2,27 @@
 
 #include "LinterItf.h"
 
+#include <ostream>
+
 namespace LintCombine {
 
     class DiagnosticWorker {
 
     public:
-        void printDiagnostics();
+        explicit DiagnosticWorker( const stringVector & cmdLineVal )
+            : cmdLine( cmdLineVal ) {}
+
+        bool printDiagnostics( const std::vector< Diagnostic > & diagnostics ) const;
 
     private:
-        stringVector prepareOutput();
+        static std::string getHowToPrintHelpStr();
+
+        static std::string getProductInfoStr();
+
+        static std::string getHelpStr();
+
+        stringVector prepareOutput( const std::vector< Diagnostic > & diagnostics ) const;
+
+        stringVector cmdLine;
     };
 }

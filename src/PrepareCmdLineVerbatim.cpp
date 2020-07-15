@@ -19,6 +19,9 @@ LintCombine::PrepareCmdLineVerbatim::diagnostics() {
 }
 
 bool LintCombine::PrepareCmdLineVerbatim::validateLinters() {
+    m_diagnostics.emplace_back(
+        Level::Info, "Options were passed verbatim",
+        "VerbatimPreparer", 1, 0 );
     stringVector lintersNames;
     boost::program_options::options_description OptDesc;
     OptDesc.add_options()
@@ -39,7 +42,8 @@ bool LintCombine::PrepareCmdLineVerbatim::validateLinters() {
 
     if( lintersNames.empty() ) {
         m_diagnostics.emplace_back( Diagnostic(
-            Level::Error, "No linters specified",
+            Level::Error,
+            "No linters specified. Available linters are: clang-tidy, clazy.",
             "VerbatimPreparer", 1, 0 ) );
         return true;
     }
@@ -47,9 +51,10 @@ bool LintCombine::PrepareCmdLineVerbatim::validateLinters() {
     auto isErrorOccur = false;
     for( auto & it : lintersNames ) {
         if( it != "clang-tidy" && it != "clazy" ) {
-            m_diagnostics.emplace_back( Diagnostic( Level::Error,
-                                        "Unknown linter name: \"" + it + "\"",
-                                        "VerbatimPreparer", 1, 0 ) );
+            m_diagnostics.emplace_back(
+                Diagnostic( Level::Error,
+                "Unknown linter name: \"" + it + "\"",
+                "VerbatimPreparer", 1, 0 ) );
             isErrorOccur = true;
         }
     }

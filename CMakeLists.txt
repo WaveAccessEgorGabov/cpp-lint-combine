@@ -24,7 +24,7 @@ execute_process(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMAND git describe --tags --long --abbrev=12 OUTPUT_VARIABLE LinterWrapperVersion)
 string(REGEX REPLACE "-" "." LinterWrapperVersion ${LinterWrapperVersion})
 
-set(PRODUCTNAME_STR_IMPL "LinterWrapper")
+set(PRODUCTNAME_STR_IMPL "LintCombine")
 if (WIN32)
     STRING(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+" LinterWrapperVersion ${LinterWrapperVersion})
 elseif (UNIX)
