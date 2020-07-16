@@ -34,7 +34,7 @@ jobs:
     - name: ConfigureLinux
       shell: bash
       if: startsWith(matrix.config.os, 'ubuntu')
-      run: sudo apt-get install libboost-all-dev && cmake -D -DBUILD_IN_CI=ON CMAKE_BUILD_TYPE=Release -S . -B .
+      run: sudo apt-get install libboost-all-dev && cmake -DBUILD_IN_CI=ON -DCMAKE_BUILD_TYPE=Release -S . -B .
 
     - name: Build
       shell: bash
