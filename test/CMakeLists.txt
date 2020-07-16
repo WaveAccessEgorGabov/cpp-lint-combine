@@ -26,12 +26,7 @@ add_executable(${executableName} src/simpleTest.cpp
         ../src/PrepareCmdLineVerbatim.h  ../src/PrepareCmdLineVerbatim.cpp
         ../src/PrepareCmdLineReSharper.h ../src/PrepareCmdLineReSharper.cpp )
 
+target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/../version.rsrc")
 target_compile_definitions(${executableName} PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 target_link_libraries(${executableName} yaml-cpp)
-if (WIN32)
-    target_link_libraries(${executableName} yaml-cpp)
-    target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/../version.rsrc")
-elseif (UNIX)
-    target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
-endif ()
