@@ -23,8 +23,8 @@ int main( int argc, char * argv[] ) {
     }
 
     combine.callLinter();
-    const auto ñallReturnCode = combine.waitLinter();
-    if( ñallReturnCode == 3 ) {
+    const auto callReturnCode = combine.waitLinter();
+    if( callReturnCode == 3 ) {
         diagnosticWorker.printDiagnostics( combine.diagnostics() );
         return 1;
     }

@@ -1548,7 +1548,7 @@ BOOST_AUTO_TEST_SUITE_END()
 // TODO: Figure out: why memory leak occurs in Debug
 BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
-template < int T >
+template < size_t T >
 void compareContainers( const LintCombine::stringVector & lhs, const std::array < std::string, T > & rhs ) {
     BOOST_REQUIRE( lhs.size() == rhs.size() );
     for( size_t i = 0; i < lhs.size(); ++i ) {

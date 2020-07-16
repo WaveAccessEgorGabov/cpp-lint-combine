@@ -3,8 +3,6 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/join.hpp>
 
-#include <execution>
-
 // all variable must be empty before used
 LintCombine::stringVector
 LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
@@ -27,7 +25,7 @@ LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
 // TODO: may be sort in another place, and make diagnostics() const
 std::vector<LintCombine::Diagnostic>
 LintCombine::PrepareCmdLineBase::diagnostics() {
-    std::sort( std::execution::par, std::begin( m_diagnostics ),
+    std::sort( std::begin( m_diagnostics ),
            std::end( m_diagnostics ),
            []( const Diagnostic & lhs, const Diagnostic & rhs ) {
                if( lhs.level == rhs.level )
