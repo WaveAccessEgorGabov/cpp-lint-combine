@@ -1,0 +1,52 @@
+name: CombineCI
+
+on: [ push ]
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Windows Latest MSVC",
+            os: windows-latest
+          }
+        - {
+            name: "Ubuntu 20.04",
+            os: ubuntu-20.04
+          }
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: PrepareRepo
+      shell: bash
+      run: git submodule update --init --recursive yaml-cpp && git tag 1.0.0
+    
+    - name: ConfigureWindows
+      shell: bash
+      if: startsWith(matrix.config.os, 'windows')
+      run: cmake -S . -B . -DBOOST_ROOT=$BOOST_ROOT_1_69_0
+
+    - name: ConfigureLinux
+      shell: bash
+      if: startsWith(matrix.config.os, 'ubuntu')
+      run: sudo apt-get install libboost-all-dev && cmake -D CMAKE_BUILD_TYPE=Release -S . -B .
+
+    - name: Build
+      shell: bash
+      run: cmake --build . --config Release
+
+    - name: RunTestOnWindows
+      shell: bash
+      if: startsWith(matrix.config.os, 'windows')
+      run: cd test && ./Release/cpp-lint-combineTesting.exe
+
+    - name: RunTestOnLinux
+      shell: bash
+      if: startsWith(matrix.config.os, 'ubuntu')
+      run: cd test && ./cpp-lint-combineTesting
+

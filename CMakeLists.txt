@@ -53,10 +53,13 @@ add_executable(${executableName}
         src/PrepareCmdLineVerbatim.h  src/PrepareCmdLineVerbatim.cpp
         src/PrepareCmdLineReSharper.h src/PrepareCmdLineReSharper.cpp )
 
+target_link_libraries(${executableName} yaml-cpp)
 if (WIN32)
     target_link_directories(${executableName} PRIVATE ${Boost_LIBRARY_DIRS})
-    target_link_libraries(${executableName} yaml-cpp)
     target_sources(${executableName} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/version.rc)
+elseif (UNIX)
+    target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
 endif ()
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/version.rsrc")
+
