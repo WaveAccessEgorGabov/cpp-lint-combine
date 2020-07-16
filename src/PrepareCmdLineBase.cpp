@@ -153,6 +153,10 @@ bool LintCombine::PrepareCmdLineBase::initLinters() {
            new ClazyOptions( m_pathToWorkDir, m_clazyChecks,
            stringVector( std::istream_iterator<std::string> { iss },
            std::istream_iterator<std::string> {} ) ) };
+        m_diagnostics.emplace_back( Diagnostic(
+            Level::Info,
+            "All linters are used",
+            "BasePreparer", 1, 0 ) );
     }
     return isErrorOccur;
 }
