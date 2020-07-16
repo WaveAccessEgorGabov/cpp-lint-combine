@@ -67,10 +67,12 @@ bool LintCombine::PrepareCmdLineVerbatim::validateLinters() {
 void LintCombine::PrepareCmdLineVerbatim::validateGeneralYamlPath() {
     boost::program_options::options_description genYamlOptDesc;
     std::string pathToGeneralYaml;
+    const std::string pathToGeneralYamlOnError =
+        CURRENT_BINARY_DIR "LintersDiagnostics.yaml";
     genYamlOptDesc.add_options()
         ( "result-yaml",
           boost::program_options::value < std::string >( &pathToGeneralYaml )
-          ->default_value( CURRENT_BINARY_DIR "LintersDiagnostics.yaml" ) );
+          ->default_value( pathToGeneralYamlOnError ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
@@ -80,10 +82,14 @@ void LintCombine::PrepareCmdLineVerbatim::validateGeneralYamlPath() {
     catch( const std::exception & error ) {
         m_diagnostics.emplace_back( Diagnostic( Level::Warning, error.what(),
                                     "VerbatimPreparer", 1, 0 ) );
-        pathToGeneralYaml = CURRENT_BINARY_DIR "LintersDiagnostics.yaml";
+        m_diagnostics.emplace_back( Diagnostic( 
+            Level::Info,
+            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+            "VerbatimPreparer", 1, 0 ) );
+        pathToGeneralYaml = pathToGeneralYamlOnError;
     }
 
-    if( pathToGeneralYaml != CURRENT_BINARY_DIR "LintersDiagnostics.yaml" ) {
+    if( pathToGeneralYaml != pathToGeneralYamlOnError ) {
         const auto yamlFilename =
             boost::filesystem::path( pathToGeneralYaml ).filename().string();
         if( !boost::filesystem::portable_name( yamlFilename ) ) {
@@ -91,11 +97,15 @@ void LintCombine::PrepareCmdLineVerbatim::validateGeneralYamlPath() {
                 Diagnostic( Level::Warning,
                 "Incorrect general yaml filename: \"" + yamlFilename +
                 "\"", "VerbatimPreparer", 1, 0 ) );
-            pathToGeneralYaml = CURRENT_BINARY_DIR "LintersDiagnostics.yaml";
+            m_diagnostics.emplace_back( 
+                Diagnostic( Level::Info,
+                "path to result-yaml changed to " + pathToGeneralYamlOnError,
+                "VerbatimPreparer", 1, 0 ) );
+            pathToGeneralYaml = pathToGeneralYamlOnError;
         }
     }
 
-    if( pathToGeneralYaml == CURRENT_BINARY_DIR "LintersDiagnostics.yaml" ) {
+    if( pathToGeneralYaml == pathToGeneralYamlOnError ) {
         m_cmdLine.erase( std::remove_if( std::begin( m_cmdLine ), std::end( m_cmdLine ),
                          [pathToGeneralYaml]( const std::string & str ) -> bool {
                              return str.find( "--result-yaml" ) == 0 ||

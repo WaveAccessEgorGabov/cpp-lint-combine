@@ -169,11 +169,13 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
 
 // TODO: May be move to LinterUtils
 void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & cmdLine ) {
+    const std::string pathToGeneralYamlOnError =
+        CURRENT_BINARY_DIR "LintersDiagnostics.yaml";
     boost::program_options::options_description genYamlOptDesc;
     genYamlOptDesc.add_options()
         ( "result-yaml",
           boost::program_options::value < std::string >( &m_pathToGeneralYaml )
-          ->default_value( CURRENT_BINARY_DIR "LintersDiagnostics.yaml" ) );
+          ->default_value( pathToGeneralYamlOnError ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( cmdLine ).
@@ -183,7 +185,11 @@ void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & c
     catch( const std::exception & error ) {
         m_diagnostics.emplace_back( Diagnostic( Level::Warning, error.what(),
                                     "Combine", 1, 0 ) );
-        m_pathToGeneralYaml = CURRENT_BINARY_DIR "LintersDiagnostics.yaml";
+        m_diagnostics.emplace_back( Diagnostic(
+            Level::Info,
+            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+            "Combine", 1, 0 ) );
+        m_pathToGeneralYaml = pathToGeneralYamlOnError;
         return;
     }
 
@@ -194,7 +200,11 @@ void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & c
             Diagnostic( Level::Warning,
             "Incorrect general yaml filename: \"" + yamlFilename +
             "\"", "Combine", 1, 0 ) );
-        m_pathToGeneralYaml = CURRENT_BINARY_DIR "LintersDiagnostics.yaml";
+        m_diagnostics.emplace_back( Diagnostic(
+            Level::Info,
+            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+            "Combine", 1, 0 ) );
+        m_pathToGeneralYaml = pathToGeneralYamlOnError;
     }
 }
 

@@ -72,11 +72,13 @@ LintCombine::LinterBase::LinterBase( const stringVector & cmdLine,
 }
 
 void LintCombine::LinterBase::parseCommandLine( const stringVector & cmdLine ) {
+    const std::string pathToGeneralYamlOnError =
+        CURRENT_BINARY_DIR + name + "-Diagnostics.yaml";
     boost::program_options::options_description optDesc;
     optDesc.add_options()
         ( "export-fixes",
           boost::program_options::value< std::string >( &yamlPath )
-          -> default_value( CURRENT_BINARY_DIR + name + "-Diagnostics.yaml" ) );
+          ->default_value( pathToGeneralYamlOnError ) );
     boost::program_options::variables_map vm;
     try {
         const boost::program_options::parsed_options parsed =
@@ -94,9 +96,14 @@ void LintCombine::LinterBase::parseCommandLine( const stringVector & cmdLine ) {
         }
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Diagnostic( Level::Warning, error.what(),
-                                    name.c_str(), 1, 0 ) );
-        yamlPath = CURRENT_BINARY_DIR + name + "-Diagnostics.yaml";
+        m_diagnostics.emplace_back(
+            Diagnostic( Level::Warning, error.what(),
+            name.c_str(), 1, 0 ) );
+        m_diagnostics.emplace_back(
+            Diagnostic( Level::Info,
+            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+            name.c_str(), 1, 0 ) );
+        yamlPath = pathToGeneralYamlOnError;
         return;
     }
 
@@ -107,7 +114,11 @@ void LintCombine::LinterBase::parseCommandLine( const stringVector & cmdLine ) {
             Diagnostic( Level::Warning,
             "Incorrect linter's yaml name: \"" + yamlFilename +
             "\"", name.c_str(), 1, 0 ) );
-        yamlPath = CURRENT_BINARY_DIR + name + "-Diagnostics.yaml";
+        m_diagnostics.emplace_back(
+            Diagnostic( Level::Info,
+            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+            name.c_str(), 1, 0 ) );
+        yamlPath = pathToGeneralYamlOnError;
     }
 }
 

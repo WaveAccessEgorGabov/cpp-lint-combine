@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSpace ) {
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
         CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
-    BOOST_REQUIRE( combine.diagnostics().size() == 1 );
+    BOOST_REQUIRE( combine.diagnostics().size() == 2 );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     const auto diagnostic_0 = combine.diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Warning );
@@ -263,6 +263,14 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSpace ) {
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text == "Incorrect general yaml filename: "
                                       "\"--sub-linter=clazy\"" );
+    const auto diagnostic_1 = combine.diagnostics()[1];
+    BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Info );
+    BOOST_CHECK( diagnostic_1.origin == "Combine" );
+    BOOST_CHECK( diagnostic_1.firstPos == 1 );
+    BOOST_CHECK( diagnostic_1.lastPos == 0 );
+    BOOST_CHECK( diagnostic_1.text == 
+        "path to result-yaml changed to " 
+        CURRENT_BINARY_DIR "LintersDiagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( GeneralYamlPathValueIncorrect ) {
@@ -277,7 +285,7 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueIncorrect ) {
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
         CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
-    BOOST_REQUIRE( combine.diagnostics().size() == 1 );
+    BOOST_REQUIRE( combine.diagnostics().size() == 2 );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     const auto diagnostic_0 = combine.diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Warning );
@@ -286,6 +294,14 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueIncorrect ) {
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
                  "Incorrect general yaml filename: \"\\\\\"" );
+    const auto diagnostic_1 = combine.diagnostics()[1];
+    BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Info );
+    BOOST_CHECK( diagnostic_1.origin == "Combine" );
+    BOOST_CHECK( diagnostic_1.firstPos == 1 );
+    BOOST_CHECK( diagnostic_1.lastPos == 0 );
+    BOOST_CHECK( diagnostic_1.text ==
+        "path to result-yaml changed to "
+        CURRENT_BINARY_DIR "LintersDiagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( LinterYamlPathValueEmptyAfterEqualSign ) {
@@ -316,7 +332,7 @@ BOOST_AUTO_TEST_CASE( LinterYamlPathValueEmptyAfterEqualSpace ) {
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
         CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
-    BOOST_REQUIRE( combine.diagnostics().size() == 1 );
+    BOOST_REQUIRE( combine.diagnostics().size() == 2 );//
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     const auto diagnostic_0 = combine.diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Warning );
@@ -325,6 +341,14 @@ BOOST_AUTO_TEST_CASE( LinterYamlPathValueEmptyAfterEqualSpace ) {
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text == "the required argument for option "
                                       "'--export-fixes' is missing" );
+    const auto diagnostic_1 = combine.diagnostics()[1];
+    BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Info );
+    BOOST_CHECK( diagnostic_1.origin == "clazy-standalone" );
+    BOOST_CHECK( diagnostic_1.firstPos == 1 );
+    BOOST_CHECK( diagnostic_1.lastPos == 0 );
+    BOOST_CHECK( diagnostic_1.text == 
+        "path to result-yaml changed to " 
+        CURRENT_BINARY_DIR "clazy-standalone-Diagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( LinterYamlPathValueIncorrect ) {
@@ -339,7 +363,7 @@ BOOST_AUTO_TEST_CASE( LinterYamlPathValueIncorrect ) {
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
         CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
-    BOOST_REQUIRE( combine.diagnostics().size() == 1 );
+    BOOST_REQUIRE( combine.diagnostics().size() == 2 );//
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     const auto diagnostic_0 = combine.diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Warning );
@@ -347,7 +371,15 @@ BOOST_AUTO_TEST_CASE( LinterYamlPathValueIncorrect ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-                 "Incorrect linter's yaml name: \"\\\\\"" );
+        "Incorrect linter's yaml name: \"\\\\\"" );
+    const auto diagnostic_1 = combine.diagnostics()[1];
+    BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Info );
+    BOOST_CHECK( diagnostic_1.origin == "clazy-standalone" );
+    BOOST_CHECK( diagnostic_1.firstPos == 1 );
+    BOOST_CHECK( diagnostic_1.lastPos == 0 );
+    BOOST_CHECK( diagnostic_1.text ==
+        "path to result-yaml changed to "
+        CURRENT_BINARY_DIR "clazy-standalone-Diagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( ClazyExists ) {
@@ -1695,7 +1727,7 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
     auto * prepareCmdLine =
         LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
-    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
+    BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
     BOOST_CHECK( diagnostic_0.origin == "VerbatimPreparer" );
@@ -1708,6 +1740,14 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text == "Incorrect general yaml filename: \"\\\\\"" );
+    const auto diagnostic_2 = prepareCmdLine->diagnostics()[2];
+    BOOST_CHECK( diagnostic_2.level == LintCombine::Level::Info );
+    BOOST_CHECK( diagnostic_2.origin == "VerbatimPreparer" );
+    BOOST_CHECK( diagnostic_2.firstPos == 1 );
+    BOOST_CHECK( diagnostic_2.lastPos == 0 );
+    BOOST_CHECK( diagnostic_2.text ==
+        "path to result-yaml changed to "
+        CURRENT_BINARY_DIR "LintersDiagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( UnsupportedIDE ) {

@@ -13,10 +13,11 @@ std::string LintCombine::DiagnosticWorker::getHelpStr() {
         ( "help", "Print this message." )
         ( "ide-profile", "Choose ide: Resharper" )
         ( "result-yaml",
-          "Path to YAML with diagnoctics from all linters." )
+          "Path to YAML with diagnoctics from all linters. " 
+          "Default path is " CURRENT_BINARY_DIR "LintersDiagnostics.yaml" )
         ( "sub-linter",
-          "Linter to use. You can use this param several"
-          " times to set several linters." )
+          "Linter to use. You can use this param several times to set"
+          " several linters. Supported linters are: clang-tidy, clazy" )
         ( "clazy-checks",
           "Comma-separated list of clazy checks. Default is level1." )
         ( "clang-extra-args",
