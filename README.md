@@ -5,7 +5,13 @@ Lint-combine is a tool that lets you combine several [linters](https://en.wikipe
 #### 1.1 What is a linter
 **lint**, or a **linter**, is a tool that analyzes source code to flag programming errors, bugs, stylistic errors, and suspicious constructs. 
 #### 1.2 Using lint-combine
-You can use lint-combine as a **command line tool**, or in [**ReSharper C++**](https://www.jetbrains.com/resharper-cpp/) — Visual Studio extension. 
+You can use lint-combine as a **command line tool**, or in IDEs/IDE extensions.
+#### 1.3 List of supported linters
+**1.** **[clazy](https://github.com/KDE/clazy)**
+
+**2.** **[clang-tidy](https://clang.llvm.org/extra/clang-tidy/)**
+#### 1.4 List of supported IDEs/IDE extensions
+**1.** [**ReSharper C++**](https://www.jetbrains.com/resharper-cpp/) — Visual Studio extension. 
 
 ### 2. Get the required tools 
 - **Boost** — minimum required version is **1.69.0**, but you cannot use version **1.72.0**, because it contains [an error in the boost::process](https://github.com/boostorg/process/issues/116). 
@@ -66,3 +72,33 @@ Add path to the linters to the environment variable `PATH` (e.g. within the cpp-
 **1.** Open the `lint-combine-source-dir/cpp-lint-combine.cmd` file in a text editor.
  
 **2.** Specify desired checks/levels in the ```CLAZY_CHECKS``` variable.
+
+### 5. Set up cpp-lint-combine.cmd bootstrapper script
+You can configure cpp-lint-combine.cmd before using cpp-lint-combine.
+
+#### 5.1 Set paths
+**1.** Add path to `<lint-combine-build-dir>/Release` to the script's variable **PATH** if you does't add `<lint-combine-build-dir>/Release` to the environment variable `PATH`. 
+
+**2.** Add path to the linters to the script's variable **PATH** if you does't add path to **clang-tidy** to the environment variable `PATH`. 
+
+### 5.2 Configure clazy's checks
+You can configure clazy's checks in the script's variable **CLAZY_CHECKS**. By default all clazy's checks are included.
+
+### 5.2 Configure clang extra arguments checks
+You can add clang extra arguments to the script's variable **CLANG_EXTRA_ARGS**. Clang extra arguments will be used by **clazy**. By default option **"-w"** is used.
+
+### 5.3 Choose IDE in which lint-combine will run
+Configure **ide-profile** value (lint-combine's command line argument). By default lint-combine will work in **ReSharper C++**.  
+
+### 6 Troubleshooting
+#### Issue: not seeing any inspection messages
+Solution: check Lint-combine diagnostics.
+
+#### Issue: now seeing *Internal* in Visual Studio *Extentions→ReSharper*
+Solution: run Visual studio (devenv.exe) with option `/ReSharper.Internal`.
+
+### 7 How to
+#### Issue: check Lint-combine diagnostics
+Solution: In Visual Studio go to: *Extentions→ReSharper→Internal→C++→Dump clang-tidy output*.
+
+
