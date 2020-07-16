@@ -81,14 +81,17 @@ You can configure cpp-lint-combine.cmd before using cpp-lint-combine.
 
 **2.** Add path to the linters to the script's variable **PATH** if you does't add path to **clang-tidy** to the environment variable `PATH`. 
 
-### 5.2 Configure clazy's checks
+#### 5.2 Configure clazy's checks
 You can configure clazy's checks in the script's variable **CLAZY_CHECKS**. By default all clazy's checks are included.
 
-### 5.2 Configure clang extra arguments checks
-You can add clang extra arguments to the script's variable **CLANG_EXTRA_ARGS**. Clang extra arguments will be used by **clazy**. By default option **"-w"** is used.
+#### 5.2 Configure clang extra arguments checks
+You can add clang extra arguments to the script's variable **CLANG_EXTRA_ARGS**. Clang extra arguments will be used by **clazy**. The defaults is **"-w"**.
 
-### 5.3 Choose IDE in which lint-combine will run
+#### 5.3 Choose IDE in which lint-combine will run
 Configure **ide-profile** value (lint-combine's command line argument). By default lint-combine will work in **ReSharper C++**.  
+
+#### 5.4 Choose linters to use
+Configure **sub-linter** value (lint-combine's command line argument). You can use this param several times to set several linters. If the option isn't set by default, all linters will used. 
 
 ### 6 Troubleshooting
 #### Issue: not seeing any inspection messages
