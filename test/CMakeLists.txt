@@ -30,3 +30,8 @@ target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="$
 target_compile_definitions(${executableName} PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 target_link_libraries(${executableName} yaml-cpp)
+if (WIN32)
+    target_link_directories(${executableName} PRIVATE ${Boost_LIBRARY_DIRS})
+elseif (UNIX)
+    target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
+endif ()
