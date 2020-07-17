@@ -1605,7 +1605,7 @@ BOOST_AUTO_TEST_CASE( VerbatimLintersDontExist ) {
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text == 
-        "No linters specified. Available linters are: clang-tidy, clazy." );
+        "No linters specified. Supported linters are: clang-tidy, clazy." );
 }
 
 BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithIncorrectName ) {
@@ -1752,7 +1752,8 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
 
 BOOST_AUTO_TEST_CASE( UnsupportedIDE ) {
     LintCombine::stringVector cmdLine = { "--ide-profile=shasharper" };
-    auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
+    auto * prepareCmdLine =
+        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ) == cmdLine );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1760,7 +1761,7 @@ BOOST_AUTO_TEST_CASE( UnsupportedIDE ) {
     BOOST_CHECK( diagnostic_0.origin == "FactoryPreparer" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "\"shasharper\" isn't supported by cpp-lint-combine" );
+    BOOST_CHECK( diagnostic_0.text == "\"shasharper\" is not a supported IDE profile" );
 }
 
 BOOST_AUTO_TEST_CASE( SpecifiedTwice ) {

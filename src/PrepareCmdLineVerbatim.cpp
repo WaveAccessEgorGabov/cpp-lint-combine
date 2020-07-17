@@ -43,7 +43,7 @@ bool LintCombine::PrepareCmdLineVerbatim::validateLinters() {
     if( lintersNames.empty() ) {
         m_diagnostics.emplace_back( Diagnostic(
             Level::Error,
-            "No linters specified. Available linters are: clang-tidy, clazy.",
+            "No linters specified. Supported linters are: clang-tidy, clazy.",
             "VerbatimPreparer", 1, 0 ) );
         return true;
     }

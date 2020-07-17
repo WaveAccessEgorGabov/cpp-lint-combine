@@ -38,7 +38,8 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
         return new PrepareCmdLineReSharper();
     }
     // TODO: find position of incorrect IDE in source cmdLine
-    return new PrepareCmdLineOnError( Level::Error, "\"" + ideNameCopy +
-                                      "\" isn't supported by cpp-lint-combine",
-                                      "FactoryPreparer",  1, 0 );
+    return new PrepareCmdLineOnError(
+             Level::Error, "\"" + ideNameCopy +
+             "\" is not a supported IDE profile",
+             "FactoryPreparer",  1, 0 );
 }

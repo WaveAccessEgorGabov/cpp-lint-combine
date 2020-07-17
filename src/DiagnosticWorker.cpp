@@ -8,16 +8,17 @@
 #include <iostream>
 
 std::string LintCombine::DiagnosticWorker::getHelpStr() {
-    boost::program_options::options_description optDesc;
+    boost::program_options::options_description optDesc( /*line_length=*/100 );
     optDesc.add_options()
         ( "help", "Print this message." )
-        ( "ide-profile", "Choose ide: Resharper" )
+        ( "ide-profile", "Choose IDE: ReSharper C++. "
+                "By default options will pass verbatim." )
         ( "result-yaml",
           "Path to YAML with diagnoctics from all linters. " 
-          "Default path is " CURRENT_BINARY_DIR "LintersDiagnostics.yaml" )
+          "Default path is " CURRENT_BINARY_DIR "LintersDiagnostics.yaml." )
         ( "sub-linter",
           "Linter to use. You can use this param several times to set"
-          " several linters. Supported linters are: clang-tidy, clazy" )
+          " several linters. Supported linters are: clang-tidy, clazy." )
         ( "clazy-checks",
           "Comma-separated list of clazy checks. Default is level1." )
         ( "clang-extra-args",
@@ -37,10 +38,9 @@ std::string LintCombine::DiagnosticWorker::getHowToPrintHelpStr() {
 }
 
 std::string LintCombine::DiagnosticWorker::getProductInfoStr() {
-    return PRODUCTNAME_STR "\n" PRODUCTVERSION_STR "\n\n";
+    return PRODUCTNAME_STR " " PRODUCTVERSION_STR "\n\n";
 }
 
-// TODO: use std::ostream to prepare output
 bool LintCombine::DiagnosticWorker::printDiagnostics(
     const std::vector< Diagnostic > & diagnostics ) const {
     if( isCmdLineEmpty ) {
