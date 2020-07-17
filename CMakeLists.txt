@@ -16,7 +16,7 @@ set(Boost_USE_RELEASE_LIBS ON)  # only find release libs
 if(BUILD_IN_CI)
     find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread filesystem date_time REQUIRED)
 else()
-    find_package(Boost 1.73 OPTIONAL_COMPONENTS program_options thread filesystem date_time REQUIRED)
+    find_package(Boost 1.71 OPTIONAL_COMPONENTS program_options thread filesystem date_time REQUIRED)
 endif()
 include_directories(${Boost_INCLUDE_DIR})
 
@@ -54,6 +54,7 @@ add_executable(${executableName}
         src/DiagnosticWorker.h        src/DiagnosticWorker.cpp
         src/LintCombineUtils.h        src/LintCombineUtils.cpp
         src/PrepareCmdLineBase.h      src/PrepareCmdLineBase.cpp
+        src/PrepareCmdLineCLion.h     src/PrepareCmdLineCLion.cpp
         src/PrepareCmdLineFactory.h   src/PrepareCmdLineFactory.cpp
         src/PrepareCmdLineVerbatim.h  src/PrepareCmdLineVerbatim.cpp
         src/PrepareCmdLineReSharper.h src/PrepareCmdLineReSharper.cpp )

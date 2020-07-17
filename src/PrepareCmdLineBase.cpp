@@ -3,7 +3,6 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/join.hpp>
 
-// all variable must be empty before used
 LintCombine::stringVector
 LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
     realeaseClassField();
@@ -143,7 +142,7 @@ bool LintCombine::PrepareCmdLineBase::initLinters() {
             isErrorOccur = true;
         }
     }
-    // TODO: Print info that all linters are used
+
     if( m_lintersOptions.empty() ) {
         // Use all linters by default
         std::istringstream iss( m_clangExtraArgs );
@@ -163,6 +162,7 @@ void LintCombine::PrepareCmdLineBase::initCmdLine() {
     m_cmdLine.clear();
     initCommonOptions();
     initOptionsToSpecificIDE();
+    appendLintersOptionToCmdLine();
 }
 
 void LintCombine::PrepareCmdLineBase::initCommonOptions() {
@@ -183,4 +183,33 @@ void LintCombine::PrepareCmdLineBase::realeaseClassField() {
     m_lintersNames.clear();
     m_unrecognizedCollection.clear();
     m_lintersOptions.clear();
+}
+
+void LintCombine::PrepareCmdLineBase::addOptionToLinterByName( const std::string & name,
+                                                                    const std::string & option ) {
+    for( auto & it : m_lintersOptions ) {
+        if( it->name == name ) {
+            it->options.emplace_back( option );
+            break;
+        }
+    }
+}
+
+void LintCombine::PrepareCmdLineBase::addOptionToAllLinters( const std::string & option ) {
+    for( const auto & it : m_lintersOptions ) {
+        it->options.emplace_back( option );
+    }
+}
+
+std::string
+LintCombine::PrepareCmdLineBase::optionValueToQuotes( const std::string & optionName,
+                                                           const std::string & optionNameWithValue ) {
+    return optionName + "\"" +
+           optionNameWithValue.substr( optionName.size(), std::string::npos ) + "\"";
+}
+
+void LintCombine::PrepareCmdLineBase::appendLintersOptionToCmdLine() {
+    for( const auto & it : m_lintersOptions ) {
+        std::copy( it->options.begin(), it->options.end(), std::back_inserter( m_cmdLine ) );
+    }
 }

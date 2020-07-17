@@ -21,6 +21,7 @@ add_executable(${executableName} src/simpleTest.cpp
         ../src/LintCombineUtils.h        ../src/LintCombineUtils.cpp
         ../src/ClangTidyWrapper.h        ../src/ClangTidyWrapper.cpp
         ../src/PrepareCmdLineBase.h      ../src/PrepareCmdLineBase.cpp
+        ../src/PrepareCmdLineCLion.h     ../src/PrepareCmdLineCLion.cpp
         ../src/DiagnosticWorker.h        ../src/DiagnosticWorker.cpp
         ../src/PrepareCmdLineFactory.h   ../src/PrepareCmdLineFactory.cpp
         ../src/PrepareCmdLineVerbatim.h  ../src/PrepareCmdLineVerbatim.cpp

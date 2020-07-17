@@ -3,7 +3,7 @@
 #include "PrepareCmdLineBase.h"
 
 namespace LintCombine {
-    class PrepareCmdLineReSharper final : public PrepareCmdLineBase {
+    class PrepareCmdLineCLion final : public PrepareCmdLineBase {
         void initOptionsToSpecificIDE() override;
     };
 }

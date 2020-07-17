@@ -3,11 +3,6 @@
 #include <boost/algorithm/string/replace.hpp>
 
 void LintCombine::PrepareCmdLineReSharper::initOptionsToSpecificIDE() {
-    initUnrecognizedOptions();
-    appendLintersOptionToCmdLine();
-}
-
-void LintCombine::PrepareCmdLineReSharper::initUnrecognizedOptions() {
     stringVector filesForAnalize;
     for( auto & unrecognized : m_unrecognizedCollection ) {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
@@ -39,34 +34,5 @@ void LintCombine::PrepareCmdLineReSharper::initUnrecognizedOptions() {
 
     for( const auto & it : filesForAnalize ) {
         addOptionToAllLinters( it );
-    }
-}
-
-void LintCombine::PrepareCmdLineReSharper::addOptionToLinterByName( const std::string & name,
-                                                                    const std::string & option ) {
-    for( auto & it : m_lintersOptions ) {
-        if( it->name == name ) {
-            it->options.emplace_back( option );
-            break;
-        }
-    }
-}
-
-void LintCombine::PrepareCmdLineReSharper::addOptionToAllLinters( const std::string & option ) {
-    for( const auto & it : m_lintersOptions ) {
-        it->options.emplace_back( option );
-    }
-}
-
-std::string
-LintCombine::PrepareCmdLineReSharper::optionValueToQuotes( const std::string & optionName,
-                                                           const std::string & optionNameWithValue ) {
-    return optionName + "\"" +
-        optionNameWithValue.substr( optionName.size(), std::string::npos ) + "\"";
-}
-
-void LintCombine::PrepareCmdLineReSharper::appendLintersOptionToCmdLine() {
-    for( const auto & it : m_lintersOptions ) {
-        std::copy( it->options.begin(), it->options.end(), std::back_inserter( m_cmdLine ) );
     }
 }

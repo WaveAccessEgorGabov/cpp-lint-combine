@@ -1,5 +1,6 @@
 #include "PrepareCmdLineFactory.h"
 #include "PrepareCmdLineReSharper.h"
+#include "PrepareCmdLineCLion.h"
 #include "PrepareCmdLineVerbatim.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
@@ -36,6 +37,9 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( stringVector &
     boost::algorithm::to_lower( ideName );
     if( ideName == "resharper" ) {
         return new PrepareCmdLineReSharper();
+    }
+    if( ideName == "clion" ) {
+        return new PrepareCmdLineCLion();
     }
     // TODO: find position of incorrect IDE in source cmdLine
     return new PrepareCmdLineOnError(
