@@ -8,7 +8,7 @@ int main( int argc, char * argv[] ) {
     auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
     const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );
     cmdLine = prepareCmdLine->transform( cmdLine );
-    
+
     if( diagnosticWorker.printDiagnostics( prepareCmdLine->diagnostics() ) ) {
         return 0;
     }
@@ -29,11 +29,12 @@ int main( int argc, char * argv[] ) {
         return 1;
     }
 
-    const auto callTotals = combine.updateYaml();
-    if( callTotals.failNum == combine.numLinters() ) {
-        diagnosticWorker.printDiagnostics( combine.diagnostics() );
-        return 1;
-    }
+    // CLion doesn't work if DocLink is added to yaml-file
+//    const auto callTotals = combine.updateYaml();
+//    if( callTotals.failNum == combine.numLinters() ) {
+//        diagnosticWorker.printDiagnostics( combine.diagnostics() );
+//        return 1;
+//    }
 
     if( combine.getYamlPath().empty() ) {
         diagnosticWorker.printDiagnostics( combine.diagnostics() );

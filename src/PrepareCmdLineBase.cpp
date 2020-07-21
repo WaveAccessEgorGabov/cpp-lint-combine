@@ -34,8 +34,6 @@ LintCombine::PrepareCmdLineBase::diagnostics() {
     return m_diagnostics;
 }
 
-// TODO: validate implicit value
-// TODO: delete options witch implicit
 bool LintCombine::PrepareCmdLineBase::parseSourceCmdLine() {
     // TODO : parse here --result-yaml. Or make this method virtual.
     boost::program_options::options_description programOptions;

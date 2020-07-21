@@ -105,10 +105,12 @@ LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
     for( const auto & subLinterIt : m_linters ) {
         callTotals += subLinterIt->updateYaml();
     }
-    m_diagnostics.emplace_back(
-        Diagnostic( Level::Error,
-        "Updating " + std::to_string( callTotals.failNum )
-        + " yaml-files was failed", "Combine", 1, 0 ) );
+    if( callTotals.failNum ) {
+        m_diagnostics.emplace_back(
+            Diagnostic( Level::Error,
+            "Updating " + std::to_string( callTotals.failNum )
+            + " yaml-files was failed", "Combine", 1, 0 ) );
+    }
     return callTotals;
 }
 

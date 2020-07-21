@@ -2,6 +2,8 @@
 
 #include "PrepareCmdLineItf.h"
 
+#include <boost/predef.h>
+
 namespace LintCombine {
 
     class PrepareCmdLineBase : public PrepareCmdLineItf {
@@ -52,7 +54,14 @@ namespace LintCombine {
                 options.emplace_back( "--sub-linter=clang-tidy" );
                 if( !pathToWorkDir.empty() ) {
                     options.emplace_back( "-p=" + pathToWorkDir );
-                    options.emplace_back( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClangTidy.yaml" );
+                    if constexpr( BOOST_OS_WINDOWS ) {
+                        options.emplace_back( "--export-fixes=" + pathToWorkDir +
+                                              "\\diagnosticsClangTidy.yaml" );
+                    }
+                    if constexpr( BOOST_OS_LINUX ) {
+                        options.emplace_back( "--export-fixes=" + pathToWorkDir +
+                                              "/diagnosticsClangTidy.yaml" );
+                    }
                 }
             }
         };
@@ -65,7 +74,15 @@ namespace LintCombine {
                 options.emplace_back( "--sub-linter=clazy" );
                 if( !pathToWorkDir.empty() ) {
                     options.emplace_back( "-p=" + pathToWorkDir );
-                    options.emplace_back( "--export-fixes=" + pathToWorkDir + "\\diagnosticsClazy.yaml" );
+                    if constexpr( BOOST_OS_WINDOWS ) {
+                        options.emplace_back( "--export-fixes=" + pathToWorkDir +
+                                              "\\diagnosticsClazy.yaml" );
+                    }
+                    if constexpr( BOOST_OS_LINUX ) {
+                        options.emplace_back( "--export-fixes=" + pathToWorkDir +
+                                              "/diagnosticsClazy.yaml" );
+                    }
+
                 }
                 if( !checks.empty() ) {
                     options.emplace_back( "--checks=" + checks );
