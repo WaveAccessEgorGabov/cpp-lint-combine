@@ -5,28 +5,28 @@ Diagnostics:
     FileOffset: 221
     FilePath: ../main.cpp
     Replacements: ~
-    Documentation link: https://github.com/KDE/clazy/blob/master/docs/checks/README-temporary-iterator.md
+    DocumentationLink: https://github.com/KDE/clazy/blob/master/docs/checks/README-temporary-iterator.md
   - DiagnosticName: clazy-temporary-iterator
     Message: Don't call QList::end() on temporary
     FileOffset: 246
     FilePath: ../main.cpp
     Replacements: ~
-    Documentation link: https://github.com/KDE/clazy/blob/master/docs/checks/README-temporary-iterator.md
+    DocumentationLink: https://github.com/KDE/clazy/blob/master/docs/checks/README-temporary-iterator.md
   - DiagnosticName: ~
     Message: empty DiagnosticName
     FileOffset: ~
     FilePath: ~
     Replacements: ~
-    Documentation link: ""
+    DocumentationLink: ""
   - DiagnosticName: shrt
     Message: DiagnosticName's length less than clazy-
     FileOffset: ~
     FilePath: ~
     Replacements: ~
-    Documentation link: ""
+    DocumentationLink: ""
   - DiagnosticName: DiagnosticName-doesnt-start-with-clazy
     Message: ~
     FileOffset: ~
     FilePath: ~
     Replacements: ~
-    Documentation link: ""
+    DocumentationLink: ""

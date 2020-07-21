@@ -3,9 +3,14 @@
 #include "PrepareCmdLineFactory.h"
 #include "DiagnosticWorker.h"
 
+#include <boost/algorithm/string/case_conv.hpp>
+
+// TODO: use enum for IDEs and Linters
+
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
-    auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine );
+    std::string ideName;
+    auto * prepareCmdLine = LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
     const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );
     cmdLine = prepareCmdLine->transform( cmdLine );
 
@@ -26,15 +31,21 @@ int main( int argc, char * argv[] ) {
     const auto callReturnCode = combine.waitLinter();
     if( callReturnCode == 3 ) {
         diagnosticWorker.printDiagnostics( combine.diagnostics() );
-        return 1;
+        boost::algorithm::to_lower( ideName );
+        if( ideName == "resharper" ) {
+            return 1;
+        }
     }
 
     // CLion doesn't work if DocLink is added to yaml-file
-//    const auto callTotals = combine.updateYaml();
-//    if( callTotals.failNum == combine.numLinters() ) {
-//        diagnosticWorker.printDiagnostics( combine.diagnostics() );
-//        return 1;
-//    }
+    boost::algorithm::to_lower( ideName );
+    if( ideName == "resharper" ) {
+        const auto callTotals = combine.updateYaml();
+        if (callTotals.failNum == combine.numLinters()) {
+            diagnosticWorker.printDiagnostics(combine.diagnostics());
+            return 1;
+        }
+    }
 
     if( combine.getYamlPath().empty() ) {
         diagnosticWorker.printDiagnostics( combine.diagnostics() );
@@ -42,5 +53,5 @@ int main( int argc, char * argv[] ) {
     }
     diagnosticWorker.printDiagnostics( combine.diagnostics() );
 
-    return 0;
+    return callReturnCode;
 }

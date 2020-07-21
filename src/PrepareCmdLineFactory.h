@@ -38,6 +38,7 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        static PrepareCmdLineItf * createInstancePrepareCmdLine( stringVector & cmdLine );
+        static PrepareCmdLineItf * createInstancePrepareCmdLine(
+                stringVector & cmdLine, std::string & ideName );
     };
 }

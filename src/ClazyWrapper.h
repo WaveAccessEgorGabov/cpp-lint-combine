@@ -12,6 +12,6 @@ namespace LintCombine {
     private:
         void updateYamlAction( const YAML::Node & yamlNode ) const override;
 
-        static void addDocLinkToYaml( const YAML::Node & yamlNode );
+        static void addDocumentationLink(const YAML::Node & yamlNode );
     };
 }

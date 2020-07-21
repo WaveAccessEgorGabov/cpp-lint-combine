@@ -14,14 +14,14 @@ Diagnostics:
           Offset: 29
           Length: 0
           ReplacementText: " -> bool"
-    Documentation link: https://clang.llvm.org/extra/clang-tidy/checks/modernize-use-trailing-return-type.html
+    DocumentationLink: https://clang.llvm.org/extra/clang-tidy/checks/modernize-use-trailing-return-type.html
   - DiagnosticName: clang-diagnostic-return-type
     DiagnosticMessage:
       Message: non-void function does not return a value
       FilePath: /home/egor/Documents/WaveAccess/WavePoint_General/clangTidyWrapperTestDir/test.cpp
       FileOffset: 31
       Replacements: []
-    Documentation link: https://clang.llvm.org/extra/clang-tidy/checks/clang-diagnostic-return-type.html
+    DocumentationLink: https://clang.llvm.org/extra/clang-tidy/checks/clang-diagnostic-return-type.html
   - DiagnosticName: modernize-use-trailing-return-type
     DiagnosticMessage:
       Message: use a trailing return type for this function
@@ -36,4 +36,4 @@ Diagnostics:
           Offset: 44
           Length: 0
           ReplacementText: " -> int"
-    Documentation link: https://clang.llvm.org/extra/clang-tidy/checks/modernize-use-trailing-return-type.html
+    DocumentationLink: https://clang.llvm.org/extra/clang-tidy/checks/modernize-use-trailing-return-type.html
