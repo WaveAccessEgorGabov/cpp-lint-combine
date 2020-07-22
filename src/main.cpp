@@ -32,9 +32,7 @@ int main( int argc, char * argv[] ) {
     if( callReturnCode == 3 ) {
         diagnosticWorker.printDiagnostics( combine.diagnostics() );
         boost::algorithm::to_lower( ideName );
-        if( ideName == "resharper" ) {
-            return 1;
-        }
+        return callReturnCode;
     }
 
     // CLion doesn't work if DocLink is added to yaml-file
@@ -53,5 +51,5 @@ int main( int argc, char * argv[] ) {
     }
     diagnosticWorker.printDiagnostics( combine.diagnostics() );
 
-    return callReturnCode;
+    return 0;
 }

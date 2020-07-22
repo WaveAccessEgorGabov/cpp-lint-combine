@@ -99,13 +99,13 @@ namespace LintCombine {
 
     private:
         std::string  m_pathToGeneralYaml;
-        std::string  m_pathToWorkDir;
         std::string  m_clazyChecks;
         std::string  m_clangExtraArgs;
         stringVector m_lintersNames;
         std::string  m_sourceCL;
 
     protected:
+        std::string  m_pathToWorkDir;
         stringVector m_cmdLine;
         std::vector< Diagnostic > m_diagnostics;
         stringVector m_unrecognizedCollection;
