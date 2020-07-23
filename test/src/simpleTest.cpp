@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( LintersNotExists ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "No one linter was parsed" );
+    BOOST_CHECK( diagnostic_0.text == "No one linter parsed" );
 }
 
 BOOST_AUTO_TEST_CASE( OneLinterNotExists ) {
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( TwoLintersValuesEmptyAfterSpace ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "No one linter was parsed" );
+    BOOST_CHECK( diagnostic_0.text == "No one linter parsed" );
 }
 
 BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSign ) {
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSign ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text == "the argument for option "
-                                      "'--result-yaml' should follow immediately after the equal sign" );
+        "'--result-yaml' should follow immediately after the equal sign" );
 }
 
 BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSpace ) {
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSpace ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "Incorrect general yaml filename: "
+    BOOST_CHECK( diagnostic_0.text == "Incorrect general YAML file name: "
                                       "\"--sub-linter=clazy\"" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Info );
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSpace ) {
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text ==
-                 "path to result-yaml changed to "
+                 "General YAML file path changed to "
                          CURRENT_BINARY_DIR "LintersDiagnostics.yaml" );
 }
 
@@ -293,14 +293,14 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueIncorrect ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-                 "Incorrect general yaml filename: \"\\\\\"" );
+                 "Incorrect general YAML file name: \"\\\\\"" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Info );
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text ==
-                 "path to result-yaml changed to "
+                 "General YAML file path changed to "
                          CURRENT_BINARY_DIR "LintersDiagnostics.yaml" );
 }
 
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( LinterYamlPathValueEmptyAfterEqualSpace ) {
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text ==
-                 "path to result-yaml changed to "
+                 "General YAML file path changed to "
                          CURRENT_BINARY_DIR "clazy-standalone-Diagnostics.yaml" );
 }
 
@@ -371,14 +371,14 @@ BOOST_AUTO_TEST_CASE( LinterYamlPathValueIncorrect ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-                 "Incorrect linter's yaml name: \"\\\\\"" );
+                 "Incorrect linter's YAML file name: \"\\\\\"" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Info );
     BOOST_CHECK( diagnostic_1.origin == "clazy-standalone" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text ==
-                 "path to result-yaml changed to "
+                 "General YAML file path changed to "
                          CURRENT_BINARY_DIR "clazy-standalone-Diagnostics.yaml" );
 }
 
@@ -1161,13 +1161,13 @@ BOOST_AUTO_TEST_CASE( LintersYamlPathParamNotExist ) {
     BOOST_CHECK( diagnostic_0.origin == "LinterBase" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "bad file: NotExistentFile" );
+    BOOST_CHECK( diagnostic_0.text == "YAML file path \"NotExistentFile\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == "Updating 1 yaml-files was failed" );
+    BOOST_CHECK( diagnostic_1.text == "Updating 1 YAML files failed" );
 }
 
 BOOST_AUTO_TEST_CASE( EmptyLintersYamlPath ) {
@@ -1185,13 +1185,13 @@ BOOST_AUTO_TEST_CASE( EmptyLintersYamlPath ) {
     BOOST_CHECK( diagnostic_0.origin == "LinterBase" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "bad file: " );
+    BOOST_CHECK( diagnostic_0.text == "YAML file path \"\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == "Updating 1 yaml-files was failed" );
+    BOOST_CHECK( diagnostic_1.text == "Updating 1 YAML files failed" );
 }
 
 BOOST_AUTO_TEST_CASE( FirstsYamlPathValueEmptySecondYamlPathExists ) {
@@ -1216,13 +1216,13 @@ BOOST_AUTO_TEST_CASE( FirstsYamlPathValueEmptySecondYamlPathExists ) {
     BOOST_CHECK( diagnostic_0.origin == "LinterBase" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "bad file: " );
+    BOOST_CHECK( diagnostic_0.text == "YAML file path \"\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == "Updating 1 yaml-files was failed" );
+    BOOST_CHECK( diagnostic_1.text == "Updating 1 YAML files failed" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersHaveEmptyYamlPathValue ) {
@@ -1241,19 +1241,19 @@ BOOST_AUTO_TEST_CASE( TwoLintersHaveEmptyYamlPathValue ) {
     BOOST_CHECK( diagnostic_0.origin == "LinterBase" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "bad file: " );
+    BOOST_CHECK( diagnostic_0.text == "YAML file path \"\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_1.origin == "LinterBase" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == "bad file: " );
+    BOOST_CHECK( diagnostic_1.text == "YAML file path \"\" doesn't exist" );
     const auto diagnostic_2 = combine.diagnostics()[2];
     BOOST_CHECK( diagnostic_2.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_2.origin == "Combine" );
     BOOST_CHECK( diagnostic_2.firstPos == 1 );
     BOOST_CHECK( diagnostic_2.lastPos == 0 );
-    BOOST_CHECK( diagnostic_2.text == "Updating 2 yaml-files was failed" );
+    BOOST_CHECK( diagnostic_2.text == "Updating 2 YAML files failed" );
 }
 
 BOOST_AUTO_TEST_CASE( FirstsYamlPathNowExistsSecondYamlPathExists ) {
@@ -1278,13 +1278,13 @@ BOOST_AUTO_TEST_CASE( FirstsYamlPathNowExistsSecondYamlPathExists ) {
     BOOST_CHECK( diagnostic_0.origin == "LinterBase" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "bad file: NotExistentFile" );
+    BOOST_CHECK( diagnostic_0.text == "YAML file path \"NotExistentFile\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == "Updating 1 yaml-files was failed" );
+    BOOST_CHECK( diagnostic_1.text == "Updating 1 YAML files failed" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersYamlPathValuesNotExist ) {
@@ -1303,19 +1303,19 @@ BOOST_AUTO_TEST_CASE( TwoLintersYamlPathValuesNotExist ) {
     BOOST_CHECK( diagnostic_0.origin == "LinterBase" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "bad file: NotExistentFile" );
+    BOOST_CHECK( diagnostic_0.text == "YAML file path \"NotExistentFile\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_1.origin == "LinterBase" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == "bad file: NotExistentFile" );
+    BOOST_CHECK( diagnostic_1.text == "YAML file path \"NotExistentFile\" doesn't exist" );
     const auto diagnostic_2 = combine.diagnostics()[2];
     BOOST_CHECK( diagnostic_2.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_2.origin == "Combine" );
     BOOST_CHECK( diagnostic_2.firstPos == 1 );
     BOOST_CHECK( diagnostic_2.lastPos == 0 );
-    BOOST_CHECK( diagnostic_2.text == "Updating 2 yaml-files was failed" );
+    BOOST_CHECK( diagnostic_2.text == "Updating 2 YAML files failed" );
 }
 
 BOOST_AUTO_TEST_CASE( YamlPathExists ) {
@@ -1411,13 +1411,13 @@ BOOST_AUTO_TEST_CASE( OneLintersYamlPathNotExist ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-                 "linter's yaml path \"NotExistentFile_1\" doesn't exist" );
+                 "Linter's YAML file path \"NotExistentFile_1\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == "General yaml isn't created" );
+    BOOST_CHECK( diagnostic_1.text == "General YAML file isn't created" );
 }
 
 BOOST_AUTO_TEST_CASE( OneLintersYamlPathExist ) {
@@ -1470,7 +1470,7 @@ BOOST_AUTO_TEST_CASE( FirstLintersYamlPathExistSecondLintersYamlPathNotExist ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-                 "linter's yaml path \"NotExistentFile_2\" doesn't exist" );
+                 "Linter's YAML file path \"NotExistentFile_2\" doesn't exist" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersYamlPathNotExist ) {
@@ -1496,20 +1496,20 @@ BOOST_AUTO_TEST_CASE( TwoLintersYamlPathNotExist ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-                 "linter's yaml path \"NotExistentFile_1\" doesn't exist" );
+                 "Linter's YAML file path \"NotExistentFile_1\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Warning );
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text ==
-                 "linter's yaml path \"NotExistentFile_2\" doesn't exist" );
+                 "Linter's YAML file path \"NotExistentFile_2\" doesn't exist" );
     const auto diagnostic_2 = combine.diagnostics()[2];
     BOOST_CHECK( diagnostic_2.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_2.origin == "Combine" );
     BOOST_CHECK( diagnostic_2.firstPos == 1 );
     BOOST_CHECK( diagnostic_2.lastPos == 0 );
-    BOOST_CHECK( diagnostic_2.text == "General yaml isn't created" );
+    BOOST_CHECK( diagnostic_2.text == "General YAML file isn't created" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersYamlPathExist ) {

@@ -38,7 +38,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
     if( subLintersCommandLine.empty() ) {
         m_diagnostics.emplace_back(
             Diagnostic( Level::Error,
-            "No one linter was parsed",
+            "No one linter parsed",
             "Combine", 1, 0 ) );
         isErrorOccur = true;
         return;
@@ -87,13 +87,13 @@ int LintCombine::LinterCombine::waitLinter() {
     if( returnCode == 2 ) {
         m_diagnostics.emplace_back(
             Diagnostic( Level::Warning,
-            "Some linters are failed while running",
+            "Some linters failed while running",
             "Combine", 1, 0 ) );
     }
     if( returnCode == 3 ) {
         m_diagnostics.emplace_back(
             Diagnostic( Level::Error,
-            "All linters are failed while running",
+            "All linters failed while running",
             "Combine", 1, 0 ) );
     }
     return returnCode;
@@ -108,7 +108,7 @@ LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
         m_diagnostics.emplace_back(
             Diagnostic( Level::Error,
             "Updating " + std::to_string( callTotals.failNum )
-            + " yaml-files was failed", "Combine", 1, 0 ) );
+            + " YAML files failed", "Combine", 1, 0 ) );
     }
     return callTotals;
 }
@@ -188,7 +188,7 @@ void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & c
                                     "Combine", 1, 0 ) );
         m_diagnostics.emplace_back( Diagnostic(
             Level::Info,
-            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+            "General YAML file path changed to " + pathToGeneralYamlOnError,
             "Combine", 1, 0 ) );
         m_pathToGeneralYaml = pathToGeneralYamlOnError;
         return;
@@ -199,11 +199,11 @@ void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & c
     if( !boost::filesystem::portable_name( yamlFilename ) ) {
         m_diagnostics.emplace_back(
             Diagnostic( Level::Warning,
-            "Incorrect general yaml filename: \"" + yamlFilename +
+            "Incorrect general YAML file name: \"" + yamlFilename +
             "\"", "Combine", 1, 0 ) );
         m_diagnostics.emplace_back( Diagnostic(
             Level::Info,
-            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+            "General YAML file path changed to " + pathToGeneralYamlOnError,
             "Combine", 1, 0 ) );
         m_pathToGeneralYaml = pathToGeneralYamlOnError;
     }
@@ -215,16 +215,15 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
             if( subLinterIt->getYamlPath().empty() ) {
                 m_diagnostics.emplace_back(
                     Diagnostic( Level::Warning,
-                    "linter's yaml path value is empty",
+                    "Linter's YAML file path value is empty",
                     "Combine", 1, 0 ) );
                 continue;
             }
             if( !boost::filesystem::exists( subLinterIt->getYamlPath() ) ) {
                 m_diagnostics.emplace_back(
                 Diagnostic( Level::Warning,
-                    "linter's yaml path \"" + subLinterIt->getYamlPath()
-                    + "\" doesn't exist",
-                    "Combine", 1, 0 ) );
+                    "Linter's YAML file path \"" + subLinterIt->getYamlPath()
+                    + "\" doesn't exist", "Combine", 1, 0 ) );
                 continue;
             }
             try {
@@ -240,7 +239,7 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
     else {
         m_diagnostics.emplace_back(
             Diagnostic( Level::Error,
-            "path to general yaml is empty",
+            "General YAML file path value is empty",
             "Combine", 1, 0 ) );
     }
     if( boost::filesystem::exists( m_pathToGeneralYaml ) ) {
@@ -248,7 +247,7 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
     }
     m_diagnostics.emplace_back(
     Diagnostic( Level::Error,
-        "General yaml isn't created",
+        "General YAML file isn't created",
         "Combine", 1, 0 ) );
     m_pathToGeneralYaml.clear();
     return m_pathToGeneralYaml;
@@ -288,6 +287,11 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
 YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToYaml ) {
     YAML::Node yamlNode;
     try {
+        std::ifstream filePathToYaml( pathToYaml );
+        if (!filePathToYaml) {
+            throw std::logic_error( "YAML file path \""
+                + pathToYaml + "\" doesn't exist" );
+        }
         yamlNode = YAML::LoadFile( pathToYaml );
     }
     catch( std::exception & error ) {

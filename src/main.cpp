@@ -9,7 +9,6 @@
 
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
-    std::string ideName;
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );
@@ -35,8 +34,6 @@ int main( int argc, char * argv[] ) {
         return callReturnCode;
     }
 
-    // CLion doesn't work if DocLink is added to yaml-file
-    boost::algorithm::to_lower( ideName );
     if( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() ) {
         const auto callTotals = combine.updateYaml();
         if( callTotals.failNum == combine.numLinters() ) {

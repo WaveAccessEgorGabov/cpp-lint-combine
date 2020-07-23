@@ -9,7 +9,8 @@ std::vector<LintCombine::Diagnostic> LintCombine::LinterBase::diagnostics() {
 }
 
 void LintCombine::LinterBase::callLinter() {
-    linterProcess = boost::process::child( name + " --export-fixes=" + yamlPath + " " + options,
+    linterProcess = boost::process::child( name + " --export-fixes=" +
+                                           yamlPath + " " + options,
                                            boost::process::std_out > stdoutPipe,
                                            boost::process::std_err > stderrPipe );
     readFromPipeToStream( stdoutPipe, std::cout );
@@ -24,6 +25,11 @@ int LintCombine::LinterBase::waitLinter() {
 LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     YAML::Node yamlNode;
     try {
+        std::ifstream filePathToYaml( yamlPath );
+        if (!filePathToYaml) {
+            throw std::logic_error( "YAML file path \""
+            + yamlPath + "\" doesn't exist" );
+        }
         yamlNode = YAML::LoadFile( yamlPath );
     }
     catch( const std::exception & error ) {
@@ -101,7 +107,7 @@ void LintCombine::LinterBase::parseCommandLine( const stringVector & cmdLine ) {
             name.c_str(), 1, 0 ) );
         m_diagnostics.emplace_back(
             Diagnostic( Level::Info,
-            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+            "General YAML file path changed to " + pathToGeneralYamlOnError,
             name.c_str(), 1, 0 ) );
         yamlPath = pathToGeneralYamlOnError;
         return;
@@ -112,11 +118,11 @@ void LintCombine::LinterBase::parseCommandLine( const stringVector & cmdLine ) {
     if( !boost::filesystem::portable_name( yamlFilename ) ) {
         m_diagnostics.emplace_back(
             Diagnostic( Level::Warning,
-            "Incorrect linter's yaml name: \"" + yamlFilename +
+            "Incorrect linter's YAML file name: \"" + yamlFilename +
             "\"", name.c_str(), 1, 0 ) );
         m_diagnostics.emplace_back(
             Diagnostic( Level::Info,
-            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+            "General YAML file path changed to " + pathToGeneralYamlOnError,
             name.c_str(), 1, 0 ) );
         yamlPath = pathToGeneralYamlOnError;
     }

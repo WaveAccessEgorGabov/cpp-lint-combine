@@ -2,7 +2,7 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
-void LintCombine::PrepareCmdLineReSharper::initOptionsToSpecificIDE() {
+void LintCombine::PrepareCmdLineReSharper::actionsForSpecificIDE() {
     stringVector filesForAnalize;
     for( auto & unrecognized : m_unrecognizedCollection ) {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );

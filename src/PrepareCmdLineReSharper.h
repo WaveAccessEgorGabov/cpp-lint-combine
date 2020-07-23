@@ -4,6 +4,6 @@
 
 namespace LintCombine {
     class PrepareCmdLineReSharper final : public PrepareCmdLineBase {
-        void initOptionsToSpecificIDE() override;
+        void actionsForSpecificIDE() override;
     };
 }

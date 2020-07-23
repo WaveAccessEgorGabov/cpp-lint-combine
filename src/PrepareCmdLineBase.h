@@ -30,7 +30,7 @@ namespace LintCombine {
         void initCommonOptions();
 
     protected:
-        virtual void initOptionsToSpecificIDE() = 0;
+        virtual void actionsForSpecificIDE() = 0;
 
         void addOptionToLinterByName( const std::string & name,
                                       const std::string & option );

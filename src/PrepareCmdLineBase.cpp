@@ -127,6 +127,7 @@ bool LintCombine::PrepareCmdLineBase::initLinters() {
         }
         else {
             unsigned findFrom = 0;
+            // skip parameter name and underline value
             if( it == "--sub-linter" ) {
                 const auto firstPos = static_cast< unsigned >( m_sourceCL.find( it ) );
                 const auto lastPos = firstPos + static_cast< unsigned >( it.size() );
@@ -159,7 +160,7 @@ bool LintCombine::PrepareCmdLineBase::initLinters() {
 void LintCombine::PrepareCmdLineBase::initCmdLine() {
     m_cmdLine.clear();
     initCommonOptions();
-    initOptionsToSpecificIDE();
+    actionsForSpecificIDE();
     appendLintersOptionToCmdLine();
 }
 

@@ -4,6 +4,6 @@
 
 namespace LintCombine {
     class PrepareCmdLineCLion final : public PrepareCmdLineBase {
-        void initOptionsToSpecificIDE() override;
+        void actionsForSpecificIDE() override;
     };
 }

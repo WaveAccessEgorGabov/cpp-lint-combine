@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-void LintCombine::PrepareCmdLineCLion::initOptionsToSpecificIDE() {
+void LintCombine::PrepareCmdLineCLion::actionsForSpecificIDE() {
     stringVector filesForAnalize;
     for( auto & unrecognized : m_unrecognizedCollection ) {
         // File to analize
