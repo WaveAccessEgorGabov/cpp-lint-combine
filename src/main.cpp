@@ -34,7 +34,8 @@ int main( int argc, char * argv[] ) {
         return callReturnCode;
     }
 
-    if( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() ) {
+    if( ideTraitsFactory.getIdeBehaviorInstance() &&
+        ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() ) {
         const auto callTotals = combine.updateYaml();
         if( callTotals.failNum == combine.numLinters() ) {
             diagnosticWorker.printDiagnostics( combine.diagnostics() );

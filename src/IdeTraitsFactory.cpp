@@ -1,6 +1,6 @@
 #include "IdeTraitsFactory.h"
-#include "PrepareCmdLineReSharper.h"
 #include "PrepareCmdLineCLion.h"
+#include "PrepareCmdLineReSharper.h"
 #include "PrepareCmdLineVerbatim.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
@@ -9,13 +9,13 @@ LintCombine::IdeTraitsFactory::IdeBehaviorItf *
 LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     boost::algorithm::to_lower( ideName );
     if( ideName == "resharper" ) {
-        return new ReSharperBehavior;
+        return new IdeBehaviorBase( /*doesAddLinkVal*/true );
     }
     if( ideName == "clion" ) {
-        return new CLionBehavior;
+        return new IdeBehaviorBase( /*doesAddLinkVal*/false );
     }
     if( ideName.empty() ) {
-        return new VerbatimBehavior;
+        return new IdeBehaviorBase( /*doesAddLinkVal*/true );
     }
     return nullptr;
 };

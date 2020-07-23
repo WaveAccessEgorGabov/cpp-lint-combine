@@ -16,23 +16,18 @@ namespace LintCombine {
             virtual bool getDoesAddLink() = 0;
         };
 
-        class CLionBehavior final : public IdeBehaviorItf {
+        class IdeBehaviorBase final : public IdeBehaviorItf {
 
         public:
-            bool getDoesAddLink() override { return false; }
+            IdeBehaviorBase( const bool doesAddLinkVal )
+                : doesAddLink( doesAddLinkVal ) {}
+
+            bool getDoesAddLink() override { return doesAddLink; }
+
+        private:
+            bool doesAddLink;
         };
 
-        class ReSharperBehavior final : public IdeBehaviorItf {
-
-        public:
-            bool getDoesAddLink() override { return true; }
-        };
-
-        class VerbatimBehavior final : public IdeBehaviorItf {
-
-        public:
-            bool getDoesAddLink() override { return true; }
-        };
 
         class PrepareCmdLineOnError final : public PrepareCmdLineItf {
 
