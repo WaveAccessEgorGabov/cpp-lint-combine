@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE( LinterTerminate ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "All linters are failed while running" );
+    BOOST_CHECK( diagnostic_0.text == "All linters failed while running" );
 }
 
 BOOST_AUTO_TEST_CASE( LinterReturn1 ) {
@@ -615,7 +615,7 @@ BOOST_AUTO_TEST_CASE( LinterReturn1 ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "All linters are failed while running" );
+    BOOST_CHECK( diagnostic_0.text == "All linters failed while running" );
 }
 
 BOOST_AUTO_TEST_CASE( FirstTerminateSecondReturn0WriteToStreamsWriteToFile ) {
@@ -664,7 +664,7 @@ BOOST_AUTO_TEST_CASE( FirstTerminateSecondReturn0WriteToStreamsWriteToFile ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "Some linters are failed while running" );
+    BOOST_CHECK( diagnostic_0.text == "Some linters failed while running" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersTerminate ) {
@@ -705,7 +705,7 @@ BOOST_AUTO_TEST_CASE( TwoLintersTerminate ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "All linters are failed while running" );
+    BOOST_CHECK( diagnostic_0.text == "All linters failed while running" );
 }
 
 BOOST_AUTO_TEST_CASE( FirstReturn1SecondReturn0WriteToStreamsWriteToFile ) {
@@ -754,7 +754,7 @@ BOOST_AUTO_TEST_CASE( FirstReturn1SecondReturn0WriteToStreamsWriteToFile ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "Some linters are failed while running" );
+    BOOST_CHECK( diagnostic_0.text == "Some linters failed while running" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersReturn1 ) {
@@ -799,7 +799,7 @@ BOOST_AUTO_TEST_CASE( TwoLintersReturn1 ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == "All linters are failed while running" );
+    BOOST_CHECK( diagnostic_0.text == "All linters failed while running" );
 }
 
 BOOST_AUTO_TEST_CASE( OneLinterReturn0WriteToStreams ) {
