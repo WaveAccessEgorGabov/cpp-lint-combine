@@ -2,7 +2,7 @@
 
 #include "../../src/LinterCombine.h"
 #include "../../src/LinterBase.h"
-#include "../../src/PrepareCmdLineFactory.h"
+#include "../../src/IdeTraitsFactory.h"
 #include "../../src/PrepareCmdLineItf.h"
 
 #include <boost/test/included/unit_test.hpp>
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( emptyCommandLine ) {
 
 BOOST_AUTO_TEST_CASE( LintersNotExists ) {
     const LintCombine::stringVector cmdLine = {
-        "--param_1=value_1", "--param_2=value_2" };
+            "--param_1=value_1", "--param_2=value_2" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 0 );
     BOOST_CHECK( combine.getIsErrorOccur() == true );
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( LintersNotExists ) {
 
 BOOST_AUTO_TEST_CASE( OneLinterNotExists ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=NotExistentLinter" };
+            "--sub-linter=NotExistentLinter" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 0 );
     BOOST_CHECK( combine.getIsErrorOccur() == true );
@@ -123,12 +123,12 @@ BOOST_AUTO_TEST_CASE( OneLinterNotExists ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-        "Unknown linter name: \"NotExistentLinter\"" );
+                 "Unknown linter name: \"NotExistentLinter\"" );
 }
 
 BOOST_AUTO_TEST_CASE( FirstLinterNotExistsSecondExists ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=NotExistentLinter", "--sub-linter=clazy" };
+            "--sub-linter=NotExistentLinter", "--sub-linter=clazy" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 0 );
     BOOST_CHECK( combine.getIsErrorOccur() == true );
@@ -138,13 +138,13 @@ BOOST_AUTO_TEST_CASE( FirstLinterNotExistsSecondExists ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-        "Unknown linter name: \"NotExistentLinter\"" );
+                 "Unknown linter name: \"NotExistentLinter\"" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersNotExist ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=NotExistentLinter_1",
-        "--sub-linter=NotExistentLinter_2" };
+            "--sub-linter=NotExistentLinter_1",
+            "--sub-linter=NotExistentLinter_2" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 0 );
     BOOST_REQUIRE( combine.diagnostics().size() == 2 );
@@ -155,13 +155,13 @@ BOOST_AUTO_TEST_CASE( TwoLintersNotExist ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-        "Unknown linter name: \"NotExistentLinter_1\"" );
+                 "Unknown linter name: \"NotExistentLinter_1\"" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text ==
-        "Unknown linter name: \"NotExistentLinter_2\"" );
+                 "Unknown linter name: \"NotExistentLinter_2\"" );
 }
 
 BOOST_AUTO_TEST_CASE( LintersValueEmptyAfterEqualSign ) {
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( LintersValueEmptyAfterEqualSign ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text == "the argument for option "
-        "'--sub-linter' should follow immediately after the equal sign" );
+                                      "'--sub-linter' should follow immediately after the equal sign" );
 }
 
 BOOST_AUTO_TEST_CASE( LintersValueEmptyAfterSpace ) {
@@ -191,12 +191,12 @@ BOOST_AUTO_TEST_CASE( LintersValueEmptyAfterSpace ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text == "the required argument for "
-                 "option '--sub-linter' is missing" );
+                                      "option '--sub-linter' is missing" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersValuesEmptyAfterEqualSign ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=", "--sub-linter=" };
+            "--sub-linter=", "--sub-linter=" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 0 );
     BOOST_REQUIRE( combine.diagnostics().size() == 1 );
@@ -207,12 +207,12 @@ BOOST_AUTO_TEST_CASE( TwoLintersValuesEmptyAfterEqualSign ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text == "the argument for option "
-        "'--sub-linter' should follow immediately after the equal sign" );
+                                      "'--sub-linter' should follow immediately after the equal sign" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersValuesEmptyAfterSpace ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter", "--sub-linter" };
+            "--sub-linter", "--sub-linter" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 0 );
     BOOST_REQUIRE( combine.diagnostics().size() == 1 );
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( TwoLintersValuesEmptyAfterSpace ) {
 
 BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSign ) {
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=", "--sub-linter=clazy" };
+            "--result-yaml=", "--sub-linter=clazy" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 0 );
     BOOST_CHECK( combine.numLinters() == 0 );
@@ -239,21 +239,21 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSign ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text == "the argument for option "
-        "'--result-yaml' should follow immediately after the equal sign" );
+                                      "'--result-yaml' should follow immediately after the equal sign" );
 }
 
 BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSpace ) {
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml", "--sub-linter=clazy" };
+            "--result-yaml", "--sub-linter=clazy" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 1 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     BOOST_CHECK( linter_0->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
     BOOST_REQUIRE( combine.diagnostics().size() == 2 );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     const auto diagnostic_0 = combine.diagnostics()[0];
@@ -268,23 +268,23 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueEmptyAfterEqualSpace ) {
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == 
-        "path to result-yaml changed to " 
-        CURRENT_BINARY_DIR "LintersDiagnostics.yaml" );
+    BOOST_CHECK( diagnostic_1.text ==
+                 "path to result-yaml changed to "
+                         CURRENT_BINARY_DIR "LintersDiagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( GeneralYamlPathValueIncorrect ) {
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=\\\\", "--sub-linter=clazy" };
+            "--result-yaml=\\\\", "--sub-linter=clazy" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 1 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     BOOST_CHECK( linter_0->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
     BOOST_REQUIRE( combine.diagnostics().size() == 2 );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     const auto diagnostic_0 = combine.diagnostics()[0];
@@ -300,13 +300,13 @@ BOOST_AUTO_TEST_CASE( GeneralYamlPathValueIncorrect ) {
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text ==
-        "path to result-yaml changed to "
-        CURRENT_BINARY_DIR "LintersDiagnostics.yaml" );
+                 "path to result-yaml changed to "
+                         CURRENT_BINARY_DIR "LintersDiagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( LinterYamlPathValueEmptyAfterEqualSign ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=clazy", "--export-fixes=" };
+            "--sub-linter=clazy", "--export-fixes=" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 0 );
     BOOST_REQUIRE( combine.diagnostics().size() == 1 );
@@ -317,21 +317,21 @@ BOOST_AUTO_TEST_CASE( LinterYamlPathValueEmptyAfterEqualSign ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text == "the argument for option "
-        "'--export-fixes' should follow immediately after the equal sign" );
+                                      "'--export-fixes' should follow immediately after the equal sign" );
 }
 
 BOOST_AUTO_TEST_CASE( LinterYamlPathValueEmptyAfterEqualSpace ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=clazy", "--export-fixes" };
+            "--sub-linter=clazy", "--export-fixes" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 1 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     BOOST_CHECK( linter_0->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
     BOOST_REQUIRE( combine.diagnostics().size() == 2 );//
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     const auto diagnostic_0 = combine.diagnostics()[0];
@@ -346,23 +346,23 @@ BOOST_AUTO_TEST_CASE( LinterYamlPathValueEmptyAfterEqualSpace ) {
     BOOST_CHECK( diagnostic_1.origin == "clazy-standalone" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == 
-        "path to result-yaml changed to " 
-        CURRENT_BINARY_DIR "clazy-standalone-Diagnostics.yaml" );
+    BOOST_CHECK( diagnostic_1.text ==
+                 "path to result-yaml changed to "
+                         CURRENT_BINARY_DIR "clazy-standalone-Diagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( LinterYamlPathValueIncorrect ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=clazy", "--export-fixes=\\\\" };
+            "--sub-linter=clazy", "--export-fixes=\\\\" };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.numLinters() == 1 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     BOOST_CHECK( linter_0->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
     BOOST_REQUIRE( combine.diagnostics().size() == 2 );//
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     const auto diagnostic_0 = combine.diagnostics()[0];
@@ -371,72 +371,72 @@ BOOST_AUTO_TEST_CASE( LinterYamlPathValueIncorrect ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-        "Incorrect linter's yaml name: \"\\\\\"" );
+                 "Incorrect linter's yaml name: \"\\\\\"" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Info );
     BOOST_CHECK( diagnostic_1.origin == "clazy-standalone" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
     BOOST_CHECK( diagnostic_1.text ==
-        "path to result-yaml changed to "
-        CURRENT_BINARY_DIR "clazy-standalone-Diagnostics.yaml" );
+                 "path to result-yaml changed to "
+                         CURRENT_BINARY_DIR "clazy-standalone-Diagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( ClazyExists ) {
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=SomeFile.yaml", "--sub-linter=clazy" };
+            "--result-yaml=SomeFile.yaml", "--sub-linter=clazy" };
     const LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     BOOST_REQUIRE( combine.numLinters() == 1 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     BOOST_CHECK( linter_0->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( ClangTidyExists ) {
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml", "SomeFile.yaml", "--sub-linter=clang-tidy" };
+            "--result-yaml", "SomeFile.yaml", "--sub-linter=clang-tidy" };
     const LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     BOOST_REQUIRE( combine.numLinters() == 1 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     BOOST_CHECK( linter_0->getName() == "clang-tidy" );
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( ClazyExistsAndHasOptions ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=clazy", "lintParam_1", "lintParam_2" };
+            "--sub-linter=clazy", "lintParam_1", "lintParam_2" };
     const LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     BOOST_CHECK( combine.numLinters() == 1 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     BOOST_CHECK( linter_0->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_0->getOptions() == "lintParam_1 lintParam_2 " );
     BOOST_CHECK( linter_0->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( ClazyExistsAndHasYamlPath ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=clazy",
-        "--export-fixes=/path/to/file.yaml" };
+            "--sub-linter=clazy",
+            "--export-fixes=/path/to/file.yaml" };
     const LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     BOOST_CHECK( combine.numLinters() == 1 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     BOOST_CHECK( linter_0->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() == "/path/to/file.yaml" );
@@ -444,14 +444,14 @@ BOOST_AUTO_TEST_CASE( ClazyExistsAndHasYamlPath ) {
 
 BOOST_AUTO_TEST_CASE( ClazyExistsAndHasOptionsAndYamlPath ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=clazy", "--export-fixes=/path/to/file.yaml",
-        "lintParam_1", "lintParam_2" };
+            "--sub-linter=clazy", "--export-fixes=/path/to/file.yaml",
+            "lintParam_1", "lintParam_2" };
     const LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     BOOST_CHECK( combine.numLinters() == 1 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     BOOST_CHECK( linter_0->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_0->getOptions() == "lintParam_1 lintParam_2 " );
     BOOST_CHECK( linter_0->getYamlPath() == "/path/to/file.yaml" );
@@ -459,65 +459,65 @@ BOOST_AUTO_TEST_CASE( ClazyExistsAndHasOptionsAndYamlPath ) {
 
 BOOST_AUTO_TEST_CASE( ClangTidyAndClazyExist ) {
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=SomeFile.yaml",
-        "--sub-linter=clang-tidy", "--sub-linter=clazy" };
+            "--result-yaml=SomeFile.yaml",
+            "--sub-linter=clang-tidy", "--sub-linter=clazy" };
     const LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     BOOST_REQUIRE( combine.numLinters() == 2 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase >
-        ( combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase >
+                    ( combine.linterAt( 0 ) );
     const auto & linter_1 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase >
-        ( combine.linterAt( 1 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase >
+                    ( combine.linterAt( 1 ) );
     BOOST_CHECK( linter_0->getName() == "clang-tidy" );
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
     BOOST_CHECK( linter_1->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_1->getOptions().empty() );
     BOOST_CHECK( linter_1->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_1->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_1->getName() + "-Diagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( ClangTidyAndClazyExistAndHaveOptions ) {
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=SomeFile.yaml",
-        "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
-        "--sub-linter=clazy", "CSParam_1", "CSParam_1" };
+            "--result-yaml=SomeFile.yaml",
+            "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
+            "--sub-linter=clazy", "CSParam_1", "CSParam_1" };
     const LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     BOOST_REQUIRE( combine.numLinters() == 2 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     const auto & linter_1 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 1 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 1 ) );
     BOOST_CHECK( linter_0->getName() == "clang-tidy" );
     BOOST_CHECK( linter_0->getOptions() == "CTParam_1 CTParam_2 " );
     BOOST_CHECK( linter_0->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_0->getName() + "-Diagnostics.yaml" );
     BOOST_CHECK( linter_1->getName() == "clazy-standalone" );
     BOOST_CHECK( linter_1->getOptions() == "CSParam_1 CSParam_1 " );
     BOOST_CHECK( linter_1->getYamlPath() ==
-        CURRENT_BINARY_DIR + linter_1->getName() + "-Diagnostics.yaml" );
+                 CURRENT_BINARY_DIR + linter_1->getName() + "-Diagnostics.yaml" );
 }
 
 BOOST_AUTO_TEST_CASE( ClangTidyAndClazyExistAndHasYamlPath ) {
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=SomeFile.yaml",
-        "--sub-linter=clang-tidy", "--export-fixes=path/to/file_1.yaml",
-        "--sub-linter=clazy", "--export-fixes=path/to/file_2.yaml" };
+            "--result-yaml=SomeFile.yaml",
+            "--sub-linter=clang-tidy", "--export-fixes=path/to/file_1.yaml",
+            "--sub-linter=clazy", "--export-fixes=path/to/file_2.yaml" };
     const LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     BOOST_REQUIRE( combine.numLinters() == 2 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     const auto & linter_1 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 1 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 1 ) );
     BOOST_CHECK( linter_0->getName() == "clang-tidy" );
     BOOST_CHECK( linter_0->getOptions().empty() );
     BOOST_CHECK( linter_0->getYamlPath() == "path/to/file_1.yaml" );
@@ -528,20 +528,20 @@ BOOST_AUTO_TEST_CASE( ClangTidyAndClazyExistAndHasYamlPath ) {
 
 BOOST_AUTO_TEST_CASE( ClangTidyAndClazyExistAndHasOptionsAndYamlPath ) {
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=SomeFile.yaml",
-        "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
-        "--export-fixes=path/to/file_1.yaml",
-        "--sub-linter=clazy", "CSParam_1", "CSParam_2",
-        "--export-fixes=path/to/file_2.yaml" };
+            "--result-yaml=SomeFile.yaml",
+            "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
+            "--export-fixes=path/to/file_1.yaml",
+            "--sub-linter=clazy", "CSParam_1", "CSParam_2",
+            "--export-fixes=path/to/file_2.yaml" };
     const LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getIsErrorOccur() == false );
     BOOST_REQUIRE( combine.numLinters() == 2 );
     const auto & linter_0 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 0 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 0 ) );
     const auto & linter_1 =
-        std::dynamic_pointer_cast < LintCombine::LinterBase > (
-        combine.linterAt( 1 ) );
+            std::dynamic_pointer_cast < LintCombine::LinterBase > (
+                    combine.linterAt( 1 ) );
     BOOST_CHECK( linter_0->getName() == "clang-tidy" );
     BOOST_CHECK( linter_0->getOptions() == "CTParam_1 CTParam_2 " );
     BOOST_CHECK( linter_0->getYamlPath() == "path/to/file_1.yaml" );
@@ -557,19 +557,19 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
 BOOST_AUTO_TEST_CASE( LinterTerminate ) {
     const StreamCapture stdoutCapture( std::cout );
     LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
-            "sh.exe " CURRENT_SOURCE_DIR
-            "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
+                "sh.exe " CURRENT_SOURCE_DIR
+                "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
     }
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
 
     const auto combineReturnCode = combine.waitLinter();
@@ -592,15 +592,15 @@ BOOST_AUTO_TEST_CASE( LinterReturn1 ) {
     LintCombine::stringVector cmdLine = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
-            CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
+                CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
+                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn1WriteToStreams_1.sh" );
     }
 
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -622,28 +622,28 @@ BOOST_AUTO_TEST_CASE( FirstTerminateSecondReturn0WriteToStreamsWriteToFile ) {
     const StreamCapture stdoutCapture( std::cout );
     const StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
                 "sh.exe " CURRENT_SOURCE_DIR
                 "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
     }
 
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -670,28 +670,28 @@ BOOST_AUTO_TEST_CASE( FirstTerminateSecondReturn0WriteToStreamsWriteToFile ) {
 BOOST_AUTO_TEST_CASE( TwoLintersTerminate ) {
     const StreamCapture stdoutCapture( std::cout );
     LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
-            "sh.exe " CURRENT_SOURCE_DIR
-            "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
+                "sh.exe " CURRENT_SOURCE_DIR
+                "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back(
-            "sh.exe " CURRENT_SOURCE_DIR
-            "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
+                "sh.exe " CURRENT_SOURCE_DIR
+                "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockTerminatedWriteToStreams_1.sh" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockTerminatedWriteToStreams_2.sh" );
     }
 
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -712,24 +712,24 @@ BOOST_AUTO_TEST_CASE( FirstReturn1SecondReturn0WriteToStreamsWriteToFile ) {
     const StreamCapture stdoutCapture( std::cout );
     const StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn1WriteToStreams_1.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn1WriteToStreams_1.bat" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn1WriteToStreams_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn1WriteToStreams_1.sh" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
     }
 
     LintCombine::LinterCombine combine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
@@ -761,28 +761,28 @@ BOOST_AUTO_TEST_CASE( TwoLintersReturn1 ) {
     const StreamCapture stdoutCapture( std::cout );
     const StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn1WriteToStreams_1.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn1WriteToStreams_1.bat" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn1WriteToStreams_2.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn1WriteToStreams_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn1WriteToStreams_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn1WriteToStreams_1.sh" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn1WriteToStreams_2.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn1WriteToStreams_2.sh" );
     }
 
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -808,15 +808,15 @@ BOOST_AUTO_TEST_CASE( OneLinterReturn0WriteToStreams ) {
     LintCombine::stringVector cmdLine = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
-            CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
+                CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
+                "sh " CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.sh" );
     }
 
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -834,14 +834,14 @@ BOOST_AUTO_TEST_CASE( OneLinterReturn0WriteToFile ) {
     LintCombine::stringVector cmdLine = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         cmdLine.emplace_back(
-            CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat" );
+                CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back( "sh "
-            CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh" );
+                              CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.sh" );
     }
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     BOOST_CHECK( combine.waitLinter() == 0 );
     BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
@@ -858,16 +858,16 @@ BOOST_AUTO_TEST_CASE( OneLinterReturn0WriteToStreamsWriteToFile ) {
     LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh" );
     }
     LintCombine::LinterCombine combine(
-        commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
+            commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -887,27 +887,27 @@ BOOST_AUTO_TEST_CASE( TwoLintersReturn0WriteToStreams ) {
     const StreamCapture stdoutCapture( std::cout );
     const StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector commandLineSTL = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreams_1.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreams_1.bat" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreams_2.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreams_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreams_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreams_1.sh" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreams_2.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreams_2.sh" );
     }
     LintCombine::LinterCombine combine(
-        commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
+            commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -924,25 +924,25 @@ BOOST_AUTO_TEST_CASE( TwoLintersReturn0WriteToFiles ) {
     const StreamCapture stdoutCapture( std::cout );
     const StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector commandLineSTL = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back(
-            CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat" );
+                CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_1.bat" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
+                CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToFile_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToFile_1.sh" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToFile_2.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToFile_2.sh" );
     }
     LintCombine::LinterCombine combine(
-        commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
+            commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     BOOST_CHECK( combine.waitLinter() == 0 );
     BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR"MockFile_1.yaml" ) );
@@ -962,26 +962,26 @@ BOOST_AUTO_TEST_CASE( FirstReturn0WriteToStreamsSecondReturn0WriteToFile ) {
     const StreamCapture stdoutCapture( std::cout );
     const StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector commandLineSTL = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back(
-            CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
+                CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToStreams_1.bat" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
+                CURRENT_SOURCE_DIR "mockPrograms/mockReturn0WriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreams_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreams_1.sh" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToFile_2.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToFile_2.sh" );
     }
 
     LintCombine::LinterCombine combine(
-        commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
+            commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -1001,28 +1001,28 @@ BOOST_AUTO_TEST_CASE( TwoLintersReturn0WriteToStreamsWriteToFiles ) {
     const StreamCapture stdoutCapture( std::cout );
     const StreamCapture stderrCapture( std::cerr );
     LintCombine::stringVector commandLineSTL = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.bat" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
+                CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.bat" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_1.sh" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh" );
     }
 
     LintCombine::LinterCombine combine(
-        commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
+            commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -1048,28 +1048,28 @@ BOOST_AUTO_TEST_CASE( TwoLintersReturn0WriteToStreamsWriteToFiles ) {
 BOOST_AUTO_TEST_CASE( LintersWorkInParallel ) {
     const StreamCapture stdoutCapture( std::cout );
     LintCombine::stringVector commandLineSTL = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back(
-            "sh.exe " CURRENT_SOURCE_DIR
-            "mockPrograms/mockParallelTest_1.sh" );
+                "sh.exe " CURRENT_SOURCE_DIR
+                "mockPrograms/mockParallelTest_1.sh" );
         commandLineSTL.emplace_back(
-            "--sub-linter=MockLinterWrapper" );
+                "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            "sh.exe " CURRENT_SOURCE_DIR
-            "mockPrograms/mockParallelTest_2.sh" );
+                "sh.exe " CURRENT_SOURCE_DIR
+                "mockPrograms/mockParallelTest_2.sh" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockParallelTest_1.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockParallelTest_1.sh" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockParallelTest_2.sh" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockParallelTest_2.sh" );
     }
     LintCombine::LinterCombine combine(
-        commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
+            commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     const auto linterCombineReturnCode = combine.waitLinter();
     const auto stdoutData = stdoutCapture.getBufferData();
@@ -1083,18 +1083,18 @@ BOOST_AUTO_TEST_CASE( OneLinterEndsEarlierThatCombine ) {
     LintCombine::stringVector commandLineSTL = { "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back(
-            "sh.exe " CURRENT_SOURCE_DIR
-            "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
-            CURRENT_SOURCE_DIR "file_1.txt" );
+                "sh.exe " CURRENT_SOURCE_DIR
+                "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+                CURRENT_SOURCE_DIR "file_1.txt" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
-            CURRENT_SOURCE_DIR "file_1.txt" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+                CURRENT_SOURCE_DIR "file_1.txt" );
     }
     LintCombine::LinterCombine combine(
-        commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
+            commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     BOOST_CHECK( combine.waitLinter() == 0 );
     BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR "file_1.txt" ) );
@@ -1106,32 +1106,32 @@ BOOST_AUTO_TEST_CASE( TwoLinterEndsEarlierThatCombine ) {
     std::ofstream( CURRENT_SOURCE_DIR "file_1.txt" );
     std::ofstream( CURRENT_SOURCE_DIR "file_2.txt" );
     LintCombine::stringVector commandLineSTL = {
-        "--sub-linter=MockLinterWrapper" };
+            "--sub-linter=MockLinterWrapper" };
     if constexpr( BOOST_OS_WINDOWS ) {
         commandLineSTL.emplace_back(
-            "sh.exe " CURRENT_SOURCE_DIR
-            "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
-            CURRENT_SOURCE_DIR"file_1.txt" );
+                "sh.exe " CURRENT_SOURCE_DIR
+                "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+                CURRENT_SOURCE_DIR"file_1.txt" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            "sh.exe " CURRENT_SOURCE_DIR
-            "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
-            CURRENT_SOURCE_DIR"file_2.txt" );
+                "sh.exe " CURRENT_SOURCE_DIR
+                "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
+                CURRENT_SOURCE_DIR"file_2.txt" );
     }
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
-            CURRENT_SOURCE_DIR "file_1.txt" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+                CURRENT_SOURCE_DIR "file_1.txt" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
-            CURRENT_SOURCE_DIR "file_2.txt" );
+                "sh " CURRENT_SOURCE_DIR
+                "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
+                CURRENT_SOURCE_DIR "file_2.txt" );
     }
 
     LintCombine::LinterCombine combine(
-        commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
+            commandLineSTL, LintCombine::MocksLinterFactory::getInstance() );
     combine.callLinter();
     BOOST_CHECK( combine.waitLinter() == 0 );
     BOOST_CHECK( !std::filesystem::exists( CURRENT_SOURCE_DIR "file_1.txt" ) );
@@ -1147,10 +1147,10 @@ BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
 
 BOOST_AUTO_TEST_CASE( LintersYamlPathParamNotExist ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper", "defaultLinter",
-        "NotExistentFile" };
+            "--sub-linter=MockLinterWrapper", "defaultLinter",
+            "NotExistentFile" };
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     const auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 0 );
     BOOST_CHECK( callTotals.failNum == 1 );
@@ -1172,9 +1172,9 @@ BOOST_AUTO_TEST_CASE( LintersYamlPathParamNotExist ) {
 
 BOOST_AUTO_TEST_CASE( EmptyLintersYamlPath ) {
     const LintCombine::stringVector cmdLine = {
-        "", "--sub-linter=MockLinterWrapper", "defaultLinter", "" };
+            "", "--sub-linter=MockLinterWrapper", "defaultLinter", "" };
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     const auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 0 );
     BOOST_CHECK( callTotals.failNum == 1 );
@@ -1196,11 +1196,11 @@ BOOST_AUTO_TEST_CASE( EmptyLintersYamlPath ) {
 
 BOOST_AUTO_TEST_CASE( FirstsYamlPathValueEmptySecondYamlPathExists ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper", "defaultLinter", "",
-        "--sub-linter=MockLinterWrapper", "defaultLinter",
-        CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
+            "--sub-linter=MockLinterWrapper", "defaultLinter", "",
+            "--sub-linter=MockLinterWrapper", "defaultLinter",
+            CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     const auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 1 );
     BOOST_CHECK( callTotals.failNum == 1 );
@@ -1227,10 +1227,10 @@ BOOST_AUTO_TEST_CASE( FirstsYamlPathValueEmptySecondYamlPathExists ) {
 
 BOOST_AUTO_TEST_CASE( TwoLintersHaveEmptyYamlPathValue ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper", "defaultLinter", "",
-        "--sub-linter=MockLinterWrapper", "defaultLinter", "" };
+            "--sub-linter=MockLinterWrapper", "defaultLinter", "",
+            "--sub-linter=MockLinterWrapper", "defaultLinter", "" };
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     const auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 0 );
     BOOST_CHECK( callTotals.failNum == 2 );
@@ -1258,11 +1258,11 @@ BOOST_AUTO_TEST_CASE( TwoLintersHaveEmptyYamlPathValue ) {
 
 BOOST_AUTO_TEST_CASE( FirstsYamlPathNowExistsSecondYamlPathExists ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile",
-        "--sub-linter=MockLinterWrapper", "defaultLinter",
-        CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
+            "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile",
+            "--sub-linter=MockLinterWrapper", "defaultLinter",
+            CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     const auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 1 );
     BOOST_CHECK( callTotals.failNum == 1 );
@@ -1289,10 +1289,10 @@ BOOST_AUTO_TEST_CASE( FirstsYamlPathNowExistsSecondYamlPathExists ) {
 
 BOOST_AUTO_TEST_CASE( TwoLintersYamlPathValuesNotExist ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile",
-        "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile" };
+            "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile",
+            "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile" };
     LintCombine::LinterCombine combine(
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     const auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 0 );
     BOOST_CHECK( callTotals.failNum == 2 );
@@ -1320,8 +1320,8 @@ BOOST_AUTO_TEST_CASE( TwoLintersYamlPathValuesNotExist ) {
 
 BOOST_AUTO_TEST_CASE( YamlPathExists ) {
     const LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper", "defaultLinter",
-        CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" };
+            "--sub-linter=MockLinterWrapper", "defaultLinter",
+            CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" };
     LintCombine::LinterCombine combine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 1 );
@@ -1335,12 +1335,12 @@ BOOST_AUTO_TEST_CASE( YamlPathExists ) {
 
 BOOST_AUTO_TEST_CASE( TwoLintersHaveExistYamlPath ) {
     LintCombine::stringVector cmdLine = {
-        "--sub-linter=MockLinterWrapper", "defaultLinter",
-        CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml",
-        "--sub-linter=MockLinterWrapper", "defaultLinter",
-        CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
-    LintCombine::LinterCombine combine( 
-        cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+            "--sub-linter=MockLinterWrapper", "defaultLinter",
+            CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml",
+            "--sub-linter=MockLinterWrapper", "defaultLinter",
+            CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" };
+    LintCombine::LinterCombine combine(
+            cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 2 );
     BOOST_CHECK( callTotals.failNum == 0 );
@@ -1358,8 +1358,8 @@ BOOST_AUTO_TEST_CASE( TwoLintersHaveExistYamlPath ) {
 
 BOOST_FIXTURE_TEST_CASE( clangTidyUpdateYaml, recoverYamlFiles ) {
     LintCombine::stringVector cmdLine = {
-        "--sub-linter=clang-tidy", "--export-fixes="
-        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" };
+            "--sub-linter=clang-tidy", "--export-fixes="
+                                       CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" };
     LintCombine::LinterCombine combine( cmdLine );
     auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 1 );
@@ -1374,8 +1374,8 @@ BOOST_FIXTURE_TEST_CASE( clangTidyUpdateYaml, recoverYamlFiles ) {
 
 BOOST_FIXTURE_TEST_CASE( clazyUpdateYaml, recoverYamlFiles ) {
     LintCombine::stringVector cmdLine = {
-        "--sub-linter=clazy", "--export-fixes="
-        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml" };
+            "--sub-linter=clazy", "--export-fixes="
+                                  CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml" };
     LintCombine::LinterCombine combine( cmdLine );
     auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == 1 );
@@ -1385,7 +1385,7 @@ BOOST_FIXTURE_TEST_CASE( clazyUpdateYaml, recoverYamlFiles ) {
     std::ifstream yamlFile_2_save( CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2_result.yaml" );
     std::istream_iterator < char > fileIter_2( yamlFile_2 ), end_2;
     std::istream_iterator < char > fileIter_2_save( yamlFile_2_save ), end_2_save;
-        BOOST_CHECK_EQUAL_COLLECTIONS( fileIter_2, end_2, fileIter_2_save, end_2_save );
+    BOOST_CHECK_EQUAL_COLLECTIONS( fileIter_2, end_2, fileIter_2_save, end_2_save );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -1394,12 +1394,12 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 
 BOOST_AUTO_TEST_CASE( OneLintersYamlPathNotExist ) {
     const std::string generalsYamlPath =
-        CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+            CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const std::string lintersYamlPath = "NotExistentFile_1";
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=" + generalsYamlPath,
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" + lintersYamlPath };
+            "--result-yaml=" + generalsYamlPath,
+            "--sub-linter=clang-tidy",
+            "--export-fixes=" + lintersYamlPath };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getYamlPath().empty() );
     BOOST_REQUIRE( !std::filesystem::exists( lintersYamlPath ) );
@@ -1410,8 +1410,8 @@ BOOST_AUTO_TEST_CASE( OneLintersYamlPathNotExist ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == 
-        "linter's yaml path \"NotExistentFile_1\" doesn't exist" );
+    BOOST_CHECK( diagnostic_0.text ==
+                 "linter's yaml path \"NotExistentFile_1\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
@@ -1422,13 +1422,13 @@ BOOST_AUTO_TEST_CASE( OneLintersYamlPathNotExist ) {
 
 BOOST_AUTO_TEST_CASE( OneLintersYamlPathExist ) {
     const std::string generalsYamlPath =
-        CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
-    const std::string lintersYamlPath = 
-        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml";
+            CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    const std::string lintersYamlPath =
+            CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml";
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=" + generalsYamlPath,
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" + lintersYamlPath };
+            "--result-yaml=" + generalsYamlPath,
+            "--sub-linter=clang-tidy",
+            "--export-fixes=" + lintersYamlPath };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getYamlPath() == generalsYamlPath );
     BOOST_REQUIRE( std::filesystem::exists( generalsYamlPath ) );
@@ -1436,9 +1436,9 @@ BOOST_AUTO_TEST_CASE( OneLintersYamlPathExist ) {
     std::ifstream combinedResult_save( lintersYamlPath );
     std::ifstream combinedResult( generalsYamlPath );
     std::istream_iterator < char >
-    combinedResult_saveIt( combinedResult_save ), endCR_save;
+            combinedResult_saveIt( combinedResult_save ), endCR_save;
     std::istream_iterator < char >
-    combinedResultIt( combinedResult ), endCR;
+            combinedResultIt( combinedResult ), endCR;
     BOOST_CHECK_EQUAL_COLLECTIONS( combinedResult_saveIt, endCR_save, combinedResultIt, endCR );
     combinedResult.close();
     std::filesystem::remove( generalsYamlPath );
@@ -1447,16 +1447,16 @@ BOOST_AUTO_TEST_CASE( OneLintersYamlPathExist ) {
 
 BOOST_AUTO_TEST_CASE( FirstLintersYamlPathExistSecondLintersYamlPathNotExist ) {
     const std::string generalsYamlPath =
-        CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+            CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const std::string lintersYamlPath_1 =
-        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml";
+            CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml";
     const std::string lintersYamlPath_2 = "NotExistentFile_2";
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=" + generalsYamlPath,
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" + lintersYamlPath_1,
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" + lintersYamlPath_2 };
+            "--result-yaml=" + generalsYamlPath,
+            "--sub-linter=clang-tidy",
+            "--export-fixes=" + lintersYamlPath_1,
+            "--sub-linter=clang-tidy",
+            "--export-fixes=" + lintersYamlPath_2 };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getYamlPath() == generalsYamlPath );
     BOOST_REQUIRE( std::filesystem::exists( lintersYamlPath_1 ) );
@@ -1470,20 +1470,20 @@ BOOST_AUTO_TEST_CASE( FirstLintersYamlPathExistSecondLintersYamlPathNotExist ) {
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
     BOOST_CHECK( diagnostic_0.text ==
-        "linter's yaml path \"NotExistentFile_2\" doesn't exist" );
+                 "linter's yaml path \"NotExistentFile_2\" doesn't exist" );
 }
 
 BOOST_AUTO_TEST_CASE( TwoLintersYamlPathNotExist ) {
     const std::string generalsYamlPath =
-        CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+            CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const std::string lintersYamlPath_1 = "NotExistentFile_1";
     const std::string lintersYamlPath_2 = "NotExistentFile_2";
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=" + generalsYamlPath,
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" + lintersYamlPath_1,
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" + lintersYamlPath_2 };
+            "--result-yaml=" + generalsYamlPath,
+            "--sub-linter=clang-tidy",
+            "--export-fixes=" + lintersYamlPath_1,
+            "--sub-linter=clang-tidy",
+            "--export-fixes=" + lintersYamlPath_2 };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getYamlPath().empty() );
     BOOST_REQUIRE( !std::filesystem::exists( lintersYamlPath_1 ) );
@@ -1495,15 +1495,15 @@ BOOST_AUTO_TEST_CASE( TwoLintersYamlPathNotExist ) {
     BOOST_CHECK( diagnostic_0.origin == "Combine" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == 
-        "linter's yaml path \"NotExistentFile_1\" doesn't exist" );
+    BOOST_CHECK( diagnostic_0.text ==
+                 "linter's yaml path \"NotExistentFile_1\" doesn't exist" );
     const auto diagnostic_1 = combine.diagnostics()[1];
     BOOST_CHECK( diagnostic_1.level == LintCombine::Level::Warning );
     BOOST_CHECK( diagnostic_1.origin == "Combine" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == 
-        "linter's yaml path \"NotExistentFile_2\" doesn't exist" );
+    BOOST_CHECK( diagnostic_1.text ==
+                 "linter's yaml path \"NotExistentFile_2\" doesn't exist" );
     const auto diagnostic_2 = combine.diagnostics()[2];
     BOOST_CHECK( diagnostic_2.level == LintCombine::Level::Error );
     BOOST_CHECK( diagnostic_2.origin == "Combine" );
@@ -1514,27 +1514,27 @@ BOOST_AUTO_TEST_CASE( TwoLintersYamlPathNotExist ) {
 
 BOOST_AUTO_TEST_CASE( TwoLintersYamlPathExist ) {
     const std::string generalsYamlPath =
-        CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
-    const std::string lintersYamlPath_1 = 
-        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml";
-    const std::string lintersYamlPath_2 = 
-        CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml";
+            CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    const std::string lintersYamlPath_1 =
+            CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml";
+    const std::string lintersYamlPath_2 =
+            CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml";
     const LintCombine::stringVector cmdLine = {
-        "--result-yaml=" + generalsYamlPath,
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" + lintersYamlPath_1,
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" + lintersYamlPath_2 };
+            "--result-yaml=" + generalsYamlPath,
+            "--sub-linter=clang-tidy",
+            "--export-fixes=" + lintersYamlPath_1,
+            "--sub-linter=clang-tidy",
+            "--export-fixes=" + lintersYamlPath_2 };
     LintCombine::LinterCombine combine( cmdLine );
     BOOST_CHECK( combine.getYamlPath() == generalsYamlPath );
     BOOST_REQUIRE( std::filesystem::exists( generalsYamlPath ) );
-    std::ifstream combinedResult_save( 
-        CURRENT_SOURCE_DIR"yamlFiles/combinedResult_save.yaml" );
+    std::ifstream combinedResult_save(
+            CURRENT_SOURCE_DIR"yamlFiles/combinedResult_save.yaml" );
     std::ifstream combinedResult( generalsYamlPath );
     std::istream_iterator < char >
-    combinedResult_saveIt( combinedResult_save ), endCR_save;
+            combinedResult_saveIt( combinedResult_save ), endCR_save;
     std::istream_iterator < char >
-    combinedResultIt( combinedResult ), endCR;
+            combinedResultIt( combinedResult ), endCR;
     BOOST_CHECK_EQUAL_COLLECTIONS( combinedResult_saveIt, endCR_save, combinedResultIt, endCR );
     combinedResult.close();
     std::filesystem::remove( generalsYamlPath );
@@ -1558,9 +1558,9 @@ void compareContainers( const LintCombine::stringVector & lhs,
 
 BOOST_AUTO_TEST_CASE( EmptyCommandLine ) {
     LintCombine::stringVector cmdLine = {};
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1574,8 +1574,9 @@ BOOST_AUTO_TEST_CASE( EmptyCommandLine ) {
 BOOST_AUTO_TEST_CASE( FactoryDeleteIdeProfile_ValueAfterEqualSign ) {
     LintCombine::stringVector cmdLine = {
         "--param=value", "--ide-profile=resharper", "--param=value" };
-    std::string ideName;
-    LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     // constexpr std::array< char *, 2 > result = { "--param=value" ,  "--param=value" };
     const std::array< std::string, 2 > result = { "--param=value" ,  "--param=value" };
     compareContainers( cmdLine, result );
@@ -1584,8 +1585,9 @@ BOOST_AUTO_TEST_CASE( FactoryDeleteIdeProfile_ValueAfterEqualSign ) {
 BOOST_AUTO_TEST_CASE( FactoryDeleteIdeProfile_ValueAfterSpace ) {
     LintCombine::stringVector cmdLine = {
         "--param=value", "--ide-profile", "clion", "--param=value" };
-    std::string ideName;
-    LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( !ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     const std::array< std::string, 2 > result = { "--param=value", "--param=value" };
     compareContainers( cmdLine, result );
 }
@@ -1593,9 +1595,9 @@ BOOST_AUTO_TEST_CASE( FactoryDeleteIdeProfile_ValueAfterSpace ) {
 BOOST_AUTO_TEST_CASE( VerbatimLintersDontExist ) {
     LintCombine::stringVector cmdLine = {
         "--param=value", "-p=val", "--param", "val" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1609,16 +1611,16 @@ BOOST_AUTO_TEST_CASE( VerbatimLintersDontExist ) {
     BOOST_CHECK( diagnostic_1.origin == "VerbatimPreparer" );
     BOOST_CHECK( diagnostic_1.firstPos == 1 );
     BOOST_CHECK( diagnostic_1.lastPos == 0 );
-    BOOST_CHECK( diagnostic_1.text == 
+    BOOST_CHECK( diagnostic_1.text ==
         "No linters specified. Supported linters are: clang-tidy, clazy." );
 }
 
 BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithIncorrectName ) {
     LintCombine::stringVector cmdLine = {
         "--sub-linter=Incorrect", "--param=value", "-p=val", "--param", "val" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1639,9 +1641,9 @@ BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithIncorrectNames ) {
     LintCombine::stringVector cmdLine = {
         "--sub-linter=Incorrect_1", "--sub-linter=Incorrect_2",
         "--param=value", "-p=val", "--param", "val" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1671,9 +1673,9 @@ BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithCorrectName ) {
     const std::array < std::string, 6 > result = {
         "--result-yaml=file.yaml", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1693,9 +1695,9 @@ BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithCorrectNames ) {
         "--result-yaml=file.yaml", "--sub-linter=clazy",
         "--sub-linter=clang-tidy", "--param=value",
         "-p=val", "--param", "val" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1713,10 +1715,10 @@ BOOST_AUTO_TEST_CASE( VerbatimResultYamlPathNotExists ) {
         "--result-yaml=" CURRENT_BINARY_DIR "LintersDiagnostics.yaml",
         "--sub-linter=clazy", "--param=value",
         "-p=val", "--param", "val" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1734,10 +1736,10 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
         "--result-yaml=" CURRENT_BINARY_DIR "LintersDiagnostics.yaml",
         "--sub-linter=clazy", "--param=value",
         "-p=val", "--param", "val" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1763,10 +1765,10 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
 
 BOOST_AUTO_TEST_CASE( UnsupportedIDE ) {
     LintCombine::stringVector cmdLine = { "--ide-profile=shasharper" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ) == cmdLine );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( !ideTraitsFactory.getIdeBehaviorInstance() );
+    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -1779,10 +1781,10 @@ BOOST_AUTO_TEST_CASE( UnsupportedIDE ) {
 BOOST_AUTO_TEST_CASE( SpecifiedTwice ) {
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase", "-p=pathToCompilationDataBase" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -1795,10 +1797,10 @@ BOOST_AUTO_TEST_CASE( SpecifiedTwice ) {
 BOOST_AUTO_TEST_CASE( PathToYamlFileIsEmpty ) {
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -1811,9 +1813,9 @@ BOOST_AUTO_TEST_CASE( PathToYamlFileIsEmpty ) {
 BOOST_AUTO_TEST_CASE( PathToCompilationDataBaseIsEmpty ) {
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-export-fixes=pathToResultYaml" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1824,25 +1826,28 @@ BOOST_AUTO_TEST_CASE( PathToCompilationDataBaseIsEmpty ) {
     BOOST_CHECK( diagnostic_0.text == "Path to compilation database is empty." );
 }
 
-static void minimalRequiredOptionsExistHelper( std::string ideName ) {
+static void minimalRequiredOptionsExistHelper( const std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
-            "--ide-profile=" + ideName,
-            "-p=pathToCompilationDataBase",
-            "--export-fixes=pathToResultYaml" };
+        "--ide-profile=" + ideName,
+        "-p=pathToCompilationDataBase",
+        "--export-fixes=pathToResultYaml" };
     std::string OSDependentSlash;
     if constexpr( BOOST_OS_WINDOWS ) { OSDependentSlash  = "\\"; }
     if constexpr( BOOST_OS_LINUX ) { OSDependentSlash = "/"; }
     const std::array < std::string, 7 > result = {
-            "--result-yaml=pathToResultYaml",
-            "--sub-linter=clang-tidy",
-            "-p=pathToCompilationDataBase",
-            "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClangTidy.yaml",
-            "--sub-linter=clazy",
-            "-p=pathToCompilationDataBase",
-            "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml" };
+        "--result-yaml=pathToResultYaml",
+        "--sub-linter=clang-tidy",
+        "-p=pathToCompilationDataBase",
+        "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClangTidy.yaml",
+        "--sub-linter=clazy",
+        "-p=pathToCompilationDataBase",
+        "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1854,14 +1859,15 @@ static void minimalRequiredOptionsExistHelper( std::string ideName ) {
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_MinimalRequiredOptionsExist ) {
-    minimalRequiredOptionsExistHelper("ReSharper");
+    minimalRequiredOptionsExistHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_MinimalRequiredOptionsExist ) {
-    minimalRequiredOptionsExistHelper("CLion");
+    minimalRequiredOptionsExistHelper( "CLion", false );
 }
 
-static void optionForClangTidyPassedHelper( std::string ideName ) {
+static void optionForClangTidyPassedHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--param_1", "@param_2" };
@@ -1879,8 +1885,10 @@ static void optionForClangTidyPassedHelper( std::string ideName ) {
             "-p=pathToCompilationDataBase",
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1892,14 +1900,15 @@ static void optionForClangTidyPassedHelper( std::string ideName ) {
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_OptionForClangTidyPassed ) {
-    optionForClangTidyPassedHelper("ReSharper");
+    optionForClangTidyPassedHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_OptionForClangTidyPassed ) {
-    optionForClangTidyPassedHelper("CLion");
+    optionForClangTidyPassedHelper( "CLion", false );
 }
 
-static void filesToAnalizePassedHelper( std::string ideName ) {
+static void filesToAnalizePassedHelper( std::string ideName,
+    const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "file_1.cpp", "file_2.cpp" };
@@ -1917,8 +1926,10 @@ static void filesToAnalizePassedHelper( std::string ideName ) {
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml",
             "file_1.cpp", "file_2.cpp" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1930,11 +1941,11 @@ static void filesToAnalizePassedHelper( std::string ideName ) {
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_FilesToAnalizePassed ) {
-    filesToAnalizePassedHelper("ReSharper");
+    filesToAnalizePassedHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_FilesToAnalizePassed ) {
-    filesToAnalizePassedHelper("CLion");
+    filesToAnalizePassedHelper( "CLion", false );
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_HeaderFilterPassed ) {
@@ -1956,9 +1967,9 @@ BOOST_AUTO_TEST_CASE( ReSharper_HeaderFilterPassed ) {
         "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml",
         "--header-filter=file.cpp" };
 
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1974,10 +1985,10 @@ BOOST_AUTO_TEST_CASE( ClazyChecksEmptyAfterEqualSign ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--clazy-checks=" };
 
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -1993,10 +2004,11 @@ BOOST_AUTO_TEST_CASE( ClangExtraArgsEmptyAfterEqualSign ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--clang-extra-args=" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -2011,9 +2023,9 @@ BOOST_AUTO_TEST_CASE( AllParamsEmptyAfterEqualSign ) {
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--clazy-checks=", "--clang-extra-args=" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2021,12 +2033,13 @@ BOOST_AUTO_TEST_CASE( AllParamsEmptyAfterEqualSign ) {
     BOOST_CHECK( diagnostic_0.origin == "FactoryPreparer" );
     BOOST_CHECK( diagnostic_0.firstPos == 1 );
     BOOST_CHECK( diagnostic_0.lastPos == 0 );
-    BOOST_CHECK( diagnostic_0.text == 
+    BOOST_CHECK( diagnostic_0.text ==
         "the argument for option '--clazy-checks'"
         " should follow immediately after the equal sign" );
 }
 
-static void clazyChecksEmptyAfterSpaceHelper( std::string ideName ) {
+static void clazyChecksEmptyAfterSpaceHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--clazy-checks" };
@@ -2041,8 +2054,10 @@ static void clazyChecksEmptyAfterSpaceHelper( std::string ideName ) {
             "--sub-linter=clazy",
             "-p=pathToCompilationDataBase",
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml" };
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2062,14 +2077,15 @@ static void clazyChecksEmptyAfterSpaceHelper( std::string ideName ) {
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_ClazyChecksEmptyAfterSpace ) {
-    clazyChecksEmptyAfterSpaceHelper( "ReSharper" );
+    clazyChecksEmptyAfterSpaceHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_ClazyChecksEmptyAfterSpace ) {
-    clazyChecksEmptyAfterSpaceHelper( "CLion" );
+    clazyChecksEmptyAfterSpaceHelper( "CLion", false );
 }
 
-static void clangExtraArgsEmptyAfterSpaceHelper( std::string ideName ) {
+static void clangExtraArgsEmptyAfterSpaceHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--clang-extra-args" };
@@ -2084,8 +2100,10 @@ static void clangExtraArgsEmptyAfterSpaceHelper( std::string ideName ) {
             "--sub-linter=clazy",
             "-p=pathToCompilationDataBase",
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml" };
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2106,14 +2124,15 @@ static void clangExtraArgsEmptyAfterSpaceHelper( std::string ideName ) {
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_ClangExtraArgsEmptyAfterSpace ) {
-    clangExtraArgsEmptyAfterSpaceHelper( "ReSharper" );
+    clangExtraArgsEmptyAfterSpaceHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_ClangExtraArgsEmptyAfterSpace ) {
-    clangExtraArgsEmptyAfterSpaceHelper( "ReSharper" );
+    clangExtraArgsEmptyAfterSpaceHelper( "CLion", false );
 }
 
-static void allParamsEmptyAfterSpaceHelper( std::string ideName ) {
+static void allParamsEmptyAfterSpaceHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--clazy-checks", "--clang-extra-args" };
@@ -2129,8 +2148,10 @@ static void allParamsEmptyAfterSpaceHelper( std::string ideName ) {
             "-p=pathToCompilationDataBase",
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()\
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2158,14 +2179,15 @@ static void allParamsEmptyAfterSpaceHelper( std::string ideName ) {
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_AllParamsEmptyAfterSpace ) {
-    allParamsEmptyAfterSpaceHelper( "ReSharper" );
+    allParamsEmptyAfterSpaceHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_AllParamsEmptyAfterSpace ) {
-    allParamsEmptyAfterSpaceHelper( "CLion" );
+    allParamsEmptyAfterSpaceHelper( "CLion", false );
 }
 
-static void clazyChecksExistHelper( std::string ideName ) {
+static void clazyChecksExistHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--clazy-checks", "level0,level1" };
@@ -2182,9 +2204,11 @@ static void clazyChecksExistHelper( std::string ideName ) {
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml",
             "--checks=level0,level1" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2195,14 +2219,15 @@ static void clazyChecksExistHelper( std::string ideName ) {
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_ClazyChecksExist ) {
-    clazyChecksExistHelper("ReSharper");
+    clazyChecksExistHelper("ReSharper", true);
 }
 
 BOOST_AUTO_TEST_CASE( CLion_ClazyChecksExist ) {
-    clazyChecksExistHelper("CLion");
+    clazyChecksExistHelper("CLion", false);
 }
 
-static void clangExtraArgsExistHelper( std::string ideName ) {
+static void clangExtraArgsExistHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--clang-extra-args=arg_1 arg_2 " };
@@ -2219,8 +2244,10 @@ static void clangExtraArgsExistHelper( std::string ideName ) {
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml",
             "--extra-arg=arg_1", "--extra-arg=arg_2" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2232,14 +2259,15 @@ static void clangExtraArgsExistHelper( std::string ideName ) {
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_ClangExtraArgsExist ) {
-    clangExtraArgsExistHelper( "ReSharper" );
+    clangExtraArgsExistHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_ClangExtraArgsExist ) {
-    clangExtraArgsExistHelper( "CLion" );
+    clangExtraArgsExistHelper( "CLion", false );
 }
 
-static void allParamsExistAfterEqualSignHelper( std::string ideName ) {
+static void allParamsExistAfterEqualSignHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--clazy-checks=level0,level1",
@@ -2258,9 +2286,11 @@ static void allParamsExistAfterEqualSignHelper( std::string ideName ) {
             "--checks=level0,level1",
             "--extra-arg=arg_1", "--extra-arg=arg_2" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2271,11 +2301,11 @@ static void allParamsExistAfterEqualSignHelper( std::string ideName ) {
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_AllParamsExistAfterEqualSign ) {
-    allParamsExistAfterEqualSignHelper( "ReSharper" );
+    allParamsExistAfterEqualSignHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_AllParamsExistAfterEqualSign ) {
-    allParamsExistAfterEqualSignHelper( "CLion" );
+    allParamsExistAfterEqualSignHelper( "CLion", false );
 }
 
 BOOST_AUTO_TEST_CASE( OneSublinterValueEmptyAfterEqualSign ) {
@@ -2283,10 +2313,10 @@ BOOST_AUTO_TEST_CASE( OneSublinterValueEmptyAfterEqualSign ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--sub-linter=" };
 
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -2304,9 +2334,9 @@ BOOST_AUTO_TEST_CASE( FirstSubLinterIncorrectSecondValueEmptyAfterEqualSign ) {
         "--export-fixes=pathToResultYaml", "--sub-linter=IncorrectName_1",
         "--sub-linter=" };
 
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2325,10 +2355,10 @@ BOOST_AUTO_TEST_CASE( FirstSubLinterValueEmptyAfterEqualSignSecondIncorrect ) {
         "--export-fixes=pathToResultYaml", "--sub-linter=",
         "--sub-linter=IncorrectName_1" };
 
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -2345,10 +2375,10 @@ BOOST_AUTO_TEST_CASE( TwoSublinterValuesEmptyAfterEqualSign ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--sub-linter=", "--sub-linter=" };
 
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() == true );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -2363,10 +2393,11 @@ BOOST_AUTO_TEST_CASE( OneSublinterEmptyValue ) {
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--sub-linter" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty()  );
+
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -2382,10 +2413,11 @@ BOOST_AUTO_TEST_CASE( FirstSubLinterIncorrectSecondHasEmptyValueAfterSpace ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml",  "--sub-linter",
         "IncorrectName_1", "--sub-linter" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -2401,10 +2433,11 @@ BOOST_AUTO_TEST_CASE( FirstSubLinterHasEmptyValueAfterSpaceSecondIncorrect ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--sub-linter",
         "--sub-linter", "IncorrectName_1" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2425,10 +2458,11 @@ BOOST_AUTO_TEST_CASE( AllSublintersHaveEmptyValueAfterSpace ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml",
         "--sub-linter", "--sub-linter" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2448,10 +2482,11 @@ BOOST_AUTO_TEST_CASE( OneSublinterWithIncorrectName ) {
     LintCombine::stringVector cmdLine = {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--sub-linter=IncorrectName_1" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2473,10 +2508,11 @@ BOOST_AUTO_TEST_CASE( TwoSublinterWithIncorrectName ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--sub-linter=IncorrectName_1",
         "--sub-linter=IncorrectName_2" };
-    std::string ideName;
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty()  );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2498,7 +2534,8 @@ BOOST_AUTO_TEST_CASE( TwoSublinterWithIncorrectName ) {
     BOOST_CHECK( diagnostic_2.text == "Unknown linter name \"IncorrectName_2\"" );
 }
 
-static void sublinterIsClangTidyHelper( std::string ideName ) {
+static void sublinterIsClangTidyHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--sub-linter=clang-tidy" };
@@ -2511,21 +2548,24 @@ static void sublinterIsClangTidyHelper( std::string ideName ) {
             "-p=pathToCompilationDataBase",
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClangTidy.yaml" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_SublinterIsClangTidy ) {
-    sublinterIsClangTidyHelper( "ReSharper" );
+    sublinterIsClangTidyHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_SublinterIsClangTidy ) {
-    sublinterIsClangTidyHelper( "CLion" );
+    sublinterIsClangTidyHelper( "CLion", false );
 }
 
-static void sublinterIsClazyHelper( std::string ideName ) {
+static void sublinterIsClazyHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--sub-linter=clazy" };
@@ -2538,21 +2578,24 @@ static void sublinterIsClazyHelper( std::string ideName ) {
             "-p=pathToCompilationDataBase",
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_SublinterIsClazy ) {
-    sublinterIsClazyHelper( "ReSharper" );
+    sublinterIsClazyHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_SublinterIsClazy ) {
-    sublinterIsClazyHelper( "CLion" );
+    sublinterIsClazyHelper( "CLion", false );
 }
 
-static void sublintersAreClangTidyAndClazyAfterEqualSignHelper( std::string ideName ) {
+static void sublintersAreClangTidyAndClazyAfterEqualSignHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--sub-linter=clang-tidy",
@@ -2569,23 +2612,26 @@ static void sublintersAreClangTidyAndClazyAfterEqualSignHelper( std::string ideN
             "-p=pathToCompilationDataBase",
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_SublintersAreClangTidyAndClazyAfterEqualSign ) {
-    sublintersAreClangTidyAndClazyAfterEqualSignHelper( "ReSharper" );
+    sublintersAreClangTidyAndClazyAfterEqualSignHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_SublintersAreClangTidyAndClazyAfterEqualSign ) {
-    sublintersAreClangTidyAndClazyAfterEqualSignHelper( "CLion" );
+    sublintersAreClangTidyAndClazyAfterEqualSignHelper( "CLion", false );
 }
 
-static void sublintersAreClangTidyAndClazyAfterSpaceHelper( std::string ideName ) {
+static void sublintersAreClangTidyAndClazyAfterSpaceHelper( std::string ideName,
+        const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
-            "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+            "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "-sub-linter", "clang-tidy",
             "-sub-linter", "clazy" };
     std::string OSDependentSlash;
@@ -2600,18 +2646,20 @@ static void sublintersAreClangTidyAndClazyAfterSpaceHelper( std::string ideName 
             "-p=pathToCompilationDataBase",
             "--export-fixes=pathToCompilationDataBase" + OSDependentSlash + "diagnosticsClazy.yaml" };
 
-    auto * prepareCmdLine =
-        LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine( cmdLine, ideName );
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
+        ->getDoesAddLink() == getDoesAddLinkValue );
     compareContainers( prepareCmdLine->transform( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_SublintersAreClangTidyAndClazyAfterSpace ) {
-    sublintersAreClangTidyAndClazyAfterSpaceHelper( "ReSharper" );
+    sublintersAreClangTidyAndClazyAfterSpaceHelper( "ReSharper", true );
 }
 
 BOOST_AUTO_TEST_CASE( CLion_SublintersAreClangTidyAndClazyAfterSpace ) {
-    sublintersAreClangTidyAndClazyAfterSpaceHelper( "CLion" );
+    sublintersAreClangTidyAndClazyAfterSpaceHelper( "CLion", false );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

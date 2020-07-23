@@ -1,13 +1,27 @@
-#include "PrepareCmdLineFactory.h"
+#include "IdeTraitsFactory.h"
 #include "PrepareCmdLineReSharper.h"
 #include "PrepareCmdLineCLion.h"
 #include "PrepareCmdLineVerbatim.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
 
+LintCombine::IdeTraitsFactory::IdeBehaviorItf *
+LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
+    boost::algorithm::to_lower( ideName );
+    if( ideName == "resharper" ) {
+        return new ReSharperBehavior;
+    }
+    if( ideName == "clion" ) {
+        return new CLionBehavior;
+    }
+    if( ideName.empty() ) {
+        return new VerbatimBehavior;
+    }
+    return nullptr;
+};
+
 LintCombine::PrepareCmdLineItf *
-LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine(
-        stringVector & cmdLine, std::string & ideName ) {
+LintCombine::IdeTraitsFactory::getPrepareCmdLineInstance( stringVector & cmdLine ) {
     if( cmdLine.empty() ) {
         return new PrepareCmdLineOnError( Level::Error, "Command Line is empty",
                                           "FactoryPreparer",  1, 0 );
@@ -27,23 +41,23 @@ LintCombine::PrepareCmdLineFactory::createInstancePrepareCmdLine(
                                           "FactoryPreparer",  1, 0 );
     }
     cmdLine.erase( std::remove_if( std::begin( cmdLine ), std::end( cmdLine ),
-                   [ideName]( const std::string & str ) -> bool {
+                   [this]( const std::string & str ) -> bool {
                        return str.find( "--ide-profile" ) == 0 || str == ideName;
                    } ), std::end( cmdLine ) );
     if( ideName.empty() ) {
         return new PrepareCmdLineVerbatim();
     }
-    auto ideNameCopy = ideName;
-    boost::algorithm::to_lower( ideNameCopy );
-    if( ideNameCopy == "resharper" ) {
+    const auto ideNameCopy = ideName;
+    boost::algorithm::to_lower( ideName );
+    if( ideName == "resharper" ) {
         return new PrepareCmdLineReSharper();
     }
-    if( ideNameCopy == "clion" ) {
+    if( ideName == "clion" ) {
         return new PrepareCmdLineCLion();
     }
     // TODO: find position of incorrect IDE in source cmdLine
     return new PrepareCmdLineOnError(
-             Level::Error, "\"" + ideName +
+             Level::Error, "\"" + ideNameCopy +
              "\" is not a supported IDE profile",
              "FactoryPreparer",  1, 0 );
 }

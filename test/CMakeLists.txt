@@ -18,12 +18,12 @@ add_executable(${executableName} src/simpleTest.cpp
         ../src/ClazyWrapper.h            ../src/ClazyWrapper.cpp
         ../src/UsualLinterFactory.h      ../src/UsualLinterFactory.cpp
         ../src/LinterCombine.h           ../src/LinterCombine.cpp
+        ../src/IdeTraitsFactory.h        ../src/IdeTraitsFactory.cpp
         ../src/LintCombineUtils.h        ../src/LintCombineUtils.cpp
         ../src/ClangTidyWrapper.h        ../src/ClangTidyWrapper.cpp
         ../src/PrepareCmdLineBase.h      ../src/PrepareCmdLineBase.cpp
         ../src/PrepareCmdLineCLion.h     ../src/PrepareCmdLineCLion.cpp
         ../src/DiagnosticWorker.h        ../src/DiagnosticWorker.cpp
-        ../src/PrepareCmdLineFactory.h   ../src/PrepareCmdLineFactory.cpp
         ../src/PrepareCmdLineVerbatim.h  ../src/PrepareCmdLineVerbatim.cpp
         ../src/PrepareCmdLineReSharper.h ../src/PrepareCmdLineReSharper.cpp )
 

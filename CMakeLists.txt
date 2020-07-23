@@ -51,11 +51,11 @@ add_executable(${executableName}
         src/UsualLinterFactory.h      src/UsualLinterFactory.cpp
         src/ClangTidyWrapper.h        src/ClangTidyWrapper.cpp
         src/LinterBase.h              src/LinterBase.cpp
+        src/IdeTraitsFactory.h        src/IdeTraitsFactory.cpp
         src/DiagnosticWorker.h        src/DiagnosticWorker.cpp
         src/LintCombineUtils.h        src/LintCombineUtils.cpp
         src/PrepareCmdLineBase.h      src/PrepareCmdLineBase.cpp
         src/PrepareCmdLineCLion.h     src/PrepareCmdLineCLion.cpp
-        src/PrepareCmdLineFactory.h   src/PrepareCmdLineFactory.cpp
         src/PrepareCmdLineVerbatim.h  src/PrepareCmdLineVerbatim.cpp
         src/PrepareCmdLineReSharper.h src/PrepareCmdLineReSharper.cpp )
 

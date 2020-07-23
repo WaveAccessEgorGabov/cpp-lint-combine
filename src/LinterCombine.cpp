@@ -74,7 +74,6 @@ void LintCombine::LinterCombine::callLinter() {
     }
 }
 
-// TODO: Why return code is used here ??? we have diagnostics
 int LintCombine::LinterCombine::waitLinter() {
     if( m_linters.empty() ) {
         return 0;

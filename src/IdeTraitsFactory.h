@@ -7,8 +7,33 @@
 
 namespace LintCombine {
 
-    class PrepareCmdLineFactory {
+    class IdeTraitsFactory {
+
     public:
+        class IdeBehaviorItf {
+
+        public:
+            virtual bool getDoesAddLink() = 0;
+        };
+
+        class CLionBehavior final : public IdeBehaviorItf {
+
+        public:
+            bool getDoesAddLink() override { return false; }
+        };
+
+        class ReSharperBehavior final : public IdeBehaviorItf {
+
+        public:
+            bool getDoesAddLink() override { return true; }
+        };
+
+        class VerbatimBehavior final : public IdeBehaviorItf {
+
+        public:
+            bool getDoesAddLink() override { return true; }
+        };
+
         class PrepareCmdLineOnError final : public PrepareCmdLineItf {
 
         public:
@@ -38,7 +63,11 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        static PrepareCmdLineItf * createInstancePrepareCmdLine(
-                stringVector & cmdLine, std::string & ideName );
+        PrepareCmdLineItf * getPrepareCmdLineInstance( stringVector & cmdLine );
+
+        IdeBehaviorItf * getIdeBehaviorInstance();
+
+    private:
+        std::string ideName;
     };
 }
