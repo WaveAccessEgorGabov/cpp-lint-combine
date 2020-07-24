@@ -1,9 +1,9 @@
 @echo off
 :: Set the name of the used IDE
-set "IDE_PROFILE=<chooce one from list: CLION, RESHARPER>" 
+set IDE_PROFILE="<chooce one from list: CLION, RESHARPER>" 
 
-:: Set paths to IDEs. If you doesn't have some of this IDE - ignore it
-set CLION_CLANG_TIDY_PATH=<Path to the directory with CLion's clang-tidy>
+:: Set paths to IDEs clang-tidy. If you doesn't have some of this IDE - ignore it
+set CLION_CLANG_TIDY_PATH=<Path to the directory with CLions clang-tidy>
 :: Directory with ReSharper can be changed
 set RESHARPER_DIR=<Path ReSharper's dir>
 set RESHARPER_CLANG_TIDY_PATH=%RESHARPER_DIR%\x86;%RESHARPER_DIR%_000\x86
