@@ -1,10 +1,10 @@
-#include "PrepareCmdLineBase.h"
+#include "PrepareInputsBase.h"
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/join.hpp>
 
 LintCombine::stringVector
-LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
+LintCombine::PrepareInputsBase::transformCmdLine( const stringVector cmdLineVal ) {
     realeaseClassField();
     m_cmdLine = cmdLineVal;
     m_sourceCL = boost::algorithm::join( cmdLineVal, " " );
@@ -23,7 +23,7 @@ LintCombine::PrepareCmdLineBase::transform( const stringVector cmdLineVal ) {
 
 // TODO: may be sort in another place, and make diagnostics() const
 std::vector<LintCombine::Diagnostic>
-LintCombine::PrepareCmdLineBase::diagnostics() {
+LintCombine::PrepareInputsBase::diagnostics() {
     std::sort( std::begin( m_diagnostics ),
            std::end( m_diagnostics ),
            []( const Diagnostic & lhs, const Diagnostic & rhs ) {
@@ -34,8 +34,7 @@ LintCombine::PrepareCmdLineBase::diagnostics() {
     return m_diagnostics;
 }
 
-bool LintCombine::PrepareCmdLineBase::parseSourceCmdLine() {
-    // TODO : parse here --result-yaml. Or make this method virtual.
+bool LintCombine::PrepareInputsBase::parseSourceCmdLine() {
     boost::program_options::options_description programOptions;
     programOptions.add_options()
         ( "clazy-checks",
@@ -72,7 +71,7 @@ bool LintCombine::PrepareCmdLineBase::parseSourceCmdLine() {
     return false;
 }
 
-bool LintCombine::PrepareCmdLineBase::validateParsedData() {
+bool LintCombine::PrepareInputsBase::validateParsedData() {
     auto isErrorOccur = false;
     if( m_pathToWorkDir.empty() ) {
         m_diagnostics.emplace_back(
@@ -94,7 +93,7 @@ bool LintCombine::PrepareCmdLineBase::validateParsedData() {
     return isErrorOccur;
 }
 
-void LintCombine::PrepareCmdLineBase::checkIsOptionsValueInit( const std::string & optionName,
+void LintCombine::PrepareInputsBase::checkIsOptionsValueInit( const std::string & optionName,
                                                                const std::string & option ) {
     if( std::find_if( std::begin( m_cmdLine ), std::end( m_cmdLine ),
         [&]( const std::string & str ) -> bool {
@@ -112,7 +111,7 @@ void LintCombine::PrepareCmdLineBase::checkIsOptionsValueInit( const std::string
     }
 }
 
-bool LintCombine::PrepareCmdLineBase::initLinters() {
+bool LintCombine::PrepareInputsBase::initLinters() {
     auto isErrorOccur = false;
     for( auto & it : m_lintersNames ) {
         if( it == "clang-tidy" ) {
@@ -157,21 +156,20 @@ bool LintCombine::PrepareCmdLineBase::initLinters() {
     return isErrorOccur;
 }
 
-void LintCombine::PrepareCmdLineBase::initCmdLine() {
+void LintCombine::PrepareInputsBase::initCmdLine() {
     m_cmdLine.clear();
     initCommonOptions();
-    actionsForSpecificIDE();
     appendLintersOptionToCmdLine();
 }
 
-void LintCombine::PrepareCmdLineBase::initCommonOptions() {
+void LintCombine::PrepareInputsBase::initCommonOptions() {
     if( !m_pathToGeneralYaml.empty() ) {
         m_cmdLine.emplace_back( "--result-yaml=" + m_pathToGeneralYaml );
     }
 }
 
 // TODO: Think about this method
-void LintCombine::PrepareCmdLineBase::realeaseClassField() {
+void LintCombine::PrepareInputsBase::realeaseClassField() {
     m_cmdLine.clear();
     m_sourceCL.clear();
     m_diagnostics.clear();
@@ -184,7 +182,7 @@ void LintCombine::PrepareCmdLineBase::realeaseClassField() {
     m_lintersOptions.clear();
 }
 
-void LintCombine::PrepareCmdLineBase::addOptionToLinterByName( const std::string & name,
+void LintCombine::PrepareInputsBase::addOptionToLinterByName( const std::string & name,
                                                                     const std::string & option ) {
     for( auto & it : m_lintersOptions ) {
         if( it->name == name ) {
@@ -194,20 +192,20 @@ void LintCombine::PrepareCmdLineBase::addOptionToLinterByName( const std::string
     }
 }
 
-void LintCombine::PrepareCmdLineBase::addOptionToAllLinters( const std::string & option ) {
+void LintCombine::PrepareInputsBase::addOptionToAllLinters( const std::string & option ) {
     for( const auto & it : m_lintersOptions ) {
         it->options.emplace_back( option );
     }
 }
 
 std::string
-LintCombine::PrepareCmdLineBase::optionValueToQuotes( const std::string & optionName,
+LintCombine::PrepareInputsBase::optionValueToQuotes( const std::string & optionName,
                                                            const std::string & optionNameWithValue ) {
     return optionName + "\"" +
            optionNameWithValue.substr( optionName.size(), std::string::npos ) + "\"";
 }
 
-void LintCombine::PrepareCmdLineBase::appendLintersOptionToCmdLine() {
+void LintCombine::PrepareInputsBase::appendLintersOptionToCmdLine() {
     for( const auto & it : m_lintersOptions ) {
         std::copy( it->options.begin(), it->options.end(), std::back_inserter( m_cmdLine ) );
     }

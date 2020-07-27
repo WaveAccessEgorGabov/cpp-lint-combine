@@ -1,8 +1,8 @@
-#include "PrepareCmdLineReSharper.h"
+#include "PrepareInputsReSharper.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
-void LintCombine::PrepareCmdLineReSharper::actionsForSpecificIDE() {
+void LintCombine::PrepareInputsReSharper::appendLintersOptionToCmdLine() {
     stringVector filesForAnalize;
     for( auto & unrecognized : m_unrecognizedCollection ) {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
@@ -35,4 +35,6 @@ void LintCombine::PrepareCmdLineReSharper::actionsForSpecificIDE() {
     for( const auto & it : filesForAnalize ) {
         addOptionToAllLinters( it );
     }
+
+    PrepareInputsBase::appendLintersOptionToCmdLine();
 }

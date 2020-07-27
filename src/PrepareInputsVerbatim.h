@@ -1,13 +1,15 @@
 #pragma once
 
-#include "PrepareCmdLineItf.h"
+#include "PrepareInputsItf.h"
 
 namespace LintCombine {
 
-    class PrepareCmdLineVerbatim final : public PrepareCmdLineItf {
+    class PrepareInputsVerbatim final : public PrepareInputsItf {
 
     public:
-        stringVector transform( stringVector cmdLineVal ) override;
+        stringVector transformCmdLine( stringVector cmdLineVal ) override;
+
+        void transformFiles() override {}
 
         std::vector< Diagnostic > diagnostics() override;
 

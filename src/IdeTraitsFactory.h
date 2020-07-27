@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PrepareCmdLineItf.h"
+#include "PrepareInputsItf.h"
 
 #include <boost/program_options.hpp>
 #include <algorithm>
@@ -29,7 +29,7 @@ namespace LintCombine {
         };
 
 
-        class PrepareCmdLineOnError final : public PrepareCmdLineItf {
+        class PrepareCmdLineOnError final : public PrepareInputsItf {
 
         public:
             PrepareCmdLineOnError( const Level levelVal,
@@ -41,7 +41,7 @@ namespace LintCombine {
                                              std::move( originVal ),
                                              firstPosVal, lastPosVal ) } {}
 
-            stringVector transform( stringVector commandLine ) override {
+            stringVector transformCmdLine( stringVector commandLine ) override {
                 for( const auto & it : m_diagnostics ) {
                     if( it.level == Level::Error || it.level == Level::Fatal ) {
                         return stringVector();
@@ -49,6 +49,8 @@ namespace LintCombine {
                 }
                 return commandLine;
             }
+
+            void transformFiles() override {}
 
             std::vector< Diagnostic > diagnostics() override {
                 return m_diagnostics;
@@ -58,7 +60,7 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        PrepareCmdLineItf * getPrepareCmdLineInstance( stringVector & cmdLine );
+        PrepareInputsItf * getPrepareCmdLineInstance( stringVector & cmdLine );
 
         IdeBehaviorItf * getIdeBehaviorInstance();
 

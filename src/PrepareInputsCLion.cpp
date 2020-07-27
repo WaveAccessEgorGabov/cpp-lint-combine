@@ -1,28 +1,32 @@
-#include "PrepareCmdLineCLion.h"
+#include "PrepareInputsCLion.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
 #include <fstream>
 #include <sstream>
 
-void LintCombine::PrepareCmdLineCLion::actionsForSpecificIDE() {
-    stringVector filesForAnalize;
+void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
+    stringVector filesForAnalysis;
     for( auto & unrecognized : m_unrecognizedCollection ) {
         if constexpr( BOOST_OS_LINUX ) {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         }
-        // File to analize
+        // File to analysis
         if( unrecognized[0] != '-' && unrecognized[0] != '@' ) {
-            filesForAnalize.emplace_back( unrecognized );
+            filesForAnalysis.emplace_back( unrecognized );
             continue;
         }
         addOptionToLinterByName( "clang-tidy", unrecognized );
     }
 
-    for( const auto & it : filesForAnalize ) {
+    for( const auto & it : filesForAnalysis ) {
         addOptionToAllLinters( it );
     }
 
+    PrepareInputsBase::appendLintersOptionToCmdLine();
+}
+
+void LintCombine::PrepareInputsCLion::transformFiles() {
     std::ifstream sourceMacrosFile( m_pathToWorkDir + "/macros" );
     std::ostringstream pBuf;
     pBuf << sourceMacrosFile.rdbuf();

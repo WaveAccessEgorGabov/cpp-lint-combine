@@ -3,7 +3,7 @@
 #include "../../src/LinterCombine.h"
 #include "../../src/LinterBase.h"
 #include "../../src/IdeTraitsFactory.h"
-#include "../../src/PrepareCmdLineItf.h"
+#include "../../src/PrepareInputsItf.h"
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/program_options.hpp>
@@ -1561,7 +1561,7 @@ BOOST_AUTO_TEST_CASE( EmptyCommandLine ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -1598,7 +1598,7 @@ BOOST_AUTO_TEST_CASE( VerbatimLintersDontExist ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1621,7 +1621,7 @@ BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithIncorrectName ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1644,7 +1644,7 @@ BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithIncorrectNames ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1676,7 +1676,7 @@ BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithCorrectName ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1698,7 +1698,7 @@ BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithCorrectNames ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1717,7 +1717,7 @@ BOOST_AUTO_TEST_CASE( VerbatimResultYamlPathNotExists ) {
         "-p=val", "--param", "val" };
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1738,7 +1738,7 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
         "-p=val", "--param", "val" };
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1768,7 +1768,7 @@ BOOST_AUTO_TEST_CASE( UnsupportedIDE ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( !ideTraitsFactory.getIdeBehaviorInstance() );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -1783,7 +1783,7 @@ BOOST_AUTO_TEST_CASE( SpecifiedTwice ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase", "-p=pathToCompilationDataBase" };
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1799,7 +1799,7 @@ BOOST_AUTO_TEST_CASE( PathToYamlFileIsEmpty ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase" };
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1816,7 +1816,7 @@ BOOST_AUTO_TEST_CASE( PathToCompilationDataBaseIsEmpty ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -1826,7 +1826,7 @@ BOOST_AUTO_TEST_CASE( PathToCompilationDataBaseIsEmpty ) {
     BOOST_CHECK( diagnostic_0.text == "Path to compilation database is empty." );
 }
 
-static void minimalRequiredOptionsExistHelper( const std::string ideName,
+static void minimalRequiredOptionsExistHelper( std::string && ideName,
         const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
         "--ide-profile=" + ideName,
@@ -1848,7 +1848,7 @@ static void minimalRequiredOptionsExistHelper( const std::string ideName,
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1866,8 +1866,8 @@ BOOST_AUTO_TEST_CASE( CLion_MinimalRequiredOptionsExist ) {
     minimalRequiredOptionsExistHelper( "CLion", false );
 }
 
-static void optionForClangTidyPassedHelper( std::string ideName,
-        const bool getDoesAddLinkValue ) {
+static void optionForClangTidyPassedHelper( std::string && ideName,
+                                           const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--param_1", "@param_2" };
@@ -1889,7 +1889,7 @@ static void optionForClangTidyPassedHelper( std::string ideName,
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1907,7 +1907,7 @@ BOOST_AUTO_TEST_CASE( CLion_OptionForClangTidyPassed ) {
     optionForClangTidyPassedHelper( "CLion", false );
 }
 
-static void filesToAnalizePassedHelper( std::string ideName,
+static void filesToAnalysisPassedHelper( std::string && ideName,
     const bool getDoesAddLinkValue ) {
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
@@ -1930,7 +1930,7 @@ static void filesToAnalizePassedHelper( std::string ideName,
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1940,12 +1940,12 @@ static void filesToAnalizePassedHelper( std::string ideName,
     BOOST_CHECK( diagnostic_0.text == "All linters are used" );
 }
 
-BOOST_AUTO_TEST_CASE( ReSharper_FilesToAnalizePassed ) {
-    filesToAnalizePassedHelper( "ReSharper", true );
+BOOST_AUTO_TEST_CASE( ReSharper_FilesToAnalysisPassed ) {
+    filesToAnalysisPassedHelper( "ReSharper", true );
 }
 
-BOOST_AUTO_TEST_CASE( CLion_FilesToAnalizePassed ) {
-    filesToAnalizePassedHelper( "CLion", false );
+BOOST_AUTO_TEST_CASE( CLion_FilesToAnalysisPassed ) {
+    filesToAnalysisPassedHelper( "CLion", false );
 }
 
 BOOST_AUTO_TEST_CASE( ReSharper_HeaderFilterPassed ) {
@@ -1970,7 +1970,7 @@ BOOST_AUTO_TEST_CASE( ReSharper_HeaderFilterPassed ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -1987,7 +1987,7 @@ BOOST_AUTO_TEST_CASE( ClazyChecksEmptyAfterEqualSign ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2007,7 +2007,7 @@ BOOST_AUTO_TEST_CASE( ClangExtraArgsEmptyAfterEqualSign ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2026,7 +2026,7 @@ BOOST_AUTO_TEST_CASE( AllParamsEmptyAfterEqualSign ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -2058,7 +2058,7 @@ static void clazyChecksEmptyAfterSpaceHelper( std::string ideName,
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2104,7 +2104,7 @@ static void clangExtraArgsEmptyAfterSpaceHelper( std::string ideName,
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2152,7 +2152,7 @@ static void allParamsEmptyAfterSpaceHelper( std::string ideName,
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()\
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2206,7 +2206,7 @@ static void clazyChecksExistHelper( std::string ideName,
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
@@ -2248,7 +2248,7 @@ static void clangExtraArgsExistHelper( std::string ideName,
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2288,7 +2288,7 @@ static void allParamsExistAfterEqualSignHelper( std::string ideName,
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
@@ -2315,7 +2315,7 @@ BOOST_AUTO_TEST_CASE( OneSublinterValueEmptyAfterEqualSign ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2337,7 +2337,7 @@ BOOST_AUTO_TEST_CASE( FirstSubLinterIncorrectSecondValueEmptyAfterEqualSign ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Error );
@@ -2357,7 +2357,7 @@ BOOST_AUTO_TEST_CASE( FirstSubLinterValueEmptyAfterEqualSignSecondIncorrect ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2377,7 +2377,7 @@ BOOST_AUTO_TEST_CASE( TwoSublinterValuesEmptyAfterEqualSign ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() == true );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() == true );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2396,7 +2396,7 @@ BOOST_AUTO_TEST_CASE( OneSublinterEmptyValue ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2416,7 +2416,7 @@ BOOST_AUTO_TEST_CASE( FirstSubLinterIncorrectSecondHasEmptyValueAfterSpace ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2436,7 +2436,7 @@ BOOST_AUTO_TEST_CASE( FirstSubLinterHasEmptyValueAfterSpaceSecondIncorrect ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2461,7 +2461,7 @@ BOOST_AUTO_TEST_CASE( AllSublintersHaveEmptyValueAfterSpace ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2485,7 +2485,7 @@ BOOST_AUTO_TEST_CASE( OneSublinterWithIncorrectName ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty() );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty() );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2511,7 +2511,7 @@ BOOST_AUTO_TEST_CASE( TwoSublinterWithIncorrectName ) {
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    BOOST_CHECK( prepareCmdLine->transform( cmdLine ).empty()  );
+    BOOST_CHECK( prepareCmdLine->transformCmdLine( cmdLine ).empty()  );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2552,7 +2552,7 @@ static void sublinterIsClangTidyHelper( std::string ideName,
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
 
@@ -2580,7 +2580,7 @@ static void sublinterIsClazyHelper( std::string ideName,
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
@@ -2616,7 +2616,7 @@ static void sublintersAreClangTidyAndClazyAfterEqualSignHelper( std::string ideN
     auto * prepareCmdLine =ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
 
@@ -2650,7 +2650,7 @@ static void sublintersAreClangTidyAndClazyAfterSpaceHelper( std::string ideName,
     auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
         ->getDoesAddLink() == getDoesAddLinkValue );
-    compareContainers( prepareCmdLine->transform( cmdLine ), result );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
 

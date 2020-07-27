@@ -1,10 +1,10 @@
-#include "PrepareCmdLineVerbatim.h"
+#include "PrepareInputsVerbatim.h"
 
 #include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
 
 LintCombine::stringVector
-LintCombine::PrepareCmdLineVerbatim::transform( const stringVector cmdLineVal ) {
+LintCombine::PrepareInputsVerbatim::transformCmdLine( const stringVector cmdLineVal ) {
     this->m_cmdLine = cmdLineVal;
     if( validateLinters() ) {
         return stringVector();
@@ -14,11 +14,11 @@ LintCombine::PrepareCmdLineVerbatim::transform( const stringVector cmdLineVal ) 
 }
 
 std::vector< LintCombine::Diagnostic >
-LintCombine::PrepareCmdLineVerbatim::diagnostics() {
+LintCombine::PrepareInputsVerbatim::diagnostics() {
     return m_diagnostics;
 }
 
-bool LintCombine::PrepareCmdLineVerbatim::validateLinters() {
+bool LintCombine::PrepareInputsVerbatim::validateLinters() {
     m_diagnostics.emplace_back(
         Level::Info, "Options were passed verbatim",
         "VerbatimPreparer", 1, 0 );
@@ -64,7 +64,7 @@ bool LintCombine::PrepareCmdLineVerbatim::validateLinters() {
     return false;
 }
 
-void LintCombine::PrepareCmdLineVerbatim::validateGeneralYamlPath() {
+void LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
     boost::program_options::options_description genYamlOptDesc;
     std::string pathToGeneralYaml;
     const std::string pathToGeneralYamlOnError =

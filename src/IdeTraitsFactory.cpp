@@ -1,7 +1,7 @@
 #include "IdeTraitsFactory.h"
-#include "PrepareCmdLineCLion.h"
-#include "PrepareCmdLineReSharper.h"
-#include "PrepareCmdLineVerbatim.h"
+#include "PrepareInputsCLion.h"
+#include "PrepareInputsReSharper.h"
+#include "PrepareInputsVerbatim.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
 
@@ -20,7 +20,7 @@ LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     return nullptr;
 };
 
-LintCombine::PrepareCmdLineItf *
+LintCombine::PrepareInputsItf *
 LintCombine::IdeTraitsFactory::getPrepareCmdLineInstance( stringVector & cmdLine ) {
     if( cmdLine.empty() ) {
         return new PrepareCmdLineOnError( Level::Error, "Command Line is empty",
@@ -45,15 +45,15 @@ LintCombine::IdeTraitsFactory::getPrepareCmdLineInstance( stringVector & cmdLine
                        return str.find( "--ide-profile" ) == 0 || str == ideName;
                    } ), std::end( cmdLine ) );
     if( ideName.empty() ) {
-        return new PrepareCmdLineVerbatim();
+        return new PrepareInputsVerbatim();
     }
     const auto ideNameCopy = ideName;
     boost::algorithm::to_lower( ideName );
     if( ideName == "resharper" ) {
-        return new PrepareCmdLineReSharper();
+        return new PrepareInputsReSharper();
     }
     if( ideName == "clion" ) {
-        return new PrepareCmdLineCLion();
+        return new PrepareInputsCLion();
     }
     // TODO: find position of incorrect IDE in source cmdLine
     return new PrepareCmdLineOnError(

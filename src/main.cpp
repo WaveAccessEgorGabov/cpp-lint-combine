@@ -10,11 +10,12 @@
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
-    auto * prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    auto * prepareInputs = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );
-    cmdLine = prepareCmdLine->transform( cmdLine );
+    cmdLine = prepareInputs->transformCmdLine( cmdLine );
+    prepareInputs->transformFiles();
 
-    if( diagnosticWorker.printDiagnostics( prepareCmdLine->diagnostics() ) ) {
+    if( diagnosticWorker.printDiagnostics( prepareInputs->diagnostics() ) ) {
         return 0;
     }
     if( cmdLine.empty() ) {

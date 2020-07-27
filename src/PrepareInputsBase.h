@@ -1,15 +1,17 @@
 #pragma once
 
-#include "PrepareCmdLineItf.h"
+#include "PrepareInputsItf.h"
 
 #include <boost/predef.h>
 
 namespace LintCombine {
 
-    class PrepareCmdLineBase : public PrepareCmdLineItf {
+    class PrepareInputsBase : public PrepareInputsItf {
 
     public:
-        stringVector transform( stringVector cmdLineVal ) override;
+        stringVector transformCmdLine( stringVector cmdLineVal ) override;
+
+        void transformFiles() override {}
 
         std::vector< Diagnostic > diagnostics() override;
 
@@ -30,7 +32,7 @@ namespace LintCombine {
         void initCommonOptions();
 
     protected:
-        virtual void actionsForSpecificIDE() = 0;
+        //virtual void actionsForSpecificIDE() = 0;
 
         void addOptionToLinterByName( const std::string & name,
                                       const std::string & option );
@@ -41,7 +43,7 @@ namespace LintCombine {
         optionValueToQuotes( const std::string & optionName,
                              const std::string & optionNameWithValue );
 
-        void appendLintersOptionToCmdLine();
+        virtual void appendLintersOptionToCmdLine();
 
         struct LinterOptionsBase {
             std::string name;
