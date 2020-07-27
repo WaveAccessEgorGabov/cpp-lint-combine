@@ -42,23 +42,10 @@ set(FILEVERSION_STR_IMPL ${LinterWrapperVersion})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rsrc @ONLY)
 
 set(executableName cpp-lint-combine)
-add_executable(${executableName}
-        src/PrepareCmdLineItf.h       src/Diagnostic.h
-        src/main.cpp                  src/CallTotals.h
-        src/LinterFactoryBase.h       src/LinterItf.h
-        src/ClazyWrapper.h            src/ClazyWrapper.cpp
-        src/LinterCombine.h           src/LinterCombine.cpp
-        src/UsualLinterFactory.h      src/UsualLinterFactory.cpp
-        src/ClangTidyWrapper.h        src/ClangTidyWrapper.cpp
-        src/LinterBase.h              src/LinterBase.cpp
-        src/IdeTraitsFactory.h        src/IdeTraitsFactory.cpp
-        src/DiagnosticWorker.h        src/DiagnosticWorker.cpp
-        src/LintCombineUtils.h        src/LintCombineUtils.cpp
-        src/PrepareCmdLineBase.h      src/PrepareCmdLineBase.cpp
-        src/PrepareCmdLineCLion.h     src/PrepareCmdLineCLion.cpp
-        src/PrepareCmdLineVerbatim.h  src/PrepareCmdLineVerbatim.cpp
-        src/PrepareCmdLineReSharper.h src/PrepareCmdLineReSharper.cpp )
+file(GLOB LINT_COMBINE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" )
+file(GLOB LINT_COMBINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h" )
 
+add_executable(${executableName} ${LINT_COMBINE_SRC} ${LINT_COMBINE_HEADERS} )
 target_link_libraries(${executableName} yaml-cpp)
 if (WIN32)
     target_link_directories(${executableName} PRIVATE ${Boost_LIBRARY_DIRS})

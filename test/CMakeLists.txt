@@ -11,21 +11,10 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif ()
 
 set(executableName cpp-lint-combineTesting)
-add_executable(${executableName} src/simpleTest.cpp
-        ../src/PrepareCmdLineItf.h       ../src/Diagnostic.h
-        ../src/LinterItf.h               ../src/CallTotals.h
-        ../src/LinterBase.h              ../src/LinterBase.cpp
-        ../src/ClazyWrapper.h            ../src/ClazyWrapper.cpp
-        ../src/UsualLinterFactory.h      ../src/UsualLinterFactory.cpp
-        ../src/LinterCombine.h           ../src/LinterCombine.cpp
-        ../src/IdeTraitsFactory.h        ../src/IdeTraitsFactory.cpp
-        ../src/LintCombineUtils.h        ../src/LintCombineUtils.cpp
-        ../src/ClangTidyWrapper.h        ../src/ClangTidyWrapper.cpp
-        ../src/PrepareCmdLineBase.h      ../src/PrepareCmdLineBase.cpp
-        ../src/PrepareCmdLineCLion.h     ../src/PrepareCmdLineCLion.cpp
-        ../src/DiagnosticWorker.h        ../src/DiagnosticWorker.cpp
-        ../src/PrepareCmdLineVerbatim.h  ../src/PrepareCmdLineVerbatim.cpp
-        ../src/PrepareCmdLineReSharper.h ../src/PrepareCmdLineReSharper.cpp )
+file(GLOB LINT_COMBINE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cpp" )
+list(REMOVE_ITEM LINT_COMBINE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../src/main.cpp")
+file(GLOB LINT_COMBINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.h" )
+add_executable(${executableName} src/simpleTest.cpp ${LINT_COMBINE_SRC} ${LINT_COMBINE_HEADERS} )
 
 target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/../version.rsrc")
 target_compile_definitions(${executableName} PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
