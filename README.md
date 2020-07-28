@@ -12,6 +12,7 @@ You can use lint-combine as a **command line tool**, or in IDEs/IDE extensions.
 **2.** **[clang-tidy](https://clang.llvm.org/extra/clang-tidy/)**
 #### 1.4 List of supported IDEs/IDE extensions
 **1.** [**ReSharper C++**](https://www.jetbrains.com/resharper-cpp/) — Visual Studio extension. 
+**2.** [**CLion**](https://www.jetbrains.com/resharper-cpp/) — Visual Studio extension.
 
 ### 2. Get the required tools 
 - **Boost** — minimum required version is **1.69.0**, but you cannot use version **1.72.0**, because it contains [an error in the boost::process](https://github.com/boostorg/process/issues/116). 
@@ -54,7 +55,7 @@ You can install **ReSharper C++** from [here](https://www.jetbrains.com/resharpe
 
 #### 4.3 Install supported linters
 Lint-combine supports the following linters:
-- **[clazy](https://github.com/KDE/clazy)** - get pre-build binaries from [here](https://downloads.kdab.com/clazy/)
+- **[clazy](https://github.com/KDE/clazy)** — get pre-build binaries from [here](https://downloads.kdab.com/clazy/)
 - **[clang-tidy](https://clang.llvm.org/extra/clang-tidy/)** — installed with ReSharper C++
 
 Add path to the linters to the environment variable `PATH` (e.g. within the cpp-lint-combine.cmd bootstrapper script).
@@ -95,13 +96,8 @@ Configure **sub-linter** value (lint-combine's command line argument). You can u
 
 ### 6 Troubleshooting
 #### Issue: not seeing any inspection messages
-Solution: check Lint-combine diagnostics.
-
-#### Issue: now seeing *Internal* in Visual Studio *Extentions→ReSharper*
-Solution: run Visual studio (devenv.exe) with option `/ReSharper.Internal`.
-
-### 7 How to
-#### Issue: check Lint-combine diagnostics
-Solution: In Visual Studio go to: *Extentions→ReSharper→Internal→C++→Dump clang-tidy output*.
-
-
+Solution: check Lint-combine diagnostics. 
+For this:
+**1.** Run Visual studio (devenv.exe) with option `/ReSharper.Internal`.
+**2.** In Visual Studio choose: *Extentions→ReSharper→Internal→C++→Dump clang-tidy output*.
+**3.** Wait a few seconds and check warning/errors in the file that opens.
