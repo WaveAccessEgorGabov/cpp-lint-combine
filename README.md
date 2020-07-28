@@ -83,7 +83,9 @@ cmake --build <lint-combine-build-dir>
 
 #### 5.1 Install *Visual Studio* and *ReSharper C++* 
 Lint-combine works in ***Visual Studio*** extension ***ReSharper C++***, so you must install ***Visual Studio*** and ***ReSharper C++*** if you want to use ***cpp-lint-combine*** through ***ReSharper C++***.
+
 You can install ***Visual Studio 2019*** from [here](https://visualstudio.microsoft.com/downloads/). ***Visual Studio*** — required version is **2017+**. 
+
 You can install ***ReSharper C++*** from [here](https://www.jetbrains.com/resharper-cpp/) (free trial).
 
 #### 5.2 Install supported linters
@@ -149,7 +151,7 @@ Configure **sub-linter** value (***cpp-lint-combine***'s command line argument).
 **Solution**: 
 **1.** Copy cpp-lint-combine.sh and cpp-lint-combine.cmd and save them under the same name (e.g. copied files names could be cpp-lint-combine-copy.cmd and cpp-lint-combine-copy.sh).
 
-**2.** Configure different bootstrapper scripts for different IDE. How to configure bootstrapper scripts you can in the section *Configure cpp-lint-combine.sh bootstrapper script*.
+**2.** Configure different bootstrapper scripts for different IDE. How to configure bootstrapper scripts you can find in the section *Configure cpp-lint-combine.sh bootstrapper script*.
 
 #### Issue: not seeing any inspection messages
 **Solution**: check cpp-lint-combine diagnostics. 
