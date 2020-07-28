@@ -8,7 +8,7 @@
 void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
     stringVector filesForAnalysis;
     for( auto & unrecognized : m_unrecognizedCollection ) {
-        if constexpr( BOOST_OS_LINUX ) {
+        if constexpr( BOOST_OS_WINDOWS ) {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         }
         // File to analysis

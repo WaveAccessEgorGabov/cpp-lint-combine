@@ -1,2 +1,2 @@
 @echo off
-./cpp-lint-combine.sh %*
+sh.exe E:\WaveAccess\WavePoint_General\cpp-lint-combine\cpp-lint-combine.sh %*
