@@ -3,7 +3,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 void LintCombine::PrepareInputsReSharper::appendLintersOptionToCmdLine() {
-    stringVector filesForAnalize;
+    stringVector filesForAnalysis;
     for( auto & unrecognized : m_unrecognizedCollection ) {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         std::string strToCompare = "--config=";
@@ -24,15 +24,15 @@ void LintCombine::PrepareInputsReSharper::appendLintersOptionToCmdLine() {
             continue;
         }
 
-        // File to analize
+        // File to analysis
         if( unrecognized[0] != '-' && unrecognized[0] != '@' ) {
-            filesForAnalize.emplace_back( unrecognized );
+            filesForAnalysis.emplace_back( unrecognized );
             continue;
         }
         addOptionToLinterByName( "clang-tidy", unrecognized );
     }
 
-    for( const auto & it : filesForAnalize ) {
+    for( const auto & it : filesForAnalysis ) {
         addOptionToAllLinters( it );
     }
 
