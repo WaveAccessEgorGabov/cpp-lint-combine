@@ -26,6 +26,6 @@ fi
 if [ $IDE_PROFILE = "CLION" ]; then
     IDE_CLANG_TIDY_PATH=$CLION_CLANG_TIDY_PATH
 fi
-export PATH="$PATH:$CLAZY_PATH:$IDE_CLANG_TIDY_PATH:$CPP_LINT_COMBINE_PATH"
+export PATH="$CLAZY_PATH:$IDE_CLANG_TIDY_PATH:$CPP_LINT_COMBINE_PATH:$PATH"
 
-cpp-lint-combine.exe "--ide-profile=$IDE_PROFILE" "--clazy-checks=$CLAZY_CHECKS" "--clang-extra-args=$CLANG_EXTRA_ARGS" "$@"
+cpp-lint-combine "--ide-profile=$IDE_PROFILE" "--clazy-checks=$CLAZY_CHECKS" "--clang-extra-args=$CLANG_EXTRA_ARGS" "$@"
