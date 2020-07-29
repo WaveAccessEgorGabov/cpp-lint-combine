@@ -5,7 +5,7 @@
 
 LintCombine::stringVector
 LintCombine::PrepareInputsBase::transformCmdLine( const stringVector cmdLineVal ) {
-    realeaseClassField();
+    releaseClassField();
     m_cmdLine = cmdLineVal;
     m_sourceCL = boost::algorithm::join( cmdLineVal, " " );
     if( parseSourceCmdLine() ) {
@@ -115,12 +115,12 @@ bool LintCombine::PrepareInputsBase::initLinters() {
     auto isErrorOccur = false;
     for( auto & it : m_lintersNames ) {
         if( it == "clang-tidy" ) {
-            m_lintersOptions.emplace_back( new ClangTidyOptions( m_pathToWorkDir ) );
+            m_lintersOptions.emplace_back( std::make_shared < ClangTidyOptions >( m_pathToWorkDir ) );
         }
         else if( it == "clazy" ) {
             std::istringstream iss( m_clangExtraArgs );
             m_lintersOptions.emplace_back(
-                new ClazyOptions( m_pathToWorkDir, m_clazyChecks,
+                std::make_shared< ClazyOptions >( m_pathToWorkDir, m_clazyChecks,
                 stringVector( std::istream_iterator< std::string >{ iss },
                 std::istream_iterator<std::string> {} ) ) );
         }
@@ -144,8 +144,8 @@ bool LintCombine::PrepareInputsBase::initLinters() {
     if( m_lintersOptions.empty() ) {
         // Use all linters by default
         std::istringstream iss( m_clangExtraArgs );
-        m_lintersOptions = { new ClangTidyOptions( m_pathToWorkDir ),
-           new ClazyOptions( m_pathToWorkDir, m_clazyChecks,
+        m_lintersOptions = { std::make_shared< ClangTidyOptions >( m_pathToWorkDir ),
+           std::make_shared < ClazyOptions >( m_pathToWorkDir, m_clazyChecks,
            stringVector( std::istream_iterator<std::string> { iss },
            std::istream_iterator<std::string> {} ) ) };
         m_diagnostics.emplace_back( Diagnostic(
@@ -169,7 +169,7 @@ void LintCombine::PrepareInputsBase::initCommonOptions() {
 }
 
 // TODO: Think about this method
-void LintCombine::PrepareInputsBase::realeaseClassField() {
+void LintCombine::PrepareInputsBase::releaseClassField() {
     m_cmdLine.clear();
     m_sourceCL.clear();
     m_diagnostics.clear();

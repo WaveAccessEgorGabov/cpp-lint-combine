@@ -10,7 +10,7 @@
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
-    auto * prepareInputs = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    auto prepareInputs = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     prepareInputs->transformFiles();

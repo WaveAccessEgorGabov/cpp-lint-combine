@@ -4,6 +4,8 @@
 
 #include <boost/predef.h>
 
+#include <memory>
+
 namespace LintCombine {
 
     class PrepareInputsBase : public PrepareInputsItf {
@@ -25,15 +27,13 @@ namespace LintCombine {
 
         bool initLinters();
 
-        void realeaseClassField();
+        void releaseClassField();
 
         void initCmdLine();
 
         void initCommonOptions();
 
     protected:
-        //virtual void actionsForSpecificIDE() = 0;
-
         void addOptionToLinterByName( const std::string & name,
                                       const std::string & option );
 
@@ -111,6 +111,6 @@ namespace LintCombine {
         stringVector m_cmdLine;
         std::vector< Diagnostic > m_diagnostics;
         stringVector m_unrecognizedCollection;
-        std::vector < LinterOptionsBase * > m_lintersOptions;
+        std::vector < std::shared_ptr< LinterOptionsBase > > m_lintersOptions;
     };
 }

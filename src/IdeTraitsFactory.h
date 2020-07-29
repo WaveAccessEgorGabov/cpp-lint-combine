@@ -4,6 +4,7 @@
 
 #include <boost/program_options.hpp>
 #include <algorithm>
+#include <memory>
 
 namespace LintCombine {
 
@@ -60,9 +61,9 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        PrepareInputsItf * getPrepareCmdLineInstance( stringVector & cmdLine );
+        std::shared_ptr< PrepareInputsItf > getPrepareCmdLineInstance( stringVector & cmdLine );
 
-        IdeBehaviorItf * getIdeBehaviorInstance();
+        std::shared_ptr < IdeBehaviorItf > getIdeBehaviorInstance();
 
     private:
         std::string ideName;
