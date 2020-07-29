@@ -16,8 +16,8 @@ You can use lint-combine as a **command line tool**, or in IDEs/IDE extensions.
 **2.** [***CLion***](https://www.jetbrains.com/clion/) — A cross-platform IDE for C and C++.
 
 ### 2. Get the required tools 
-- ***Boost*** — minimum required version is **1.69.0**, but you cannot use version **1.72.0**, because it contains [an error in the boost::process](https://github.com/boostorg/process/issues/116).
-You can get Boost on your computer in the following ways. 
+- ***Boost*** — minimum required version is **1.69.0**, note that ***Boost*** version 1.72.0 is not suitable due to an error [an error in the boost::process](https://github.com/boostorg/process/issues/116).
+You can get Boost on your computer in the following ways: 
 
 **1.** Download and build (at least Datetime, Regex, ProgramOptions, and FileSystem) from [sources](https://www.boost.org/users/download/).
 
