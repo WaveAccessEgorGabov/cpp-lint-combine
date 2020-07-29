@@ -1,5 +1,5 @@
 # Set the name of the used IDE
-IDE_PROFILE="<choose one from list: CLion, ReSharper>"
+IDE_PROFILE="<choose one of these: CLion, ReSharper>"
 
 # Set path to cpp-lint-combine. In Windows, write it as /D/no-colon/forward-slashes.
 CPP_LINT_COMBINE_PATH="<Full directory path of the cpp-lint-combine executable>"
