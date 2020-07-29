@@ -22,6 +22,9 @@ target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE
 target_link_libraries(${executableName} yaml-cpp)
 if (WIN32)
     target_link_directories(${executableName} PRIVATE ${Boost_LIBRARY_DIRS})
+	add_test(${executableName} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${executableName})
 elseif (UNIX)
     target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
+	add_test(${executableName} ${CMAKE_CURRENT_BINARY_DIR}/${executableName})
 endif ()
+

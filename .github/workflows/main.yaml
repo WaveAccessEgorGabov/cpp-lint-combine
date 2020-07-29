@@ -34,19 +34,13 @@ jobs:
     - name: ConfigureLinux
       shell: bash
       if: startsWith(matrix.config.os, 'ubuntu')
-      run: sudo apt-get install libboost-all-dev && cmake -DBUILD_IN_CI=ON -DCMAKE_BUILD_TYPE=Release -S . -B .
+      run: sudo apt-get install libboost-all-dev && cmake -DCMAKE_BUILD_TYPE=Release -S . -B .
 
     - name: Build
       shell: bash
       run: cmake --build . --config Release
 
-    - name: RunTestOnWindows
+    - name: Tests
       shell: bash
-      if: startsWith(matrix.config.os, 'windows')
-      run: cd test && ./Release/cpp-lint-combineTesting.exe
-
-    - name: RunTestOnLinux
-      shell: bash
-      if: startsWith(matrix.config.os, 'ubuntu')
-      run: cd test && ./cpp-lint-combineTesting
+      run: ctest
 

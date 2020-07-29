@@ -20,6 +20,7 @@ if(${Boost_VERSION_STRING} STREQUAL 1.72.0)
                         "in boost::process, see https://github.com/boostorg/process/issues/116")
 endif()
 
+enable_testing()
 add_subdirectory(test)
 
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "disable parse tools")
