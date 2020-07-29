@@ -73,13 +73,13 @@ cmake --build <cpp-lint-combine-build-dir>
 
 You can ensure that ***Cpp-lint-combine*** built correctly in one of the following ways:
 
-### 4.1. Via Windows CLI
+### 4.1. Via *Windows* CLI
 
  **1.** Run `<cpp-lint-combine-build-dir>\test\Release\cpp-lint-combine_tests.exe`.
 
  **2.** Tests passed successfully if the message `*** No errors detected` (green) was output.
 
-### 4.2. Via Linux CLI
+### 4.2. Via *Linux* CLI
 
  **1.** Run `<cpp-lint-combine-build-dir>/test/cpp-lint-combine_tests`.
 
@@ -105,7 +105,7 @@ You can ensure that ***Cpp-lint-combine*** built correctly in one of the followi
 
  **4.** Tests passed successfully if the message `*** No errors detected` (surprisingly, dark red) was output.
 
-## 5. Get ***Cpp-lint-combine*** in Visual Studio (Windows)
+## 5. Get ***Cpp-lint-combine*** in ***Visual Studio*** (*Windows*)
 
 ### 5.1. Install ***Visual Studio*** and ***ReSharper C++***
 
@@ -187,13 +187,13 @@ Set `--sub-linter` `cpp-lint-combine`'s command line argument value. You can use
 
 ## 8. Q&A/ troubleshooting
 
-### 8.1. How to set up ***Cpp-lint-combine*** for both ReSharper and CLion on the same Windows machine?
+### 8.1. How to set up ***Cpp-lint-combine*** for both ***ReSharper*** and ***CLion*** on the same Windows machine?
 
  **1.** Copy `cpp-lint-combine.sh` and `cpp-lint-combine.cmd` under the same new base name (e.g. `cpp-lint-combine-CLion.cmd` and `cpp-lint-combine-CLion.sh`).
 
  **2.** Configure distinct bootstrapper script for each IDE — please refer to the “*Configure the `cpp-lint-combine.sh` bootstrapper script*” section above.
 
-### 8.2. Issue: not seeing ANY inspection messages from ***clang-tidy*** among ReSharper's ones
+### 8.2. Issue: not seeing ANY inspection messages from ***clang-tidy*** among ***ReSharper***'s ones
 
  Check ***Cpp-lint-combine*** diagnostics:
 
