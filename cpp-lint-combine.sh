@@ -2,13 +2,13 @@
 IDE_PROFILE="<chooce one from list: CLion, ReSharper>"
 
 # Set path to cpp-lint-combine. In Windows, write it as /D/no-colon/forward-slashes.
-CPP_LINT_COMBINE_PATH="<Path to the directory with cpp-lint-combine executable>"
+CPP_LINT_COMBINE_PATH="<Full directory path of the cpp-lint-combine executable>"
 
 # Set path to clazy. In Windows, write it as /D/no-colon/forward-slashes.
-CLAZY_PATH="<Path to the directory with clazy executable>"
+CLAZY_PATH="<Full directory path of the clazy executable>"
 
-# Set full directory path of the IDE's clang-tidy. If you don't have some IDE, just ignore it.
-CLION_CLANG_TIDY_PATH="<Path to the directory with CLion's clang-tidy>"
+# Set path to the IDE's clang-tidy. If you don't have some IDE, just ignore it.
+CLION_CLANG_TIDY_PATH="<Full directory path of the CLion's clang-tidy>"
 RESHARPER_DIR="$LOCALAPPDATA/JetBrains/Installations/ReSharperPlatformVs15_689a5022"
 RESHARPER_CLANG_TIDY_PATH="${RESHARPER_DIR}/x86:${RESHARPER_DIR}_000/x86"
 
@@ -26,6 +26,7 @@ fi
 if [ "${IDE_PROFILE,,}" = "clion" ]; then
     IDE_CLANG_TIDY_PATH=$CLION_CLANG_TIDY_PATH
 fi
+
 export PATH="$CLAZY_PATH:$IDE_CLANG_TIDY_PATH:$PATH"
 
 "$CPP_LINT_COMBINE_PATH/cpp-lint-combine" "--ide-profile=$IDE_PROFILE" "--clazy-checks=$CLAZY_CHECKS" "--clang-extra-args=$CLANG_EXTRA_ARGS" "$@"
