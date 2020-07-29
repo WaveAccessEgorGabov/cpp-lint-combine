@@ -25,3 +25,5 @@ if (WIN32)
 elseif (UNIX)
     target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
 endif ()
+
+add_test(${executableName} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${executableName})

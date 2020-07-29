@@ -19,6 +19,7 @@ if(${Boost_VERSION_STRING} STREQUAL 1.72.0)
     message( FATAL_ERROR "1.72.0 is an incorrect boost version bacause "
                          "it contains an error in the boost::process (https://github.com/boostorg/process/issues/116)" )
 endif()
+enable_testing()
 add_subdirectory(test)
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "disable parse tools")
 add_subdirectory(yaml-cpp)
@@ -54,4 +55,3 @@ elseif (UNIX)
 endif ()
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/version.rsrc")
-
