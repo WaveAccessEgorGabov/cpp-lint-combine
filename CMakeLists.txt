@@ -11,15 +11,14 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 -D_WIN32_WINNT=0x0601")
 endif ()
 
-option(BUILD_IN_CI "Build test programs" OFF)
 set(Boost_USE_RELEASE_LIBS ON)  # only find release libs
-if(BUILD_IN_CI)
-    find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread filesystem date_time REQUIRED)
-else()
-    find_package(Boost 1.71 OPTIONAL_COMPONENTS program_options thread filesystem date_time REQUIRED)
-endif()
+find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread filesystem date_time REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
+if(${Boost_VERSION_STRING} STREQUAL 1.72.0)
+    message( FATAL_ERROR "1.72.0 is an incorrect boost version bacause "
+                         "it contains an error in the boost::process (https://github.com/boostorg/process/issues/116)" )
+endif()
 add_subdirectory(test)
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "disable parse tools")
 add_subdirectory(yaml-cpp)
