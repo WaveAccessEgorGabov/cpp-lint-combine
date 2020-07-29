@@ -94,7 +94,7 @@ Lint-combine supports the following linters:
 - ***[clang-tidy](https://clang.llvm.org/extra/clang-tidy/)*** — installed with ReSharper C++
 
 #### 5.3 Set up *ReSharper* to use
-**1.** In Visual Studio choose: *Extentions→ReSharper→Options→Code Editing→C++→Clang-Tidy*.
+**1.** In Visual Studio choose: *Extensions→ReSharper→Options→Code Editing→C++→Clang-Tidy*.
 
 **2.** Choose **Custom** in *Clang-Tidy executable to use*.
 
@@ -128,7 +128,7 @@ Lint-combine supports the following linters:
 You must configure cpp-lint-combine.sh before using cpp-lint-combine.
 
 #### 7.1 Choose IDE in which cpp-lint-combine will run
-Set value to the script's variable `IDE_PROFILE`. Chooce one from list: CLion, ReSharper.
+Set value to the script's variable `IDE_PROFILE`. Choose one from list: CLion, ReSharper.
 
 #### 7.2 Set paths
 **1.** Set path to `<lint-combine-build-dir>/Release` to the script's variable `CPP_LINT_COMBINE_PATH`.
@@ -161,6 +161,6 @@ For this:
 
 **1.** Run Visual studio (devenv.exe) with option `/ReSharper.Internal`.
 
-**2.** In Visual Studio choose: *Extentions→ReSharper→Internal→C++→Dump clang-tidy output*.
+**2.** In Visual Studio choose: *Extensions→ReSharper→Internal→C++→Dump clang-tidy output*.
 
 **3.** Wait a few seconds and check warning/errors in the file that opens in the clang-tidy stdout/stderr.
