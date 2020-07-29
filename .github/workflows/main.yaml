@@ -29,7 +29,7 @@ jobs:
     - name: ConfigureWindows
       shell: bash
       if: startsWith(matrix.config.os, 'windows')
-      run: cmake -S . -B . -DBUILD_IN_CI=ON -DBOOST_ROOT=$BOOST_ROOT_1_69_0
+      run: cmake -S . -B . -DBOOST_ROOT=$BOOST_ROOT_1_69_0
 
     - name: ConfigureLinux
       shell: bash
