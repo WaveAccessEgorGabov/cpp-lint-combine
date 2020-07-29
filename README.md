@@ -23,7 +23,7 @@ You can get Boost on your computer in the following ways.
 
 **2.** On Windows: download and install [prebuilt Windows binaries](https://sourceforge.net/projects/boost/files/boost-binaries/) into “`<boost-dir>`” (substitute a path of your choosing).
 
-**3.** On Linux: install from your package manager into “`<boost-dir>`” (substitute a path of your choosing).
+**3.** On Linux: install ***Boost*** from your package manager.
 
 - ***CMake*** — minimum required version is **3.14**. Install from [here](https://cmake.org/download/).
 - ***Git*** — install from [here](https://git-scm.com/download). On Windows ensure that Git's `bin` directory is listed in `PATH` earlier than any other directory containing `sh.exe` (or any other file invoked by the `sh` command).
@@ -44,7 +44,7 @@ git clone https://github.com/WaveAccessEgorGabov/cpp-lint-combine.git <lint-comb
 cd <lint-combine-source-dir>
 git checkout develop
 git submodule update --init --recursive yaml-cpp
-cmake -S <lint-combine-source-dir> -B <lint-combine-build-dir> -DCMAKE_BUILD_TYPE=Release -DBOOST_ROOT=<boost-dir>
+cmake -S <lint-combine-source-dir> -B <lint-combine-build-dir> -DCMAKE_BUILD_TYPE=Release
 cmake --build <lint-combine-build-dir>
 ```
 
@@ -100,7 +100,7 @@ Lint-combine supports the following linters:
 
 **3.** Set path to `lint-combine-source-dir/cpp-lint-combine.cmd`.
 
-**4.** Tweak other ReSharper C++ clang-tidy [settings](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html) as desired.
+**4.** Tweak other ***ReSharper C++*** ***clang-tidy*** [settings](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html) as desired.
 
 ### 6. Get lint-combine in *CLion* 
 
@@ -113,8 +113,6 @@ Lint-combine supports the following linters:
 - ***[clazy](https://github.com/KDE/clazy)*** — get pre-built binaries from [here](https://downloads.kdab.com/clazy/)
 - ***[clang-tidy](https://clang.llvm.org/extra/clang-tidy/)*** — installed with ***CLion***
 
-Add path to the linters to the environment variable `PATH` (e.g. within the cpp-lint-combine.sh bootstrapper script).
-
 #### 6.3 Set up *CLion* to use
 **1.** In ***CLion*** choose: *Settings→Languages & Frameworks→C/C++→Clang-Tidy*.
 
@@ -123,6 +121,8 @@ Add path to the linters to the environment variable `PATH` (e.g. within the cpp-
 **3.1** Set path to `lint-combine-source-dir/cpp-lint-combine.cmd` on Windows.
 
 **3.2** Set path to `lint-combine-source-dir/cpp-lint-combine.sh` on Linux.
+
+**4.** Tweak other ***CLion*** ***clang-tidy*** [settings](https://www.jetbrains.com/help/clion/clang-tidy-checks-support.html#generalsettings) as desired.
 
 ### 7. Configure cpp-lint-combine.sh bootstrapper script
 You must configure cpp-lint-combine.sh before using cpp-lint-combine.
@@ -147,15 +147,18 @@ You can add clang extra arguments to the script's variable **CLANG_EXTRA_ARGS**.
 Configure **sub-linter** value (***cpp-lint-combine***'s command line argument). You can use this param several times to set several linters. All linters will used by default if the option isn't set. 
 
 ### 8. Troubleshooting
-#### How do I set up cpp-lint-combine for both ReSharper and CLion on the same Windows machine?
+#### Issue: How do I set up cpp-lint-combine for both ReSharper and CLion on the same Windows machine?
 **Solution**: 
+
 **1.** Copy cpp-lint-combine.sh and cpp-lint-combine.cmd and save them under the same name (e.g. copied files names could be cpp-lint-combine-copy.cmd and cpp-lint-combine-copy.sh).
 
 **2.** Configure different bootstrapper scripts for different IDE. How to configure bootstrapper scripts you can find in the section *Configure cpp-lint-combine.sh bootstrapper script*.
 
 #### Issue: not seeing any inspection messages
 **Solution**: check cpp-lint-combine diagnostics. 
+
 For this:
+
 **1.** Run Visual studio (devenv.exe) with option `/ReSharper.Internal`.
 
 **2.** In Visual Studio choose: *Extentions→ReSharper→Internal→C++→Dump clang-tidy output*.
