@@ -16,10 +16,12 @@ find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread filesystem da
 include_directories(${Boost_INCLUDE_DIR})
 
 if(${Boost_VERSION_STRING} STREQUAL 1.72.0)
-    message( FATAL_ERROR "1.72.0 is an incorrect boost version bacause "
-                         "it contains an error in the boost::process (https://github.com/boostorg/process/issues/116)" )
+    message(FATAL_ERROR "Boost version 1.72.0 is not suitable due to an error"
+                        "in boost::process, see https://github.com/boostorg/process/issues/116")
 endif()
+
 add_subdirectory(test)
+
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "disable parse tools")
 add_subdirectory(yaml-cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include)
@@ -54,4 +56,3 @@ elseif (UNIX)
 endif ()
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/version.rsrc")
-
