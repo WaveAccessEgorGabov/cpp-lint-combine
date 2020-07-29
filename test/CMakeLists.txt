@@ -1,4 +1,4 @@
-project(cpp-lint-combineTesting)
+project(cpp-lint-combine_tests)
 
 set(CMAKE_CXX_STANDARD 17)
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
@@ -10,7 +10,7 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 -D_WIN32_WINNT=0x0601")
 endif ()
 
-set(executableName cpp-lint-combineTesting)
+set(executableName cpp-lint-combine_tests)
 file(GLOB LINT_COMBINE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cpp" )
 list(REMOVE_ITEM LINT_COMBINE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../src/main.cpp")
 file(GLOB LINT_COMBINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.h" )
@@ -27,4 +27,3 @@ elseif (UNIX)
     target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
 	add_test(${executableName} ${CMAKE_CURRENT_BINARY_DIR}/${executableName})
 endif ()
-
