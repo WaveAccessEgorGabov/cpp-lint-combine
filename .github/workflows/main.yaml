@@ -42,5 +42,5 @@ jobs:
 
     - name: Tests
       shell: bash
-      run: ctest
+      run: ctest --verbose
 
