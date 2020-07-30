@@ -44,10 +44,10 @@ set(FILEVERSION_STR_IMPL ${LinterWrapperVersion})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rsrc @ONLY)
 
 set(executableName cpp-lint-combine)
-file(GLOB LINT_COMBINE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" )
+file(GLOB LINT_COMBINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" )
 file(GLOB LINT_COMBINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h" )
 
-add_executable(${executableName} ${LINT_COMBINE_SRC} ${LINT_COMBINE_HEADERS} )
+add_executable(${executableName} ${LINT_COMBINE_SOURCES} ${LINT_COMBINE_HEADERS} )
 target_link_libraries(${executableName} yaml-cpp)
 if (WIN32)
     target_link_directories(${executableName} PRIVATE ${Boost_LIBRARY_DIRS})

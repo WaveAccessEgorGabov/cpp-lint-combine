@@ -11,10 +11,10 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif ()
 
 set(executableName cpp-lint-combine_tests)
-file(GLOB LINT_COMBINE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cpp" )
-list(REMOVE_ITEM LINT_COMBINE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../src/main.cpp")
+file(GLOB LINT_COMBINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cpp" )
 file(GLOB LINT_COMBINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.h" )
-add_executable(${executableName} src/simpleTest.cpp ${LINT_COMBINE_SRC} ${LINT_COMBINE_HEADERS} )
+list(REMOVE_ITEM LINT_COMBINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/../src/main.cpp")
+add_executable(${executableName} src/simpleTest.cpp ${LINT_COMBINE_SOURCES} ${LINT_COMBINE_HEADERS} )
 
 target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/../version.rsrc")
 target_compile_definitions(${executableName} PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
