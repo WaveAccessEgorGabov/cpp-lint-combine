@@ -1,5 +1,5 @@
-echo "First_stdout_mes_1" >&1
-sleep 0.5
-echo "First_stdout_mes_2" >&1
-exit 0
+echo $3
+sleep $2
+echo $4
+exit $1
 
