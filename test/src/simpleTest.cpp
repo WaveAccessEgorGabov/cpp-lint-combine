@@ -551,7 +551,6 @@ BOOST_AUTO_TEST_CASE( ClangTidyAndClazyExistAndHasOptionsAndYamlPath ) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-// TODO: L2WSFR0
 /*
  * Tests names abbreviations:
  * L<n> means: <n>-th linter
@@ -612,7 +611,7 @@ BOOST_AUTO_TEST_CASE( L1Terminate_L2WSFR0 ) {
             "mockPrograms/mockWriteToStdoutAndTerminate.sh stdoutLinter_1" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn0WriteToStreamsWriteToFile_2.sh 0"
+            "mockPrograms/mockWriteToStreamsAndToFile.sh 0 "
             CURRENT_BINARY_DIR "MockFile_2.yaml fileLinter_2 "
             "stdoutLinter_2 stderrLinter_2" );
     }
@@ -695,7 +694,7 @@ BOOST_AUTO_TEST_CASE( L1WSR1 ) {
     if constexpr( BOOST_OS_LINUX ) {
         cmdLine.emplace_back(
             "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockReturn1WriteToStreams_1.sh"
+            "mockPrograms/mockWriteToStreams.sh 1 "
             "stdoutLinter_1 stderrLinter_1" );
     }
 
@@ -730,19 +729,17 @@ BOOST_AUTO_TEST_CASE( L1WSR1_L2WSFR0 ) {
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         cmdLine.emplace_back( CURRENT_SOURCE_DIR
             "mockPrograms/mockWriteToStreamsAndToFile.bat 0 "
-            CURRENT_BINARY_DIR "MockFile_2.yaml fileLinter_1 "
+            CURRENT_BINARY_DIR "MockFile_2.yaml fileLinter_2 "
             "stdoutLinter_2 stderrLinter_2" );
     }
     if constexpr( BOOST_OS_LINUX ) {
-        cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
+        cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR
             "mockPrograms/mockWriteToStreams.sh 1 "
             "stdoutLinter_1 stderrLinter_1" );
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
-        cmdLine.emplace_back(
-            "sh " CURRENT_SOURCE_DIR
-            "mockPrograms/mockWriteToStreamsAndToFile.bat 0 "
-            CURRENT_BINARY_DIR "MockFile_2.yaml fileLinter_1 "
+        cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR
+            "mockPrograms/mockWriteToStreamsAndToFile.sh 0 "
+            CURRENT_BINARY_DIR "MockFile_2.yaml fileLinter_2 "
             "stdoutLinter_2 stderrLinter_2" );
     }
 
@@ -759,7 +756,7 @@ BOOST_AUTO_TEST_CASE( L1WSR1_L2WSFR0 ) {
     BOOST_REQUIRE( std::filesystem::exists( CURRENT_BINARY_DIR "MockFile_2.yaml" ) );
     std::string fileData;
     getline( std::fstream( CURRENT_BINARY_DIR "MockFile_2.yaml" ), fileData );
-    BOOST_CHECK( fileData.find( "fileLinter_1" ) != std::string::npos );
+    BOOST_CHECK( fileData.find( "fileLinter_2" ) != std::string::npos );
     std::filesystem::remove( CURRENT_BINARY_DIR "MockFile_2.yaml" );
 
     BOOST_REQUIRE( combine.diagnostics().size() == 1 );
@@ -938,7 +935,7 @@ BOOST_AUTO_TEST_CASE( L1WSR0_L2WSR0 ) {
     BOOST_CHECK( stderrData.find( "stderrLinter_2" ) != std::string::npos );
     BOOST_REQUIRE( combine.diagnostics().empty() );
 }
-
+// TODO:
 BOOST_AUTO_TEST_CASE( L1WFR0_L2WFR0 ) {
     const StreamCapture stdoutCapture( std::cout );
     const StreamCapture stderrCapture( std::cerr );
@@ -996,7 +993,7 @@ BOOST_AUTO_TEST_CASE( L1WSR0_L2WFR0 ) {
     if constexpr( BOOST_OS_LINUX ) {
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
             "mockPrograms/mockWriteToStreams.sh 0 "
-            "stdoutLinter_2 stderrLinter_2" );
+            "stdoutLinter_1 stderrLinter_1" );
         commandLineSTL.emplace_back( "--sub-linter=MockLinterWrapper" );
         commandLineSTL.emplace_back( "sh " CURRENT_SOURCE_DIR
             "mockPrograms/mockWriteToFile.sh 0 "
@@ -1568,7 +1565,6 @@ BOOST_AUTO_TEST_CASE( TwoLintersYamlPathExist ) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-// TODO: Figure out: why memory leak occurs in Debug
 BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
 template < size_t SIZE >
