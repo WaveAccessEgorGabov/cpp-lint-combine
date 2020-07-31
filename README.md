@@ -17,9 +17,9 @@ You can use ***Cpp-lint-combine*** as a **command line tool** or in IDEs/ IDE ex
 
 ### 1.3. Supported IDEs/ IDE extensions
 
- - [***ReSharper C++***](https://www.jetbrains.com/resharper-cpp/) — Visual Studio extension
+ - [***ReSharper C++***](https://www.jetbrains.com/resharper-cpp/) — ***Visual Studio*** extension.
 
- - [***CLion***](https://www.jetbrains.com/clion/) — a cross-platform IDE for C and C++
+ - [***CLion***](https://www.jetbrains.com/clion/) — a cross-platform IDE for *C* and *C++*.
 
 ## 2. Get the required tools
 
@@ -32,7 +32,10 @@ On *Windows* ensure that ***Git***'s `bin` directory is listed in `PATH` __earli
 ### 2.2. ***CMake***
 Minimum required version is **3.17**. Install from [here](https://cmake.org/download/).
 
-### 2.3. ***Boost***
+### 2.3. ***Ninja*** (on *Linux*)
+Install by your package manager (e.g. `apt-get install ninja-build` or `yum install ninja-build`).
+
+### 2.4. ***Boost***
 
 Minimum required version is **1.69.0**, but you cannot use version **1.72.0** because it contains [an error in Boost.Process](https://github.com/boostorg/process/issues/116).
 You can get ***Boost*** on your computer in one of the following ways:
@@ -42,9 +45,6 @@ You can get ***Boost*** on your computer in one of the following ways:
  **2.** On *Windows*: download and install [prebuilt *Windows* binaries](https://sourceforge.net/projects/boost/files/boost-binaries/) into “`<boost-dir>`” (substitute a path of your choosing).
 
  **3.** On *Linux*: install ***Boost*** by your package manager (e.g. `apt-get install boost-devel` or `yum install boost-devel`).
-
-### 2.4 ***Ninja*** (on Linux)
-Install by your package manager (e.g. `apt-get install ninja-build` or `yum install ninja-build`).
 
 ## 3. Build ***Cpp-lint-combine***
 
