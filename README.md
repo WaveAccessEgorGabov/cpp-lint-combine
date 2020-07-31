@@ -43,6 +43,9 @@ You can get ***Boost*** on your computer in one of the following ways:
 
  **3.** On *Linux*: install ***Boost*** by your package manager (e.g. `apt-get install boost-devel` or `yum install boost-devel`).
 
+### 2.4 ***Ninja*** (on Linux)
+Install by your package manager (e.g. `apt-get install ninja-build` or `yum install ninja-build`).
+
 ## 3. Build ***Cpp-lint-combine***
 
 ### 3.1. *Windows*
@@ -65,8 +68,8 @@ pushd <cpp-lint-combine-source-dir>
 git checkout develop
 git submodule update --init --recursive yaml-cpp
 popd
-cmake -S <cpp-lint-combine-source-dir> -B <cpp-lint-combine-build-dir> -DCMAKE_BUILD_TYPE=Release
-cmake --build <cpp-lint-combine-build-dir>
+cmake -S <cpp-lint-combine-source-dir> -B <cpp-lint-combine-build-dir> -G "Ninja Multi-Config"
+cmake --build <cpp-lint-combine-build-dir> --config Release
 ```
 
 ## 4. Run tests
@@ -81,7 +84,7 @@ You can ensure that ***Cpp-lint-combine*** built correctly in one of the followi
 
 ### 4.2. Via *Linux* CLI
 
- **1.** Run `<cpp-lint-combine-build-dir>/test/cpp-lint-combine_tests`.
+ **1.** Run `<cpp-lint-combine-build-dir>/test/Release/cpp-lint-combine_tests`.
 
  **2.** Tests passed successfully if the message `*** No errors detected` (green) was output.
 
