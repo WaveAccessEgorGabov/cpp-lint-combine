@@ -30,7 +30,7 @@ Any recent version will do. Install from [here](https://git-scm.com/download).
 On *Windows* ensure that ***Git***'s `bin` directory is listed in `PATH` __earlier__ than any other directory containing `sh.exe` (or any other file invoked by the `sh` command).
 
 ### 2.2. ***CMake***
-Minimum required version is **3.14**. Install from [here](https://cmake.org/download/).
+Minimum required version is **3.11**. Install from [here](https://cmake.org/download/).
 
 ### 2.3. ***Boost***
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.11)
 project(cpp-lint-combine)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -15,7 +15,7 @@ set(Boost_USE_RELEASE_LIBS ON)  # only find release libs
 find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread filesystem date_time REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
-if(${Boost_VERSION_STRING} STREQUAL 1.72.0)
+if(${Boost_MINOR_VERSION} EQUAL 72)
     message(FATAL_ERROR "Boost version 1.72.0 is not suitable due to an error"
                         "in boost::process, see https://github.com/boostorg/process/issues/116")
 endif()
