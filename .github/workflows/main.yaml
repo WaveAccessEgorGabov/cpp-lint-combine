@@ -1,7 +1,6 @@
 name: CombineCI
 
-on: [ push ]
-
+on: [push]
 jobs:
   build:
     name: ${{ matrix.config.name }}
@@ -29,18 +28,18 @@ jobs:
     - name: ConfigureWindows
       shell: bash
       if: startsWith(matrix.config.os, 'windows')
-      run: cmake -S . -B . -DBOOST_ROOT=$BOOST_ROOT_1_69_0
+      run: cmake -S . -B . -A Win32 -T host=x86 -DBOOST_ROOT=$BOOST_ROOT_1_69_0
 
     - name: ConfigureLinux
       shell: bash
       if: startsWith(matrix.config.os, 'ubuntu')
-      run: sudo apt-get install libboost-all-dev && cmake -DCMAKE_BUILD_TYPE=Release -S . -B .
+      run: sudo apt-get install -y libboost-all-dev ninja-build && cmake -G "Ninja Multi-Config" -S . -B .
 
     - name: Build
       shell: bash
-      run: cmake --build . --config Release
+      run: cmake --build . --config ReleaseChecked
 
     - name: Tests
       shell: bash
-      run: ctest --verbose
+      run: ctest -C ReleaseChecked --verbose
 
