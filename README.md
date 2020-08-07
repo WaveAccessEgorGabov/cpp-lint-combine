@@ -1,5 +1,41 @@
 # ***Cpp-lint-combine***
 
+Table of contents
+=================
+
+   * [Overview](#1-overview)
+      * [Using ***Cpp-lint-combine***](#11-using-cpp-lint-combine)
+      * [Supported linters](#12-supported-linters)
+      * [Supported IDEs/ IDE extensions](#13-supported-ides-ide-extensions)
+   * [Get the required tools](#2-get-the-required-tools)
+      * [***Git***](#21-git) 
+      * [***CMake***](#22-cmake)
+      * [***Ninja***](#23-ninja-on-linux)
+      * [***Boost***](#24-boost)
+   * [Build ***Cpp-lint-combine***](#3-build-cpp-lint-combine)
+      * [*Windows*](#31-windows)
+      * [*Linux*](#32-linux)
+   * [Run tests](#4-run-tests)
+      * [Via *Windows* CLI](#41-via-windows-cli)
+      * [Via *Linux* CLI](#42-via-linux-cli)
+      * [Via ***ReSharper***](#43-via-resharper)
+      * [Via ***CLion***](#44-via-clion)
+   * [Get ***Cpp-lint-combine*** in ***Visual Studio*** (*Windows*)](#5-get-cpp-lint-combine-in-visual-studio-windows)
+       * [Install Visual Studio and ReSharper C++](#51-install-visual-studio-and-resharper-c)
+       * [Install supported linters](#52-install-supported-linters)
+       * [Set up ReSharper to use Cpp-lint-combine](#53-set-up-resharper-to-use-cpp-lint-combine)
+   * [Get ***Cpp-lint-combine*** in *CLion*](#6-get-cpp-lint-combine-in-clion)
+       * [Install CLion](#61-install-clion)
+       * [Install supported linters](#62-install-supported-linters)
+       * [Set up CLion to use Cpp-lint-combine](#63-set-up-clion-to-use-cpp-lint-combine)
+   * [Configure the `cpp-lint-combine.sh` bootstrapper script](#7-configure-the-cpp-lint-combinesh-bootstrapper-script)
+       * [Choose IDE to run Cpp-lint-combine](#71-choose-ide-to-run-cpp-lint-combine)
+       * [Set paths](#72-set-paths)
+       * [Configure Clazy's checks/levels](#73-configure-clazys-checkslevels)
+       * [Configure extra clang arguments](#74-configure-extra-clang-arguments)
+       * [Choose linters to use](#75-choose-linters-to-use)
+   * [Q&A/ troubleshooting](#8-qa-troubleshooting)
+   
 ## 1. Overview
 
 > [**lint**, or a **linter**,](https://en.wikipedia.org/wiki/Lint_(software)) is a tool that analyzes source code to flag programming errors, bugs, stylistic errors, and suspicious constructs.
