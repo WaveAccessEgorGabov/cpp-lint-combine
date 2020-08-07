@@ -11,13 +11,23 @@ target_compile_definitions(${executableName} PRIVATE CURRENT_SOURCE_DIR="${CMAKE
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 
 if (WIN32)
+    if( MSVC_VERSION AND MSVC_VERSION LESS 1924 )
+        add_custom_command(TARGET ${executableName} PRE_BUILD
+            COMMAND $<$<CONFIG:ReleaseChecked>:${CMAKE_COMMAND}>
+                    $<$<CONFIG:ReleaseChecked>:-E>
+                    $<$<CONFIG:ReleaseChecked>:echo>
+                    $<$<CONFIG:ReleaseChecked>:"Requires Visual Studio 2019+ v16.4+ for ReleaseChecked configuration.">)
+    endif()
     target_link_directories(${executableName} PRIVATE ${Boost_LIBRARY_DIRS})
-    target_link_libraries(${executableName} $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.lib> yaml-cpp
-                                            $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic_runtime_thunk-i386.lib>)
-    add_custom_command(TARGET ${executableName} PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${ASAN_LIBS_PATH}/clang_rt.asan_dynamic-i386.dll 
-            $<$<CONFIG:ReleaseChecked>:$<TARGET_FILE_DIR:${executableName}>> 
-            $<$<NOT:$<CONFIG:ReleaseChecked>>:${ASAN_LIBS_PATH}>)
+    target_link_libraries(${executableName} yaml-cpp
+        $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.lib>
+        $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic_runtime_thunk-i386.lib>)
+    add_custom_command(TARGET ${executableName} POST_BUILD
+        COMMAND $<$<CONFIG:ReleaseChecked>:${CMAKE_COMMAND}>
+            $<$<CONFIG:ReleaseChecked>:-E>
+            $<$<CONFIG:ReleaseChecked>:copy_if_different>
+            $<$<CONFIG:ReleaseChecked>:"${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.dll">
+            $<$<CONFIG:ReleaseChecked>:$<TARGET_FILE_DIR:${executableName}>>)
 elseif (UNIX)
     target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
 endif ()

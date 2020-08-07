@@ -60,7 +60,7 @@ execute_process(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMAND git describe --tags --long --abbrev=12 OUTPUT_VARIABLE cpp-lint-combineVersion)
 string(REGEX REPLACE "-" "." cpp-lint-combineVersion ${cpp-lint-combineVersion})
 
-set(PRODUCTNAME_STR_IMPL "LintCombine")
+set(PRODUCTNAME_STR_IMPL "Cpp-lint-combine")
 if (WIN32)
     STRING(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+" cpp-lint-combineVersion ${cpp-lint-combineVersion})
 elseif (UNIX)
@@ -70,7 +70,8 @@ endif ()
 set(PRODUCTVERSION_STR_IMPL ${cpp-lint-combineVersion})
 string(REGEX REPLACE "\\." "," cpp-lint-combineVersion ${cpp-lint-combineVersion})
 set(FILEVERSION_STR_IMPL ${cpp-lint-combineVersion})
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rsrc @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rsrc.in
+               ${CMAKE_CURRENT_BINARY_DIR}/version.rsrc @ONLY)
 
 set(executableName cpp-lint-combine)
 file(GLOB LINT_COMBINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" )
@@ -78,14 +79,24 @@ file(GLOB LINT_COMBINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h" )
 
 add_executable(${executableName} ${LINT_COMBINE_SOURCES} ${LINT_COMBINE_HEADERS})
 if (WIN32)
+    if( MSVC_VERSION AND MSVC_VERSION LESS 1924 )
+        add_custom_command(TARGET ${executableName} PRE_BUILD
+            COMMAND $<$<CONFIG:ReleaseChecked>:${CMAKE_COMMAND}>
+                    $<$<CONFIG:ReleaseChecked>:-E>
+                    $<$<CONFIG:ReleaseChecked>:echo>
+                    $<$<CONFIG:ReleaseChecked>:"Requires Visual Studio 2019+ v16.4+ for ReleaseChecked configuration.">)
+    endif()
     target_link_directories(${executableName} PRIVATE ${Boost_LIBRARY_DIRS})
     target_sources(${executableName} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/version.rc)
-    target_link_libraries(${executableName} $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.lib> yaml-cpp
-                                            $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic_runtime_thunk-i386.lib>)
-    add_custom_command(TARGET ${executableName} PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.dll 
-            $<$<CONFIG:ReleaseChecked>:$<TARGET_FILE_DIR:${executableName}>> 
-            $<$<NOT:$<CONFIG:ReleaseChecked>>:${ASAN_LIBS_PATH}>)
+    target_link_libraries(${executableName} yaml-cpp
+        $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.lib>
+        $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic_runtime_thunk-i386.lib>)
+    add_custom_command(TARGET ${executableName} POST_BUILD
+        COMMAND $<$<CONFIG:ReleaseChecked>:${CMAKE_COMMAND}>
+            $<$<CONFIG:ReleaseChecked>:-E>
+            $<$<CONFIG:ReleaseChecked>:copy_if_different>
+            $<$<CONFIG:ReleaseChecked>:"${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.dll">
+            $<$<CONFIG:ReleaseChecked>:$<TARGET_FILE_DIR:${executableName}>>)
 elseif (UNIX)
     target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
 endif ()
