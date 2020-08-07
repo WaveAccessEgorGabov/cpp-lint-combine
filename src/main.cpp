@@ -5,8 +5,6 @@
 
 #include <boost/algorithm/string/case_conv.hpp>
 
-// TODO: use enum for IDEs and Linters
-
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;

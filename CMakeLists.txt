@@ -2,35 +2,31 @@
 cmake_minimum_required(VERSION 3.17)
 project(cpp-lint-combine)
 
+set(GNU_CLANG_LIST GNU Clang)
 if(CMAKE_CONFIGURATION_TYPES)
     if(NOT "ReleaseChecked" IN_LIST CMAKE_CONFIGURATION_TYPES)
         list(APPEND CMAKE_CONFIGURATION_TYPES ReleaseChecked)
     endif()
-endif()
 
-if(CMAKE_CONFIGURATION_TYPES)
     if("ReleaseChecked" IN_LIST CMAKE_CONFIGURATION_TYPES)
-        # We have to parse path to the ASan libs from path to the compiler because 
-        # there are not special variables (e.g. PATH) in CI with this path.
-        # Example: 
-        # Path to compiler is "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.26.28801/bin/Hostx86/x86/"
-        # We take from this path "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/" 
-        # and append path to Asan libs relatively taken path.
-        string(REGEX REPLACE "(MSVC.*)" "Llvm/lib/clang/10.0.0/lib/windows/" ASAN_LIBS_PATH ${CMAKE_C_COMPILER})
         if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+            # We have to parse path to the ASan libs from path to the compiler because 
+            # there are no VS/VC-specific variables and PATH doesn't list Visual Studio either.
+            # Example: 
+            # Path to compiler is "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.26.28801/bin/Hostx86/x86/"
+            # We take from this path "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/" 
+            # and append relative path to Asan libs.
+            string(REGEX REPLACE "(VC/Tools/MSVC.*)" "VC/Tools/Llvm/lib/clang/10.0.0/lib/windows/" ASAN_LIBS_PATH ${CMAKE_C_COMPILER})
             set(CMAKE_C_FLAGS_RELEASECHECKED          "${CMAKE_C_FLAGS_RELEASE}   /fsanitize=address /MD")
             set(CMAKE_CXX_FLAGS_RELEASECHECKED        "${CMAKE_CXX_FLAGS_RELEASE} /fsanitize=address /MD")
-            set(ASAN_REQUIRED_LIB_1     /wholearchive:"${ASAN_LIBS_PATH}"clang_rt.asan_dynamic-i386.lib)
-            set(ASAN_REQUIRED_LIB_2     /wholearchive:"${ASAN_LIBS_PATH}"clang_rt.asan_dynamic_runtime_thunk-i386.lib)
-            set(CMAKE_EXE_LINKER_FLAGS_RELEASECHECKED "${CMAKE_EXE_LINKER_FLAGS_RELEASE} ${ASAN_REQUIRED_LIB_1} ${ASAN_REQUIRED_LIB_2}")                                 
-        elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
+            set(ASAN_REQUIRED_LIB_1     /wholearchive:"${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.lib")
+            set(ASAN_REQUIRED_LIB_2     /wholearchive:"${ASAN_LIBS_PATH}clang_rt.asan_dynamic_runtime_thunk-i386.lib")
+            set(CMAKE_EXE_LINKER_FLAGS_RELEASECHECKED "${CMAKE_EXE_LINKER_FLAGS_RELEASE} ${ASAN_REQUIRED_LIB_1} ${ASAN_REQUIRED_LIB_2}")
+        elseif (${CMAKE_CXX_COMPILER_ID} IN_LIST GNU_CLANG_LIST)
             set(CMAKE_C_FLAGS_RELEASECHECKED          "${CMAKE_C_FLAGS_RELEASE}   -fsanitize=address,undefined,leak")
             set(CMAKE_CXX_FLAGS_RELEASECHECKED        "${CMAKE_CXX_FLAGS_RELEASE} -fsanitize=address,undefined,leak")
-        elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-            set(CMAKE_C_FLAGS_RELEASECHECKED          "${CMAKE_C_FLAGS_RELEASE}   -fsanitize=address,undefined,leak")
-            set(CMAKE_CXX_FLAGS_RELEASECHECKED        "${CMAKE_CXX_FLAGS_RELEASE} -fsanitize=address,undefined,leak")
+            set(CMAKE_EXE_LINKER_FLAGS_RELEASECHECKED "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
         endif()
-        set(CMAKE_EXE_LINKER_FLAGS_RELEASECHECKED     "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
         set(CMAKE_SHARED_LINKER_FLAGS_RELEASECHECKED  "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
         set(CMAKE_STATIC_LINKER_FLAGS_RELEASECHECKED  "${CMAKE_STATIC_LINKER_FLAGS_RELEASE}")
         set(CMAKE_MODULE_LINKER_FLAGS_RELEASECHECKED  "${CMAKE_MODULE_LINKER_FLAGS_RELEASE}")
@@ -38,9 +34,7 @@ if(CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+if (${CMAKE_CXX_COMPILER_ID} IN_LIST GNU_CLANG_LIST)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     add_definitions(-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING)  # for MSVC 2017
@@ -89,7 +83,7 @@ if (WIN32)
     target_link_libraries(${executableName} $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.lib> yaml-cpp
                                             $<$<CONFIG:ReleaseChecked>:${ASAN_LIBS_PATH}clang_rt.asan_dynamic_runtime_thunk-i386.lib>)
     add_custom_command(TARGET ${executableName} PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${ASAN_LIBS_PATH}/clang_rt.asan_dynamic-i386.dll 
+        COMMAND ${CMAKE_COMMAND} -E copy ${ASAN_LIBS_PATH}clang_rt.asan_dynamic-i386.dll 
             $<$<CONFIG:ReleaseChecked>:$<TARGET_FILE_DIR:${executableName}>> 
             $<$<NOT:$<CONFIG:ReleaseChecked>>:${ASAN_LIBS_PATH}>)
 elseif (UNIX)

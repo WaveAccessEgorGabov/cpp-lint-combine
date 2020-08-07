@@ -1,4 +1,4 @@
-name: CombineCI
+name: CppLintCombineCI
 
 on: [push]
 jobs:
