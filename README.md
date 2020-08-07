@@ -35,6 +35,8 @@ Table of contents
        * [Configure extra clang arguments](#74-configure-extra-clang-arguments)
        * [Choose linters to use](#75-choose-linters-to-use)
    * [Q&A/ troubleshooting](#8-qa-troubleshooting)
+       * [How to set up ***Cpp-lint-combine*** for both ***ReSharper*** and ***CLion*** on the same Windows machine?](#81-how-to-set-up-cpp-lint-combine-for-both-resharper-and-clion-on-the-same-windows-machine)
+       * [Issue: not seeing ANY inspection messages from clang-tidy among ReSharper's ones](#82-issue-not-seeing-any-inspection-messages-from-clang-tidy-among-resharpers-ones)
    
 ## 1. Overview
 
