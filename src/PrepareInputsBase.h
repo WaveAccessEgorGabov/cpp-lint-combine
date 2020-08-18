@@ -34,6 +34,8 @@ namespace LintCombine {
         void initCommonOptions();
 
     protected:
+        virtual void specifyTargetArch() {}
+
         void addOptionToLinterByName( const std::string & name,
                                       const std::string & option );
 

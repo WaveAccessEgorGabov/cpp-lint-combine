@@ -21,6 +21,12 @@ struct recoverYamlFiles {
     }
 };
 
+void recoverMacrosFiles( const std::string & dirName ) {
+    std::filesystem::remove( CURRENT_SOURCE_DIR"CLionTestsMacros/" + dirName + "macros" );
+    std::filesystem::copy_file( CURRENT_SOURCE_DIR"CLionTestsMacros/" + dirName + "macros_save",
+                                CURRENT_SOURCE_DIR"CLionTestsMacros/" + dirName + "macros" );
+}
+
 class StreamCapture {
 public:
     explicit StreamCapture( std::ostream & stream ) : stream( &stream ) {
@@ -79,6 +85,14 @@ namespace LintCombine {
     private:
         MocksLinterFactory() = default;
     };
+}
+
+void compareContainers( const LintCombine::stringVector & lhs,
+                        const LintCombine::stringVector & rhs ) {
+    BOOST_REQUIRE( lhs.size() == rhs.size() );
+    for( size_t i = 0; i < lhs.size(); ++i ) {
+        BOOST_CHECK( lhs[i] == rhs[i] );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
@@ -1573,15 +1587,6 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
-template < size_t SIZE >
-void compareContainers( const LintCombine::stringVector & lhs,
-                        const std::array < const char *, SIZE > & rhs ) {
-    BOOST_REQUIRE( lhs.size() == rhs.size() );
-    for( size_t i = 0; i < lhs.size(); ++i ) {
-        BOOST_CHECK( lhs[i] == rhs[i] );
-    }
-}
-
 BOOST_AUTO_TEST_CASE( EmptyCommandLine ) {
     LintCombine::stringVector cmdLine = {};
     LintCombine::IdeTraitsFactory ideTraitsFactory;
@@ -1603,7 +1608,7 @@ BOOST_AUTO_TEST_CASE( FactoryDeleteIdeProfile_ValueAfterEqualSign ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    const std::array result = { "--param=value" , "--param=value" };
+    const LintCombine::stringVector result = { "--param=value" , "--param=value" };
     compareContainers( cmdLine, result );
 }
 
@@ -1613,7 +1618,7 @@ BOOST_AUTO_TEST_CASE( FactoryDeleteIdeProfile_ValueAfterSpace ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     BOOST_CHECK( !ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() );
-    const std::array result = { "--param=value", "--param=value" };
+    const LintCombine::stringVector result = { "--param=value", "--param=value" };
     compareContainers( cmdLine, result );
 }
 
@@ -1695,7 +1700,7 @@ BOOST_AUTO_TEST_CASE( VerbatimOneLinterWithCorrectName ) {
     LintCombine::stringVector cmdLine = {
         "--result-yaml=file.yaml", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=file.yaml", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" };
     LintCombine::IdeTraitsFactory ideTraitsFactory;
@@ -1716,7 +1721,7 @@ BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithCorrectNames ) {
         "--result-yaml=file.yaml", "--sub-linter=clazy",
         "--sub-linter=clang-tidy", "--param=value",
         "-p=val", "--param", "val" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=file.yaml", "--sub-linter=clazy",
         "--sub-linter=clang-tidy", "--param=value",
         "-p=val", "--param", "val" };
@@ -1736,7 +1741,7 @@ BOOST_AUTO_TEST_CASE( VerbatimTwoLintersWithCorrectNames ) {
 BOOST_AUTO_TEST_CASE( VerbatimResultYamlPathNotExists ) {
     LintCombine::stringVector cmdLine = {
         "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=" CURRENT_BINARY_DIR "LintersDiagnostics.yaml",
         "--sub-linter=clazy", "--param=value",
         "-p=val", "--param", "val" };
@@ -1757,7 +1762,7 @@ BOOST_AUTO_TEST_CASE( VerbatimInvalidResultYamlPath ) {
     LintCombine::stringVector cmdLine = {
         "--result-yaml=\\\\", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=" CURRENT_BINARY_DIR "LintersDiagnostics.yaml",
         "--sub-linter=clazy", "--param=value",
         "-p=val", "--param", "val" };
@@ -1857,7 +1862,7 @@ static void minimalRequiredOptionsExistHelper( const std::string & ideName,
         "--ide-profile=" + ideName,
         "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -1896,7 +1901,7 @@ static void optionForClangTidyPassedHelper( const std::string & ideName,
         "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--param_1", "@param_2" };
 
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -1935,7 +1940,7 @@ static void filesToAnalysisPassedHelper( const std::string & ideName,
     LintCombine::stringVector cmdLine = {
         "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "file_1.cpp", "file_2.cpp" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -1975,7 +1980,7 @@ BOOST_AUTO_TEST_CASE( ReSharper_HeaderFilterPassed ) {
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--header-filter=file.cpp" };
 
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -2064,7 +2069,7 @@ static void clazyChecksEmptyAfterSpaceHelper( const std::string & ideName,
     LintCombine::stringVector cmdLine = {
         "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--clazy-checks" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
             "--result-yaml=pathToResultYaml",
             "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase",
@@ -2109,7 +2114,7 @@ static void clangExtraArgsEmptyAfterSpaceHelper( const std::string & ideName,
     LintCombine::stringVector cmdLine = {
             "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
             "--export-fixes=pathToResultYaml", "--clang-extra-args" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -2155,7 +2160,7 @@ static void allParamsEmptyAfterSpaceHelper( const std::string & ideName,
     LintCombine::stringVector cmdLine = {
         "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--clazy-checks", "--clang-extra-args" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -2209,7 +2214,7 @@ static void clazyChecksExistHelper( const std::string & ideName,
     LintCombine::stringVector cmdLine = {
         "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--clazy-checks", "level0,level1" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -2249,7 +2254,7 @@ static void clangExtraArgsExistHelper( const std::string & ideName,
         "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--clang-extra-args=arg_1 arg_2 " };
 
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -2290,7 +2295,7 @@ static void allParamsExistAfterEqualSignHelper( const std::string & ideName,
         "--export-fixes=pathToResultYaml", "--clazy-checks=level0,level1",
         "--clang-extra-args=arg_1 arg_2" };
 
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -2556,7 +2561,7 @@ static void sublinterIsClangTidyHelper( const std::string & ideName,
     LintCombine::stringVector cmdLine = {
         "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--sub-linter=clang-tidy" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
             "--result-yaml=pathToResultYaml",
             "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase",
@@ -2584,7 +2589,7 @@ static void sublinterIsClazyHelper( const std::string & ideName,
     LintCombine::stringVector cmdLine = {
         "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "--sub-linter=clazy" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clazy",
         "-p=pathToCompilationDataBase",
@@ -2614,7 +2619,7 @@ static void sublintersAreClangTidyAndClazyAfterEqualSignHelper( const std::strin
         "--export-fixes=pathToResultYaml", "--sub-linter=clang-tidy",
         "--sub-linter=clazy" };
 
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -2647,7 +2652,7 @@ static void sublintersAreClangTidyAndClazyAfterSpaceHelper( const std::string & 
         "--ide-profile=" + ideName, "-p=pathToCompilationDataBase",
         "--export-fixes=pathToResultYaml", "-sub-linter", "clang-tidy",
         "-sub-linter", "clazy" };
-    const std::array result = {
+    const LintCombine::stringVector result = {
         "--result-yaml=pathToResultYaml",
         "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase",
@@ -2672,6 +2677,49 @@ BOOST_AUTO_TEST_CASE( ReSharper_SublintersAreClangTidyAndClazyAfterSpace ) {
 
 BOOST_AUTO_TEST_CASE( CLion_SublintersAreClangTidyAndClazyAfterSpace ) {
     sublintersAreClangTidyAndClazyAfterSpaceHelper( "CLion", false );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE( TestSpecifyTargetArch )
+
+// Empty file
+// Not exists
+// Not one architecture macros
+// Several different architectures
+// Correct arm, arm64, x64, x86 macros
+// *** On error do nothing
+
+void checkTargetArch( const std::string & macrosDir,
+        const std::string & targetTriple = std::string() ) {
+    std::string extraArg;
+    if( !targetTriple.empty() ) {
+        extraArg = "--extra-arg-before=\"--target=" + targetTriple + "\"";
+    }
+    LintCombine::stringVector cmdLine = {
+    "--ide-profile=CLion", "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/"
+        + macrosDir, "--export-fixes=pathToResultYaml" };
+    const LintCombine::stringVector result = {
+    "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
+    "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+    "--export-fixes=pathToCompilationDataBase"
+    PATH_SEP "diagnosticsClangTidy.yaml", extraArg, "--sub-linter=clazy",
+    "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+    "--export-fixes=pathToCompilationDataBase"
+    PATH_SEP "diagnosticsClazy.yaml", extraArg };
+
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosFileDoesNotExist ) {
+    if constexpr( !BOOST_OS_WINDOWS ) {
+        return;
+    }
+    const std::string macrosDir = "x86";
+    const std::string targetTriple = "i386-pc-win32";
+    checkTargetArch( macrosDir, targetTriple );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
