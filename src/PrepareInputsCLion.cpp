@@ -6,9 +6,32 @@
 #include <sstream>
 
 void LintCombine::PrepareInputsCLion::specifyTargetArch() {
-    
+    if constexpr( BOOST_OS_WINDOWS ) {
+        const std::vector< std::pair< std::string, std::string > > macroTargetPairs =
+        {
+            // space in both side of macro is done on purpose.
+            { " _M_X64 ",   "x86_64-pc-win32" },
+            { " _M_IX86 ",  "i386-pc-win32"   },
+            { " _M_ARM64 ", "arm64-pc-win32"  },
+            { " _M_ARM ",   "arm-pc-win32"    }
+        };
+        std::ifstream macrosFile( m_pathToWorkDir + "/macros" );
+        std::string linterArchExtraArg;
+        for( std::string macroDefinition; std::getline( macrosFile, macroDefinition );) {
+            for( const auto & [macrosArch, archTriple] : macroTargetPairs ) {
+                if( macroDefinition.find( macrosArch ) != std::string::npos ) {
+                    if( !linterArchExtraArg.empty() ) {
+                        return;
+                    }
+                    linterArchExtraArg = "--extra-arg-before=\"--target=" + archTriple + "\"";
+                }
+            }
+        }
+        if( !linterArchExtraArg.empty() ) {
+            addOptionToAllLinters( linterArchExtraArg );
+        }
+    }
 }
-
 
 void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
     stringVector filesForAnalysis;

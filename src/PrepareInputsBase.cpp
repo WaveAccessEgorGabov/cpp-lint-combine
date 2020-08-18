@@ -159,7 +159,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
 void LintCombine::PrepareInputsBase::initCmdLine() {
     m_cmdLine.clear();
     initCommonOptions();
-    // call specify arch here
+    specifyTargetArch();
     appendLintersOptionToCmdLine();
 }
 
@@ -184,7 +184,7 @@ void LintCombine::PrepareInputsBase::releaseClassField() {
 }
 
 void LintCombine::PrepareInputsBase::addOptionToLinterByName( const std::string & name,
-                                                                    const std::string & option ) {
+                                                              const std::string & option ) {
     for( auto & it : m_lintersOptions ) {
         if( it->name == name ) {
             it->options.emplace_back( option );

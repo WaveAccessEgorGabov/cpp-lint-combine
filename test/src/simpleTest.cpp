@@ -21,12 +21,6 @@ struct recoverYamlFiles {
     }
 };
 
-void recoverMacrosFiles( const std::string & dirName ) {
-    std::filesystem::remove( CURRENT_SOURCE_DIR"CLionTestsMacros/" + dirName + "macros" );
-    std::filesystem::copy_file( CURRENT_SOURCE_DIR"CLionTestsMacros/" + dirName + "macros_save",
-                                CURRENT_SOURCE_DIR"CLionTestsMacros/" + dirName + "macros" );
-}
-
 class StreamCapture {
 public:
     explicit StreamCapture( std::ostream & stream ) : stream( &stream ) {
@@ -2692,21 +2686,42 @@ BOOST_AUTO_TEST_SUITE( TestSpecifyTargetArch )
 
 void checkTargetArch( const std::string & macrosDir,
         const std::string & targetTriple = std::string() ) {
-    std::string extraArg;
-    if( !targetTriple.empty() ) {
-        extraArg = "--extra-arg-before=\"--target=" + targetTriple + "\"";
+    if constexpr( !BOOST_OS_WINDOWS ) {
+        return;
     }
     LintCombine::stringVector cmdLine = {
-    "--ide-profile=CLion", "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/"
-        + macrosDir, "--export-fixes=pathToResultYaml" };
-    const LintCombine::stringVector result = {
-    "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
-    "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
-    "--export-fixes=pathToCompilationDataBase"
-    PATH_SEP "diagnosticsClangTidy.yaml", extraArg, "--sub-linter=clazy",
-    "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
-    "--export-fixes=pathToCompilationDataBase"
-    PATH_SEP "diagnosticsClazy.yaml", extraArg };
+        "--ide-profile=CLion", "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/"
+        + macrosDir, "--export-fixes=pathToResultYaml"
+    };
+    LintCombine::stringVector result;
+    if( !targetTriple.empty() ) {
+        const std::string extraArg =
+            "--extra-arg-before=\"--target=" + targetTriple + "\"";
+        result = {
+           "--result-yaml=pathToResultYaml",
+            "--sub-linter=clang-tidy",
+           "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+           "--export-fixes=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir +
+           PATH_SEP "diagnosticsClangTidy.yaml", extraArg,
+            "--sub-linter=clazy",
+           "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+           "--export-fixes=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir +
+           PATH_SEP "diagnosticsClazy.yaml", extraArg
+        };
+    }
+    else {
+        result = {
+           "--result-yaml=pathToResultYaml",
+            "--sub-linter=clang-tidy",
+           "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+           "--export-fixes=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir +
+           PATH_SEP "diagnosticsClangTidy.yaml",
+            "--sub-linter=clazy",
+           "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+           "--export-fixes=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir +
+           PATH_SEP "diagnosticsClazy.yaml"
+        };
+    }
 
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
@@ -2714,11 +2729,50 @@ void checkTargetArch( const std::string & macrosDir,
 }
 
 BOOST_AUTO_TEST_CASE( MacrosFileDoesNotExist ) {
-    if constexpr( !BOOST_OS_WINDOWS ) {
-        return;
-    }
+    const std::string macrosDir = "emptyDir";
+    const std::string targetTriple;
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( EmptyMacrosFile ) {
+    const std::string macrosDir = "emptyFileInsideDir";
+    const std::string targetTriple;
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( ArchMacrosDontSpecified ) {
+    const std::string macrosDir = "archMacrosDoNotSpecified";
+    const std::string targetTriple;
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( SeveralDifferentArchSpecified ) {
+    const std::string macrosDir = "severalDifferentArchSpecified";
+    const std::string targetTriple;
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosX86 ) {
     const std::string macrosDir = "x86";
     const std::string targetTriple = "i386-pc-win32";
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosX64 ) {
+    const std::string macrosDir = "x64";
+    const std::string targetTriple = "x86_64-pc-win32";
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosArm ) {
+    const std::string macrosDir = "arm";
+    const std::string targetTriple = "arm-pc-win32";
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosArm64 ) {
+    const std::string macrosDir = "arm64";
+    const std::string targetTriple = "arm64-pc-win32";
     checkTargetArch( macrosDir, targetTriple );
 }
 
