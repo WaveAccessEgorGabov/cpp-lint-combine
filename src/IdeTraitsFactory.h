@@ -15,25 +15,32 @@ namespace LintCombine {
 
         public:
             virtual bool getDoesAddLink() = 0;
+            virtual bool getDoesLinterExitCodeTolerant() = 0;
+            virtual ~IdeBehaviorItf() = default;
         };
 
         class IdeBehaviorBase final : public IdeBehaviorItf {
 
         public:
-            IdeBehaviorBase( const bool doesAddLinkVal )
-                : doesAddLink( doesAddLinkVal ) {}
+            IdeBehaviorBase( const bool doesAddLinkVal,
+                const bool linterExitCodeTolerantVal )
+                : m_doesAddLink( doesAddLinkVal ),
+                  m_linterExitCodeTolerant (linterExitCodeTolerantVal) {}
 
-            bool getDoesAddLink() override { return doesAddLink; }
+            bool getDoesAddLink() override { return m_doesAddLink; }
+
+            bool getDoesLinterExitCodeTolerant() override { return m_linterExitCodeTolerant; }
 
         private:
-            bool doesAddLink;
+            bool m_doesAddLink;
+            bool m_linterExitCodeTolerant;
         };
 
 
-        class PrepareCmdLineOnError final : public PrepareInputsItf {
+        class PrepareInputsOnError final : public PrepareInputsItf {
 
         public:
-            PrepareCmdLineOnError( const Level levelVal,
+            PrepareInputsOnError( const Level levelVal,
                                    std::string && textVal,
                                    std::string && originVal,
                                    const unsigned firstPosVal,
@@ -61,11 +68,11 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        std::shared_ptr< PrepareInputsItf > getPrepareCmdLineInstance( stringVector & cmdLine );
+        std::shared_ptr< PrepareInputsItf > getPrepareInputsInstance( stringVector & cmdLine );
 
         std::shared_ptr < IdeBehaviorItf > getIdeBehaviorInstance();
 
     private:
-        std::string ideName;
+        std::string m_ideName;
     };
 }
