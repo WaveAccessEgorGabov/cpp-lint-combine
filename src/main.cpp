@@ -30,7 +30,7 @@ int main( int argc, char * argv[] ) {
     const auto callReturnCode = combine.waitLinter();
     if( callReturnCode == 3 ) {
         diagnosticWorker.printDiagnostics( combine.diagnostics() );
-        if( !ideTraitsFactory.getIdeBehaviorInstance()->getDoesLinterExitCodeTolerant() ) {
+        if( !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
             return callReturnCode;
         }
     }

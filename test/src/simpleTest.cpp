@@ -1875,8 +1875,8 @@ static void minimalRequiredOptionsExistHelper( const std::string & ideName,
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     prepareCmdLine->transformCmdLine( cmdLine );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
@@ -1925,8 +1925,8 @@ static void optionForClangTidyPassedHelper( const std::string & ideName,
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -1974,8 +1974,8 @@ static void filesToAnalysisPassedHelper( const std::string & ideName,
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2113,8 +2113,8 @@ static void clazyChecksEmptyAfterSpaceHelper( const std::string & ideName,
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2167,8 +2167,8 @@ static void clangExtraArgsEmptyAfterSpaceHelper( const std::string & ideName,
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 2 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2223,8 +2223,8 @@ static void allParamsEmptyAfterSpaceHelper( const std::string & ideName,
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 3 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2288,8 +2288,8 @@ static void clazyChecksExistHelper( const std::string & ideName,
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2336,8 +2336,8 @@ static void clangExtraArgsExistHelper( const std::string & ideName,
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
@@ -2388,8 +2388,8 @@ static void allParamsExistAfterEqualSignHelper( const std::string & ideName,
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().size() == 1 );
     const auto diagnostic_0 = prepareCmdLine->diagnostics()[0];
     BOOST_CHECK( diagnostic_0.level == LintCombine::Level::Info );
@@ -2666,8 +2666,8 @@ static void sublinterIsClangTidyHelper( const std::string & ideName,
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
@@ -2704,8 +2704,8 @@ static void sublinterIsClazyHelper( const std::string & ideName,
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
 
@@ -2746,8 +2746,8 @@ static void sublintersAreClangTidyAndClazyAfterEqualSignHelper( const std::strin
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }
@@ -2788,8 +2788,8 @@ static void sublintersAreClangTidyAndClazyAfterSpaceHelper( const std::string & 
         ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
                  ->getDoesAddLink() == getDoesAddLinkValue );
-    BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()
-                 ->getDoesLinterExitCodeTolerant() == linterExitCodeTolerant );
+    BOOST_CHECK(ideTraitsFactory.getIdeBehaviorInstance()
+                        ->isLinterExitCodeTolerant() == linterExitCodeTolerant );
     compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
     BOOST_REQUIRE( prepareCmdLine->diagnostics().empty() );
 }

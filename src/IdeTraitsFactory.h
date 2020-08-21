@@ -15,7 +15,7 @@ namespace LintCombine {
 
         public:
             virtual bool getDoesAddLink() = 0;
-            virtual bool getDoesLinterExitCodeTolerant() = 0;
+            virtual bool isLinterExitCodeTolerant() = 0;
             virtual ~IdeBehaviorItf() = default;
         };
 
@@ -24,15 +24,15 @@ namespace LintCombine {
         public:
             IdeBehaviorBase( const bool doesAddLinkVal,
                 const bool linterExitCodeTolerantVal )
-                : m_doesAddLink( doesAddLinkVal ),
+                : m_YAMLContainsDocLink(doesAddLinkVal ),
                   m_linterExitCodeTolerant (linterExitCodeTolerantVal) {}
 
-            bool getDoesAddLink() override { return m_doesAddLink; }
+            bool getDoesAddLink() override { return m_YAMLContainsDocLink; }
 
-            bool getDoesLinterExitCodeTolerant() override { return m_linterExitCodeTolerant; }
+            bool isLinterExitCodeTolerant() override { return m_linterExitCodeTolerant; }
 
         private:
-            bool m_doesAddLink;
+            bool m_YAMLContainsDocLink;
             bool m_linterExitCodeTolerant;
         };
 
