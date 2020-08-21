@@ -12,9 +12,9 @@ std::string LintCombine::DiagnosticWorker::getHelpStr() {
     optDesc.add_options()
         ( "help", "Print this message." )
         ( "ide-profile", "Choose IDE: ReSharper C++. "
-                "By default options will pass verbatim." )
+          "By default options will pass verbatim." )
         ( "result-yaml",
-          "Path to YAML with diagnoctics from all linters. " 
+          "Path to YAML with diagnostics from all linters. "
           "Default path is " CURRENT_BINARY_DIR "LintersDiagnostics.yaml." )
         ( "sub-linter",
           "Linter to use. You can use this param several times to set"
@@ -43,13 +43,13 @@ std::string LintCombine::DiagnosticWorker::getProductInfoStr() {
 
 bool LintCombine::DiagnosticWorker::printDiagnostics(
     const std::vector< Diagnostic > & diagnostics ) const {
-    if( isCmdLineEmpty ) {
+    if( m_isCmdLineEmpty ) {
         std::cout << getProductInfoStr();
         std::cout << getHowToPrintHelpStr();
         return true;
     }
 
-    for( const auto & it : cmdLine ) {
+    for( const auto & it : m_cmdLine ) {
         if( it == "--help" ) {
             std::cout << getHelpStr();
             return true;
@@ -66,9 +66,9 @@ bool LintCombine::DiagnosticWorker::printDiagnostics(
 LintCombine::stringVector
 LintCombine::DiagnosticWorker::prepareOutput(
     const std::vector< Diagnostic > & diagnostics ) const {
-    const auto sourceCL = boost::algorithm::join( cmdLine, " " );
+    const auto sourceCL = boost::algorithm::join( m_cmdLine, " " );
     stringVector preparedOutput;
-    bool isErrorOccur = false;
+    auto isErrorOccur = false;
     for( const auto & it : diagnostics ) {
         std::string levelAsString;
         switch( it.level ) {
@@ -91,7 +91,7 @@ LintCombine::DiagnosticWorker::prepareOutput(
         }
     }
     if( isErrorOccur ) {
-        preparedOutput.emplace_back( "\n--help           Display all available options.\n" );
+        preparedOutput.emplace_back( "\n--help\t\t\tDisplay all available options.\n" );
     }
     return preparedOutput;
 }

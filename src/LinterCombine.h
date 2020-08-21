@@ -15,8 +15,6 @@ namespace LintCombine {
             const stringVector & cmdLine,
             LinterFactoryBase & factory = UsualLinterFactory::getInstance() );
 
-        // May be add method init()? to avoid errors handling  in constructor.
-
         void callLinter() override;
 
         int waitLinter() override;
@@ -31,8 +29,8 @@ namespace LintCombine {
 
         std::vector< Diagnostic > diagnostics() override;
 
-        bool getIsErrorOccur() const {
-            return isErrorOccur;
+        bool isErrorOccur() const {
+            return m_errorOccur;
         }
 
     private:
@@ -48,6 +46,6 @@ namespace LintCombine {
         std::string m_pathToGeneralYaml;
         LinterFactoryBase::Services & m_services;
         std::vector< Diagnostic > m_diagnostics;
-        bool isErrorOccur = false;
+        bool m_errorOccur = false;
     };
 }

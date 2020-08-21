@@ -40,8 +40,8 @@ namespace LintCombine {
         void addOptionToAllLinters( const std::string & option );
 
         static std::string
-        optionValueToQuotes( const std::string & optionName,
-                             const std::string & optionNameWithValue );
+            optionValueToQuotes( const std::string & optionName,
+                                 const std::string & optionNameWithValue );
 
         virtual void appendLintersOptionToCmdLine();
 
@@ -70,8 +70,8 @@ namespace LintCombine {
 
         struct ClazyOptions : LinterOptionsBase {
             explicit ClazyOptions( const std::string & pathToWorkDir,
-                                    const std::string & checks,
-                                    std::vector < std::string > && clangExtraArgs ) {
+                                   const std::string & checks,
+                                   std::vector < std::string > && clangExtraArgs ) {
                 name = "clazy";
                 options.emplace_back( "--sub-linter=clazy" );
                 if( !pathToWorkDir.empty() ) {
@@ -107,10 +107,10 @@ namespace LintCombine {
         std::string  m_sourceCL;
 
     protected:
-        std::string  m_pathToWorkDir;
-        stringVector m_cmdLine;
-        std::vector< Diagnostic > m_diagnostics;
-        stringVector m_unrecognizedCollection;
-        std::vector < std::shared_ptr< LinterOptionsBase > > m_lintersOptions;
+        std::string  pathToWorkDir;
+        stringVector cmdLine;
+        std::vector< Diagnostic > diagnosticsList;
+        stringVector unrecognizedCollection;
+        std::vector < std::shared_ptr< LinterOptionsBase > > lintersOptions;
     };
 }

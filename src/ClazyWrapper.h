@@ -7,11 +7,11 @@ namespace LintCombine {
     class ClazyWrapper final : public LinterBase {
 
     public:
-        ClazyWrapper( stringVector && commandLineSTL, LinterFactoryBase::Services & service );
+        ClazyWrapper( const stringVector & cmdLine, LinterFactoryBase::Services & service );
 
     private:
         void updateYamlAction( const YAML::Node & yamlNode ) const override;
 
-        static void addDocumentationLink(const YAML::Node & yamlNode );
+        static void addDocLink( const YAML::Node & yamlNode );
     };
 }

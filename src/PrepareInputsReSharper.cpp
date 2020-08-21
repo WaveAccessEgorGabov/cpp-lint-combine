@@ -4,7 +4,7 @@
 
 void LintCombine::PrepareInputsReSharper::appendLintersOptionToCmdLine() {
     stringVector filesForAnalysis;
-    for( auto & unrecognized : m_unrecognizedCollection ) {
+    for( auto & unrecognized : unrecognizedCollection ) {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         std::string strToCompare = "--config=";
         if( unrecognized.find( strToCompare ) == 0 ) {

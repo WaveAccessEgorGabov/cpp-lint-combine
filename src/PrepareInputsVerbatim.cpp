@@ -5,7 +5,7 @@
 
 LintCombine::stringVector
 LintCombine::PrepareInputsVerbatim::transformCmdLine( const stringVector cmdLineVal ) {
-    this->m_cmdLine = cmdLineVal;
+    m_cmdLine = cmdLineVal;
     if( validateLinters() ) {
         return stringVector();
     }
@@ -31,12 +31,12 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
-                options( OptDesc ).allow_unregistered().run(), vm );
+               options( OptDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & error ) {
         m_diagnostics.emplace_back( Level::Error, error.what(),
-                                   "VerbatimPreparer", 1, 0 );
+                                    "VerbatimPreparer", 1, 0 );
         return true;
     }
 
@@ -76,13 +76,13 @@ void LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
-                options( genYamlOptDesc ).allow_unregistered().run(), vm );
+               options( genYamlOptDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & error ) {
         m_diagnostics.emplace_back( Diagnostic( Level::Warning, error.what(),
                                     "VerbatimPreparer", 1, 0 ) );
-        m_diagnostics.emplace_back( Diagnostic( 
+        m_diagnostics.emplace_back( Diagnostic(
             Level::Info,
             "path to result-yaml changed to " + pathToGeneralYamlOnError,
             "VerbatimPreparer", 1, 0 ) );
@@ -97,7 +97,7 @@ void LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
                 Diagnostic( Level::Warning,
                 "Incorrect general yaml filename: \"" + yamlFilename +
                 "\"", "VerbatimPreparer", 1, 0 ) );
-            m_diagnostics.emplace_back( 
+            m_diagnostics.emplace_back(
                 Diagnostic( Level::Info,
                 "path to result-yaml changed to " + pathToGeneralYamlOnError,
                 "VerbatimPreparer", 1, 0 ) );
@@ -108,9 +108,9 @@ void LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
     if( pathToGeneralYaml == pathToGeneralYamlOnError ) {
         m_cmdLine.erase( std::remove_if( std::begin( m_cmdLine ), std::end( m_cmdLine ),
                          [pathToGeneralYaml]( const std::string & str ) -> bool {
-                             return str.find( "--result-yaml" ) == 0 ||
-                                 str == pathToGeneralYaml;
-                         } ), std::end( m_cmdLine ) );
+            return str.find( "--result-yaml" ) == 0 ||
+                str == pathToGeneralYaml;
+        } ), std::end( m_cmdLine ) );
         m_cmdLine.insert( m_cmdLine.begin(), "--result-yaml=" + pathToGeneralYaml );
     }
 }

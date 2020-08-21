@@ -2,7 +2,7 @@
 
 #include <boost/program_options.hpp>
 
-LintCombine::stringVector LintCombine::cmdLineToSTLContainer( const int argc, char ** argv ) {
+LintCombine::stringVector LintCombine::moveCmdLineIntoSTLContainer( const int argc, char ** argv ) {
     stringVector cmdLine;
     for( auto i = 1; i < argc; ++i ) {
         cmdLine.emplace_back( std::string( argv[i] ) );

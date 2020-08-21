@@ -2,8 +2,6 @@
 
 #include "LinterItf.h"
 
-#include <ostream>
-
 namespace LintCombine {
 
     class DiagnosticWorker {
@@ -11,7 +9,7 @@ namespace LintCombine {
     public:
         explicit DiagnosticWorker( const stringVector & cmdLineVal,
                                    const bool isCmdLineEmptyVal )
-            : cmdLine( cmdLineVal ), isCmdLineEmpty( isCmdLineEmptyVal ) {}
+            : m_cmdLine( cmdLineVal ), m_isCmdLineEmpty( isCmdLineEmptyVal ) {}
 
         bool printDiagnostics( const std::vector< Diagnostic > & diagnostics ) const;
 
@@ -24,8 +22,8 @@ namespace LintCombine {
 
         stringVector prepareOutput( const std::vector< Diagnostic > & diagnostics ) const;
 
-        stringVector cmdLine;
+        stringVector m_cmdLine;
 
-        bool isCmdLineEmpty;
+        bool m_isCmdLineEmpty;
     };
 }

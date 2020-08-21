@@ -5,13 +5,12 @@ namespace LintCombine {
         CallTotals() = default;
 
         CallTotals( const unsigned int successNum, const unsigned int failNum )
-                : successNum( successNum ), failNum( failNum ) {
-        }
+            : successNum( successNum ), failNum( failNum ) {}
 
         CallTotals & operator+=( const CallTotals & rhs ) {
             this->successNum += rhs.successNum;
             this->failNum += rhs.failNum;
-            return * this;
+            return *this;
         }
 
         unsigned int successNum = 0;

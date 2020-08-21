@@ -15,7 +15,7 @@ namespace LintCombine {
         class Services {
 
         public:
-            boost::asio::io_service & getIO_Service() {
+            boost::asio::io_service & getIOService() {
                 return m_ios;
             }
 
@@ -27,7 +27,7 @@ namespace LintCombine {
             return services;
         }
 
-        virtual std::shared_ptr < LinterItf > createLinter( const stringVector & commandLineSTL ) = 0;
+        virtual std::shared_ptr < LinterItf > createLinter( const stringVector & cmdLine ) = 0;
 
     protected:
         Services services;

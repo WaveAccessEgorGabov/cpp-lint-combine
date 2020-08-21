@@ -7,7 +7,7 @@
 
 void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
     stringVector filesForAnalysis;
-    for( auto & unrecognized : m_unrecognizedCollection ) {
+    for( auto & unrecognized : unrecognizedCollection ) {
         if constexpr( BOOST_OS_WINDOWS ) {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         }
@@ -27,11 +27,11 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
 }
 
 void LintCombine::PrepareInputsCLion::transformFiles() {
-    std::ifstream sourceMacrosFile( m_pathToWorkDir + "/macros" );
+    std::ifstream sourceMacrosFile( pathToWorkDir + "/macros" );
     std::ostringstream pBuf;
     pBuf << sourceMacrosFile.rdbuf();
     std::string buf = pBuf.str();
-    std::ofstream updatedMacrosFile( m_pathToWorkDir + "/macros" );
+    std::ofstream updatedMacrosFile( pathToWorkDir + "/macros" );
 
     // In Linux the following macros must be undefined to avoid redefinition,
     // because clazy also defines this macros

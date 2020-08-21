@@ -3,14 +3,12 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-// TODO: parse sub-linters and result-yaml separately
-
 std::vector<LintCombine::Diagnostic> LintCombine::LinterCombine::diagnostics() {
     std::vector< Diagnostic > allDiagnostics;
     for( const auto & subLinterIt : m_linters ) {
-        const auto & diags = subLinterIt->diagnostics();
+        const auto & linterDiagnostics = subLinterIt->diagnostics();
         allDiagnostics.insert( allDiagnostics.end(),
-                               diags.begin(), diags.end() );
+                               linterDiagnostics.begin(), linterDiagnostics.end() );
     }
     allDiagnostics.insert( allDiagnostics.end(),
                            m_diagnostics.begin(), m_diagnostics.end() );
@@ -25,13 +23,13 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
         m_diagnostics.emplace_back(
             Diagnostic( Level::Error,
             "Command Line is empty", "Combine", 1, 0 ) );
-        isErrorOccur = true;
+        m_errorOccur = true;
         return;
     }
 
     std::vector < stringVector > subLintersCommandLine =
         splitCommandLineBySubLinters( cmdLine );
-    if( isErrorOccur ) {
+    if( m_errorOccur ) {
         return;
     }
 
@@ -40,7 +38,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
             Diagnostic( Level::Error,
             "No one linter parsed",
             "Combine", 1, 0 ) );
-        isErrorOccur = true;
+        m_errorOccur = true;
         return;
     }
 
@@ -51,14 +49,14 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
                 Diagnostic( Level::Error,
                 "Unknown linter name: \"" + *it.begin() + "\"",
                 "Combine", 1, 0 ) );
-            isErrorOccur = true;
+            m_errorOccur = true;
         }
         else {
             m_linters.emplace_back( subLinter );
         }
     }
 
-    if( isErrorOccur ) {
+    if( m_errorOccur ) {
         m_linters.clear();
         return;
     }
@@ -68,7 +66,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
 
 void LintCombine::LinterCombine::callLinter() {
     // to continue work's of io_service
-    m_services.getIO_Service().restart();
+    m_services.getIOService().restart();
     for( const auto & subLinterIt : m_linters ) {
         subLinterIt->callLinter();
     }
@@ -79,7 +77,7 @@ int LintCombine::LinterCombine::waitLinter() {
         return 0;
     }
     int returnCode = 1;
-    m_services.getIO_Service().run();
+    m_services.getIOService().run();
     for( const auto & subLinterIt : m_linters ) {
         subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) :
             ( returnCode |= 2 );
@@ -133,13 +131,13 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( commandLine ).
-                options( linterOptDesc ).allow_unregistered().run(), vm );
+               options( linterOptDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & error ) {
         m_diagnostics.emplace_back( Diagnostic( Level::Error, error.what(),
                                     "Combine", 1, 0 ) );
-        isErrorOccur = true;
+        m_errorOccur = true;
         return std::vector < stringVector >();
     }
 
@@ -180,7 +178,7 @@ void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & c
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( cmdLine ).
-                options( genYamlOptDesc ).allow_unregistered().run(), vm );
+               options( genYamlOptDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & error ) {
@@ -221,7 +219,7 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
             }
             if( !boost::filesystem::exists( subLinterIt->getYamlPath() ) ) {
                 m_diagnostics.emplace_back(
-                Diagnostic( Level::Warning,
+                    Diagnostic( Level::Warning,
                     "Linter's YAML file path \"" + subLinterIt->getYamlPath()
                     + "\" doesn't exist", "Combine", 1, 0 ) );
                 continue;
@@ -246,7 +244,7 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
         return m_pathToGeneralYaml;
     }
     m_diagnostics.emplace_back(
-    Diagnostic( Level::Error,
+        Diagnostic( Level::Error,
         "General YAML file isn't created",
         "Combine", 1, 0 ) );
     m_pathToGeneralYaml.clear();
@@ -288,9 +286,9 @@ YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToY
     YAML::Node yamlNode;
     try {
         std::ifstream filePathToYaml( pathToYaml );
-        if (!filePathToYaml) {
+        if( !filePathToYaml ) {
             throw std::logic_error( "YAML file path \""
-                + pathToYaml + "\" doesn't exist" );
+                                    + pathToYaml + "\" doesn't exist" );
         }
         yamlNode = YAML::LoadFile( pathToYaml );
     }

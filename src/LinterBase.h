@@ -33,7 +33,7 @@ namespace LintCombine {
                              LinterFactoryBase::Services & service,
                              std::string && nameVal );
 
-        void parseCommandLine( const stringVector & cmdLine );
+        void parseCmdLine( const stringVector & cmdLine );
 
         virtual void updateYamlAction( const YAML::Node & yamlNode ) const = 0;
 
@@ -49,7 +49,7 @@ namespace LintCombine {
         // Buffer for reading from pipes
         std::array < char, 64 > m_buffer = {};
 
-        void readFromPipeToStream( boost::process::async_pipe & pipe, 
+        void readFromPipeToStream( boost::process::async_pipe & pipe,
                                    std::ostream & outputStream );
     };
 }

@@ -7,12 +7,12 @@ namespace LintCombine {
     class ClangTidyWrapper final : public LinterBase {
 
     public:
-        ClangTidyWrapper( stringVector && commandLine, LinterFactoryBase::Services & service );
+        ClangTidyWrapper( const stringVector & cmdLine, LinterFactoryBase::Services & service );
 
     private:
         void updateYamlAction( const YAML::Node & yamlNode ) const override;
 
-        static void addDocumentationLink(const YAML::Node & yamlNode );
+        static void addDocLink( const YAML::Node & yamlNode );
     };
 }
 

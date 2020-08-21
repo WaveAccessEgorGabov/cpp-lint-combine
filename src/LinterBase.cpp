@@ -25,10 +25,10 @@ int LintCombine::LinterBase::waitLinter() {
 LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     YAML::Node yamlNode;
     try {
-        std::ifstream filePathToYaml( yamlPath );
-        if (!filePathToYaml) {
+        const std::ifstream filePathToYaml( yamlPath );
+        if( !filePathToYaml ) {
             throw std::logic_error( "YAML file path \""
-            + yamlPath + "\" doesn't exist" );
+                                    + yamlPath + "\" doesn't exist" );
         }
         yamlNode = YAML::LoadFile( yamlPath );
     }
@@ -66,18 +66,18 @@ const std::string & LintCombine::LinterBase::getYamlPath() {
 }
 
 LintCombine::LinterBase::LinterBase( LinterFactoryBase::Services & service )
-    : stdoutPipe( service.getIO_Service() ),
-    stderrPipe( service.getIO_Service() ) {}
+    : stdoutPipe( service.getIOService() ),
+    stderrPipe( service.getIOService() ) {}
 
 LintCombine::LinterBase::LinterBase( const stringVector & cmdLine,
                                      LinterFactoryBase::Services & service,
                                      std::string && nameVal )
-    : name( nameVal ), stdoutPipe( service.getIO_Service() ),
-    stderrPipe( service.getIO_Service() ) {
-    parseCommandLine( cmdLine );
+    : name( nameVal ), stdoutPipe( service.getIOService() ),
+    stderrPipe( service.getIOService() ) {
+    parseCmdLine( cmdLine );
 }
 
-void LintCombine::LinterBase::parseCommandLine( const stringVector & cmdLine ) {
+void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
     const std::string pathToGeneralYamlOnError =
         CURRENT_BINARY_DIR + name + "-Diagnostics.yaml";
     boost::program_options::options_description optDesc;
@@ -96,7 +96,7 @@ void LintCombine::LinterBase::parseCommandLine( const stringVector & cmdLine ) {
         notify( vm );
         const stringVector linterOptionsVec =
             collect_unrecognized( parsed.options,
-            boost::program_options::include_positional );
+                                  boost::program_options::include_positional );
         for( const auto & it : linterOptionsVec ) {
             options.append( it + " " );
         }
@@ -132,8 +132,8 @@ void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe &
                                                     std::ostream & outputStream ) {
     pipe.async_read_some( boost::process::buffer( m_buffer ),
                           [&]( boost::system::error_code ec, size_t size ) {
-                              outputStream.write( m_buffer.data(), size );
-                              if( !ec )
-                                  readFromPipeToStream( pipe, outputStream );
+        outputStream.write( m_buffer.data(), size );
+        if( !ec )
+            readFromPipeToStream( pipe, outputStream );
     } );
 }

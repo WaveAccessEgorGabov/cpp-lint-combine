@@ -3,7 +3,7 @@
 #include "LinterItf.h"
 
 namespace LintCombine {
-    stringVector cmdLineToSTLContainer( int argc, char ** argv );
+    stringVector moveCmdLineIntoSTLContainer( int argc, char ** argv );
 
     void fixHyphensInCmdLine( stringVector & cmdLine );
 }

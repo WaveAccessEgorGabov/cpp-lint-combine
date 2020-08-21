@@ -6,7 +6,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 
 int main( int argc, char * argv[] ) {
-    LintCombine::stringVector cmdLine = LintCombine::cmdLineToSTLContainer( argc, argv );
+    LintCombine::stringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto prepareInputs = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
     const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );
@@ -21,7 +21,7 @@ int main( int argc, char * argv[] ) {
     }
 
     LintCombine::LinterCombine combine( cmdLine );
-    if( combine.getIsErrorOccur() ) {
+    if( combine.isErrorOccur() ) {
         diagnosticWorker.printDiagnostics( combine.diagnostics() );
         return 1;
     }
@@ -34,7 +34,7 @@ int main( int argc, char * argv[] ) {
     }
 
     if( ideTraitsFactory.getIdeBehaviorInstance() &&
-        ideTraitsFactory.getIdeBehaviorInstance()->getDoesAddLink() ) {
+        ideTraitsFactory.getIdeBehaviorInstance()->isYamlContainDocLink() ) {
         const auto callTotals = combine.updateYaml();
         if( callTotals.failNum == combine.numLinters() ) {
             diagnosticWorker.printDiagnostics( combine.diagnostics() );

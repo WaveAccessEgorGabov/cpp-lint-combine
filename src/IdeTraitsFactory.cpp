@@ -9,13 +9,13 @@ std::shared_ptr < LintCombine::IdeTraitsFactory::IdeBehaviorItf >
 LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     boost::algorithm::to_lower( ideName );
     if( ideName == "resharper" ) {
-        return std::make_shared< IdeBehaviorBase >( /*doesAddLinkVal*/true );
+        return std::make_shared< IdeBehaviorBase >( /*m_yamlContainDocLink*/true );
     }
     if( ideName == "clion" ) {
-        return std::make_shared< IdeBehaviorBase >( /*doesAddLinkVal*/false );
+        return std::make_shared< IdeBehaviorBase >( /*m_yamlContainDocLink*/false );
     }
     if( ideName.empty() ) {
-        return std::make_shared< IdeBehaviorBase >( /*doesAddLinkVal*/true );
+        return std::make_shared< IdeBehaviorBase >( /*m_yamlContainDocLink*/true );
     }
     return nullptr;
 };
@@ -23,8 +23,8 @@ LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
 std::shared_ptr < LintCombine::PrepareInputsItf >
 LintCombine::IdeTraitsFactory::getPrepareCmdLineInstance( stringVector & cmdLine ) {
     if( cmdLine.empty() ) {
-        return std::make_shared< PrepareCmdLineOnError > ( 
-            Level::Error, "Command Line is empty", "FactoryPreparer",  1, 0 );
+        return std::make_shared< PrepareCmdLineOnError >(
+            Level::Error, "Command Line is empty", "FactoryPreparer", 1, 0 );
     }
     boost::program_options::options_description programDesc;
     programDesc.add_options()
@@ -37,13 +37,13 @@ LintCombine::IdeTraitsFactory::getPrepareCmdLineInstance( stringVector & cmdLine
         notify( vm );
     }
     catch( const std::exception & ex ) {
-        return std::make_shared < PrepareCmdLineOnError >( 
-            Level::Error, ex.what(), "FactoryPreparer",  1, 0 );
+        return std::make_shared < PrepareCmdLineOnError >(
+            Level::Error, ex.what(), "FactoryPreparer", 1, 0 );
     }
     cmdLine.erase( std::remove_if( std::begin( cmdLine ), std::end( cmdLine ),
                    [this]( const std::string & str ) -> bool {
-                       return str.find( "--ide-profile" ) == 0 || str == ideName;
-                   } ), std::end( cmdLine ) );
+        return str.find( "--ide-profile" ) == 0 || str == ideName;
+    } ), std::end( cmdLine ) );
     if( ideName.empty() ) {
         return std::make_shared < PrepareInputsVerbatim >();
     }
@@ -55,9 +55,9 @@ LintCombine::IdeTraitsFactory::getPrepareCmdLineInstance( stringVector & cmdLine
     if( ideName == "clion" ) {
         return std::make_shared < PrepareInputsCLion >();
     }
-    // TODO: find position of incorrect IDE in source cmdLine
+
     return std::make_shared < PrepareCmdLineOnError >(
-             Level::Error, "\"" + ideNameCopy +
-             "\" is not a supported IDE profile",
-             "FactoryPreparer",  1, 0 );
+        Level::Error, "\"" + ideNameCopy +
+        "\" is not a supported IDE profile",
+        "FactoryPreparer", 1, 0 );
 }

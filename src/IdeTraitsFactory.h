@@ -14,19 +14,20 @@ namespace LintCombine {
         class IdeBehaviorItf {
 
         public:
-            virtual bool getDoesAddLink() = 0;
+            virtual ~IdeBehaviorItf() = default;
+            virtual bool isYamlContainDocLink() = 0;
         };
 
         class IdeBehaviorBase final : public IdeBehaviorItf {
 
         public:
-            IdeBehaviorBase( const bool doesAddLinkVal )
-                : doesAddLink( doesAddLinkVal ) {}
+            IdeBehaviorBase( const bool m_yamlContainDocLinkVal )
+                : m_yamlContainDocLink( m_yamlContainDocLinkVal ) {}
 
-            bool getDoesAddLink() override { return doesAddLink; }
+            bool isYamlContainDocLink() override { return m_yamlContainDocLink; }
 
         private:
-            bool doesAddLink;
+            bool m_yamlContainDocLink;
         };
 
 
