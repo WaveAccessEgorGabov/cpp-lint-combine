@@ -18,24 +18,15 @@ CLAZY_CHECKS="level0,level1,level2,$CLAZY_CHECKS_MANUAL"
 
 # Set clang extra args
 CLANG_EXTRA_ARGS="-w"
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    IDE_PROFILE_IN_LOWERCASE=$(echo $IDE_PROFILE | tr "[:upper:]" "[:lower:]")
-    if [ $IDE_PROFILE_IN_LOWERCASE = "resharper" ]; then
-        IDE_CLANG_TIDY_PATH=$RESHARPER_CLANG_TIDY_PATH
-    fi
 
-    if [ $IDE_PROFILE_IN_LOWERCASE = "clion" ]; then
-        IDE_CLANG_TIDY_PATH=$CLION_CLANG_TIDY_PATH
-    fi
-else
-    if [ "${IDE_PROFILE,,}" = "resharper" ]; then
-        IDE_CLANG_TIDY_PATH=$RESHARPER_CLANG_TIDY_PATH
-    fi
-
-    if [ "${IDE_PROFILE,,}" = "clion" ]; then
-        IDE_CLANG_TIDY_PATH=$CLION_CLANG_TIDY_PATH
-    fi
+if [ "${IDE_PROFILE,,}" = "resharper" ]; then
+    IDE_CLANG_TIDY_PATH=$RESHARPER_CLANG_TIDY_PATH
 fi
+
+if [ "${IDE_PROFILE,,}" = "clion" ]; then
+    IDE_CLANG_TIDY_PATH=$CLION_CLANG_TIDY_PATH
+fi
+
 export PATH="$CLAZY_PATH:$IDE_CLANG_TIDY_PATH:$PATH"
 
 "$CPP_LINT_COMBINE_PATH/cpp-lint-combine" "--ide-profile=$IDE_PROFILE" "--clazy-checks=$CLAZY_CHECKS" "--clang-extra-args=$CLANG_EXTRA_ARGS" "$@"
