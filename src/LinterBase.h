@@ -31,7 +31,7 @@ namespace LintCombine {
 
         explicit LinterBase( const stringVector & cmdLine,
                              LinterFactoryBase::Services & service,
-                             std::string && nameVal );
+                             const std::string & nameVal );
 
         void parseCmdLine( const stringVector & cmdLine );
 

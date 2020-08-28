@@ -3,8 +3,6 @@
 #include "IdeTraitsFactory.h"
 #include "DiagnosticWorker.h"
 
-#include <boost/algorithm/string/case_conv.hpp>
-
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
@@ -20,33 +18,36 @@ int main( int argc, char * argv[] ) {
         return 1;
     }
 
-    LintCombine::LinterCombine combine( cmdLine );
-    if( combine.isErrorOccur() ) {
-        diagnosticWorker.printDiagnostics( combine.diagnostics() );
+    std::unique_ptr<LintCombine::LinterCombine > pCombine;
+    try {
+        pCombine = std::make_unique<LintCombine::LinterCombine>( cmdLine );
+    }
+    catch( const LintCombine::Exception & ex ) {
+        diagnosticWorker.printDiagnostics( ex.diagnostics() );
         return 1;
     }
 
-    combine.callLinter();
-    const auto callReturnCode = combine.waitLinter();
+    pCombine->callLinter();
+    const auto callReturnCode = pCombine->waitLinter();
     if( callReturnCode == 3 ) {
-        diagnosticWorker.printDiagnostics( combine.diagnostics() );
+        diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
         return callReturnCode;
     }
 
     if( ideTraitsFactory.getIdeBehaviorInstance() &&
-        ideTraitsFactory.getIdeBehaviorInstance()->isYamlContainDocLink() ) {
-        const auto callTotals = combine.updateYaml();
-        if( callTotals.failNum == combine.numLinters() ) {
-            diagnosticWorker.printDiagnostics( combine.diagnostics() );
+        ideTraitsFactory.getIdeBehaviorInstance()->isYamlContainsDocLink() ) {
+        const auto callTotals = pCombine->updateYaml();
+        if( callTotals.failNum == pCombine->numLinters() ) {
+            diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
             return 1;
         }
     }
 
-    if( combine.getYamlPath().empty() ) {
-        diagnosticWorker.printDiagnostics( combine.diagnostics() );
+    if( pCombine->getYamlPath().empty() ) {
+        diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
         return 1;
     }
-    diagnosticWorker.printDiagnostics( combine.diagnostics() );
+    diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
 
     return 0;
 }

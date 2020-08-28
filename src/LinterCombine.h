@@ -29,10 +29,6 @@ namespace LintCombine {
 
         std::vector< Diagnostic > diagnostics() override;
 
-        bool isErrorOccur() const {
-            return m_errorOccur;
-        }
-
     private:
         std::vector < stringVector > splitCommandLineBySubLinters( const stringVector & commandLine );
 
@@ -43,9 +39,8 @@ namespace LintCombine {
         YAML::Node loadYamlNode( const std::string & pathToYaml );
 
         std::vector < std::shared_ptr < LinterItf > > m_linters;
-        std::string m_pathToGeneralYaml;
+        std::string m_generalYAMLPath;
         LinterFactoryBase::Services & m_services;
         std::vector< Diagnostic > m_diagnostics;
-        bool m_errorOccur = false;
     };
 }

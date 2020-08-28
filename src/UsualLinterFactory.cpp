@@ -15,6 +15,5 @@ LintCombine::UsualLinterFactory::createLinter( const stringVector & subLinterCmd
             ( stringVector( subLinterCmdLine.begin() + 1, subLinterCmdLine.end() ),
               this->getServices() );
     }
-    // TODO: mayBe add diagnostic?
     return nullptr;
 }

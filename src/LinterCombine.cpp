@@ -1,3 +1,4 @@
+#include "LintCombineUtils.h"
 #include "LinterCombine.h"
 
 #include <boost/filesystem.hpp>
@@ -23,42 +24,30 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
         m_diagnostics.emplace_back(
             Diagnostic( Level::Error,
             "Command Line is empty", "Combine", 1, 0 ) );
-        m_errorOccur = true;
-        return;
+        throw Exception( m_diagnostics );
     }
 
-    std::vector < stringVector > subLintersCommandLine =
+    const std::vector < stringVector > subLintersCmdLine =
         splitCommandLineBySubLinters( cmdLine );
-    if( m_errorOccur ) {
-        return;
-    }
 
-    if( subLintersCommandLine.empty() ) {
+    if( subLintersCmdLine.empty() ) {
         m_diagnostics.emplace_back(
             Diagnostic( Level::Error,
             "No one linter parsed",
             "Combine", 1, 0 ) );
-        m_errorOccur = true;
-        return;
+        throw Exception( m_diagnostics );
     }
 
-    for( const auto & it : subLintersCommandLine ) {
+    for( const auto & it : subLintersCmdLine ) {
         const auto subLinter = factory.createLinter( it );
         if( subLinter == nullptr ) {
             m_diagnostics.emplace_back(
                 Diagnostic( Level::Error,
                 "Unknown linter name: \"" + *it.begin() + "\"",
                 "Combine", 1, 0 ) );
-            m_errorOccur = true;
+            throw Exception( m_diagnostics );
         }
-        else {
-            m_linters.emplace_back( subLinter );
-        }
-    }
-
-    if( m_errorOccur ) {
-        m_linters.clear();
-        return;
+        m_linters.emplace_back( subLinter );
     }
 
     validateGeneralYamlPath( cmdLine );
@@ -137,8 +126,7 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
     catch( const std::exception & error ) {
         m_diagnostics.emplace_back( Diagnostic( Level::Error, error.what(),
                                     "Combine", 1, 0 ) );
-        m_errorOccur = true;
-        return std::vector < stringVector >();
+        throw Exception( m_diagnostics );
     }
 
     stringVector currentSubLinter;
@@ -166,49 +154,41 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
     return subLintersVec;
 }
 
-// TODO: May be move to LinterUtils
 void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & cmdLine ) {
-    const std::string pathToGeneralYamlOnError =
-        CURRENT_BINARY_DIR "LintersDiagnostics.yaml";
-    boost::program_options::options_description genYamlOptDesc;
-    genYamlOptDesc.add_options()
+    boost::program_options::options_description optDesc;
+    optDesc.add_options()
         ( "result-yaml",
-          boost::program_options::value < std::string >( &m_pathToGeneralYaml )
-          ->default_value( pathToGeneralYamlOnError ) );
+          boost::program_options::value < std::string >( &m_generalYAMLPath ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( cmdLine ).
-               options( genYamlOptDesc ).allow_unregistered().run(), vm );
+               options( optDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Diagnostic( Level::Warning, error.what(),
+        m_diagnostics.emplace_back( Diagnostic( Level::Error, error.what(),
                                     "Combine", 1, 0 ) );
-        m_diagnostics.emplace_back( Diagnostic(
-            Level::Info,
-            "General YAML file path changed to " + pathToGeneralYamlOnError,
-            "Combine", 1, 0 ) );
-        m_pathToGeneralYaml = pathToGeneralYamlOnError;
-        return;
+        throw Exception( m_diagnostics );
     }
 
-    const auto yamlFilename =
-        boost::filesystem::path( m_pathToGeneralYaml ).filename().string();
-    if( !boost::filesystem::portable_name( yamlFilename ) ) {
+    if( m_generalYAMLPath.empty() ) {
         m_diagnostics.emplace_back(
-            Diagnostic( Level::Warning,
-            "Incorrect general YAML file name: \"" + yamlFilename +
-            "\"", "Combine", 1, 0 ) );
-        m_diagnostics.emplace_back( Diagnostic(
-            Level::Info,
-            "General YAML file path changed to " + pathToGeneralYamlOnError,
+            Diagnostic( Level::Error, "Path to general YAML-file is not set",
             "Combine", 1, 0 ) );
-        m_pathToGeneralYaml = pathToGeneralYamlOnError;
+        throw Exception( m_diagnostics );
+    }
+
+    if( !isFileCreatable( m_generalYAMLPath ) ) {
+        m_diagnostics.emplace_back(
+            Diagnostic( Level::Error, "General YAML-file \"" +
+            m_generalYAMLPath + "\" is not creatable",
+            "Combine", 1, 0 ) );
+        throw Exception( m_diagnostics );
     }
 }
 
 const std::string & LintCombine::LinterCombine::getYamlPath() {
-    if( !m_pathToGeneralYaml.empty() ) {
+    if( !m_generalYAMLPath.empty() ) {
         for( const auto & subLinterIt : m_linters ) {
             if( subLinterIt->getYamlPath().empty() ) {
                 m_diagnostics.emplace_back(
@@ -240,21 +220,21 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
             "General YAML file path value is empty",
             "Combine", 1, 0 ) );
     }
-    if( boost::filesystem::exists( m_pathToGeneralYaml ) ) {
-        return m_pathToGeneralYaml;
+    if( boost::filesystem::exists( m_generalYAMLPath ) ) {
+        return m_generalYAMLPath;
     }
     m_diagnostics.emplace_back(
         Diagnostic( Level::Error,
         "General YAML file isn't created",
         "Combine", 1, 0 ) );
-    m_pathToGeneralYaml.clear();
-    return m_pathToGeneralYaml;
+    m_generalYAMLPath.clear();
+    return m_generalYAMLPath;
 }
 
 void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge ) {
-    if( !boost::filesystem::exists( m_pathToGeneralYaml ) ) {
+    if( !boost::filesystem::exists( m_generalYAMLPath ) ) {
         try {
-            boost::filesystem::copy( yamlPathToMerge, m_pathToGeneralYaml );
+            boost::filesystem::copy( yamlPathToMerge, m_generalYAMLPath );
         }
         catch( std::exception & error ) {
             m_diagnostics.emplace_back(
@@ -263,7 +243,7 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
         }
     }
     else {
-        YAML::Node yamlNodeResult = loadYamlNode( m_pathToGeneralYaml );
+        YAML::Node yamlNodeResult = loadYamlNode( m_generalYAMLPath );
         YAML::Node yamlNodeForAdd = loadYamlNode( yamlPathToMerge );
 
         for( const auto & diagnosticsIt : yamlNodeForAdd["Diagnostics"] ) {
@@ -271,7 +251,7 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
         }
 
         try {
-            std::ofstream mergedYamlOutputFile( m_pathToGeneralYaml );
+            std::ofstream mergedYamlOutputFile( m_generalYAMLPath );
             mergedYamlOutputFile << yamlNodeResult;
         }
         catch( std::exception & error ) {
@@ -286,7 +266,7 @@ YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToY
     YAML::Node yamlNode;
     try {
         std::ifstream filePathToYaml( pathToYaml );
-        if( !filePathToYaml ) {
+        if( filePathToYaml.fail() ) {
             throw std::logic_error( "YAML file path \""
                                     + pathToYaml + "\" doesn't exist" );
         }

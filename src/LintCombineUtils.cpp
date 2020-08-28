@@ -1,6 +1,5 @@
 #include "LintCombineUtils.h"
-
-#include <boost/program_options.hpp>
+#include <fstream>
 
 LintCombine::stringVector LintCombine::moveCmdLineIntoSTLContainer( const int argc, char ** argv ) {
     stringVector cmdLine;
@@ -38,4 +37,17 @@ void LintCombine::fixHyphensInCmdLine( stringVector & cmdLine ) {
             }
         }
     }
+}
+
+bool LintCombine::isFileCreatable( const std::filesystem::path & filePath ) {
+    std::error_code errorCode;
+    create_directory( filePath.parent_path(), errorCode );
+    if( errorCode.value() ) {
+        return false;
+    }
+    std::ofstream file( filePath );
+    if( file.fail() ) { return false; }
+    file.close();
+    std::filesystem::remove( filePath );
+    return true;
 }

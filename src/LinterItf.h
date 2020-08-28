@@ -23,5 +23,21 @@ namespace LintCombine {
 
         virtual std::vector< Diagnostic > diagnostics() = 0;
     };
+
+    class Exception final : public std::exception {
+
+    public:
+        Exception( const Diagnostic & diagnostic )
+            : m_diagnostics{ diagnostic } {}
+
+        Exception( const std::vector< Diagnostic > & diagnosticsVal )
+            : m_diagnostics( diagnosticsVal ) {}
+
+        std::vector< Diagnostic > diagnostics() const {
+            return m_diagnostics;
+        }
+    private:
+        std::vector< Diagnostic > m_diagnostics;
+    };
 }
 

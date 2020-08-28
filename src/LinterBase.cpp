@@ -1,6 +1,9 @@
 #include "LinterBase.h"
+#include "LintCombineUtils.h"
 
 #include <boost/program_options.hpp>
+
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -26,7 +29,7 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     YAML::Node yamlNode;
     try {
         const std::ifstream filePathToYaml( yamlPath );
-        if( !filePathToYaml ) {
+        if( filePathToYaml.fail() ) {
             throw std::logic_error( "YAML file path \""
                                     + yamlPath + "\" doesn't exist" );
         }
@@ -71,20 +74,17 @@ LintCombine::LinterBase::LinterBase( LinterFactoryBase::Services & service )
 
 LintCombine::LinterBase::LinterBase( const stringVector & cmdLine,
                                      LinterFactoryBase::Services & service,
-                                     std::string && nameVal )
+                                     const std::string & nameVal )
     : name( nameVal ), stdoutPipe( service.getIOService() ),
     stderrPipe( service.getIOService() ) {
     parseCmdLine( cmdLine );
 }
 
 void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
-    const std::string pathToGeneralYamlOnError =
-        CURRENT_BINARY_DIR + name + "-Diagnostics.yaml";
     boost::program_options::options_description optDesc;
     optDesc.add_options()
         ( "export-fixes",
-          boost::program_options::value< std::string >( &yamlPath )
-          ->default_value( pathToGeneralYamlOnError ) );
+          boost::program_options::value< std::string >( &yamlPath ) );
     boost::program_options::variables_map vm;
     try {
         const boost::program_options::parsed_options parsed =
@@ -94,37 +94,33 @@ void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
             .options( optDesc ).allow_unregistered().run();
         store( parsed, vm );
         notify( vm );
-        const stringVector linterOptionsVec =
+        const stringVector linterOptions =
             collect_unrecognized( parsed.options,
                                   boost::program_options::include_positional );
-        for( const auto & it : linterOptionsVec ) {
+        for( const auto & it : linterOptions ) {
             options.append( it + " " );
         }
     }
     catch( const std::exception & error ) {
         m_diagnostics.emplace_back(
-            Diagnostic( Level::Warning, error.what(),
+            Diagnostic( Level::Error, error.what(),
             name.c_str(), 1, 0 ) );
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Info,
-            "General YAML file path changed to " + pathToGeneralYamlOnError,
-            name.c_str(), 1, 0 ) );
-        yamlPath = pathToGeneralYamlOnError;
-        return;
+        throw Exception( m_diagnostics );
     }
 
-    const auto yamlFilename =
-        boost::filesystem::path( yamlPath ).filename().string();
-    if( !boost::filesystem::portable_name( yamlFilename ) ) {
+    if( yamlPath.empty() ) {
         m_diagnostics.emplace_back(
-            Diagnostic( Level::Warning,
-            "Incorrect linter's YAML file name: \"" + yamlFilename +
-            "\"", name.c_str(), 1, 0 ) );
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Info,
-            "General YAML file path changed to " + pathToGeneralYamlOnError,
+            Diagnostic( Level::Error, "Path to linter's YAML-file is not set",
             name.c_str(), 1, 0 ) );
-        yamlPath = pathToGeneralYamlOnError;
+        throw Exception( m_diagnostics );
+    }
+
+    if( !isFileCreatable( yamlPath ) ) {
+        m_diagnostics.emplace_back(
+            Diagnostic( Level::Error, "Linter's YAML-file \"" +
+            yamlPath + "\" is not creatable",
+            name.c_str(), 1, 0 ) );
+        throw Exception( m_diagnostics );
     }
 }
 

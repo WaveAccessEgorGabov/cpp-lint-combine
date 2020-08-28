@@ -9,13 +9,13 @@ std::shared_ptr < LintCombine::IdeTraitsFactory::IdeBehaviorItf >
 LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     boost::algorithm::to_lower( ideName );
     if( ideName == "resharper" ) {
-        return std::make_shared< IdeBehaviorBase >( /*m_yamlContainDocLink*/true );
+        return std::make_shared< IdeBehaviorBase >( /*m_yamlContainsDocLink*/true );
     }
     if( ideName == "clion" ) {
-        return std::make_shared< IdeBehaviorBase >( /*m_yamlContainDocLink*/false );
+        return std::make_shared< IdeBehaviorBase >( /*m_yamlContainsDocLink*/false );
     }
     if( ideName.empty() ) {
-        return std::make_shared< IdeBehaviorBase >( /*m_yamlContainDocLink*/true );
+        return std::make_shared< IdeBehaviorBase >( /*m_yamlContainsDocLink*/true );
     }
     return nullptr;
 };

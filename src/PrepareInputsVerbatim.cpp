@@ -1,6 +1,6 @@
 #include "PrepareInputsVerbatim.h"
+#include "LintCombineUtils.h"
 
-#include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
 
 LintCombine::stringVector
@@ -9,7 +9,9 @@ LintCombine::PrepareInputsVerbatim::transformCmdLine( const stringVector cmdLine
     if( validateLinters() ) {
         return stringVector();
     }
-    validateGeneralYamlPath();
+    if( validateGeneralYamlPath() ) {
+        return stringVector();
+    }
     return m_cmdLine;
 }
 
@@ -23,15 +25,15 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
         Level::Info, "Options were passed verbatim",
         "VerbatimPreparer", 1, 0 );
     stringVector lintersNames;
-    boost::program_options::options_description OptDesc;
-    OptDesc.add_options()
+    boost::program_options::options_description optDesc;
+    optDesc.add_options()
         ( "sub-linter",
           boost::program_options::value < stringVector >( &lintersNames ) );
 
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
-               options( OptDesc ).allow_unregistered().run(), vm );
+               options( optDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & error ) {
@@ -48,69 +50,51 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
         return true;
     }
 
-    auto isErrorOccur = false;
+    auto errorOccur = false;
     for( auto & it : lintersNames ) {
         if( it != "clang-tidy" && it != "clazy" ) {
             m_diagnostics.emplace_back(
                 Diagnostic( Level::Error,
                 "Unknown linter name: \"" + it + "\"",
                 "VerbatimPreparer", 1, 0 ) );
-            isErrorOccur = true;
+            errorOccur = true;
         }
     }
-    if( isErrorOccur ) {
+    if( errorOccur ) {
         return true;
     }
     return false;
 }
 
-void LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
-    boost::program_options::options_description genYamlOptDesc;
-    std::string pathToGeneralYaml;
-    const std::string pathToGeneralYamlOnError =
-        CURRENT_BINARY_DIR "LintersDiagnostics.yaml";
-    genYamlOptDesc.add_options()
+bool LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
+    boost::program_options::options_description optDesc;
+    std::string generalYAMLPath;
+    optDesc.add_options()
         ( "result-yaml",
-          boost::program_options::value < std::string >( &pathToGeneralYaml )
-          ->default_value( pathToGeneralYamlOnError ) );
+          boost::program_options::value < std::string >( &generalYAMLPath ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
-               options( genYamlOptDesc ).allow_unregistered().run(), vm );
+               options( optDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Diagnostic( Level::Warning, error.what(),
+        m_diagnostics.emplace_back( Diagnostic( Level::Error, error.what(),
                                     "VerbatimPreparer", 1, 0 ) );
-        m_diagnostics.emplace_back( Diagnostic(
-            Level::Info,
-            "path to result-yaml changed to " + pathToGeneralYamlOnError,
+        return true;
+    }
+    if( generalYAMLPath.empty() ) {
+        m_diagnostics.emplace_back(
+            Diagnostic( Level::Error, "Path to general YAML-file is not set",
             "VerbatimPreparer", 1, 0 ) );
-        pathToGeneralYaml = pathToGeneralYamlOnError;
+        return true;
     }
-
-    if( pathToGeneralYaml != pathToGeneralYamlOnError ) {
-        const auto yamlFilename =
-            boost::filesystem::path( pathToGeneralYaml ).filename().string();
-        if( !boost::filesystem::portable_name( yamlFilename ) ) {
-            m_diagnostics.emplace_back(
-                Diagnostic( Level::Warning,
-                "Incorrect general yaml filename: \"" + yamlFilename +
-                "\"", "VerbatimPreparer", 1, 0 ) );
-            m_diagnostics.emplace_back(
-                Diagnostic( Level::Info,
-                "path to result-yaml changed to " + pathToGeneralYamlOnError,
-                "VerbatimPreparer", 1, 0 ) );
-            pathToGeneralYaml = pathToGeneralYamlOnError;
-        }
+    if( !isFileCreatable( generalYAMLPath ) ) {
+        m_diagnostics.emplace_back(
+            Diagnostic( Level::Error, "General YAML-file \"" +
+            generalYAMLPath + "\" is not creatable",
+            "VerbatimPreparer", 1, 0 ) );
+        return true;
     }
-
-    if( pathToGeneralYaml == pathToGeneralYamlOnError ) {
-        m_cmdLine.erase( std::remove_if( std::begin( m_cmdLine ), std::end( m_cmdLine ),
-                         [pathToGeneralYaml]( const std::string & str ) -> bool {
-            return str.find( "--result-yaml" ) == 0 ||
-                str == pathToGeneralYaml;
-        } ), std::end( m_cmdLine ) );
-        m_cmdLine.insert( m_cmdLine.begin(), "--result-yaml=" + pathToGeneralYaml );
-    }
+    return false;
 }
