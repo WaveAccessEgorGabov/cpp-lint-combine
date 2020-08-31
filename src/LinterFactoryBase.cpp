@@ -5,7 +5,7 @@ std::shared_ptr< LintCombine::LinterItf>
 LintCombine::LinterFactoryBase::createLinter( const stringVector & cmdLine ) {
     for( const auto & it : cmdLine ) {
         if( it.find( "--sub-linter" ) != std::string::npos ) {
-            return std::make_unique< LinterCombine >( cmdLine );
+            return std::make_shared< LinterCombine >( cmdLine );
         }
     }
     throw Exception( Diagnostic( Level::Error,
