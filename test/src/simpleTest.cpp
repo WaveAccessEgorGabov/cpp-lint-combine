@@ -61,9 +61,9 @@ namespace LintCombine {
         }
 
         std::shared_ptr< LinterItf >
-            createLinter( const stringVector & commandLineSTL ) override {
-            if( commandLineSTL[0] == "MockLinterWrapper" ) {
-                return std::make_shared< MockLinterWrapper >( commandLineSTL, getServices() );
+            createLinter( const stringVector & cmdLine ) override {
+            if( cmdLine[0] == "MockLinterWrapper" ) {
+                return std::make_shared< MockLinterWrapper >( cmdLine, getServices() );
             }
             return nullptr;
         }
@@ -1289,7 +1289,6 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
  * AES means: params value empty after equal sign
  * ASP means: params value empty after space
 */
-
 
 void compareContainers( const LintCombine::stringVector & lhs,
                         const LintCombine::stringVector & rhs ) {

@@ -3,17 +3,18 @@
 #include "UsualLinterFactory.h"
 
 std::shared_ptr< LintCombine::LinterItf >
-LintCombine::UsualLinterFactory::createLinter( const stringVector & subLinterCmdLine ) {
-    if( *subLinterCmdLine.begin() == "clang-tidy" ) {
+LintCombine::UsualLinterFactory::createLinter( const stringVector & cmdLine ) {
+    if( !cmdLine.empty() && *cmdLine.begin() == "clang-tidy" ) {
         return std::make_shared< ClangTidyWrapper >
-            ( stringVector( subLinterCmdLine.begin() + 1, subLinterCmdLine.end() ),
+            ( stringVector( cmdLine.begin() + 1, cmdLine.end() ),
               this->getServices() );
     }
 
-    if( *subLinterCmdLine.begin() == "clazy" ) {
+    if( !cmdLine.empty() && *cmdLine.begin() == "clazy" ) {
         return std::make_shared< ClazyWrapper >
-            ( stringVector( subLinterCmdLine.begin() + 1, subLinterCmdLine.end() ),
+            ( stringVector( cmdLine.begin() + 1, cmdLine.end() ),
               this->getServices() );
     }
-    return nullptr;
+
+    return LinterFactoryBase::createLinter( cmdLine );
 }

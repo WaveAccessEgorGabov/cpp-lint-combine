@@ -14,13 +14,10 @@ int main( int argc, char * argv[] ) {
     if( diagnosticWorker.printDiagnostics( prepareInputs->diagnostics() ) ) {
         return 0;
     }
-    if( cmdLine.empty() ) {
-        return 1;
-    }
 
-    std::unique_ptr< LintCombine::LinterCombine > pCombine;
+    std::shared_ptr< LintCombine::LinterItf > pCombine;
     try {
-        pCombine = std::make_unique< LintCombine::LinterCombine >( cmdLine );
+        pCombine = LintCombine::UsualLinterFactory::getInstance().createLinter( cmdLine );
     }
     catch( const LintCombine::Exception & ex ) {
         diagnosticWorker.printDiagnostics( ex.diagnostics() );
@@ -37,7 +34,7 @@ int main( int argc, char * argv[] ) {
     if( ideTraitsFactory.getIdeBehaviorInstance() &&
         ideTraitsFactory.getIdeBehaviorInstance()->isYamlContainsDocLink() ) {
         const auto callTotals = pCombine->updateYaml();
-        if( callTotals.failNum == pCombine->numLinters() ) {
+        if( !callTotals.successNum ) {
             diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
             return 1;
         }

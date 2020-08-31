@@ -40,17 +40,19 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
     }
 
     for( const auto & it : subLintersCmdLine ) {
-        const auto subLinter = factory.createLinter( it );
-        if( subLinter == nullptr ) {
-            m_diagnostics.emplace_back(
-                Diagnostic( Level::Error,
-                "Unknown linter name: \"" + *it.begin() + "\"",
-                "Combine", 1, 0 ) );
-            throw Exception( m_diagnostics );
+        try {
+            const auto subLinter = factory.createLinter( it );
+            m_linters.emplace_back( subLinter );
         }
-        m_linters.emplace_back( subLinter );
+        catch( const Exception & ex ) {
+            if( ex.diagnostics().begin()->origin == "LinterFactoryBase" ) {
+                throw Exception( Diagnostic( Level::Error,
+                                 "Unknown linter name: \"" + *it.begin() + "\"",
+                                 "Combine", 1, 0 ) );
+            }
+            throw;
+        }
     }
-
     validateGeneralYamlPath( cmdLine );
 }
 
