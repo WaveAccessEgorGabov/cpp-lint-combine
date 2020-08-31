@@ -64,7 +64,7 @@ namespace LintCombine {
 
         std::shared_ptr< PrepareInputsItf > getPrepareCmdLineInstance( stringVector & cmdLine );
 
-        std::shared_ptr < IdeBehaviorItf > getIdeBehaviorInstance();
+        std::shared_ptr< IdeBehaviorItf > getIdeBehaviorInstance();
 
     private:
         std::string ideName;

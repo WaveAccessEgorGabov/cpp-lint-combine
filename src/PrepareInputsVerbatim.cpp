@@ -28,7 +28,7 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
     boost::program_options::options_description optDesc;
     optDesc.add_options()
         ( "sub-linter",
-          boost::program_options::value < stringVector >( &lintersNames ) );
+          boost::program_options::value< stringVector >( &lintersNames ) );
 
     boost::program_options::variables_map vm;
     try {
@@ -71,7 +71,7 @@ bool LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
     std::string generalYAMLPath;
     optDesc.add_options()
         ( "result-yaml",
-          boost::program_options::value < std::string >( &generalYAMLPath ) );
+          boost::program_options::value< std::string >( &generalYAMLPath ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).

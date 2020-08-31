@@ -47,7 +47,7 @@ namespace LintCombine {
 
     private:
         // Buffer for reading from pipes
-        std::array < char, 64 > m_buffer = {};
+        std::array< char, 64 > m_buffer = {};
 
         void readFromPipeToStream( boost::process::async_pipe & pipe,
                                    std::ostream & outputStream );

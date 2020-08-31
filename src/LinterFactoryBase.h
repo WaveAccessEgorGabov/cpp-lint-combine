@@ -27,7 +27,7 @@ namespace LintCombine {
             return services;
         }
 
-        virtual std::shared_ptr < LinterItf > createLinter( const stringVector & cmdLine ) = 0;
+        virtual std::shared_ptr< LinterItf > createLinter( const stringVector & cmdLine ) = 0;
 
     protected:
         Services services;

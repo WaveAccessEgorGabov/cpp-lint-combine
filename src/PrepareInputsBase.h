@@ -71,7 +71,7 @@ namespace LintCombine {
         struct ClazyOptions : LinterOptionsBase {
             explicit ClazyOptions( const std::string & pathToWorkDir,
                                    const std::string & checks,
-                                   std::vector < std::string > && clangExtraArgs ) {
+                                   std::vector< std::string > && clangExtraArgs ) {
                 name = "clazy";
                 options.emplace_back( "--sub-linter=clazy" );
                 if( !pathToWorkDir.empty() ) {
@@ -111,6 +111,6 @@ namespace LintCombine {
         stringVector cmdLine;
         std::vector< Diagnostic > diagnosticsList;
         stringVector unrecognizedCollection;
-        std::vector < std::shared_ptr< LinterOptionsBase > > lintersOptions;
+        std::vector< std::shared_ptr< LinterOptionsBase > > lintersOptions;
     };
 }

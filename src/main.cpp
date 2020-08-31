@@ -18,9 +18,9 @@ int main( int argc, char * argv[] ) {
         return 1;
     }
 
-    std::unique_ptr<LintCombine::LinterCombine > pCombine;
+    std::unique_ptr< LintCombine::LinterCombine > pCombine;
     try {
-        pCombine = std::make_unique<LintCombine::LinterCombine>( cmdLine );
+        pCombine = std::make_unique< LintCombine::LinterCombine >( cmdLine );
     }
     catch( const LintCombine::Exception & ex ) {
         diagnosticWorker.printDiagnostics( ex.diagnostics() );

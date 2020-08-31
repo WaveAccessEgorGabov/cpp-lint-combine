@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace LintCombine {
-    using stringVector = std::vector < std::string >;
+    using stringVector = std::vector< std::string >;
 
     class LinterItf {
 

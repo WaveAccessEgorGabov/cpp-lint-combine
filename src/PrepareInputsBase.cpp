@@ -37,19 +37,19 @@ bool LintCombine::PrepareInputsBase::parseSourceCmdLine() {
     boost::program_options::options_description programOptions;
     programOptions.add_options()
         ( "clazy-checks",
-          boost::program_options::value < std::string >( &m_clazyChecks )
+          boost::program_options::value< std::string >( &m_clazyChecks )
           ->implicit_value( std::string() ) )
         ( "clang-extra-args",
-          boost::program_options::value < std::string >( &m_clangExtraArgs )
+          boost::program_options::value< std::string >( &m_clangExtraArgs )
           ->implicit_value( std::string() ) )
         ( "export-fixes",
-          boost::program_options::value < std::string >( &m_pathToGeneralYaml )
+          boost::program_options::value< std::string >( &m_pathToGeneralYaml )
           ->implicit_value( std::string() ) )
         ( "p",
-          boost::program_options::value < std::string >( &pathToWorkDir )
+          boost::program_options::value< std::string >( &pathToWorkDir )
           ->implicit_value( std::string() ) )
         ( "sub-linter",
-          boost::program_options::value < stringVector >( &m_lintersNames ) );
+          boost::program_options::value< stringVector >( &m_lintersNames ) );
     boost::program_options::variables_map variablesMap;
     try {
         const boost::program_options::parsed_options parsed =
@@ -114,7 +114,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
     auto isErrorOccur = false;
     for( auto & it : m_lintersNames ) {
         if( it == "clang-tidy" ) {
-            lintersOptions.emplace_back( std::make_shared < ClangTidyOptions >( pathToWorkDir ) );
+            lintersOptions.emplace_back( std::make_shared< ClangTidyOptions >( pathToWorkDir ) );
         }
         else if( it == "clazy" ) {
             std::istringstream iss( m_clangExtraArgs );
@@ -144,7 +144,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
         // Use all linters by default
         std::istringstream iss( m_clangExtraArgs );
         lintersOptions = { std::make_shared< ClangTidyOptions >( pathToWorkDir ),
-           std::make_shared < ClazyOptions >( pathToWorkDir, m_clazyChecks,
+           std::make_shared< ClazyOptions >( pathToWorkDir, m_clazyChecks,
            stringVector( std::istream_iterator<std::string> { iss },
            std::istream_iterator<std::string> {} ) ) };
         diagnosticsList.emplace_back( Diagnostic(
