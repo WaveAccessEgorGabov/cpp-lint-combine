@@ -606,13 +606,8 @@ std::string getRunnerName( const std::string & shellName ) {
 }
 
 std::string getScriptExtension() {
-#ifdef BOOST_OS_WINDOWS
-    return ".bat";
-#elif BOOST_OS_LINUX
-    return ".sh";
-#else
-    return std::string();
-#endif
+    if constexpr( BOOST_OS_WINDOWS ) { return ".bat"; }
+    else { return ".sh"; }
 }
 
 namespace TestCWL::L1Terminate {

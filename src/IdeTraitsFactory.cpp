@@ -5,30 +5,30 @@
 
 #include <boost/algorithm/string/case_conv.hpp>
 
-std::shared_ptr< LintCombine::IdeTraitsFactory::IdeBehaviorItf >
+std::unique_ptr< LintCombine::IdeTraitsFactory::IdeBehaviorItf >
 LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     boost::algorithm::to_lower( m_ideName );
     if( m_ideName == "resharper" ) {
-        return std::make_shared< IdeBehaviorBase >( /*doesAddLinkVal*/true, false );
+        return std::make_unique< IdeBehaviorBase >( true, false );
     }
     if( m_ideName == "clion" ) {
         if constexpr (BOOST_OS_WINDOWS) {
-            return std::make_shared< IdeBehaviorBase >( /*doesAddLinkVal*/false, false );
+            return std::make_unique< IdeBehaviorBase >( false, false );
         }
         if constexpr (BOOST_OS_LINUX) {
-            return std::make_shared< IdeBehaviorBase >( /*doesAddLinkVal*/false, true );
+            return std::make_unique< IdeBehaviorBase >( false, true );
         }
     }
     if( m_ideName.empty() ) {
-        return std::make_shared< IdeBehaviorBase >( /*doesAddLinkVal*/true, false );
+        return std::make_unique< IdeBehaviorBase >( true, false );
     }
     return nullptr;
 };
 
-std::shared_ptr < LintCombine::PrepareInputsItf >
+std::unique_ptr< LintCombine::PrepareInputsItf >
 LintCombine::IdeTraitsFactory::getPrepareInputsInstance( stringVector & cmdLine ) {
     if( cmdLine.empty() ) {
-        return std::make_shared< PrepareInputsOnError > ( 
+        return std::make_unique< PrepareInputsOnError > ( 
             Level::Error, "Command Line is empty", "FactoryPreparer",  1, 0 );
     }
     boost::program_options::options_description programDesc;
@@ -42,7 +42,7 @@ LintCombine::IdeTraitsFactory::getPrepareInputsInstance( stringVector & cmdLine 
         notify( vm );
     }
     catch( const std::exception & ex ) {
-        return std::make_shared< PrepareInputsOnError >(
+        return std::make_unique< PrepareInputsOnError >(
             Level::Error, ex.what(), "FactoryPreparer", 1, 0 );
     }
     cmdLine.erase( std::remove_if( std::begin( cmdLine ), std::end( cmdLine ),
@@ -50,18 +50,18 @@ LintCombine::IdeTraitsFactory::getPrepareInputsInstance( stringVector & cmdLine 
         return str.find( "--ide-profile" ) == 0 || str == m_ideName;
     } ), std::end( cmdLine ) );
     if( m_ideName.empty() ) {
-        return std::make_shared< PrepareInputsVerbatim >();
+        return std::make_unique< PrepareInputsVerbatim >();
     }
     const auto ideNameCopy = m_ideName;
     boost::algorithm::to_lower( m_ideName );
     if( m_ideName == "resharper" ) {
-        return std::make_shared< PrepareInputsReSharper >();
+        return std::make_unique< PrepareInputsReSharper >();
     }
     if( m_ideName == "clion" ) {
-        return std::make_shared< PrepareInputsCLion >();
+        return std::make_unique< PrepareInputsCLion >();
     }
 
-    return std::make_shared< PrepareInputsOnError >(
+    return std::make_unique< PrepareInputsOnError >(
         Level::Error, "\"" + ideNameCopy +
         "\" is not a supported IDE profile",
         "FactoryPreparer", 1, 0 );

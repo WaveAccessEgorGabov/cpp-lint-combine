@@ -73,14 +73,14 @@ bool LintCombine::PrepareInputsBase::validateParsedData() {
     auto isErrorOccur = false;
     if( pathToWorkDir.empty() ) {
         diagnosticsList.emplace_back( Level::Error,
-            "Path to compilation database is empty.",
-            "BasePreparer", 1, 0 );
+                                      "Path to compilation database is empty.",
+                                      "BasePreparer", 1, 0 );
         isErrorOccur = true;
     }
     if( m_pathToGeneralYaml.empty() ) {
         diagnosticsList.emplace_back( Level::Error,
-            "Path to yaml-file is empty.",
-            "BasePreparer", 1, 0 );
+                                      "Path to yaml-file is empty.",
+                                      "BasePreparer", 1, 0 );
         isErrorOccur = true;
     }
     checkIsOptionsValueInit( "clang-extra-args", m_clangExtraArgs );
@@ -100,9 +100,9 @@ void LintCombine::PrepareInputsBase::checkIsOptionsValueInit( const std::string 
         const auto warningEndInCL = warningBeginInCL +
             static_cast< const unsigned int >( std::string( optionName ).size() );
         diagnosticsList.emplace_back( Level::Warning, "Parameter "
-            "\"" + optionName + "\" was set but the parameter's "
-            "value was not set. The parameter will be ignored.",
-            "BasePreparer", warningBeginInCL, warningEndInCL );
+                                      "\"" + optionName + "\" was set but the parameter's "
+                                      "value was not set. The parameter will be ignored.",
+                                      "BasePreparer", warningBeginInCL, warningEndInCL );
     }
 }
 
@@ -110,12 +110,12 @@ bool LintCombine::PrepareInputsBase::initLinters() {
     auto isErrorOccur = false;
     for( auto & it : m_lintersNames ) {
         if( it == "clang-tidy" ) {
-            lintersOptions.emplace_back( std::make_shared< ClangTidyOptions >( pathToWorkDir ) );
+            lintersOptions.emplace_back( std::make_unique< ClangTidyOptions >( pathToWorkDir ) );
         }
         else if( it == "clazy" ) {
             std::istringstream iss( m_clangExtraArgs );
             lintersOptions.emplace_back(
-                std::make_shared< ClazyOptions >( pathToWorkDir, m_clazyChecks,
+                std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks,
                 stringVector( std::istream_iterator< std::string >{ iss },
                 std::istream_iterator<std::string> {} ) ) );
         }
@@ -130,7 +130,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
             const auto firstPos = static_cast< unsigned >( m_sourceCL.find( it, findFrom ) );
             const auto lastPos = firstPos + static_cast< unsigned >( it.size() );
             diagnosticsList.emplace_back( Level::Error, "Unknown linter name \""
-                + it + "\"", "BasePreparer", firstPos, lastPos );
+                                          + it + "\"", "BasePreparer", firstPos, lastPos );
             isErrorOccur = true;
         }
     }
@@ -138,12 +138,12 @@ bool LintCombine::PrepareInputsBase::initLinters() {
     if( lintersOptions.empty() ) {
         // Use all linters by default
         std::istringstream iss( m_clangExtraArgs );
-        lintersOptions = { std::make_shared< ClangTidyOptions >( pathToWorkDir ),
-           std::make_shared< ClazyOptions >( pathToWorkDir, m_clazyChecks,
-           stringVector( std::istream_iterator<std::string> { iss },
-           std::istream_iterator<std::string> {} ) ) };
-        diagnosticsList.emplace_back( Level::Info,
-            "All linters are used", "BasePreparer", 1, 0 );
+        lintersOptions.emplace_back( std::make_unique< ClangTidyOptions >( pathToWorkDir ) );
+        lintersOptions.emplace_back( std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks,
+                                     stringVector( std::istream_iterator< std::string > { iss },
+                                     std::istream_iterator< std::string > {} ) ) );
+        diagnosticsList.emplace_back(
+            Level::Info, "All linters are used", "BasePreparer", 1, 0 );
     }
     return isErrorOccur;
 }

@@ -113,6 +113,6 @@ namespace LintCombine {
         stringVector cmdLine;
         std::vector< Diagnostic > diagnosticsList;
         stringVector unrecognizedCollection;
-        std::vector< std::shared_ptr< LinterOptionsBase > > lintersOptions;
+        std::vector< std::unique_ptr< LinterOptionsBase > > lintersOptions;
     };
 }

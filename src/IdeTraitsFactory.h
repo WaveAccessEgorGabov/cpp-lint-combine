@@ -67,9 +67,9 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        std::shared_ptr< PrepareInputsItf > getPrepareInputsInstance( stringVector & cmdLine );
+        std::unique_ptr< PrepareInputsItf > getPrepareInputsInstance( stringVector & cmdLine );
 
-        std::shared_ptr< IdeBehaviorItf > getIdeBehaviorInstance();
+        std::unique_ptr< IdeBehaviorItf > getIdeBehaviorInstance();
 
     private:
         std::string m_ideName;
