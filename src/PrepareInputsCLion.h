@@ -11,5 +11,6 @@ namespace LintCombine {
     private:
         void appendLintersOptionToCmdLine() override;
 
+        void specifyTargetArch() override;
     };
 }

@@ -14,27 +14,32 @@ namespace LintCombine {
         class IdeBehaviorItf {
 
         public:
-            virtual ~IdeBehaviorItf() = default;
             virtual bool isYamlContainsDocLink() = 0;
+            virtual bool isLinterExitCodeTolerant() = 0;
+            virtual ~IdeBehaviorItf() = default;
         };
 
         class IdeBehaviorBase final : public IdeBehaviorItf {
 
         public:
-            IdeBehaviorBase( const bool m_yamlContainsDocLinkVal )
-                : m_yamlContainsDocLink( m_yamlContainsDocLinkVal ) {}
+            IdeBehaviorBase( const bool doesAddLinkVal,
+                const bool linterExitCodeTolerantVal )
+                : m_yamlContainsDocLink(doesAddLinkVal ),
+                  m_linterExitCodeTolerant (linterExitCodeTolerantVal) {}
 
             bool isYamlContainsDocLink() override { return m_yamlContainsDocLink; }
 
+            bool isLinterExitCodeTolerant() override { return m_linterExitCodeTolerant; }
+
         private:
             bool m_yamlContainsDocLink;
+            bool m_linterExitCodeTolerant;
         };
 
-
-        class PrepareCmdLineOnError final : public PrepareInputsItf {
+        class PrepareInputsOnError final : public PrepareInputsItf {
 
         public:
-            PrepareCmdLineOnError( const Level levelVal,
+            PrepareInputsOnError( const Level levelVal,
                                    std::string && textVal,
                                    std::string && originVal,
                                    const unsigned firstPosVal,
@@ -62,11 +67,11 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        std::shared_ptr< PrepareInputsItf > getPrepareCmdLineInstance( stringVector & cmdLine );
+        std::shared_ptr< PrepareInputsItf > getPrepareInputsInstance( stringVector & cmdLine );
 
         std::shared_ptr< IdeBehaviorItf > getIdeBehaviorInstance();
 
     private:
-        std::string ideName;
+        std::string m_ideName;
     };
 }

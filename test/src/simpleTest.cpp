@@ -84,6 +84,14 @@ void compareDiagnostics( const LintCombine::Diagnostic & lhs,
     BOOST_CHECK( lhs.text == rhs.text );
 }
 
+void compareContainers( const LintCombine::stringVector & lhs,
+                        const LintCombine::stringVector & rhs ) {
+    BOOST_REQUIRE( lhs.size() == rhs.size() );
+    for( size_t i = 0; i < lhs.size(); ++i ) {
+        BOOST_CHECK( lhs[i] == rhs[i] );
+    }
+}
+
 void recoverYamlFiles() {
     std::filesystem::remove( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
     std::filesystem::copy_file( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_save.yaml",
@@ -267,7 +275,7 @@ namespace TestLCC::EmptyCmdLine {
     const LCCTestCase::Output output{ diagnostics, linterData, true };
 }
 
-namespace TestLCC::NotOneLintersSet {
+namespace TestLCC::NoOneLinterSet {
     const LCCTestCase::Input input{
         LintCombine::stringVector{ "--param_1=value_1", "--param_2=value_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
@@ -502,7 +510,7 @@ namespace TestLCC::ClangTidyAndClazyEWithOptions {
 
 const std::vector< LCCTestCase > LCCTestCaseData = {
     /*0 */    { TestLCC::EmptyCmdLine::input, TestLCC::EmptyCmdLine::output },
-    /*1 */    { TestLCC::NotOneLintersSet::input, TestLCC::NotOneLintersSet::output },
+    /*1 */    { TestLCC::NoOneLinterSet::input, TestLCC::NoOneLinterSet::output },
     /*2 */    { TestLCC::L1DNE::input, TestLCC::L1DNE::output },
     /*3 */    { TestLCC::L1DNE_L2E::input, TestLCC::L1DNE_L2E::output },
     /*4 */    { TestLCC::L1DNE_L2DNE::input, TestLCC::L1DNE_L2DNE::output },
@@ -1401,18 +1409,14 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
  * ASP means: params value empty after space
 */
 
-void compareContainers( const LintCombine::stringVector & lhs,
-                        const LintCombine::stringVector & rhs ) {
-    BOOST_REQUIRE( lhs.size() == rhs.size() );
-    for( size_t i = 0; i < lhs.size(); ++i ) {
-        BOOST_CHECK( lhs[i] == rhs[i] );
-    }
-}
-
+#define TOLERANT_VERBATIM_VAL false
+#define TOLERANT_RESHARPER_VAL false
 #ifdef _WIN32
 #define PATH_SEP "\\"
+#define TOLERANT_CLION_VAL false
 #else
 #define PATH_SEP "/"
+#define TOLERANT_CLION_VAL true
 #endif
 
 // PCL means PrepareCommandLine
@@ -1426,13 +1430,15 @@ struct PCLTestCase {
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
                 const LintCombine::stringVector & resultCmdLineVal,
-                const std::optional< bool > & YAMLContainsDocLinkVal )
+                const std::optional< bool > & YAMLContainsDocLinkVal,
+                const std::optional< bool > & linterExitCodeTolerantVal )
             : diagnostics( diagnosticsVal ), resultCmdLine( resultCmdLineVal ),
-            YAMLContainsDocLink( YAMLContainsDocLinkVal ) {}
+            YAMLContainsDocLink( YAMLContainsDocLinkVal ),
+            linterExitCodeTolerant( linterExitCodeTolerantVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
         LintCombine::stringVector resultCmdLine;
-        //bool YAMLContainsDocLink;
         std::optional< bool > YAMLContainsDocLink;
+        std::optional< bool > linterExitCodeTolerant;
     };
 
     PCLTestCase( const Input & inputVal,
@@ -1453,7 +1459,7 @@ namespace TestPCL::EmptyCmdLine {
         LintCombine::Diagnostic( LintCombine::Level::Error,
             "Command Line is empty", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, false };
 }
 
 namespace TestPCL::Verbatim_LintersDNE {
@@ -1467,7 +1473,7 @@ namespace TestPCL::Verbatim_LintersDNE {
             "VerbatimPreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
 namespace TestPCL::Verbatim_L1IN {
@@ -1480,7 +1486,7 @@ namespace TestPCL::Verbatim_L1IN {
             "Unknown linter name: \"Incorrect\"", "VerbatimPreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
 namespace TestPCL::Verbatim_L1IN_L2IN {
@@ -1496,7 +1502,7 @@ namespace TestPCL::Verbatim_L1IN_L2IN {
             "Unknown linter name: \"Incorrect_2\"", "VerbatimPreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
 namespace TestPCL::Verbatim_L1CN {
@@ -1510,7 +1516,7 @@ namespace TestPCL::Verbatim_L1CN {
     const LintCombine::stringVector resultCmdLine{
         "--result-yaml=" CURRENT_BINARY_DIR "file.yaml", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" };
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
 namespace TestPCL::Verbatim_L1CN_L2CN {
@@ -1524,7 +1530,7 @@ namespace TestPCL::Verbatim_L1CN_L2CN {
     const LintCombine::stringVector resultCmdLine{
         "--result-yaml=" CURRENT_BINARY_DIR "file.yaml", "--sub-linter=clazy",
         "--sub-linter=clang-tidy", "--param=value", "-p=val", "--param", "val" };
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
 namespace TestPCL::Verbatim_GeneralYAMLDNE {
@@ -1537,7 +1543,7 @@ namespace TestPCL::Verbatim_GeneralYAMLDNE {
             "Path to general YAML-file is not set", "VerbatimPreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
 namespace TestPCL::Verbatim_GeneralYAMLIN {
@@ -1551,7 +1557,7 @@ namespace TestPCL::Verbatim_GeneralYAMLIN {
             "General YAML-file \"\\\\\" is not creatable", "VerbatimPreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
 namespace TestPCL::UnsupportedIDE {
@@ -1562,7 +1568,7 @@ namespace TestPCL::UnsupportedIDE {
             "\"shasharper\" is not a supported IDE profile", "FactoryPreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, std::nullopt };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, std::nullopt, std::nullopt };
 }
 
 namespace TestPCL::SpecifiedTwice {
@@ -1573,7 +1579,7 @@ namespace TestPCL::SpecifiedTwice {
             "option '--p' cannot be specified more than once", "BasePreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::GenYAMLPathEmpty {
@@ -1584,7 +1590,7 @@ namespace TestPCL::GenYAMLPathEmpty {
             "Path to yaml-file is empty.", "BasePreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::CompilationDBEmpty {
@@ -1595,7 +1601,7 @@ namespace TestPCL::CompilationDBEmpty {
             "Path to compilation database is empty.", "BasePreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::RequiredOptionsE {
@@ -1616,9 +1622,17 @@ namespace TestPCL::RequiredOptionsE {
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1641,9 +1655,17 @@ namespace TestPCL::CTOptionsPassed {
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1667,9 +1689,17 @@ namespace TestPCL::FilesPassed {
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1688,7 +1718,7 @@ namespace TestPCL::ReSharperHeaderFilterPassed {
         "--sub-linter=clazy", "-p=pathToCompilationDataBase",
         "--export-fixes=pathToCompilationDataBase"
         PATH_SEP "diagnosticsClazy.yaml", "--header-filter=file.cpp" };
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::CLChecksEmptyAES {
@@ -1700,7 +1730,7 @@ namespace TestPCL::CLChecksEmptyAES {
             "the argument for option '--clazy-checks' should follow "
             "immediately after the equal sign", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::ClangExtraArgsEmptyAES {
@@ -1712,7 +1742,7 @@ namespace TestPCL::ClangExtraArgsEmptyAES {
             "the argument for option '--clang-extra-args' should follow "
             "immediately after the equal sign", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::ParamsEmptyAES {
@@ -1724,7 +1754,7 @@ namespace TestPCL::ParamsEmptyAES {
             "the argument for option '--clazy-checks' should follow "
             "immediately after the equal sign", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::CLChecksEmptyASP {
@@ -1750,9 +1780,17 @@ namespace TestPCL::CLChecksEmptyASP {
                  "the parameter's value was not set. "
                  "The parameter will be ignored.", "BasePreparer", 63, 75 ) };
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1779,9 +1817,17 @@ namespace TestPCL::ClangXArgsEmptyASP {
                  "the parameter's value was not set. "
                  "The parameter will be ignored.", "BasePreparer", 63, 79 ) };
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1812,9 +1858,17 @@ namespace TestPCL::ParamsEmptyASP {
                  "the parameter's value was not set. "
                  "The parameter will be ignored.", "BasePreparer", 78, 94 ) };
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1837,9 +1891,17 @@ namespace TestPCL::CLChecksE {
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1862,9 +1924,17 @@ namespace TestPCL::ClangXArgsE {
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1888,9 +1958,17 @@ namespace TestPCL::ParamsEAES {
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1903,7 +1981,7 @@ namespace TestPCL::LinterEmptyAES {
             "the argument for option '--sub-linter' should follow "
             "immediately after the equal sign", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 
@@ -1917,7 +1995,7 @@ namespace TestPCL::L1FIN_L2EAES {
             "the argument for option '--sub-linter' should follow "
             "immediately after the equal sign", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::L1EmptyAES_L2IN {
@@ -1930,7 +2008,7 @@ namespace TestPCL::L1EmptyAES_L2IN {
             "the argument for option '--sub-linter' should follow "
             "immediately after the equal sign", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::L1EmptyAES_L2EmptyAES {
@@ -1943,7 +2021,7 @@ namespace TestPCL::L1EmptyAES_L2EmptyAES {
             "the argument for option '--sub-linter' should follow "
             "immediately after the equal sign", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::L1Empty {
@@ -1955,7 +2033,7 @@ namespace TestPCL::L1Empty {
             "the required argument for option '--sub-linter' is missing",
             "BasePreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::L1IN_L2EmptyASP {
@@ -1968,7 +2046,7 @@ namespace TestPCL::L1IN_L2EmptyASP {
             "the required argument for option '--sub-linter' is missing",
             "BasePreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::L1EmptyASP_L2IN {
@@ -1984,7 +2062,7 @@ namespace TestPCL::L1EmptyASP_L2IN {
             "Unknown linter name \"--sub-linter\"",
             "BasePreparer", 74, 86 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::L1EmptyASP_L2EmptyASP {
@@ -2000,7 +2078,7 @@ namespace TestPCL::L1EmptyASP_L2EmptyASP {
             "Unknown linter name \"--sub-linter\"",
             "BasePreparer", 74, 86 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::L1IN {
@@ -2015,7 +2093,7 @@ namespace TestPCL::L1IN {
             "Unknown linter name \"IncorrectName_1\"",
             "BasePreparer", 74, 89 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::L1IN_L2IN {
@@ -2034,7 +2112,7 @@ namespace TestPCL::L1IN_L2IN {
             "Unknown linter name \"IncorrectName_2\"",
             "BasePreparer", 103, 118 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true };
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
 namespace TestPCL::LinterIsCT {
@@ -2052,9 +2130,17 @@ namespace TestPCL::LinterIsCT {
 
         const std::vector< LintCombine::Diagnostic > diagnostics;
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -2073,9 +2159,17 @@ namespace TestPCL::LinterIsCL {
 
         const std::vector< LintCombine::Diagnostic > diagnostics;
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -2096,9 +2190,17 @@ namespace TestPCL::AllLintersAES {
 
         const std::vector< LintCombine::Diagnostic > diagnostics;
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -2119,9 +2221,17 @@ namespace TestPCL::AllLintersASP {
 
         const std::vector< LintCombine::Diagnostic > diagnostics;
         auto YAMLContainsDocLink = false;
-        if( ideName == "CLion" ) { YAMLContainsDocLink = false; }
-        if( ideName == "ReSharper" ) { YAMLContainsDocLink = true; }
-        return PCLTestCase::Output{ diagnostics, resultCmdLine, YAMLContainsDocLink };
+        auto linterExitCodeTolerant = false;
+        if( ideName == "CLion" ) {
+            YAMLContainsDocLink = false;
+            linterExitCodeTolerant = TOLERANT_CLION_VAL;
+        }
+        if( ideName == "ReSharper" ) {
+            YAMLContainsDocLink = true;
+            linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
+        }
+        return PCLTestCase::Output{ diagnostics, resultCmdLine,
+            YAMLContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -2136,7 +2246,7 @@ const std::vector< PCLTestCase > PCLTestCaseData = {
     /*7 */    PCLTestCase{ TestPCL::Verbatim_GeneralYAMLIN::input, TestPCL::Verbatim_GeneralYAMLIN::output },
     /*8 */    PCLTestCase{ TestPCL::UnsupportedIDE::input, TestPCL::UnsupportedIDE::output },
     /*9 */    PCLTestCase{ TestPCL::SpecifiedTwice::input, TestPCL::SpecifiedTwice::output },
-    /*10 */   PCLTestCase{ TestPCL::CompilationDBEmpty::input, TestPCL::CompilationDBEmpty::output },
+    /*10*/   PCLTestCase{ TestPCL::CompilationDBEmpty::input, TestPCL::CompilationDBEmpty::output },
     /*11*/    PCLTestCase{ TestPCL::GenYAMLPathEmpty::input, TestPCL::GenYAMLPathEmpty::output },
     /*12*/    PCLTestCase{ TestPCL::RequiredOptionsE::input( "ReSharper" ), TestPCL::RequiredOptionsE::output( "ReSharper" ) },
     /*13*/    PCLTestCase{ TestPCL::RequiredOptionsE::input( "CLion" ), TestPCL::RequiredOptionsE::output( "CLion" ) },
@@ -2180,16 +2290,20 @@ const std::vector< PCLTestCase > PCLTestCaseData = {
     /*51*/    PCLTestCase{ TestPCL::AllLintersASP::input( "CLion" ), TestPCL::AllLintersASP::output( "CLion" ) },
 };
 
-BOOST_DATA_TEST_CASE( TestMergeYaml, PCLTestCaseData, sample ) {
+BOOST_DATA_TEST_CASE( TestPrepareCmdLine, PCLTestCaseData, sample ) {
     const auto & correctResult = static_cast< PCLTestCase::Output >( sample.output );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
-    auto kek = sample.input.cmdLine;
-    auto prepareCmdLine = ideTraitsFactory.getPrepareCmdLineInstance( kek );
+    auto inputCmdLine = sample.input.cmdLine;
+    auto prepareCmdLine = ideTraitsFactory.getPrepareInputsInstance( inputCmdLine );
     if( correctResult.YAMLContainsDocLink.has_value() ) {
         BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->isYamlContainsDocLink() ==
                      correctResult.YAMLContainsDocLink );
     }
-    compareContainers( prepareCmdLine->transformCmdLine( kek ),
+    if( correctResult.linterExitCodeTolerant.has_value() ) {
+        BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ==
+                     correctResult.linterExitCodeTolerant );
+    }
+    compareContainers( prepareCmdLine->transformCmdLine( inputCmdLine ),
                        correctResult.resultCmdLine );
     const auto & preparerDiagnostics = prepareCmdLine->diagnostics();
     const auto & correctResultDiagnostics = correctResult.diagnostics;
@@ -2197,6 +2311,103 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, PCLTestCaseData, sample ) {
     for( size_t i = 0; i < correctResultDiagnostics.size(); ++i ) {
         compareDiagnostics( preparerDiagnostics[i], correctResultDiagnostics[i] );
     }
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE( TestSpecifyTargetArch )
+
+void checkTargetArch( const std::string & macrosDir,
+                      const std::string & targetTriple = std::string() ) {
+    if constexpr( !BOOST_OS_WINDOWS ) {
+        return;
+    }
+    LintCombine::stringVector cmdLine = {
+        "--ide-profile=CLion", "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/"
+        + macrosDir, "--export-fixes=pathToResultYaml"
+    };
+    LintCombine::stringVector result;
+    if( !targetTriple.empty() ) {
+        const std::string extraArg =
+            "--extra-arg-before=\"--target=" + targetTriple + "\"";
+        result = {
+           "--result-yaml=pathToResultYaml",
+            "--sub-linter=clang-tidy",
+           "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+           "--export-fixes=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir +
+           PATH_SEP "diagnosticsClangTidy.yaml", extraArg,
+            "--sub-linter=clazy",
+           "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+           "--export-fixes=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir +
+           PATH_SEP "diagnosticsClazy.yaml", extraArg
+        };
+    }
+    else {
+        result = {
+           "--result-yaml=pathToResultYaml",
+            "--sub-linter=clang-tidy",
+           "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+           "--export-fixes=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir +
+           PATH_SEP "diagnosticsClangTidy.yaml",
+            "--sub-linter=clazy",
+           "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir,
+           "--export-fixes=" CURRENT_SOURCE_DIR "CLionTestsMacros/" + macrosDir +
+           PATH_SEP "diagnosticsClazy.yaml"
+        };
+    }
+
+    LintCombine::IdeTraitsFactory ideTraitsFactory;
+    auto prepareCmdLine =
+        ideTraitsFactory.getPrepareInputsInstance( cmdLine );
+    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosFileDoesNotExist ) {
+    const std::string macrosDir = "emptyDir";
+    const std::string targetTriple;
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( EmptyMacrosFile ) {
+    const std::string macrosDir = "emptyFileInsideDir";
+    const std::string targetTriple;
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( ArchMacrosDontSpecified ) {
+    const std::string macrosDir = "archMacrosDoNotSpecified";
+    const std::string targetTriple;
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( SeveralDifferentArchSpecified ) {
+    const std::string macrosDir = "severalDifferentArchSpecified";
+    const std::string targetTriple;
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosX86 ) {
+    const std::string macrosDir = "x86";
+    const std::string targetTriple = "i386-pc-win32";
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosX64 ) {
+    const std::string macrosDir = "x64";
+    const std::string targetTriple = "x86_64-pc-win32";
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosArm ) {
+    const std::string macrosDir = "arm";
+    const std::string targetTriple = "arm-pc-win32";
+    checkTargetArch( macrosDir, targetTriple );
+}
+
+BOOST_AUTO_TEST_CASE( MacrosArm64 ) {
+    const std::string macrosDir = "arm64";
+    const std::string targetTriple = "arm64-pc-win32";
+    checkTargetArch( macrosDir, targetTriple );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

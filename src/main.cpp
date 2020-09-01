@@ -6,7 +6,7 @@
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
-    auto prepareInputs = ideTraitsFactory.getPrepareCmdLineInstance( cmdLine );
+    auto prepareInputs = ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     prepareInputs->transformFiles();
@@ -28,7 +28,9 @@ int main( int argc, char * argv[] ) {
     const auto callReturnCode = pCombine->waitLinter();
     if( callReturnCode == 3 ) {
         diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
-        return callReturnCode;
+        if( !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
+            return callReturnCode;
+        }
     }
 
     if( ideTraitsFactory.getIdeBehaviorInstance() &&

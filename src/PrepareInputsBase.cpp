@@ -158,6 +158,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
 void LintCombine::PrepareInputsBase::initCmdLine() {
     cmdLine.clear();
     initCommonOptions();
+    specifyTargetArch();
     appendLintersOptionToCmdLine();
 }
 

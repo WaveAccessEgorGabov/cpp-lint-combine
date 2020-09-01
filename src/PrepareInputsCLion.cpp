@@ -5,11 +5,40 @@
 #include <fstream>
 #include <sstream>
 
+void LintCombine::PrepareInputsCLion::specifyTargetArch() {
+    if constexpr( BOOST_OS_WINDOWS ) {
+        const std::vector< std::pair< std::string, std::string > > macroTargetPairs =
+        {
+            // space in both side of macro is done on purpose.
+            { " _M_X64 ",   "x86_64-pc-win32" },
+            { " _M_IX86 ",  "i386-pc-win32"   },
+            { " _M_ARM64 ", "arm64-pc-win32"  },
+            { " _M_ARM ",   "arm-pc-win32"    }
+        };
+        std::ifstream macrosFile( pathToWorkDir + "/macros" );
+        std::string linterArchExtraArg;
+        for( std::string macroDefinition; std::getline( macrosFile, macroDefinition );) {
+            for( const auto & [macrosArch, archTriple] : macroTargetPairs ) {
+                if( macroDefinition.find( macrosArch ) != std::string::npos ) {
+                    if( !linterArchExtraArg.empty() ) {
+                        return;
+                    }
+                    linterArchExtraArg = "--extra-arg-before=\"--target=" + archTriple + "\"";
+                }
+            }
+        }
+        if( !linterArchExtraArg.empty() ) {
+            addOptionToAllLinters( linterArchExtraArg );
+        }
+    }
+}
+
 void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
     stringVector filesForAnalysis;
     for( auto & unrecognized : unrecognizedCollection ) {
         if constexpr( BOOST_OS_WINDOWS ) {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
+            specifyTargetArch();
         }
         // File to analysis
         if( unrecognized[0] != '-' && unrecognized[0] != '@' ) {
@@ -27,28 +56,28 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
 }
 
 void LintCombine::PrepareInputsCLion::transformFiles() {
-    std::ifstream sourceMacrosFile( pathToWorkDir + "/macros" );
-    std::ostringstream pBuf;
-    pBuf << sourceMacrosFile.rdbuf();
-    std::string buf = pBuf.str();
-    std::ofstream updatedMacrosFile( pathToWorkDir + "/macros" );
-
-    // In Linux the following macros must be undefined to avoid redefinition,
-    // because clazy also defines this macros
     if constexpr( BOOST_OS_LINUX ) {
-        updatedMacrosFile << "#undef __clang_version__\n";
-        updatedMacrosFile << "#undef __VERSION__\n";
-        updatedMacrosFile << "#undef __has_feature\n";
-        updatedMacrosFile << "#undef __has_extension\n";
-        updatedMacrosFile << "#undef __has_attribute\n";
-        updatedMacrosFile << "#undef __has_builtin\n";
-    }
-    updatedMacrosFile << buf;
+        std::ifstream macrosFileSrc( pathToWorkDir + "/macros" );
 
-    // In Linux clang in not compatible with GCC 8 or higher,
-    // so we can't use the following macros
-    if constexpr( BOOST_OS_LINUX ) {
-        updatedMacrosFile << "#define _GLIBCXX_USE_MAKE_INTEGER_SEQ 1\n";
-        updatedMacrosFile << "#undef __builtin_va_start\n";
+        // save source macros
+        std::ostringstream sourceMacros;
+        sourceMacros << macrosFileSrc.rdbuf();
+
+        std::ofstream macrosFileRes( pathToWorkDir + "/macros" );
+
+        // In Linux the following macros must be undefined to avoid redefinition,
+        // because clazy also defines this macros
+        macrosFileRes << "#undef __clang_version__\n";
+        macrosFileRes << "#undef __VERSION__\n";
+        macrosFileRes << "#undef __has_feature\n";
+        macrosFileRes << "#undef __has_extension\n";
+        macrosFileRes << "#undef __has_attribute\n";
+        macrosFileRes << "#undef __has_builtin\n";
+        macrosFileRes << sourceMacros.str();
+
+        // In Linux clang in not compatible with GCC 8 or higher,
+        // so we can't use the following macros
+        macrosFileRes << "#define _GLIBCXX_USE_MAKE_INTEGER_SEQ 1\n";
+        macrosFileRes << "#undef __builtin_va_start\n";
     }
 }
