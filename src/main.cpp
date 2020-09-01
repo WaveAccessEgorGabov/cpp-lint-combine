@@ -15,7 +15,7 @@ int main( int argc, char * argv[] ) {
         return 0;
     }
 
-    std::shared_ptr< LintCombine::LinterItf > pCombine;
+    std::unique_ptr< LintCombine::LinterItf > pCombine;
     try {
         cmdLine.insert( cmdLine.begin(), "LinterCombine" );
         pCombine = LintCombine::UsualLinterFactory::getInstance().createLinter( cmdLine );

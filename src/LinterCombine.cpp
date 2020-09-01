@@ -90,7 +90,7 @@ LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
     return callTotals;
 }
 
-std::shared_ptr< LintCombine::LinterItf >
+const std::unique_ptr< LintCombine::LinterItf > &
 LintCombine::LinterCombine::linterAt( const size_t pos ) const {
     if( pos >= m_linters.size() )
         throw std::out_of_range( "index out of bounds" );

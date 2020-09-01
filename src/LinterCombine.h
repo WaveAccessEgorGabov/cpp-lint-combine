@@ -23,7 +23,7 @@ namespace LintCombine {
 
         CallTotals updateYaml() override;
 
-        std::shared_ptr< LinterItf > linterAt( size_t pos ) const;
+        const std::unique_ptr< LinterItf > & linterAt( size_t pos ) const;
 
         size_t numLinters() const noexcept;
 
@@ -38,7 +38,7 @@ namespace LintCombine {
 
         YAML::Node loadYamlNode( const std::string & pathToYaml );
 
-        std::vector< std::shared_ptr< LinterItf > > m_linters;
+        std::vector< std::unique_ptr< LinterItf > > m_linters;
         std::string m_generalYAMLPath;
         LinterFactoryBase::Services & m_services;
         std::vector< Diagnostic > m_diagnostics;

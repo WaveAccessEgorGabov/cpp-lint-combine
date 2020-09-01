@@ -60,10 +60,10 @@ namespace LintCombine {
             return mockFactory;
         }
 
-        std::shared_ptr< LinterItf >
+        std::unique_ptr< LinterItf >
             createLinter( const stringVector & cmdLine ) override {
             if( cmdLine[0] == "MockLinterWrapper" ) {
-                return std::make_shared< MockLinterWrapper >( cmdLine, getServices() );
+                return std::make_unique< MockLinterWrapper >( cmdLine, getServices() );
             }
             return nullptr;
         }
@@ -518,8 +518,8 @@ BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
         BOOST_CHECK( combine.numLinters() == correctResult.linterData.size() );
         for( size_t i = 0; i < combine.numLinters(); ++i ) {
             const auto & linter =
-                std::dynamic_pointer_cast < LintCombine::LinterBase > (
-                combine.linterAt( i ) );
+                dynamic_cast< LintCombine::LinterBase * > (
+                combine.linterAt( i ).get() );
             BOOST_CHECK( correctResult.linterData[i].name == linter->getName() );
             BOOST_CHECK( correctResult.linterData[i].options == linter->getOptions() );
             BOOST_CHECK( correctResult.linterData[i].yamlPath == linter->getYamlPath() );
