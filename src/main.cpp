@@ -22,7 +22,7 @@ int main( int argc, char * argv[] ) {
     }
     catch( const LintCombine::Exception & ex ) {
         diagnosticWorker.printDiagnostics( ex.diagnostics() );
-        return 1;
+        return 1; // Error occurred in LinterCombine constructor.
     }
 
     pCombine->callLinter();
@@ -30,7 +30,7 @@ int main( int argc, char * argv[] ) {
     if( callReturnCode == 3 ) {
         diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
         if( !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
-            return callReturnCode;
+            return callReturnCode; // All linters failed.
         }
     }
 
@@ -39,13 +39,13 @@ int main( int argc, char * argv[] ) {
         const auto callTotals = pCombine->updateYaml();
         if( !callTotals.successNum ) {
             diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
-            return 1;
+            return 2; // Error while updating YAML-file
         }
     }
 
     if( pCombine->getYamlPath().empty() ) {
         diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
-        return 1;
+        return 4; // Error while put diagnostics into result YAML-file.
     }
     diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
 
