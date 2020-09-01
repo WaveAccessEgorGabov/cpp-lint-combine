@@ -179,13 +179,13 @@ namespace TestULF::LinterIsCombine {
     const ULFTestCase::Output output{ diagnostics, false };
 }
 
-const std::vector< ULFTestCase > LCCTestCaseData = {
-    /*0 */    { TestULF::EmptyCmdLine::input, TestULF::EmptyCmdLine::output },
-    /*1 */    { TestULF::UnknownLinter::input, TestULF::UnknownLinter::output },
-    /*2 */    { TestULF::LinterNameAndSubLinterSpecified::input, TestULF::LinterNameAndSubLinterSpecified::output },
-    /*3 */    { TestULF::LinterIsClazy::input, TestULF::LinterIsClazy::output },
-    /*4 */    { TestULF::LinterIsClangTidy::input, TestULF::LinterIsClangTidy::output },
-    /*5 */    { TestULF::LinterIsCombine::input, TestULF::LinterIsCombine::output }
+const ULFTestCase LCCTestCaseData[] = {
+    /*0 */ { TestULF::EmptyCmdLine::input, TestULF::EmptyCmdLine::output },
+    /*1 */ { TestULF::UnknownLinter::input, TestULF::UnknownLinter::output },
+    /*2 */ { TestULF::LinterNameAndSubLinterSpecified::input, TestULF::LinterNameAndSubLinterSpecified::output },
+    /*3 */ { TestULF::LinterIsClazy::input, TestULF::LinterIsClazy::output },
+    /*4 */ { TestULF::LinterIsClangTidy::input, TestULF::LinterIsClangTidy::output },
+    /*5 */ { TestULF::LinterIsCombine::input, TestULF::LinterIsCombine::output }
 };
 
 // TODO: SFINAE for checking linter type?
@@ -508,27 +508,27 @@ namespace TestLCC::ClangTidyAndClazyEWithOptions {
     const LCCTestCase::Output output{ diagnostics, linterData, false };
 }
 
-const std::vector< LCCTestCase > LCCTestCaseData = {
-    /*0 */    { TestLCC::EmptyCmdLine::input, TestLCC::EmptyCmdLine::output },
-    /*1 */    { TestLCC::NoOneLinterSet::input, TestLCC::NoOneLinterSet::output },
-    /*2 */    { TestLCC::L1DNE::input, TestLCC::L1DNE::output },
-    /*3 */    { TestLCC::L1DNE_L2E::input, TestLCC::L1DNE_L2E::output },
-    /*4 */    { TestLCC::L1DNE_L2DNE::input, TestLCC::L1DNE_L2DNE::output },
-    /*5 */    { TestLCC::OneLintersVEAES::input, TestLCC::OneLintersVEAES::output },
-    /*6 */    { TestLCC::OneLintersVEASP::input, TestLCC::OneLintersVEASP::output },
-    /*7 */    { TestLCC::TwoLintersVEAES::input, TestLCC::TwoLintersVEAES::output },
-    /*8 */    { TestLCC::TwoLintersVEASP::input, TestLCC::TwoLintersVEASP::output },
-    /*9 */    { TestLCC::GeneralYamlPathVEAES::input, TestLCC::GeneralYamlPathVEAES::output },
-    /*10*/    { TestLCC::GeneralYamlPathVEASP::input, TestLCC::GeneralYamlPathVEASP::output },
-    /*11*/    { TestLCC::GeneralYamlPathVI::input, TestLCC::GeneralYamlPathVI::output },
-    /*12*/    { TestLCC::LinterYamlPathVEAES::input, TestLCC::LinterYamlPathVEAES::output },
-    /*13*/    { TestLCC::LinterYamlPathVEASP::input, TestLCC::LinterYamlPathVEASP::output },
-    /*14*/    { TestLCC::LinterYamlPathVI::input, TestLCC::LinterYamlPathVI::output },
-    /*15*/    { TestLCC::ClazyExists::input, TestLCC::ClazyExists::output },
-    /*16*/    { TestLCC::ClangTidyExists::input, TestLCC::ClangTidyExists::output },
-    /*17*/    { TestLCC::ClazyEWithOptions::input, TestLCC::ClazyEWithOptions::output },
-    /*18*/    { TestLCC::ClangTidyAndClazyE::input, TestLCC::ClangTidyAndClazyE::output },
-    /*19*/    { TestLCC::ClangTidyAndClazyEWithOptions::input, TestLCC::ClangTidyAndClazyEWithOptions::output }
+const LCCTestCase LCCTestCaseData[] = {
+    /*0 */ { TestLCC::EmptyCmdLine::input, TestLCC::EmptyCmdLine::output },
+    /*1 */ { TestLCC::NoOneLinterSet::input, TestLCC::NoOneLinterSet::output },
+    /*2 */ { TestLCC::L1DNE::input, TestLCC::L1DNE::output },
+    /*3 */ { TestLCC::L1DNE_L2E::input, TestLCC::L1DNE_L2E::output },
+    /*4 */ { TestLCC::L1DNE_L2DNE::input, TestLCC::L1DNE_L2DNE::output },
+    /*5 */ { TestLCC::OneLintersVEAES::input, TestLCC::OneLintersVEAES::output },
+    /*6 */ { TestLCC::OneLintersVEASP::input, TestLCC::OneLintersVEASP::output },
+    /*7 */ { TestLCC::TwoLintersVEAES::input, TestLCC::TwoLintersVEAES::output },
+    /*8 */ { TestLCC::TwoLintersVEASP::input, TestLCC::TwoLintersVEASP::output },
+    /*9 */ { TestLCC::GeneralYamlPathVEAES::input, TestLCC::GeneralYamlPathVEAES::output },
+    /*10*/ { TestLCC::GeneralYamlPathVEASP::input, TestLCC::GeneralYamlPathVEASP::output },
+    /*11*/ { TestLCC::GeneralYamlPathVI::input, TestLCC::GeneralYamlPathVI::output },
+    /*12*/ { TestLCC::LinterYamlPathVEAES::input, TestLCC::LinterYamlPathVEAES::output },
+    /*13*/ { TestLCC::LinterYamlPathVEASP::input, TestLCC::LinterYamlPathVEASP::output },
+    /*14*/ { TestLCC::LinterYamlPathVI::input, TestLCC::LinterYamlPathVI::output },
+    /*15*/ { TestLCC::ClazyExists::input, TestLCC::ClazyExists::output },
+    /*16*/ { TestLCC::ClangTidyExists::input, TestLCC::ClangTidyExists::output },
+    /*17*/ { TestLCC::ClazyEWithOptions::input, TestLCC::ClazyEWithOptions::output },
+    /*18*/ { TestLCC::ClangTidyAndClazyE::input, TestLCC::ClangTidyAndClazyE::output },
+    /*19*/ { TestLCC::ClangTidyAndClazyEWithOptions::input, TestLCC::ClangTidyAndClazyEWithOptions::output }
 };
 
 BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
@@ -921,22 +921,22 @@ namespace TestCWL::TwoLinterEETC {
         diagnostics, stdoutData, stderrData, filesWithContent, /*returnCode*/0 };
 }
 
-const std::vector< CWLTestCase > CWLTestCaseData = {
-    /*0 */    CWLTestCase{TestCWL::L1Terminate::input, TestCWL::L1Terminate::output},
-    /*1 */    CWLTestCase{TestCWL::L1Terminate_L2WSFR0::input, TestCWL::L1Terminate_L2WSFR0::output},
-    /*2 */    CWLTestCase{TestCWL::L1Terminate_L2Terminate::input, TestCWL::L1Terminate_L2Terminate::output},
-    /*3 */    CWLTestCase{TestCWL::L1WSR1::input, TestCWL::L1WSR1::output},
-    /*4 */    CWLTestCase{TestCWL::L1WSR1_L2WSFR0::input, TestCWL::L1WSR1_L2WSFR0::output},
-    /*5 */    CWLTestCase{TestCWL::L1R1_L2R1::input, TestCWL::L1R1_L2R1::output},
-    /*6 */    CWLTestCase{TestCWL::L1WSR0::input, TestCWL::L1WSR0::output},
-    /*7 */    CWLTestCase{TestCWL::L1WFR0::input, TestCWL::L1WFR0::output},
-    /*8 */    CWLTestCase{TestCWL::L1WSFR0::input, TestCWL::L1WSFR0::output},
-    /*9 */    CWLTestCase{TestCWL::L1WSR0_L2WSR0::input, TestCWL::L1WSR0_L2WSR0::output},
-    /*10*/    CWLTestCase{TestCWL::L1WFR0_L2WFR0::input, TestCWL::L1WFR0_L2WFR0::output},
-    /*11*/    CWLTestCase{TestCWL::L1WSFR0_L2WSFR0::input, TestCWL::L1WSFR0_L2WSFR0::output},
-    /*12*/    CWLTestCase{TestCWL::LintersWorkInParallel::input, TestCWL::LintersWorkInParallel::output},
-    /*13*/    CWLTestCase{TestCWL::OneLinterEETC::input, TestCWL::OneLinterEETC::output},
-    /*14*/    CWLTestCase{TestCWL::TwoLinterEETC::input, TestCWL::TwoLinterEETC::output}
+const CWLTestCase CWLTestCaseData[] = {
+    /*0 */ {TestCWL::L1Terminate::input, TestCWL::L1Terminate::output},
+    /*1 */ {TestCWL::L1Terminate_L2WSFR0::input, TestCWL::L1Terminate_L2WSFR0::output},
+    /*2 */ {TestCWL::L1Terminate_L2Terminate::input, TestCWL::L1Terminate_L2Terminate::output},
+    /*3 */ {TestCWL::L1WSR1::input, TestCWL::L1WSR1::output},
+    /*4 */ {TestCWL::L1WSR1_L2WSFR0::input, TestCWL::L1WSR1_L2WSFR0::output},
+    /*5 */ {TestCWL::L1R1_L2R1::input, TestCWL::L1R1_L2R1::output},
+    /*6 */ {TestCWL::L1WSR0::input, TestCWL::L1WSR0::output},
+    /*7 */ {TestCWL::L1WFR0::input, TestCWL::L1WFR0::output},
+    /*8 */ {TestCWL::L1WSFR0::input, TestCWL::L1WSFR0::output},
+    /*9 */ {TestCWL::L1WSR0_L2WSR0::input, TestCWL::L1WSR0_L2WSR0::output},
+    /*10*/ {TestCWL::L1WFR0_L2WFR0::input, TestCWL::L1WFR0_L2WFR0::output},
+    /*11*/ {TestCWL::L1WSFR0_L2WSFR0::input, TestCWL::L1WSFR0_L2WSFR0::output},
+    /*12*/ {TestCWL::LintersWorkInParallel::input, TestCWL::LintersWorkInParallel::output},
+    /*13*/ {TestCWL::OneLinterEETC::input, TestCWL::OneLinterEETC::output},
+    /*14*/ {TestCWL::TwoLinterEETC::input, TestCWL::TwoLinterEETC::output}
 };
 
 BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
@@ -1190,17 +1190,17 @@ namespace TestUY::clazyUpdateYaml {
     const UYTestCase::Output output{ diagnostics, callTotals, filesForCompare };
 }
 
-const std::vector< UYTestCase > UYTestCaseData = {
-    /*0 */    UYTestCase{TestUY::L1YPDNE::input, TestUY::L1YPDNE::output},
-    /*1 */    UYTestCase{TestUY::L1YPEmpty::input, TestUY::L1YPEmpty::output},
-    /*2 */    UYTestCase{TestUY::L1YPEmpty_L2YPE::input, TestUY::L1YPEmpty_L2YPE::output},
-    /*3 */    UYTestCase{TestUY::TwoLintersYPEmpty::input, TestUY::TwoLintersYPEmpty::output},
-    /*4 */    UYTestCase{TestUY::L1YPE_L2YPDNE::input, TestUY::L1YPE_L2YPDNE::output},
-    /*5 */    UYTestCase{TestUY::TwoLintersYPDNE::input, TestUY::TwoLintersYPDNE::output},
-    /*6 */    UYTestCase{TestUY::L1_YPE::input, TestUY::L1_YPE::output},
-    /*7 */    UYTestCase{TestUY::L1YPE_L2YPE::input, TestUY::L1YPE_L2YPE::output},
-    /*8 */    UYTestCase{TestUY::clangTidyUpdateYaml::input, TestUY::clangTidyUpdateYaml::output},
-    /*9 */    UYTestCase{TestUY::clazyUpdateYaml::input, TestUY::clazyUpdateYaml::output}
+const UYTestCase UYTestCaseData[] = {
+    /*0 */ {TestUY::L1YPDNE::input, TestUY::L1YPDNE::output},
+    /*1 */ {TestUY::L1YPEmpty::input, TestUY::L1YPEmpty::output},
+    /*2 */ {TestUY::L1YPEmpty_L2YPE::input, TestUY::L1YPEmpty_L2YPE::output},
+    /*3 */ {TestUY::TwoLintersYPEmpty::input, TestUY::TwoLintersYPEmpty::output},
+    /*4 */ {TestUY::L1YPE_L2YPDNE::input, TestUY::L1YPE_L2YPDNE::output},
+    /*5 */ {TestUY::TwoLintersYPDNE::input, TestUY::TwoLintersYPDNE::output},
+    /*6 */ {TestUY::L1_YPE::input, TestUY::L1_YPE::output},
+    /*7 */ {TestUY::L1YPE_L2YPE::input, TestUY::L1YPE_L2YPE::output},
+    /*8 */ {TestUY::clangTidyUpdateYaml::input, TestUY::clangTidyUpdateYaml::output},
+    /*9 */ {TestUY::clazyUpdateYaml::input, TestUY::clazyUpdateYaml::output}
 };
 
 BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
@@ -1358,12 +1358,12 @@ namespace TestMY::TwoLintersYPE {
     const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToGeneralYAML };
 }
 
-const std::vector< MYTestCase > MYTestCaseData = {
-    /*0 */    MYTestCase{ TestMY::L1YPDNE::input, TestMY::L1YPDNE::output},
-    /*1 */    MYTestCase{ TestMY::L1YPE::input, TestMY::L1YPE::output},
-    /*2 */    MYTestCase{ TestMY::L1YPE_L2YPDNE::input, TestMY::L1YPE_L2YPDNE::output},
-    /*3 */    MYTestCase{ TestMY::TwoLintersYPDNE::input, TestMY::TwoLintersYPDNE::output},
-    /*4 */    MYTestCase{ TestMY::TwoLintersYPE::input, TestMY::TwoLintersYPE::output}
+const MYTestCase MYTestCaseData[] = {
+    /*0 */ { TestMY::L1YPDNE::input, TestMY::L1YPDNE::output},
+    /*1 */ { TestMY::L1YPE::input, TestMY::L1YPE::output},
+    /*2 */ { TestMY::L1YPE_L2YPDNE::input, TestMY::L1YPE_L2YPDNE::output},
+    /*3 */ { TestMY::TwoLintersYPDNE::input, TestMY::TwoLintersYPDNE::output},
+    /*4 */ { TestMY::TwoLintersYPE::input, TestMY::TwoLintersYPE::output}
 };
 
 BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
@@ -2239,59 +2239,59 @@ namespace TestPCL::AllLintersASP {
     }
 }
 
-const std::vector< PCLTestCase > PCLTestCaseData = {
-    /*0 */    PCLTestCase{ TestPCL::EmptyCmdLine::input, TestPCL::EmptyCmdLine::output },
-    /*1 */    PCLTestCase{ TestPCL::Verbatim_LintersDNE::input, TestPCL::Verbatim_LintersDNE::output },
-    /*2 */    PCLTestCase{ TestPCL::Verbatim_L1IN::input, TestPCL::Verbatim_L1IN::output },
-    /*3 */    PCLTestCase{ TestPCL::Verbatim_L1IN_L2IN::input, TestPCL::Verbatim_L1IN_L2IN::output },
-    /*4 */    PCLTestCase{ TestPCL::Verbatim_L1CN::input, TestPCL::Verbatim_L1CN::output },
-    /*5 */    PCLTestCase{ TestPCL::Verbatim_L1CN_L2CN::input, TestPCL::Verbatim_L1CN_L2CN::output },
-    /*6 */    PCLTestCase{ TestPCL::Verbatim_GeneralYAMLDNE::input, TestPCL::Verbatim_GeneralYAMLDNE::output },
-    /*7 */    PCLTestCase{ TestPCL::Verbatim_GeneralYAMLIN::input, TestPCL::Verbatim_GeneralYAMLIN::output },
-    /*8 */    PCLTestCase{ TestPCL::UnsupportedIDE::input, TestPCL::UnsupportedIDE::output },
-    /*9 */    PCLTestCase{ TestPCL::SpecifiedTwice::input, TestPCL::SpecifiedTwice::output },
-    /*10*/   PCLTestCase{ TestPCL::CompilationDBEmpty::input, TestPCL::CompilationDBEmpty::output },
-    /*11*/    PCLTestCase{ TestPCL::GenYAMLPathEmpty::input, TestPCL::GenYAMLPathEmpty::output },
-    /*12*/    PCLTestCase{ TestPCL::RequiredOptionsE::input( "ReSharper" ), TestPCL::RequiredOptionsE::output( "ReSharper" ) },
-    /*13*/    PCLTestCase{ TestPCL::RequiredOptionsE::input( "CLion" ), TestPCL::RequiredOptionsE::output( "CLion" ) },
-    /*14*/    PCLTestCase{ TestPCL::CTOptionsPassed::input( "ReSharper" ), TestPCL::CTOptionsPassed::output( "ReSharper" ) },
-    /*15*/    PCLTestCase{ TestPCL::CTOptionsPassed::input( "CLion" ), TestPCL::CTOptionsPassed::output( "CLion" ) },
-    /*16*/    PCLTestCase{ TestPCL::FilesPassed::input( "ReSharper" ), TestPCL::FilesPassed::output( "ReSharper" ) },
-    /*17*/    PCLTestCase{ TestPCL::FilesPassed::input( "CLion" ), TestPCL::FilesPassed::output( "CLion" ) },
-    /*18*/    PCLTestCase{ TestPCL::ReSharperHeaderFilterPassed::input, TestPCL::ReSharperHeaderFilterPassed::output },
-    /*19*/    PCLTestCase{ TestPCL::CLChecksEmptyAES::input, TestPCL::CLChecksEmptyAES::output },
-    /*20*/    PCLTestCase{ TestPCL::ClangExtraArgsEmptyAES::input, TestPCL::ClangExtraArgsEmptyAES::output },
-    /*21*/    PCLTestCase{ TestPCL::ParamsEmptyAES::input, TestPCL::ParamsEmptyAES::output },
-    /*22*/    PCLTestCase{ TestPCL::CLChecksEmptyASP::input( "ReSharper" ), TestPCL::CLChecksEmptyASP::output( "ReSharper" ) },
-    /*23*/    PCLTestCase{ TestPCL::CLChecksEmptyASP::input( "CLion" ), TestPCL::CLChecksEmptyASP::output( "CLion" ) },
-    /*24*/    PCLTestCase{ TestPCL::ClangXArgsEmptyASP::input( "ReSharper" ), TestPCL::ClangXArgsEmptyASP::output( "ReSharper" ) },
-    /*25*/    PCLTestCase{ TestPCL::ClangXArgsEmptyASP::input( "CLion" ), TestPCL::ClangXArgsEmptyASP::output( "CLion" ) },
-    /*26*/    PCLTestCase{ TestPCL::ParamsEmptyASP::input( "ReSharper" ), TestPCL::ParamsEmptyASP::output( "ReSharper" ) },
-    /*27*/    PCLTestCase{ TestPCL::ParamsEmptyASP::input( "CLion" ), TestPCL::ParamsEmptyASP::output( "CLion" ) },
-    /*28*/    PCLTestCase{ TestPCL::CLChecksE::input( "ReSharper" ), TestPCL::CLChecksE::output( "ReSharper" ) },
-    /*29*/    PCLTestCase{ TestPCL::CLChecksE::input( "CLion" ), TestPCL::CLChecksE::output( "CLion" ) },
-    /*30*/    PCLTestCase{ TestPCL::ClangXArgsE::input( "ReSharper" ), TestPCL::ClangXArgsE::output( "ReSharper" ) },
-    /*31*/    PCLTestCase{ TestPCL::ClangXArgsE::input( "CLion" ), TestPCL::ClangXArgsE::output( "CLion" ) },
-    /*32*/    PCLTestCase{ TestPCL::ParamsEAES::input( "ReSharper" ), TestPCL::ParamsEAES::output( "ReSharper" ) },
-    /*33*/    PCLTestCase{ TestPCL::ParamsEAES::input( "CLion" ), TestPCL::ParamsEAES::output( "CLion" ) },
-    /*34*/    PCLTestCase{ TestPCL::LinterEmptyAES::input, TestPCL::LinterEmptyAES::output },
-    /*35*/    PCLTestCase{ TestPCL::L1FIN_L2EAES::input, TestPCL::L1FIN_L2EAES::output },
-    /*36*/    PCLTestCase{ TestPCL::L1EmptyAES_L2IN::input, TestPCL::L1EmptyAES_L2IN::output },
-    /*37*/    PCLTestCase{ TestPCL::L1EmptyAES_L2EmptyAES::input, TestPCL::L1EmptyAES_L2EmptyAES::output },
-    /*38*/    PCLTestCase{ TestPCL::L1Empty::input, TestPCL::L1Empty::output },
-    /*39*/    PCLTestCase{ TestPCL::L1IN_L2EmptyASP::input, TestPCL::L1IN_L2EmptyASP::output },
-    /*40*/    PCLTestCase{ TestPCL::L1EmptyASP_L2IN::input, TestPCL::L1EmptyASP_L2IN::output },
-    /*41*/    PCLTestCase{ TestPCL::L1EmptyASP_L2EmptyASP::input, TestPCL::L1EmptyASP_L2EmptyASP::output },
-    /*42*/    PCLTestCase{ TestPCL::L1IN::input, TestPCL::L1IN::output },
-    /*43*/    PCLTestCase{ TestPCL::L1IN_L2IN::input, TestPCL::L1IN_L2IN::output },
-    /*44*/    PCLTestCase{ TestPCL::LinterIsCT::input( "ReSharper" ), TestPCL::LinterIsCT::output( "ReSharper" ) },
-    /*45*/    PCLTestCase{ TestPCL::LinterIsCT::input( "CLion" ), TestPCL::LinterIsCT::output( "CLion" ) },
-    /*46*/    PCLTestCase{ TestPCL::LinterIsCL::input( "ReSharper" ), TestPCL::LinterIsCL::output( "ReSharper" ) },
-    /*47*/    PCLTestCase{ TestPCL::LinterIsCL::input( "CLion" ), TestPCL::LinterIsCL::output( "CLion" ) },
-    /*48*/    PCLTestCase{ TestPCL::AllLintersAES::input( "ReSharper" ), TestPCL::AllLintersAES::output( "ReSharper" ) },
-    /*49*/    PCLTestCase{ TestPCL::AllLintersAES::input( "CLion" ), TestPCL::AllLintersAES::output( "CLion" ) },
-    /*50*/    PCLTestCase{ TestPCL::AllLintersASP::input( "ReSharper" ), TestPCL::AllLintersASP::output( "ReSharper" ) },
-    /*51*/    PCLTestCase{ TestPCL::AllLintersASP::input( "CLion" ), TestPCL::AllLintersASP::output( "CLion" ) },
+const PCLTestCase PCLTestCaseData[] = {
+    /*0 */ { TestPCL::EmptyCmdLine::input, TestPCL::EmptyCmdLine::output },
+    /*1 */ { TestPCL::Verbatim_LintersDNE::input, TestPCL::Verbatim_LintersDNE::output },
+    /*2 */ { TestPCL::Verbatim_L1IN::input, TestPCL::Verbatim_L1IN::output },
+    /*3 */ { TestPCL::Verbatim_L1IN_L2IN::input, TestPCL::Verbatim_L1IN_L2IN::output },
+    /*4 */ { TestPCL::Verbatim_L1CN::input, TestPCL::Verbatim_L1CN::output },
+    /*5 */ { TestPCL::Verbatim_L1CN_L2CN::input, TestPCL::Verbatim_L1CN_L2CN::output },
+    /*6 */ { TestPCL::Verbatim_GeneralYAMLDNE::input, TestPCL::Verbatim_GeneralYAMLDNE::output },
+    /*7 */ { TestPCL::Verbatim_GeneralYAMLIN::input, TestPCL::Verbatim_GeneralYAMLIN::output },
+    /*8 */ { TestPCL::UnsupportedIDE::input, TestPCL::UnsupportedIDE::output },
+    /*9 */ { TestPCL::SpecifiedTwice::input, TestPCL::SpecifiedTwice::output },
+    /*10*/ { TestPCL::CompilationDBEmpty::input, TestPCL::CompilationDBEmpty::output },
+    /*11*/ { TestPCL::GenYAMLPathEmpty::input, TestPCL::GenYAMLPathEmpty::output },
+    /*12*/ { TestPCL::RequiredOptionsE::input( "ReSharper" ), TestPCL::RequiredOptionsE::output( "ReSharper" ) },
+    /*13*/ { TestPCL::RequiredOptionsE::input( "CLion" ), TestPCL::RequiredOptionsE::output( "CLion" ) },
+    /*14*/ { TestPCL::CTOptionsPassed::input( "ReSharper" ), TestPCL::CTOptionsPassed::output( "ReSharper" ) },
+    /*15*/ { TestPCL::CTOptionsPassed::input( "CLion" ), TestPCL::CTOptionsPassed::output( "CLion" ) },
+    /*16*/ { TestPCL::FilesPassed::input( "ReSharper" ), TestPCL::FilesPassed::output( "ReSharper" ) },
+    /*17*/ { TestPCL::FilesPassed::input( "CLion" ), TestPCL::FilesPassed::output( "CLion" ) },
+    /*18*/ { TestPCL::ReSharperHeaderFilterPassed::input, TestPCL::ReSharperHeaderFilterPassed::output },
+    /*19*/ { TestPCL::CLChecksEmptyAES::input, TestPCL::CLChecksEmptyAES::output },
+    /*20*/ { TestPCL::ClangExtraArgsEmptyAES::input, TestPCL::ClangExtraArgsEmptyAES::output },
+    /*21*/ { TestPCL::ParamsEmptyAES::input, TestPCL::ParamsEmptyAES::output },
+    /*22*/ { TestPCL::CLChecksEmptyASP::input( "ReSharper" ), TestPCL::CLChecksEmptyASP::output( "ReSharper" ) },
+    /*23*/ { TestPCL::CLChecksEmptyASP::input( "CLion" ), TestPCL::CLChecksEmptyASP::output( "CLion" ) },
+    /*24*/ { TestPCL::ClangXArgsEmptyASP::input( "ReSharper" ), TestPCL::ClangXArgsEmptyASP::output( "ReSharper" ) },
+    /*25*/ { TestPCL::ClangXArgsEmptyASP::input( "CLion" ), TestPCL::ClangXArgsEmptyASP::output( "CLion" ) },
+    /*26*/ { TestPCL::ParamsEmptyASP::input( "ReSharper" ), TestPCL::ParamsEmptyASP::output( "ReSharper" ) },
+    /*27*/ { TestPCL::ParamsEmptyASP::input( "CLion" ), TestPCL::ParamsEmptyASP::output( "CLion" ) },
+    /*28*/ { TestPCL::CLChecksE::input( "ReSharper" ), TestPCL::CLChecksE::output( "ReSharper" ) },
+    /*29*/ { TestPCL::CLChecksE::input( "CLion" ), TestPCL::CLChecksE::output( "CLion" ) },
+    /*30*/ { TestPCL::ClangXArgsE::input( "ReSharper" ), TestPCL::ClangXArgsE::output( "ReSharper" ) },
+    /*31*/ { TestPCL::ClangXArgsE::input( "CLion" ), TestPCL::ClangXArgsE::output( "CLion" ) },
+    /*32*/ { TestPCL::ParamsEAES::input( "ReSharper" ), TestPCL::ParamsEAES::output( "ReSharper" ) },
+    /*33*/ { TestPCL::ParamsEAES::input( "CLion" ), TestPCL::ParamsEAES::output( "CLion" ) },
+    /*34*/ { TestPCL::LinterEmptyAES::input, TestPCL::LinterEmptyAES::output },
+    /*35*/ { TestPCL::L1FIN_L2EAES::input, TestPCL::L1FIN_L2EAES::output },
+    /*36*/ { TestPCL::L1EmptyAES_L2IN::input, TestPCL::L1EmptyAES_L2IN::output },
+    /*37*/ { TestPCL::L1EmptyAES_L2EmptyAES::input, TestPCL::L1EmptyAES_L2EmptyAES::output },
+    /*38*/ { TestPCL::L1Empty::input, TestPCL::L1Empty::output },
+    /*39*/ { TestPCL::L1IN_L2EmptyASP::input, TestPCL::L1IN_L2EmptyASP::output },
+    /*40*/ { TestPCL::L1EmptyASP_L2IN::input, TestPCL::L1EmptyASP_L2IN::output },
+    /*41*/ { TestPCL::L1EmptyASP_L2EmptyASP::input, TestPCL::L1EmptyASP_L2EmptyASP::output },
+    /*42*/ { TestPCL::L1IN::input, TestPCL::L1IN::output },
+    /*43*/ { TestPCL::L1IN_L2IN::input, TestPCL::L1IN_L2IN::output },
+    /*44*/ { TestPCL::LinterIsCT::input( "ReSharper" ), TestPCL::LinterIsCT::output( "ReSharper" ) },
+    /*45*/ { TestPCL::LinterIsCT::input( "CLion" ), TestPCL::LinterIsCT::output( "CLion" ) },
+    /*46*/ { TestPCL::LinterIsCL::input( "ReSharper" ), TestPCL::LinterIsCL::output( "ReSharper" ) },
+    /*47*/ { TestPCL::LinterIsCL::input( "CLion" ), TestPCL::LinterIsCL::output( "CLion" ) },
+    /*48*/ { TestPCL::AllLintersAES::input( "ReSharper" ), TestPCL::AllLintersAES::output( "ReSharper" ) },
+    /*49*/ { TestPCL::AllLintersAES::input( "CLion" ), TestPCL::AllLintersAES::output( "CLion" ) },
+    /*50*/ { TestPCL::AllLintersASP::input( "ReSharper" ), TestPCL::AllLintersASP::output( "ReSharper" ) },
+    /*51*/ { TestPCL::AllLintersASP::input( "CLion" ), TestPCL::AllLintersASP::output( "CLion" ) }
 };
 
 BOOST_DATA_TEST_CASE( TestPrepareCmdLine, PCLTestCaseData, sample ) {
