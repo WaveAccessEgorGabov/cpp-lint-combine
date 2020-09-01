@@ -3,8 +3,6 @@
 #include "../../src/LinterCombine.h"
 #include "../../src/LinterBase.h"
 #include "../../src/IdeTraitsFactory.h"
-#include "../../src/ClazyWrapper.h"
-#include "../../src/ClangTidyWrapper.h"
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/data/test_case.hpp>
@@ -107,12 +105,9 @@ BOOST_AUTO_TEST_SUITE( TestUsualLinterFactory )
 struct ULFTestCase {
 
     struct Output {
-        Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const bool exceptionOccurVal )
-            : diagnostics( diagnosticsVal ),
-            exceptionOccur( exceptionOccurVal ) {}
-        std::vector< LintCombine::Diagnostic > diagnostics;
-        bool exceptionOccur = false;
+        Output( const bool returnedNullptrVal )
+            : returnedNullptr( returnedNullptrVal ) {}
+        bool returnedNullptr = false;
     };
 
     struct Input {
@@ -121,8 +116,7 @@ struct ULFTestCase {
         LintCombine::stringVector cmdLine;
     };
 
-    ULFTestCase( const Input & inputVal,
-                 const Output & outputVal )
+    ULFTestCase( const Input & inputVal, const Output & outputVal )
         : input( inputVal ), output( outputVal ) {}
 
     Input input;
@@ -135,76 +129,49 @@ std::ostream & operator<<( std::ostream & os, ULFTestCase ) {
 
 namespace TestULF::EmptyCmdLine {
     const ULFTestCase::Input input{ LintCombine::stringVector{} };
-    const std::vector< LintCombine::Diagnostic > diagnostics{
-        LintCombine::Diagnostic( LintCombine::Level::Error, "No linters specified. "
-        "Supported linters are: clang-tidy, clazy.", "LinterFactoryBase", 1, 0 ) };
-    const ULFTestCase::Output output{ diagnostics, true };
+    const ULFTestCase::Output output{ true };
 }
 
 namespace TestULF::UnknownLinter {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "--sub-linter=Unknown"} };
-    const std::vector< LintCombine::Diagnostic > diagnostics{
-        LintCombine::Diagnostic( LintCombine::Level::Error,
-           "Unknown linter name: \"Unknown\"", "Combine", 1, 0 ) };
-    const ULFTestCase::Output output{ diagnostics, true };
-}
-
-namespace TestULF::LinterNameAndSubLinterSpecified {
-    const ULFTestCase::Input input{ LintCombine::stringVector{
-        "clazy", "--export-fixes=" CURRENT_BINARY_DIR "mock", "--sub-linter=clazy"} };
-    const std::vector< LintCombine::Diagnostic > diagnostics;
-    const ULFTestCase::Output output{ diagnostics, false };
+    const ULFTestCase::Output output{ true };
 }
 
 namespace TestULF::LinterIsClazy {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "clazy", "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics;
-    const ULFTestCase::Output output{ diagnostics, false };
+    const ULFTestCase::Output output{ false };
 }
 
 namespace TestULF::LinterIsClangTidy {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "clang-tidy", "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics;
-    const ULFTestCase::Output output{ diagnostics, false };
+    const ULFTestCase::Output output{ false };
 }
 
 namespace TestULF::LinterIsCombine {
     const ULFTestCase::Input input{ LintCombine::stringVector{
-        "--result-yaml=" CURRENT_BINARY_DIR "mock", "--sub-linter=clang-tidy",
+        "LinterCombine", "--result-yaml=" CURRENT_BINARY_DIR "mock",
+        "--sub-linter=clazy",
         "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics;
-    const ULFTestCase::Output output{ diagnostics, false };
+    const ULFTestCase::Output output{ false };
 }
 
 const ULFTestCase LCCTestCaseData[] = {
     /*0 */ { TestULF::EmptyCmdLine::input, TestULF::EmptyCmdLine::output },
     /*1 */ { TestULF::UnknownLinter::input, TestULF::UnknownLinter::output },
-    /*2 */ { TestULF::LinterNameAndSubLinterSpecified::input, TestULF::LinterNameAndSubLinterSpecified::output },
-    /*3 */ { TestULF::LinterIsClazy::input, TestULF::LinterIsClazy::output },
-    /*4 */ { TestULF::LinterIsClangTidy::input, TestULF::LinterIsClangTidy::output },
-    /*5 */ { TestULF::LinterIsCombine::input, TestULF::LinterIsCombine::output }
+    /*2 */ { TestULF::LinterIsClazy::input, TestULF::LinterIsClazy::output },
+    /*3 */ { TestULF::LinterIsClangTidy::input, TestULF::LinterIsClangTidy::output },
+    /*4 */ { TestULF::LinterIsCombine::input, TestULF::LinterIsCombine::output }
 };
 
 // TODO: SFINAE for checking linter type?
 BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
     const auto & correctResult = static_cast< ULFTestCase::Output >( sample.output );
-    try {
-        auto pLinter = LintCombine::UsualLinterFactory::getInstance().createLinter( sample.input.cmdLine );
-    }
-    catch( const LintCombine::Exception & ex ) {
-        BOOST_CHECK( correctResult.exceptionOccur );
-        const auto & exDiagnostics = ex.diagnostics();
-        const auto & correctResultDiagnostics = correctResult.diagnostics;
-        BOOST_REQUIRE( exDiagnostics.size() == correctResultDiagnostics.size() );
-        for( size_t i = 0; i < correctResultDiagnostics.size(); ++i ) {
-            compareDiagnostics( exDiagnostics[i], correctResultDiagnostics[i] );
-        }
-        return;
-    }
-    BOOST_CHECK( !correctResult.exceptionOccur );
+    auto pLinter = LintCombine::UsualLinterFactory::getInstance().createLinter( sample.input.cmdLine );
+    if( correctResult.returnedNullptr ) { BOOST_CHECK( !pLinter ); }
+    else { BOOST_CHECK( pLinter ); }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

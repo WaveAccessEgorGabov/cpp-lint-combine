@@ -1,6 +1,7 @@
 #include "ClangTidyWrapper.h"
 #include "ClazyWrapper.h"
 #include "UsualLinterFactory.h"
+#include "LinterCombine.h"
 
 std::shared_ptr< LintCombine::LinterItf >
 LintCombine::UsualLinterFactory::createLinter( const stringVector & cmdLine ) {
@@ -16,5 +17,10 @@ LintCombine::UsualLinterFactory::createLinter( const stringVector & cmdLine ) {
               this->getServices() );
     }
 
-    return LinterFactoryBase::createLinter( cmdLine );
+    if( !cmdLine.empty() && *cmdLine.begin() == "LinterCombine" ) {
+        return std::make_shared< LinterCombine >
+            ( stringVector( cmdLine.begin() + 1, cmdLine.end() ) );
+    }
+
+    return nullptr;
 }

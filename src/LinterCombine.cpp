@@ -37,17 +37,13 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
     }
 
     for( const auto & it : subLintersCmdLine ) {
-        try {
-            m_linters.emplace_back( factory.createLinter( it ) );
+        const auto linter = factory.createLinter( it );
+        if( !linter ) {
+            throw Exception( Diagnostic( Level::Error,
+                             "Unknown linter name: \"" + *it.begin() + "\"",
+                             "Combine", 1, 0 ) );
         }
-        catch( const Exception & ex ) {
-            if( ex.diagnostics().begin()->origin == "LinterFactoryBase" ) {
-                throw Exception( Diagnostic( Level::Error,
-                                 "Unknown linter name: \"" + *it.begin() + "\"",
-                                 "Combine", 1, 0 ) );
-            }
-            throw;
-        }
+        m_linters.emplace_back( factory.createLinter( it ) );
     }
     validateGeneralYamlPath( cmdLine );
 }
@@ -173,7 +169,7 @@ void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & c
 
     if( !isFileCreatable( m_generalYAMLPath ) ) {
         m_diagnostics.emplace_back( Level::Error, "General YAML-file \"" +
-            m_generalYAMLPath + "\" is not creatable", "Combine", 1, 0 );
+                                    m_generalYAMLPath + "\" is not creatable", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 }
@@ -184,14 +180,14 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
         for( const auto & subLinterIt : m_linters ) {
             if( subLinterIt->getYamlPath().empty() ) {
                 m_diagnostics.emplace_back( Level::Warning,
-                    "Linter's YAML file path value is empty",
-                    "Combine", 1, 0 );
+                                            "Linter's YAML file path value is empty",
+                                            "Combine", 1, 0 );
                 continue;
             }
             if( !std::filesystem::exists( subLinterIt->getYamlPath() ) ) {
                 m_diagnostics.emplace_back( Level::Warning,
-                    "Linter's YAML file path \"" + subLinterIt->getYamlPath()
-                    + "\" doesn't exist", "Combine", 1, 0 );
+                                            "Linter's YAML file path \"" + subLinterIt->getYamlPath()
+                                            + "\" doesn't exist", "Combine", 1, 0 );
                 continue;
             }
             try {
@@ -204,14 +200,14 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
     }
     else {
         m_diagnostics.emplace_back( Level::Error,
-            "General YAML file path value is empty",
-            "Combine", 1, 0 );
+                                    "General YAML file path value is empty",
+                                    "Combine", 1, 0 );
     }
     if( std::filesystem::exists( m_generalYAMLPath ) ) {
         return m_generalYAMLPath;
     }
     m_diagnostics.emplace_back( Level::Error,
-        "General YAML file isn't created", "Combine", 1, 0 );
+                                "General YAML file isn't created", "Combine", 1, 0 );
     m_generalYAMLPath.clear();
     return m_generalYAMLPath;
 }
