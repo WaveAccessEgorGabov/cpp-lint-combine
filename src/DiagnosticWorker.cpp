@@ -11,11 +11,10 @@ std::string LintCombine::DiagnosticWorker::getHelpStr() {
     boost::program_options::options_description optDesc( /*line_length=*/100 );
     optDesc.add_options()
         ( "help", "Print this message." )
-        ( "ide-profile", "Choose IDE: ReSharper C++. "
+        ( "ide-profile", "Choose IDE: ReSharper C++, CLion. "
           "By default options will pass verbatim." )
         ( "result-yaml",
-          "Path to YAML with diagnostics from all linters. "
-          "Default path is " CURRENT_BINARY_DIR "LintersDiagnostics.yaml." )
+          "Path to YAML with diagnostics from all linters." )
         ( "sub-linter",
           "Linter to use. You can use this param several times to set"
           " several linters. Supported linters are: clang-tidy, clazy." )
