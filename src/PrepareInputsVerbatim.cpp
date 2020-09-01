@@ -43,20 +43,18 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
     }
 
     if( lintersNames.empty() ) {
-        m_diagnostics.emplace_back( Diagnostic(
-            Level::Error,
+        m_diagnostics.emplace_back( Level::Error,
             "No linters specified. Supported linters are: clang-tidy, clazy.",
-            "VerbatimPreparer", 1, 0 ) );
+            "VerbatimPreparer", 1, 0 );
         return true;
     }
 
     auto errorOccur = false;
     for( auto & it : lintersNames ) {
         if( it != "clang-tidy" && it != "clazy" ) {
-            m_diagnostics.emplace_back(
-                Diagnostic( Level::Error,
+            m_diagnostics.emplace_back( Level::Error,
                 "Unknown linter name: \"" + it + "\"",
-                "VerbatimPreparer", 1, 0 ) );
+                "VerbatimPreparer", 1, 0 );
             errorOccur = true;
         }
     }
@@ -79,21 +77,18 @@ bool LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
         notify( vm );
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Diagnostic( Level::Error, error.what(),
-                                    "VerbatimPreparer", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, error.what(), "VerbatimPreparer", 1, 0 );
         return true;
     }
     if( generalYAMLPath.empty() ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error, "Path to general YAML-file is not set",
-            "VerbatimPreparer", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, "Path to general YAML-file is not set",
+            "VerbatimPreparer", 1, 0 );
         return true;
     }
     if( !isFileCreatable( generalYAMLPath ) ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error, "General YAML-file \"" +
+        m_diagnostics.emplace_back( Level::Error, "General YAML-file \"" +
             generalYAMLPath + "\" is not creatable",
-            "VerbatimPreparer", 1, 0 ) );
+            "VerbatimPreparer", 1, 0 );
         return true;
     }
     return false;

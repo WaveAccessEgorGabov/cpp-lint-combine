@@ -23,8 +23,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
 
     if( cmdLine.empty() ) {
         m_diagnostics.emplace_back(
-            Diagnostic( Level::Error,
-            "Command Line is empty", "Combine", 1, 0 ) );
+            Level::Error, "Command Line is empty", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 
@@ -32,17 +31,14 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
         splitCommandLineBySubLinters( cmdLine );
 
     if( subLintersCmdLine.empty() ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error,
-            "No one linter parsed",
-            "Combine", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error,
+                                    "No one linter parsed", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 
     for( const auto & it : subLintersCmdLine ) {
         try {
-            const auto subLinter = factory.createLinter( it );
-            m_linters.emplace_back( subLinter );
+            m_linters.emplace_back( factory.createLinter( it ) );
         }
         catch( const Exception & ex ) {
             if( ex.diagnostics().begin()->origin == "LinterFactoryBase" ) {
@@ -75,16 +71,12 @@ int LintCombine::LinterCombine::waitLinter() {
             ( returnCode |= 2 );
     }
     if( returnCode == 2 ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Warning,
-            "Some linters failed while running",
-            "Combine", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Warning,
+                                    "Some linters failed while running", "Combine", 1, 0 );
     }
     if( returnCode == 3 ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error,
-            "All linters failed while running",
-            "Combine", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error,
+                                    "All linters failed while running", "Combine", 1, 0 );
     }
     return returnCode;
 }
@@ -95,10 +87,9 @@ LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
         callTotals += subLinterIt->updateYaml();
     }
     if( callTotals.failNum ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error,
-            "Updating " + std::to_string( callTotals.failNum )
-            + " YAML files failed", "Combine", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error,
+                                    "Updating " + std::to_string( callTotals.failNum )
+                                    + " YAML files failed", "Combine", 1, 0 );
     }
     return callTotals;
 }
@@ -128,8 +119,8 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
         notify( vm );
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Diagnostic( Level::Error, error.what(),
-                                    "Combine", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, error.what(),
+                                    "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 
@@ -170,23 +161,19 @@ void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & c
         notify( vm );
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Diagnostic( Level::Error, error.what(),
-                                    "Combine", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, error.what(), "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 
     if( m_generalYAMLPath.empty() ) {
         m_diagnostics.emplace_back(
-            Diagnostic( Level::Error, "Path to general YAML-file is not set",
-            "Combine", 1, 0 ) );
+            Level::Error, "Path to general YAML-file is not set", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 
     if( !isFileCreatable( m_generalYAMLPath ) ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error, "General YAML-file \"" +
-            m_generalYAMLPath + "\" is not creatable",
-            "Combine", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, "General YAML-file \"" +
+            m_generalYAMLPath + "\" is not creatable", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 }
@@ -196,42 +183,35 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
     if( !m_generalYAMLPath.empty() ) {
         for( const auto & subLinterIt : m_linters ) {
             if( subLinterIt->getYamlPath().empty() ) {
-                m_diagnostics.emplace_back(
-                    Diagnostic( Level::Warning,
+                m_diagnostics.emplace_back( Level::Warning,
                     "Linter's YAML file path value is empty",
-                    "Combine", 1, 0 ) );
+                    "Combine", 1, 0 );
                 continue;
             }
             if( !std::filesystem::exists( subLinterIt->getYamlPath() ) ) {
-                m_diagnostics.emplace_back(
-                    Diagnostic( Level::Warning,
+                m_diagnostics.emplace_back( Level::Warning,
                     "Linter's YAML file path \"" + subLinterIt->getYamlPath()
-                    + "\" doesn't exist", "Combine", 1, 0 ) );
+                    + "\" doesn't exist", "Combine", 1, 0 );
                 continue;
             }
             try {
                 mergeYaml( subLinterIt->getYamlPath() );
             }
             catch( std::exception & error ) {
-                m_diagnostics.emplace_back(
-                    Diagnostic( Level::Error, error.what(),
-                    "Combine", 1, 0 ) );
+                m_diagnostics.emplace_back( Level::Error, error.what(), "Combine", 1, 0 );
             }
         }
     }
     else {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error,
+        m_diagnostics.emplace_back( Level::Error,
             "General YAML file path value is empty",
-            "Combine", 1, 0 ) );
+            "Combine", 1, 0 );
     }
     if( std::filesystem::exists( m_generalYAMLPath ) ) {
         return m_generalYAMLPath;
     }
-    m_diagnostics.emplace_back(
-        Diagnostic( Level::Error,
-        "General YAML file isn't created",
-        "Combine", 1, 0 ) );
+    m_diagnostics.emplace_back( Level::Error,
+        "General YAML file isn't created", "Combine", 1, 0 );
     m_generalYAMLPath.clear();
     return m_generalYAMLPath;
 }
@@ -242,9 +222,7 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
             std::filesystem::copy( yamlPathToMerge, m_generalYAMLPath );
         }
         catch( std::exception & error ) {
-            m_diagnostics.emplace_back(
-                Diagnostic( Level::Error, error.what(),
-                "Combine", 1, 0 ) );
+            m_diagnostics.emplace_back( Level::Error, error.what(), "Combine", 1, 0 );
         }
     }
     else {
@@ -260,9 +238,7 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
             mergedYamlOutputFile << yamlNodeResult;
         }
         catch( std::exception & error ) {
-            m_diagnostics.emplace_back(
-                Diagnostic( Level::Error, error.what(),
-                "Combine", 1, 0 ) );
+            m_diagnostics.emplace_back( Level::Error, error.what(), "Combine", 1, 0 );
         }
     }
 }
@@ -278,9 +254,7 @@ YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToY
         yamlNode = YAML::LoadFile( pathToYaml );
     }
     catch( std::exception & error ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error, error.what(),
-            "Combine", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, error.what(), "Combine", 1, 0 );
     }
     return yamlNode;
 }

@@ -4,7 +4,7 @@
 LintCombine::stringVector LintCombine::moveCmdLineIntoSTLContainer( const int argc, char ** argv ) {
     stringVector cmdLine;
     for( auto i = 1; i < argc; ++i ) {
-        cmdLine.emplace_back( std::string( argv[i] ) );
+        cmdLine.emplace_back( argv[i] );
     }
     fixHyphensInCmdLine( cmdLine );
     return cmdLine;

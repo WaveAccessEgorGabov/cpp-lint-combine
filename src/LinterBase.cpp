@@ -36,8 +36,7 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
         yamlNode = YAML::LoadFile( yamlPath );
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Diagnostic( Level::Error, error.what(),
-                                    "LinterBase", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, error.what(), "LinterBase", 1, 0 );
         return CallTotals( /*successNum=*/ 0, /*failNum=*/ 1 );
     }
 
@@ -48,8 +47,7 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
         yamlWithDocLinkFile << yamlNode;
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Diagnostic( Level::Error, error.what(),
-                                    "LinterBase", 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, error.what(), "LinterBase", 1, 0 );
         return CallTotals( /*successNum=*/ 0, /*failNum=*/ 1 );
     }
 
@@ -102,24 +100,19 @@ void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
         }
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error, error.what(),
-            name.c_str(), 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, error.what(), name.c_str(), 1, 0 );
         throw Exception( m_diagnostics );
     }
 
     if( yamlPath.empty() ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error, "Path to linter's YAML-file is not set",
-            name.c_str(), 1, 0 ) );
+        m_diagnostics.emplace_back( 
+            Level::Error,  "Path to linter's YAML-file is not set", name.c_str(), 1, 0 );
         throw Exception( m_diagnostics );
     }
 
     if( !isFileCreatable( yamlPath ) ) {
-        m_diagnostics.emplace_back(
-            Diagnostic( Level::Error, "Linter's YAML-file \"" +
-            yamlPath + "\" is not creatable",
-            name.c_str(), 1, 0 ) );
+        m_diagnostics.emplace_back( Level::Error, "Linter's YAML-file \"" +
+            yamlPath + "\" is not creatable", name.c_str(), 1, 0 );
         throw Exception( m_diagnostics );
     }
 }
