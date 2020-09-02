@@ -66,11 +66,11 @@ int LintCombine::LinterCombine::waitLinter() {
         subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) :
             ( returnCode |= 2 );
     }
-    if( returnCode == 2 ) {
+    if( returnCode == SomeLintersFailed ) {
         m_diagnostics.emplace_back( Level::Warning,
                                     "Some linters failed while running", "Combine", 1, 0 );
     }
-    if( returnCode == 3 ) {
+    if( returnCode == AllLintersFailed ) {
         m_diagnostics.emplace_back( Level::Error,
                                     "All linters failed while running", "Combine", 1, 0 );
     }

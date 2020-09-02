@@ -8,6 +8,12 @@
 #include <vector>
 
 namespace LintCombine {
+
+    enum WaitLinterReturnCode {
+        AllLintersWorkedSuccessfully = 0,
+        SomeLintersFailed = 2, AllLintersFailed = 3
+    };
+
     class LinterCombine final : public LinterItf {
 
     public:

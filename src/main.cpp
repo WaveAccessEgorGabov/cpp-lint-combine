@@ -27,7 +27,7 @@ int main( int argc, char * argv[] ) {
 
     pCombine->callLinter();
     const auto callReturnCode = pCombine->waitLinter();
-    if( callReturnCode == 3 ) {
+    if( callReturnCode == LintCombine::AllLintersFailed ) {
         diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
         if( !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
             return callReturnCode; // All linters failed.
