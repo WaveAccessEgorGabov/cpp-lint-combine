@@ -332,7 +332,7 @@ namespace TestLCC::TwoLintersVEASP {
     const LCCTestCase::Output output{ diagnostics, linterData, true };
 }
 
-namespace TestLCC::GeneralYamlPathVEAES {
+namespace TestLCC::CombinedYamlPathVEAES {
     const LCCTestCase::Input input{
         LintCombine::stringVector{ "--result-yaml=", "--sub-linter=clazy" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
@@ -344,26 +344,26 @@ namespace TestLCC::GeneralYamlPathVEAES {
     const LCCTestCase::Output output{ diagnostics, linterData, true };
 }
 
-namespace TestLCC::GeneralYamlPathVEASP {
+namespace TestLCC::CombinedYamlPathVEASP {
     const LCCTestCase::Input input{
         LintCombine::stringVector{ "--result-yaml", "--sub-linter=clazy",
             "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "General YAML-file \"--sub-linter=clazy\" "
+            "Combined YAML-file \"--sub-linter=clazy\" "
             "is not creatable", "Combine", 1, 0 )
     };
     const std::vector< LCCTestCase::LinterData > linterData;
     const LCCTestCase::Output output{ diagnostics, linterData, true };
 }
 
-namespace TestLCC::GeneralYamlPathVI {
+namespace TestLCC::CombinedYamlPathVI {
     const LCCTestCase::Input input{
         LintCombine::stringVector{ "--result-yaml=\\\\", "--sub-linter=clazy",
             "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "General YAML-file \"\\\\\" is not creatable", "Combine", 1, 0 )
+            "Combined YAML-file \"\\\\\" is not creatable", "Combine", 1, 0 )
     };
     const std::vector< LCCTestCase::LinterData > linterData;
     const LCCTestCase::Output output{ diagnostics, linterData, true };
@@ -485,9 +485,9 @@ const LCCTestCase LCCTestCaseData[] = {
     /*6 */ { TestLCC::OneLintersVEASP::input, TestLCC::OneLintersVEASP::output },
     /*7 */ { TestLCC::TwoLintersVEAES::input, TestLCC::TwoLintersVEAES::output },
     /*8 */ { TestLCC::TwoLintersVEASP::input, TestLCC::TwoLintersVEASP::output },
-    /*9 */ { TestLCC::GeneralYamlPathVEAES::input, TestLCC::GeneralYamlPathVEAES::output },
-    /*10*/ { TestLCC::GeneralYamlPathVEASP::input, TestLCC::GeneralYamlPathVEASP::output },
-    /*11*/ { TestLCC::GeneralYamlPathVI::input, TestLCC::GeneralYamlPathVI::output },
+    /*9 */ { TestLCC::CombinedYamlPathVEAES::input, TestLCC::CombinedYamlPathVEAES::output },
+    /*10*/ { TestLCC::CombinedYamlPathVEASP::input, TestLCC::CombinedYamlPathVEASP::output },
+    /*11*/ { TestLCC::CombinedYamlPathVI::input, TestLCC::CombinedYamlPathVI::output },
     /*12*/ { TestLCC::LinterYamlPathVEAES::input, TestLCC::LinterYamlPathVEAES::output },
     /*13*/ { TestLCC::LinterYamlPathVEASP::input, TestLCC::LinterYamlPathVEASP::output },
     /*14*/ { TestLCC::LinterYamlPathVI::input, TestLCC::LinterYamlPathVI::output },
@@ -1208,12 +1208,12 @@ struct MYTestCase {
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
                 const pairStrStrVec & filesForCompareVal,
-                const std::string & pathToGeneralYAMLVal )
+                const std::string & pathToCombinedYAMLVal )
             : diagnostics( diagnosticsVal ), filesForCompare( filesForCompareVal ),
-            pathToGeneralYAML( pathToGeneralYAMLVal ) {}
+            pathToCombinedYAML( pathToCombinedYAMLVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
         pairStrStrVec filesForCompare;
-        std::string pathToGeneralYAML;
+        std::string pathToCombinedYAML;
     };
 
     struct Input {
@@ -1244,11 +1244,11 @@ namespace TestMY::L1YPDNE {
             "Linter's YAML file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
             "doesn't exist", "Combine", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "General YAML file isn't created", "Combine", 1, 0 )
+            "Combined YAML file isn't created", "Combine", 1, 0 )
     };
-    std::string resultPathToGeneralYAML;
+    std::string resultPathToCombinedYAML;
     const pairStrStrVec filesForCompare;
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToGeneralYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
 }
 
 namespace TestMY::L1YPE {
@@ -1257,11 +1257,11 @@ namespace TestMY::L1YPE {
         "--sub-linter=clang-tidy",
         "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" } };
     const std::vector< LintCombine::Diagnostic > diagnostics;
-    std::string resultPathToGeneralYAML = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    std::string resultPathToCombinedYAML = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const pairStrStrVec filesForCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" ) };
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToGeneralYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
 }
 
 namespace TestMY::L1YPE_L2YPDNE {
@@ -1276,11 +1276,11 @@ namespace TestMY::L1YPE_L2YPDNE {
             "Linter's YAML file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
             "doesn't exist", "Combine", 1, 0 )
     };
-    std::string resultPathToGeneralYAML = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    std::string resultPathToCombinedYAML = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const pairStrStrVec filesForCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" ) };
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToGeneralYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
 }
 
 namespace TestMY::TwoLintersYPDNE {
@@ -1298,11 +1298,11 @@ namespace TestMY::TwoLintersYPDNE {
             "Linter's YAML file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
             "doesn't exist", "Combine", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "General YAML file isn't created", "Combine", 1, 0 )
+            "Combined YAML file isn't created", "Combine", 1, 0 )
     };
-    std::string resultPathToGeneralYAML;
+    std::string resultPathToCombinedYAML;
     const pairStrStrVec filesForCompare;
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToGeneralYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
 }
 
 namespace TestMY::TwoLintersYPE {
@@ -1313,11 +1313,11 @@ namespace TestMY::TwoLintersYPE {
         "--sub-linter=clang-tidy",
         "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml"} };
     const std::vector< LintCombine::Diagnostic > diagnostics;
-    std::string resultPathToGeneralYAML = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    std::string resultPathToCombinedYAML = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const pairStrStrVec filesForCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/combinedResult_save.yaml" ) };
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToGeneralYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
 }
 
 const MYTestCase MYTestCaseData[] = {
@@ -1332,12 +1332,12 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
     const auto & correctResult = static_cast< MYTestCase::Output >( sample.output );
     LintCombine::LinterCombine combine( sample.input.cmdLine );
     recoverYamlFiles();
-    BOOST_CHECK( combine.getYamlPath() == correctResult.pathToGeneralYAML );
-    if( correctResult.pathToGeneralYAML.empty() ) {
-        BOOST_REQUIRE( !std::filesystem::exists( correctResult.pathToGeneralYAML ) );
+    BOOST_CHECK( combine.getYamlPath() == correctResult.pathToCombinedYAML );
+    if( correctResult.pathToCombinedYAML.empty() ) {
+        BOOST_REQUIRE( !std::filesystem::exists( correctResult.pathToCombinedYAML ) );
     }
     else {
-        BOOST_REQUIRE( std::filesystem::exists( correctResult.pathToGeneralYAML ) );
+        BOOST_REQUIRE( std::filesystem::exists( correctResult.pathToCombinedYAML ) );
     }
     const auto & combineDiagnostics = combine.diagnostics();
     const auto & correctResultDiagnostics = correctResult.diagnostics;
@@ -1352,8 +1352,8 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
         std::istream_iterator< char > fileIterSave( yamlFileSave ), endSave;
         BOOST_CHECK_EQUAL_COLLECTIONS( fileIter, end, fileIterSave, endSave );
     }
-    if( !correctResult.pathToGeneralYAML.empty() ) {
-        std::filesystem::remove( correctResult.pathToGeneralYAML );
+    if( !correctResult.pathToCombinedYAML.empty() ) {
+        std::filesystem::remove( correctResult.pathToCombinedYAML );
     }
 }
 
@@ -1499,20 +1499,20 @@ namespace TestPCL::Verbatim_L1CN_L2CN {
     const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
-namespace TestPCL::Verbatim_GeneralYAMLDNE {
+namespace TestPCL::Verbatim_CombinedYAMLDNE {
     const PCLTestCase::Input input{ LintCombine::stringVector{
         "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Info,
             "Options were passed verbatim", "VerbatimPreparer", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "Path to general YAML-file is not set", "VerbatimPreparer", 1, 0 )
+            "Path to combined YAML-file is not set", "VerbatimPreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
     const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
-namespace TestPCL::Verbatim_GeneralYAMLIN {
+namespace TestPCL::Verbatim_CombinedYAMLIN {
     const PCLTestCase::Input input{ LintCombine::stringVector{
         "--result-yaml=\\\\", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" } };
@@ -1520,7 +1520,7 @@ namespace TestPCL::Verbatim_GeneralYAMLIN {
         LintCombine::Diagnostic( LintCombine::Level::Info,
             "Options were passed verbatim", "VerbatimPreparer", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "General YAML-file \"\\\\\" is not creatable", "VerbatimPreparer", 1, 0 )
+            "Combined YAML-file \"\\\\\" is not creatable", "VerbatimPreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;
     const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
@@ -2208,8 +2208,8 @@ const PCLTestCase PCLTestCaseData[] = {
     /*3 */ { TestPCL::Verbatim_L1IN_L2IN::input, TestPCL::Verbatim_L1IN_L2IN::output },
     /*4 */ { TestPCL::Verbatim_L1CN::input, TestPCL::Verbatim_L1CN::output },
     /*5 */ { TestPCL::Verbatim_L1CN_L2CN::input, TestPCL::Verbatim_L1CN_L2CN::output },
-    /*6 */ { TestPCL::Verbatim_GeneralYAMLDNE::input, TestPCL::Verbatim_GeneralYAMLDNE::output },
-    /*7 */ { TestPCL::Verbatim_GeneralYAMLIN::input, TestPCL::Verbatim_GeneralYAMLIN::output },
+    /*6 */ { TestPCL::Verbatim_CombinedYAMLDNE::input, TestPCL::Verbatim_CombinedYAMLDNE::output },
+    /*7 */ { TestPCL::Verbatim_CombinedYAMLIN::input, TestPCL::Verbatim_CombinedYAMLIN::output },
     /*8 */ { TestPCL::UnsupportedIDE::input, TestPCL::UnsupportedIDE::output },
     /*9 */ { TestPCL::SpecifiedTwice::input, TestPCL::SpecifiedTwice::output },
     /*10*/ { TestPCL::CompilationDBEmpty::input, TestPCL::CompilationDBEmpty::output },

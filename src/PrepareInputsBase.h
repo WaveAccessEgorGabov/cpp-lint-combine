@@ -102,7 +102,7 @@ namespace LintCombine {
         };
 
     private:
-        std::string  m_pathToGeneralYaml;
+        std::string  m_pathToCombinedYaml;
         std::string  m_clazyChecks;
         std::string  m_clangExtraArgs;
         stringVector m_lintersNames;

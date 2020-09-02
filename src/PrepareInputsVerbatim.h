@@ -16,7 +16,7 @@ namespace LintCombine {
     private:
         bool validateLinters();
 
-        bool validateGeneralYamlPath();
+        bool validateCombinedYamlPath();
 
         stringVector m_cmdLine;
         std::vector< Diagnostic > m_diagnostics;

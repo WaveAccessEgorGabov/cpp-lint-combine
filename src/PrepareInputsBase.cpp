@@ -43,7 +43,7 @@ bool LintCombine::PrepareInputsBase::parseSourceCmdLine() {
           boost::program_options::value< std::string >( &m_clangExtraArgs )
           ->implicit_value( std::string() ) )
         ( "export-fixes",
-          boost::program_options::value< std::string >( &m_pathToGeneralYaml )
+          boost::program_options::value< std::string >( &m_pathToCombinedYaml )
           ->implicit_value( std::string() ) )
         ( "p",
           boost::program_options::value< std::string >( &pathToWorkDir )
@@ -77,7 +77,7 @@ bool LintCombine::PrepareInputsBase::validateParsedData() {
                                       "BasePreparer", 1, 0 );
         isErrorOccur = true;
     }
-    if( m_pathToGeneralYaml.empty() ) {
+    if( m_pathToCombinedYaml.empty() ) {
         diagnosticsList.emplace_back( Level::Error,
                                       "Path to yaml-file is empty.",
                                       "BasePreparer", 1, 0 );
@@ -156,8 +156,8 @@ void LintCombine::PrepareInputsBase::initCmdLine() {
 }
 
 void LintCombine::PrepareInputsBase::initCommonOptions() {
-    if( !m_pathToGeneralYaml.empty() ) {
-        cmdLine.emplace_back( "--result-yaml=" + m_pathToGeneralYaml );
+    if( !m_pathToCombinedYaml.empty() ) {
+        cmdLine.emplace_back( "--result-yaml=" + m_pathToCombinedYaml );
     }
 }
 
@@ -165,7 +165,7 @@ void LintCombine::PrepareInputsBase::releaseClassField() {
     cmdLine.clear();
     m_sourceCL.clear();
     diagnosticsList.clear();
-    m_pathToGeneralYaml.clear();
+    m_pathToCombinedYaml.clear();
     pathToWorkDir.clear();
     m_clazyChecks.clear();
     m_clangExtraArgs.clear();

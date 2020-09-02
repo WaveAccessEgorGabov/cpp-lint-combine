@@ -45,7 +45,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
         }
         m_linters.emplace_back( factory.createLinter( it ) );
     }
-    validateGeneralYamlPath( cmdLine );
+    validateCombinedYamlPath( cmdLine );
 }
 
 void LintCombine::LinterCombine::callLinter() {
@@ -145,11 +145,11 @@ LintCombine::LinterCombine::splitCommandLineBySubLinters( const stringVector & c
     return subLintersVec;
 }
 
-void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & cmdLine ) {
+void LintCombine::LinterCombine::validateCombinedYamlPath( const stringVector & cmdLine ) {
     boost::program_options::options_description optDesc;
     optDesc.add_options()
         ( "result-yaml",
-          boost::program_options::value< std::string >( &m_generalYAMLPath ) );
+          boost::program_options::value< std::string >( &m_combinedYAMLPath ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( cmdLine ).
@@ -161,22 +161,22 @@ void LintCombine::LinterCombine::validateGeneralYamlPath( const stringVector & c
         throw Exception( m_diagnostics );
     }
 
-    if( m_generalYAMLPath.empty() ) {
+    if( m_combinedYAMLPath.empty() ) {
         m_diagnostics.emplace_back(
-            Level::Error, "Path to general YAML-file is not set", "Combine", 1, 0 );
+            Level::Error, "Path to combined YAML-file is not set", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 
-    if( !isFileCreatable( m_generalYAMLPath ) ) {
-        m_diagnostics.emplace_back( Level::Error, "General YAML-file \"" +
-                                    m_generalYAMLPath + "\" is not creatable", "Combine", 1, 0 );
+    if( !isFileCreatable( m_combinedYAMLPath ) ) {
+        m_diagnostics.emplace_back( Level::Error, "Combined YAML-file \"" +
+                                    m_combinedYAMLPath + "\" is not creatable", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 }
 
 const std::string & LintCombine::LinterCombine::getYamlPath() {
-    std::filesystem::remove( m_generalYAMLPath );
-    if( !m_generalYAMLPath.empty() ) {
+    std::filesystem::remove( m_combinedYAMLPath );
+    if( !m_combinedYAMLPath.empty() ) {
         for( const auto & subLinterIt : m_linters ) {
             if( subLinterIt->getYamlPath().empty() ) {
                 m_diagnostics.emplace_back( Level::Warning,
@@ -200,29 +200,29 @@ const std::string & LintCombine::LinterCombine::getYamlPath() {
     }
     else {
         m_diagnostics.emplace_back( Level::Error,
-                                    "General YAML file path value is empty",
+                                    "Combined YAML file path value is empty",
                                     "Combine", 1, 0 );
     }
-    if( std::filesystem::exists( m_generalYAMLPath ) ) {
-        return m_generalYAMLPath;
+    if( std::filesystem::exists( m_combinedYAMLPath ) ) {
+        return m_combinedYAMLPath;
     }
     m_diagnostics.emplace_back( Level::Error,
-                                "General YAML file isn't created", "Combine", 1, 0 );
-    m_generalYAMLPath.clear();
-    return m_generalYAMLPath;
+                                "Combined YAML file isn't created", "Combine", 1, 0 );
+    m_combinedYAMLPath.clear();
+    return m_combinedYAMLPath;
 }
 
 void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge ) {
-    if( !std::filesystem::exists( m_generalYAMLPath ) ) {
+    if( !std::filesystem::exists( m_combinedYAMLPath ) ) {
         try {
-            std::filesystem::copy( yamlPathToMerge, m_generalYAMLPath );
+            std::filesystem::copy( yamlPathToMerge, m_combinedYAMLPath );
         }
         catch( std::exception & error ) {
             m_diagnostics.emplace_back( Level::Error, error.what(), "Combine", 1, 0 );
         }
     }
     else {
-        YAML::Node yamlNodeResult = loadYamlNode( m_generalYAMLPath );
+        YAML::Node yamlNodeResult = loadYamlNode( m_combinedYAMLPath );
         YAML::Node yamlNodeForAdd = loadYamlNode( yamlPathToMerge );
 
         for( const auto & diagnosticsIt : yamlNodeForAdd["Diagnostics"] ) {
@@ -230,7 +230,7 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
         }
 
         try {
-            std::ofstream mergedYamlOutputFile( m_generalYAMLPath );
+            std::ofstream mergedYamlOutputFile( m_combinedYAMLPath );
             mergedYamlOutputFile << yamlNodeResult;
         }
         catch( std::exception & error ) {

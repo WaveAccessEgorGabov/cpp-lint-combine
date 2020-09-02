@@ -9,7 +9,7 @@ LintCombine::PrepareInputsVerbatim::transformCmdLine( const stringVector cmdLine
     if( validateLinters() ) {
         return stringVector();
     }
-    if( validateGeneralYamlPath() ) {
+    if( validateCombinedYamlPath() ) {
         return stringVector();
     }
     return m_cmdLine;
@@ -64,12 +64,12 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
     return false;
 }
 
-bool LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
+bool LintCombine::PrepareInputsVerbatim::validateCombinedYamlPath() {
     boost::program_options::options_description optDesc;
-    std::string generalYAMLPath;
+    std::string combinedYAMLPath;
     optDesc.add_options()
         ( "result-yaml",
-          boost::program_options::value< std::string >( &generalYAMLPath ) );
+          boost::program_options::value< std::string >( &combinedYAMLPath ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
@@ -80,14 +80,14 @@ bool LintCombine::PrepareInputsVerbatim::validateGeneralYamlPath() {
         m_diagnostics.emplace_back( Level::Error, error.what(), "VerbatimPreparer", 1, 0 );
         return true;
     }
-    if( generalYAMLPath.empty() ) {
-        m_diagnostics.emplace_back( Level::Error, "Path to general YAML-file is not set",
+    if( combinedYAMLPath.empty() ) {
+        m_diagnostics.emplace_back( Level::Error, "Path to combined YAML-file is not set",
             "VerbatimPreparer", 1, 0 );
         return true;
     }
-    if( !isFileCreatable( generalYAMLPath ) ) {
-        m_diagnostics.emplace_back( Level::Error, "General YAML-file \"" +
-            generalYAMLPath + "\" is not creatable",
+    if( !isFileCreatable( combinedYAMLPath ) ) {
+        m_diagnostics.emplace_back( Level::Error, "Combined YAML-file \"" +
+                                    combinedYAMLPath + "\" is not creatable",
             "VerbatimPreparer", 1, 0 );
         return true;
     }

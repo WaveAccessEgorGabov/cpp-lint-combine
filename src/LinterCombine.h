@@ -32,14 +32,14 @@ namespace LintCombine {
     private:
         std::vector< stringVector > splitCommandLineBySubLinters( const stringVector & commandLine );
 
-        void validateGeneralYamlPath( const stringVector & cmdLine );
+        void validateCombinedYamlPath( const stringVector & cmdLine );
 
         void mergeYaml( const std::string & yamlPathToMerge );
 
         YAML::Node loadYamlNode( const std::string & pathToYaml );
 
         std::vector< std::unique_ptr< LinterItf > > m_linters;
-        std::string m_generalYAMLPath;
+        std::string m_combinedYAMLPath;
         LinterFactoryBase::Services & m_services;
         std::vector< Diagnostic > m_diagnostics;
     };
