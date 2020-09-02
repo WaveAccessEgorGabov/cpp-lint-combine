@@ -8,13 +8,13 @@ LintCombine::UsualLinterFactory::createLinter( const stringVector & cmdLine ) {
     if( !cmdLine.empty() && *cmdLine.begin() == "clang-tidy" ) {
         return std::make_unique< ClangTidyWrapper >
             ( stringVector( cmdLine.begin() + 1, cmdLine.end() ),
-              this->getServices() );
+            this->getServices() );
     }
 
     if( !cmdLine.empty() && *cmdLine.begin() == "clazy" ) {
         return std::make_unique< ClazyWrapper >
             ( stringVector( cmdLine.begin() + 1, cmdLine.end() ),
-              this->getServices() );
+            this->getServices() );
     }
 
     if( !cmdLine.empty() && *cmdLine.begin() == "LinterCombine" ) {

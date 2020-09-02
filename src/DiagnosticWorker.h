@@ -14,11 +14,11 @@ namespace LintCombine {
         bool printDiagnostics( const std::vector< Diagnostic > & diagnostics ) const;
 
     private:
-        static std::string getHowToPrintHelpStr();
+        static std::string howToPrintHelpStr();
 
-        static std::string getProductInfoStr();
+        static std::string productInfoStr();
 
-        static std::string getHelpStr();
+        static std::string helpStr();
 
         stringVector prepareOutput( const std::vector< Diagnostic > & diagnostics ) const;
 

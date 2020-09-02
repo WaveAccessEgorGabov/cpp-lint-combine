@@ -11,7 +11,7 @@ namespace LintCombine {
     class PrepareInputsBase : public PrepareInputsItf {
 
     public:
-        stringVector transformCmdLine( stringVector cmdLineVal ) override;
+        stringVector transformCmdLine( const stringVector & cmdLineVal ) override;
 
         void transformFiles() override {}
 
@@ -23,11 +23,9 @@ namespace LintCombine {
         bool validateParsedData();
 
         void checkIsOptionsValueInit( const std::string & optionName,
-                                      const std::string & option );
+            const std::string & option );
 
         bool initLinters();
-
-        void releaseClassField();
 
         void initCmdLine();
 
@@ -37,13 +35,13 @@ namespace LintCombine {
         virtual void specifyTargetArch() {}
 
         void addOptionToLinterByName( const std::string & name,
-                                      const std::string & option );
+            const std::string & option );
 
         void addOptionToAllLinters( const std::string & option );
 
         static std::string
             optionValueToQuotes( const std::string & optionName,
-                                 const std::string & optionNameWithValue );
+            const std::string & optionNameWithValue );
 
         virtual void appendLintersOptionToCmdLine();
 
@@ -60,11 +58,11 @@ namespace LintCombine {
                     options.emplace_back( "-p=" + pathToWorkDir );
                     if constexpr( BOOST_OS_WINDOWS ) {
                         options.emplace_back( "--export-fixes=" + pathToWorkDir +
-                                              "\\diagnosticsClangTidy.yaml" );
+                            "\\diagnosticsClangTidy.yaml" );
                     }
                     if constexpr( BOOST_OS_LINUX ) {
                         options.emplace_back( "--export-fixes=" + pathToWorkDir +
-                                              "/diagnosticsClangTidy.yaml" );
+                            "/diagnosticsClangTidy.yaml" );
                     }
                 }
             }
@@ -72,19 +70,19 @@ namespace LintCombine {
 
         struct ClazyOptions : LinterOptionsBase {
             explicit ClazyOptions( const std::string & pathToWorkDir,
-                                   const std::string & checks,
-                                   std::vector< std::string > && clangExtraArgs ) {
+                const std::string & checks,
+                const std::vector< std::string > & clangExtraArgs ) {
                 name = "clazy";
                 options.emplace_back( "--sub-linter=clazy" );
                 if( !pathToWorkDir.empty() ) {
                     options.emplace_back( "-p=" + pathToWorkDir );
                     if constexpr( BOOST_OS_WINDOWS ) {
                         options.emplace_back( "--export-fixes=" + pathToWorkDir +
-                                              "\\diagnosticsClazy.yaml" );
+                            "\\diagnosticsClazy.yaml" );
                     }
                     if constexpr( BOOST_OS_LINUX ) {
                         options.emplace_back( "--export-fixes=" + pathToWorkDir +
-                                              "/diagnosticsClazy.yaml" );
+                            "/diagnosticsClazy.yaml" );
                     }
 
                 }

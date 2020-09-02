@@ -4,13 +4,13 @@
 #include <boost/program_options.hpp>
 
 LintCombine::stringVector
-LintCombine::PrepareInputsVerbatim::transformCmdLine( const stringVector cmdLineVal ) {
+LintCombine::PrepareInputsVerbatim::transformCmdLine( const stringVector & cmdLineVal ) {
     m_cmdLine = cmdLineVal;
     if( validateLinters() ) {
-        return stringVector();
+        return {};
     }
     if( validateCombinedYamlPath() ) {
-        return stringVector();
+        return {};
     }
     return m_cmdLine;
 }
@@ -21,24 +21,23 @@ LintCombine::PrepareInputsVerbatim::diagnostics() {
 }
 
 bool LintCombine::PrepareInputsVerbatim::validateLinters() {
-    m_diagnostics.emplace_back(
-        Level::Info, "Options were passed verbatim",
-        "VerbatimPreparer", 1, 0 );
+    m_diagnostics.emplace_back( Level::Info,
+        "Options were passed verbatim", "VerbatimPreparer", 1, 0 );
     stringVector lintersNames;
     boost::program_options::options_description optDesc;
     optDesc.add_options()
         ( "sub-linter",
-          boost::program_options::value< stringVector >( &lintersNames ) );
+        boost::program_options::value< stringVector >( &lintersNames ) );
 
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
-               options( optDesc ).allow_unregistered().run(), vm );
+            options( optDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Level::Error, error.what(),
-                                    "VerbatimPreparer", 1, 0 );
+        m_diagnostics.emplace_back(
+            Level::Error, error.what(), "VerbatimPreparer", 1, 0 );
         return true;
     }
 
@@ -69,25 +68,26 @@ bool LintCombine::PrepareInputsVerbatim::validateCombinedYamlPath() {
     std::string combinedYAMLPath;
     optDesc.add_options()
         ( "result-yaml",
-          boost::program_options::value< std::string >( &combinedYAMLPath ) );
+        boost::program_options::value< std::string >( &combinedYAMLPath ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
-               options( optDesc ).allow_unregistered().run(), vm );
+            options( optDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Level::Error, error.what(), "VerbatimPreparer", 1, 0 );
+        m_diagnostics.emplace_back(
+            Level::Error, error.what(), "VerbatimPreparer", 1, 0 );
         return true;
     }
     if( combinedYAMLPath.empty() ) {
-        m_diagnostics.emplace_back( Level::Error, "Path to combined YAML-file is not set",
-            "VerbatimPreparer", 1, 0 );
+        m_diagnostics.emplace_back( Level::Error,
+            "Path to combined YAML-file is not set", "VerbatimPreparer", 1, 0 );
         return true;
     }
     if( !isFileCreatable( combinedYAMLPath ) ) {
-        m_diagnostics.emplace_back( Level::Error, "Combined YAML-file \"" +
-                                    combinedYAMLPath + "\" is not creatable",
+        m_diagnostics.emplace_back( Level::Error,
+            "Combined YAML-file \"" + combinedYAMLPath + "\" is not creatable",
             "VerbatimPreparer", 1, 0 );
         return true;
     }

@@ -7,7 +7,7 @@ namespace LintCombine {
     class PrepareInputsVerbatim final : public PrepareInputsItf {
 
     public:
-        stringVector transformCmdLine( stringVector cmdLineVal ) override;
+        stringVector transformCmdLine( const stringVector & cmdLineVal ) override;
 
         void transformFiles() override {}
 

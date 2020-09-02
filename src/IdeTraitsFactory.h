@@ -3,7 +3,6 @@
 #include "PrepareInputsItf.h"
 
 #include <boost/program_options.hpp>
-#include <algorithm>
 #include <memory>
 
 namespace LintCombine {
@@ -14,22 +13,22 @@ namespace LintCombine {
         class IdeBehaviorItf {
 
         public:
-            virtual bool isYamlContainsDocLink() = 0;
-            virtual bool isLinterExitCodeTolerant() = 0;
+            virtual bool mayYamlContainsDocLink() const = 0;
+            virtual bool isLinterExitCodeTolerant() const = 0;
             virtual ~IdeBehaviorItf() = default;
         };
 
         class IdeBehaviorBase final : public IdeBehaviorItf {
 
         public:
-            IdeBehaviorBase( const bool doesAddLinkVal,
+            IdeBehaviorBase( const bool yamlContainsDocLinkVal,
                 const bool linterExitCodeTolerantVal )
-                : m_yamlContainsDocLink(doesAddLinkVal ),
-                  m_linterExitCodeTolerant (linterExitCodeTolerantVal) {}
+                : m_yamlContainsDocLink( yamlContainsDocLinkVal ),
+                m_linterExitCodeTolerant( linterExitCodeTolerantVal ) {}
 
-            bool isYamlContainsDocLink() override { return m_yamlContainsDocLink; }
+            bool mayYamlContainsDocLink() const override { return m_yamlContainsDocLink; }
 
-            bool isLinterExitCodeTolerant() override { return m_linterExitCodeTolerant; }
+            bool isLinterExitCodeTolerant() const override { return m_linterExitCodeTolerant; }
 
         private:
             bool m_yamlContainsDocLink;
@@ -40,18 +39,15 @@ namespace LintCombine {
 
         public:
             PrepareInputsOnError( const Level levelVal,
-                                   std::string && textVal,
-                                   std::string && originVal,
-                                   const unsigned firstPosVal,
-                                   const unsigned lastPosVal )
-                : m_diagnostics{ Diagnostic( levelVal, std::move( textVal ),
-                                             std::move( originVal ),
+                const std::string & textVal, const std::string & originVal,
+                const unsigned firstPosVal, const unsigned lastPosVal )
+                : m_diagnostics{ Diagnostic( levelVal, textVal, originVal,
                                              firstPosVal, lastPosVal ) } {}
 
-            stringVector transformCmdLine( stringVector commandLine ) override {
+            stringVector transformCmdLine( const stringVector & commandLine ) override {
                 for( const auto & it : m_diagnostics ) {
                     if( it.level == Level::Error || it.level == Level::Fatal ) {
-                        return stringVector();
+                        return {};
                     }
                 }
                 return commandLine;

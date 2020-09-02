@@ -25,7 +25,7 @@ namespace LintCombine {
 
         int waitLinter() override;
 
-        const std::string & getYamlPath() override;
+        const std::string getYamlPath() override;
 
         CallTotals updateYaml() override;
 
@@ -36,9 +36,9 @@ namespace LintCombine {
         std::vector< Diagnostic > diagnostics() override;
 
     private:
-        std::vector< stringVector > splitCommandLineBySubLinters( const stringVector & commandLine );
+        std::vector< stringVector > splitCmdLineBySubLinters( const stringVector & commandLine );
 
-        void validateCombinedYamlPath( const stringVector & cmdLine );
+        void initCombinedYamlPath( const stringVector & cmdLine );
 
         void mergeYaml( const std::string & yamlPathToMerge );
 

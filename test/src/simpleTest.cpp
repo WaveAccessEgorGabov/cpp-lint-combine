@@ -35,15 +35,15 @@ private:
 
 namespace LintCombine {
     struct MockLinterWrapper final : LinterBase {
-        MockLinterWrapper( const stringVector & commandLine,
-                           LinterFactoryBase::Services & service ) : LinterBase( service ) {
-            name = commandLine[1];
-            if( commandLine.size() >= 3 ) {
-                yamlPath = commandLine[2];
+        MockLinterWrapper( const stringVector & cmdLine,
+            LinterFactoryBase::Services & service ) : LinterBase( service ) {
+            name = cmdLine[1];
+            if( cmdLine.size() >= 3 ) {
+                yamlPath = cmdLine[2];
             }
         }
 
-        void updateYamlAction( const YAML::Node & ) const override {}
+        void updateYAMLAction( const YAML::Node & ) const override {}
     };
 
     struct MocksLinterFactory : LinterFactoryBase {
@@ -74,7 +74,7 @@ namespace LintCombine {
 }
 
 void compareDiagnostics( const LintCombine::Diagnostic & lhs,
-                         const LintCombine::Diagnostic & rhs ) {
+    const LintCombine::Diagnostic & rhs ) {
     BOOST_CHECK( lhs.level == rhs.level );
     BOOST_CHECK( lhs.origin == rhs.origin );
     BOOST_CHECK( lhs.firstPos == rhs.firstPos );
@@ -83,7 +83,7 @@ void compareDiagnostics( const LintCombine::Diagnostic & lhs,
 }
 
 void compareContainers( const LintCombine::stringVector & lhs,
-                        const LintCombine::stringVector & rhs ) {
+    const LintCombine::stringVector & rhs ) {
     BOOST_REQUIRE( lhs.size() == rhs.size() );
     for( size_t i = 0; i < lhs.size(); ++i ) {
         BOOST_CHECK( lhs[i] == rhs[i] );
@@ -93,10 +93,10 @@ void compareContainers( const LintCombine::stringVector & lhs,
 void recoverYamlFiles() {
     std::filesystem::remove( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
     std::filesystem::copy_file( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_save.yaml",
-                                CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
+        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
     std::filesystem::remove( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" );
     std::filesystem::copy_file( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2_save.yaml",
-                                CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" );
+        CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" );
 }
 
 BOOST_AUTO_TEST_SUITE( TestUsualLinterFactory )
@@ -106,8 +106,8 @@ struct ULFTestCase {
 
     struct Output {
         Output( const bool returnedNullptrVal )
-            : returnedNullptr( returnedNullptrVal ) {}
-        bool returnedNullptr = false;
+            : objectReturned( returnedNullptrVal ) {}
+        bool objectReturned = false;
     };
 
     struct Input {
@@ -128,26 +128,26 @@ std::ostream & operator<<( std::ostream & os, ULFTestCase ) {
 }
 
 namespace TestULF::EmptyCmdLine {
-    const ULFTestCase::Input input{ LintCombine::stringVector{} };
-    const ULFTestCase::Output output{ true };
+    const ULFTestCase::Input input{ {} };
+    const ULFTestCase::Output output{ false };
 }
 
 namespace TestULF::UnknownLinter {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "--sub-linter=Unknown"} };
-    const ULFTestCase::Output output{ true };
+    const ULFTestCase::Output output{ false };
 }
 
 namespace TestULF::LinterIsClazy {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "clazy", "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
-    const ULFTestCase::Output output{ false };
+    const ULFTestCase::Output output{ true };
 }
 
 namespace TestULF::LinterIsClangTidy {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "clang-tidy", "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
-    const ULFTestCase::Output output{ false };
+    const ULFTestCase::Output output{ true };
 }
 
 namespace TestULF::LinterIsCombine {
@@ -155,7 +155,7 @@ namespace TestULF::LinterIsCombine {
         "LinterCombine", "--result-yaml=" CURRENT_BINARY_DIR "mock",
         "--sub-linter=clazy",
         "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
-    const ULFTestCase::Output output{ false };
+    const ULFTestCase::Output output{ true };
 }
 
 const ULFTestCase LCCTestCaseData[] = {
@@ -163,15 +163,15 @@ const ULFTestCase LCCTestCaseData[] = {
     /*1 */ { TestULF::UnknownLinter::input, TestULF::UnknownLinter::output },
     /*2 */ { TestULF::LinterIsClazy::input, TestULF::LinterIsClazy::output },
     /*3 */ { TestULF::LinterIsClangTidy::input, TestULF::LinterIsClangTidy::output },
-    /*4 */ { TestULF::LinterIsCombine::input, TestULF::LinterIsCombine::output }
+    /*4 */ { TestULF::LinterIsCombine::input, TestULF::LinterIsCombine::output },
 };
 
 // TODO: SFINAE for checking linter type?
 BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
     const auto & correctResult = static_cast< ULFTestCase::Output >( sample.output );
     auto pLinter = LintCombine::UsualLinterFactory::getInstance().createLinter( sample.input.cmdLine );
-    if( correctResult.returnedNullptr ) { BOOST_CHECK( !pLinter ); }
-    else { BOOST_CHECK( pLinter ); }
+    if( correctResult.objectReturned ) { BOOST_CHECK( pLinter ); }
+    else { BOOST_CHECK( !pLinter ); }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -194,8 +194,8 @@ struct LCCTestCase {
 
     struct LinterData {
         LinterData( const std::string & nameVal,
-                    const std::string & optionsVal,
-                    const std::string & yamlPathVal )
+            const std::string & optionsVal,
+            const std::string & yamlPathVal )
             : name( nameVal ), options( optionsVal ),
             yamlPath( yamlPathVal ) {}
         std::string name;
@@ -205,8 +205,8 @@ struct LCCTestCase {
 
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const std::vector< LinterData > & linterDataVal,
-                const bool exceptionOccurVal )
+            const std::vector< LinterData > & linterDataVal,
+            const bool exceptionOccurVal )
             : diagnostics( diagnosticsVal ),
             linterData( linterDataVal ),
             exceptionOccur( exceptionOccurVal ) {}
@@ -222,7 +222,7 @@ struct LCCTestCase {
     };
 
     LCCTestCase( const Input & inputVal,
-                 const Output & outputVal )
+        const Output & outputVal )
         : input( inputVal ), output( outputVal ) {}
 
     Input input;
@@ -234,7 +234,7 @@ std::ostream & operator<<( std::ostream & os, LCCTestCase ) {
 }
 
 namespace TestLCC::EmptyCmdLine {
-    const LCCTestCase::Input input{ LintCombine::stringVector() };
+    const LCCTestCase::Input input{ {} };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
         "Command Line is empty", "Combine", 1, 0 ) };
@@ -495,7 +495,7 @@ const LCCTestCase LCCTestCaseData[] = {
     /*16*/ { TestLCC::ClangTidyExists::input, TestLCC::ClangTidyExists::output },
     /*17*/ { TestLCC::ClazyEWithOptions::input, TestLCC::ClazyEWithOptions::output },
     /*18*/ { TestLCC::ClangTidyAndClazyE::input, TestLCC::ClangTidyAndClazyE::output },
-    /*19*/ { TestLCC::ClangTidyAndClazyEWithOptions::input, TestLCC::ClangTidyAndClazyEWithOptions::output }
+    /*19*/ { TestLCC::ClangTidyAndClazyEWithOptions::input, TestLCC::ClangTidyAndClazyEWithOptions::output },
 };
 
 BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
@@ -506,10 +506,10 @@ BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
         }
         catch( const LintCombine::Exception & ex ) {
             BOOST_REQUIRE( ex.diagnostics().size() ==
-                           correctResult.diagnostics.size() );
+                correctResult.diagnostics.size() );
             for( size_t i = 0; i < correctResult.diagnostics.size(); ++i ) {
                 compareDiagnostics( ex.diagnostics()[i],
-                                    correctResult.diagnostics[i] );
+                    correctResult.diagnostics[i] );
             }
         }
     }
@@ -551,7 +551,7 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
 struct CWLTestCase {
     struct FileData {
         FileData( const std::string & filenameVal,
-                  const LintCombine::stringVector & fileDataVal )
+            const LintCombine::stringVector & fileDataVal )
             : filename( filenameVal ), fileData( fileDataVal ) {}
         std::string filename;
         LintCombine::stringVector fileData;
@@ -559,10 +559,10 @@ struct CWLTestCase {
 
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const LintCombine::stringVector & stdoutDataVal,
-                const LintCombine::stringVector & stderrDataVal,
-                const std::vector< FileData > & filesWithContentVal,
-                const int returnCodeVal )
+            const LintCombine::stringVector & stdoutDataVal,
+            const LintCombine::stringVector & stderrDataVal,
+            const std::vector< FileData > & filesWithContentVal,
+            const int returnCodeVal )
             : diagnostics( diagnosticsVal ), stdoutData( stdoutDataVal ),
             stderrData( stderrDataVal ), filesWithContent( filesWithContentVal ),
             returnCode( returnCodeVal ) {}
@@ -575,8 +575,8 @@ struct CWLTestCase {
 
     struct Input {
         Input( const LintCombine::stringVector & cmdLineVal,
-               const LintCombine::stringVector & fileNamesForLinterEndsEarlyTestVal
-               = LintCombine::stringVector() )
+            const LintCombine::stringVector & fileNamesForLinterEndsEarlyTestVal
+            = LintCombine::stringVector() )
             : cmdLine( cmdLineVal ),
             fileNamesForLinterEndsEarlyTest( fileNamesForLinterEndsEarlyTestVal ) {}
         LintCombine::stringVector cmdLine;
@@ -585,7 +585,7 @@ struct CWLTestCase {
     };
 
     CWLTestCase( const Input & inputVal,
-                 const Output & outputVal )
+        const Output & outputVal )
         : input( inputVal ), output( outputVal ) {}
 
     Input input;
@@ -898,7 +898,7 @@ const CWLTestCase CWLTestCaseData[] = {
     /*11*/ {TestCWL::L1WSFR0_L2WSFR0::input, TestCWL::L1WSFR0_L2WSFR0::output},
     /*12*/ {TestCWL::LintersWorkInParallel::input, TestCWL::LintersWorkInParallel::output},
     /*13*/ {TestCWL::OneLinterEETC::input, TestCWL::OneLinterEETC::output},
-    /*14*/ {TestCWL::TwoLinterEETC::input, TestCWL::TwoLinterEETC::output}
+    /*14*/ {TestCWL::TwoLinterEETC::input, TestCWL::TwoLinterEETC::output},
 };
 
 BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
@@ -960,8 +960,8 @@ using pairStrStrVec = std::vector< std::pair< std::string, std::string > >;
 struct UYTestCase {
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const LintCombine::CallTotals & callTotalsVal,
-                const pairStrStrVec & filesForCompareVal )
+            const LintCombine::CallTotals & callTotalsVal,
+            const pairStrStrVec & filesForCompareVal )
             : diagnostics( diagnosticsVal ), callTotals( callTotalsVal ),
             filesForCompare( filesForCompareVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
@@ -971,15 +971,15 @@ struct UYTestCase {
 
     struct Input {
         Input( const LintCombine::stringVector & cmdLineVal,
-               LintCombine::LinterFactoryBase & factoryVal =
-               LintCombine::MocksLinterFactory::getInstance() )
+            LintCombine::LinterFactoryBase & factoryVal =
+            LintCombine::MocksLinterFactory::getInstance() )
             : cmdLine( cmdLineVal ), factory( factoryVal ) {}
         LintCombine::stringVector cmdLine;
         LintCombine::LinterFactoryBase & factory;
     };
 
     UYTestCase( const Input & inputVal,
-                const Output & outputVal )
+        const Output & outputVal )
         : input( inputVal ), output( outputVal ) {}
 
     Input input;
@@ -1162,7 +1162,7 @@ const UYTestCase UYTestCaseData[] = {
     /*6 */ {TestUY::L1_YPE::input, TestUY::L1_YPE::output},
     /*7 */ {TestUY::L1YPE_L2YPE::input, TestUY::L1YPE_L2YPE::output},
     /*8 */ {TestUY::clangTidyUpdateYaml::input, TestUY::clangTidyUpdateYaml::output},
-    /*9 */ {TestUY::clazyUpdateYaml::input, TestUY::clazyUpdateYaml::output}
+    /*9 */ {TestUY::clazyUpdateYaml::input, TestUY::clazyUpdateYaml::output},
 };
 
 BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
@@ -1207,8 +1207,8 @@ using pairStrStrVec = std::vector< std::pair< std::string, std::string > >;
 struct MYTestCase {
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const pairStrStrVec & filesForCompareVal,
-                const std::string & pathToCombinedYAMLVal )
+            const pairStrStrVec & filesForCompareVal,
+            const std::string & pathToCombinedYAMLVal )
             : diagnostics( diagnosticsVal ), filesForCompare( filesForCompareVal ),
             pathToCombinedYAML( pathToCombinedYAMLVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
@@ -1223,7 +1223,7 @@ struct MYTestCase {
     };
 
     MYTestCase( const Input & inputVal,
-                const Output & outputVal )
+        const Output & outputVal )
         : input( inputVal ), output( outputVal ) {}
 
     Input input;
@@ -1325,7 +1325,7 @@ const MYTestCase MYTestCaseData[] = {
     /*1 */ { TestMY::L1YPE::input, TestMY::L1YPE::output},
     /*2 */ { TestMY::L1YPE_L2YPDNE::input, TestMY::L1YPE_L2YPDNE::output},
     /*3 */ { TestMY::TwoLintersYPDNE::input, TestMY::TwoLintersYPDNE::output},
-    /*4 */ { TestMY::TwoLintersYPE::input, TestMY::TwoLintersYPE::output}
+    /*4 */ { TestMY::TwoLintersYPE::input, TestMY::TwoLintersYPE::output},
 };
 
 BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
@@ -1395,9 +1395,9 @@ struct PCLTestCase {
 
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const LintCombine::stringVector & resultCmdLineVal,
-                const std::optional< bool > & YAMLContainsDocLinkVal,
-                const std::optional< bool > & linterExitCodeTolerantVal )
+            const LintCombine::stringVector & resultCmdLineVal,
+            const std::optional< bool > & YAMLContainsDocLinkVal,
+            const std::optional< bool > & linterExitCodeTolerantVal )
             : diagnostics( diagnosticsVal ), resultCmdLine( resultCmdLineVal ),
             YAMLContainsDocLink( YAMLContainsDocLinkVal ),
             linterExitCodeTolerant( linterExitCodeTolerantVal ) {}
@@ -1408,7 +1408,7 @@ struct PCLTestCase {
     };
 
     PCLTestCase( const Input & inputVal,
-                 const Output & outputVal )
+        const Output & outputVal )
         : input( inputVal ), output( outputVal ) {}
 
     Input input;
@@ -1420,7 +1420,7 @@ std::ostream & operator<<( std::ostream & os, PCLTestCase ) {
 }
 
 namespace TestPCL::EmptyCmdLine {
-    const PCLTestCase::Input input{ LintCombine::stringVector() };
+    const PCLTestCase::Input input{ {LintCombine::stringVector()} };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
             "Command Line is empty", "FactoryPreparer", 1, 0 ) };
@@ -2253,7 +2253,7 @@ const PCLTestCase PCLTestCaseData[] = {
     /*48*/ { TestPCL::AllLintersAES::input( "ReSharper" ), TestPCL::AllLintersAES::output( "ReSharper" ) },
     /*49*/ { TestPCL::AllLintersAES::input( "CLion" ), TestPCL::AllLintersAES::output( "CLion" ) },
     /*50*/ { TestPCL::AllLintersASP::input( "ReSharper" ), TestPCL::AllLintersASP::output( "ReSharper" ) },
-    /*51*/ { TestPCL::AllLintersASP::input( "CLion" ), TestPCL::AllLintersASP::output( "CLion" ) }
+    /*51*/ { TestPCL::AllLintersASP::input( "CLion" ), TestPCL::AllLintersASP::output( "CLion" ) },
 };
 
 BOOST_DATA_TEST_CASE( TestPrepareCmdLine, PCLTestCaseData, sample ) {
@@ -2262,15 +2262,15 @@ BOOST_DATA_TEST_CASE( TestPrepareCmdLine, PCLTestCaseData, sample ) {
     auto inputCmdLine = sample.input.cmdLine;
     auto prepareCmdLine = ideTraitsFactory.getPrepareInputsInstance( inputCmdLine );
     if( correctResult.YAMLContainsDocLink.has_value() ) {
-        BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->isYamlContainsDocLink() ==
-                     correctResult.YAMLContainsDocLink );
+        BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->mayYamlContainsDocLink() ==
+            correctResult.YAMLContainsDocLink );
     }
     if( correctResult.linterExitCodeTolerant.has_value() ) {
         BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ==
-                     correctResult.linterExitCodeTolerant );
+            correctResult.linterExitCodeTolerant );
     }
     compareContainers( prepareCmdLine->transformCmdLine( inputCmdLine ),
-                       correctResult.resultCmdLine );
+        correctResult.resultCmdLine );
     const auto & preparerDiagnostics = prepareCmdLine->diagnostics();
     const auto & correctResultDiagnostics = correctResult.diagnostics;
     BOOST_REQUIRE( preparerDiagnostics.size() == correctResultDiagnostics.size() );
@@ -2284,7 +2284,7 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE( TestSpecifyTargetArch )
 
 void checkTargetArch( const std::string & macrosDir,
-                      const std::string & targetTriple = std::string() ) {
+    const std::string & targetTriple = std::string() ) {
     if constexpr( !BOOST_OS_WINDOWS ) {
         return;
     }

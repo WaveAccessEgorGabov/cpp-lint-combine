@@ -7,7 +7,7 @@ namespace LintCombine {
     struct PrepareInputsItf {
         virtual ~PrepareInputsItf() = default;
 
-        virtual stringVector transformCmdLine( stringVector commandLine ) = 0;
+        virtual stringVector transformCmdLine( const stringVector & commandLine ) = 0;
 
         virtual void transformFiles() = 0;
 

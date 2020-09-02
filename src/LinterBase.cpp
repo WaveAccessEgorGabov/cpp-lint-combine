@@ -7,22 +7,22 @@
 #include <fstream>
 #include <iostream>
 
-std::vector<LintCombine::Diagnostic> LintCombine::LinterBase::diagnostics() {
+std::vector< LintCombine::Diagnostic > LintCombine::LinterBase::diagnostics() {
     return m_diagnostics;
 }
 
 void LintCombine::LinterBase::callLinter() {
-    linterProcess = boost::process::child( name + " --export-fixes=" +
-                                           yamlPath + " " + options,
-                                           boost::process::std_out > stdoutPipe,
-                                           boost::process::std_err > stderrPipe );
-    readFromPipeToStream( stdoutPipe, std::cout );
-    readFromPipeToStream( stderrPipe, std::cerr );
+    m_linterProcess = boost::process::child(
+        name + " --export-fixes=" + yamlPath + " " + m_options,
+        boost::process::std_out > m_stdoutPipe,
+        boost::process::std_err > m_stderrPipe );
+    readFromPipeToStream( m_stdoutPipe, std::cout );
+    readFromPipeToStream( m_stderrPipe, std::cerr );
 }
 
 int LintCombine::LinterBase::waitLinter() {
-    linterProcess.wait();
-    return linterProcess.exit_code();
+    m_linterProcess.wait();
+    return m_linterProcess.exit_code();
 }
 
 LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
@@ -30,8 +30,8 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     try {
         const std::ifstream filePathToYaml( yamlPath );
         if( filePathToYaml.fail() ) {
-            throw std::logic_error( "YAML file path \""
-                                    + yamlPath + "\" doesn't exist" );
+            throw std::logic_error( 
+                "YAML file path \"" + yamlPath + "\" doesn't exist" );
         }
         yamlNode = YAML::LoadFile( yamlPath );
     }
@@ -40,41 +40,35 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
         return CallTotals( /*successNum=*/ 0, /*failNum=*/ 1 );
     }
 
-    updateYamlAction( yamlNode );
+    updateYAMLAction( yamlNode );
 
     try {
         std::ofstream yamlWithDocLinkFile( yamlPath );
         yamlWithDocLinkFile << yamlNode;
     }
-    catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Level::Error, error.what(), "LinterBase", 1, 0 );
+    catch( const std::exception & ex ) {
+        m_diagnostics.emplace_back( Level::Error, ex.what(), "LinterBase", 1, 0 );
         return CallTotals( /*successNum=*/ 0, /*failNum=*/ 1 );
     }
 
     return CallTotals( /*successNum=*/ 1, /*failNum=*/ 0 );
 }
 
-const std::string & LintCombine::LinterBase::getName() const {
-    return name;
-}
+const std::string & LintCombine::LinterBase::getName() const { return name; }
 
-const std::string & LintCombine::LinterBase::getOptions() const {
-    return options;
-}
+const std::string & LintCombine::LinterBase::getOptions() const { return m_options; }
 
-const std::string & LintCombine::LinterBase::getYamlPath() {
-    return yamlPath;
-}
+const std::string LintCombine::LinterBase::getYamlPath() { return yamlPath; }
 
 LintCombine::LinterBase::LinterBase( LinterFactoryBase::Services & service )
-    : stdoutPipe( service.getIOService() ),
-    stderrPipe( service.getIOService() ) {}
+    : m_stdoutPipe( service.getIOService() ),
+    m_stderrPipe( service.getIOService() ) {}
 
 LintCombine::LinterBase::LinterBase( const stringVector & cmdLine,
-                                     LinterFactoryBase::Services & service,
-                                     const std::string & nameVal )
-    : name( nameVal ), stdoutPipe( service.getIOService() ),
-    stderrPipe( service.getIOService() ) {
+    LinterFactoryBase::Services & service,
+    const std::string & nameVal )
+    : name( nameVal ), m_stdoutPipe( service.getIOService() ),
+    m_stderrPipe( service.getIOService() ) {
     parseCmdLine( cmdLine );
 }
 
@@ -82,45 +76,47 @@ void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
     boost::program_options::options_description optDesc;
     optDesc.add_options()
         ( "export-fixes",
-          boost::program_options::value< std::string >( &yamlPath ) );
+        boost::program_options::value< std::string >( &yamlPath ) );
     boost::program_options::variables_map vm;
     try {
         const boost::program_options::parsed_options parsed =
             boost::program_options::command_line_parser( cmdLine )
             .style( boost::program_options::command_line_style::default_style |
-                    boost::program_options::command_line_style::allow_long_disguise )
+            boost::program_options::command_line_style::allow_long_disguise )
             .options( optDesc ).allow_unregistered().run();
         store( parsed, vm );
         notify( vm );
         const stringVector linterOptions =
             collect_unrecognized( parsed.options,
-                                  boost::program_options::include_positional );
+            boost::program_options::include_positional );
         for( const auto & it : linterOptions ) {
-            options.append( it + " " );
+            m_options.append( it + " " );
         }
     }
-    catch( const std::exception & error ) {
-        m_diagnostics.emplace_back( Level::Error, error.what(), name.c_str(), 1, 0 );
+    catch( const std::exception & ex ) {
+        m_diagnostics.emplace_back( Level::Error, ex.what(), name.c_str(), 1, 0 );
         throw Exception( m_diagnostics );
     }
 
     if( yamlPath.empty() ) {
-        m_diagnostics.emplace_back( 
-            Level::Error,  "Path to linter's YAML-file is not set", name.c_str(), 1, 0 );
+        m_diagnostics.emplace_back(
+            Level::Error, "Path to linter's YAML-file is not set", 
+            name.c_str(), 1, 0 );
         throw Exception( m_diagnostics );
     }
 
     if( !isFileCreatable( yamlPath ) ) {
-        m_diagnostics.emplace_back( Level::Error, "Linter's YAML-file \"" +
-            yamlPath + "\" is not creatable", name.c_str(), 1, 0 );
+        m_diagnostics.emplace_back( Level::Error, 
+            "Linter's YAML-file \"" + yamlPath + "\" is not creatable", 
+            name.c_str(), 1, 0 );
         throw Exception( m_diagnostics );
     }
 }
 
-void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe & pipe,
-                                                    std::ostream & outputStream ) {
+void LintCombine::LinterBase::readFromPipeToStream( 
+    boost::process::async_pipe & pipe, std::ostream & outputStream ) {
     pipe.async_read_some( boost::process::buffer( m_buffer ),
-                          [&]( boost::system::error_code ec, size_t size ) {
+        [&]( boost::system::error_code ec, size_t size ) {
         outputStream.write( m_buffer.data(), size );
         if( !ec )
             readFromPipeToStream( pipe, outputStream );

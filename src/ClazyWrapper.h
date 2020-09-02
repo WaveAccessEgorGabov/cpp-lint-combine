@@ -10,7 +10,7 @@ namespace LintCombine {
         ClazyWrapper( const stringVector & cmdLine, LinterFactoryBase::Services & service );
 
     private:
-        void updateYamlAction( const YAML::Node & yamlNode ) const override;
+        void updateYAMLAction( const YAML::Node & yamlNode ) const override;
 
         static void addDocLink( const YAML::Node & yamlNode );
     };

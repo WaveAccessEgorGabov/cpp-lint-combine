@@ -7,9 +7,9 @@
 
 void LintCombine::PrepareInputsCLion::specifyTargetArch() {
     if constexpr( BOOST_OS_WINDOWS ) {
-        const std::vector< std::pair< std::string, std::string > > macroTargetPairs =
+        const std::pair< std::string, std::string > macroTargetPairs[] =
         {
-            // space in both side of macro is done on purpose.
+            // Note spaces on both sides of macro names
             { " _M_X64 ",   "x86_64-pc-win32" },
             { " _M_IX86 ",  "i386-pc-win32"   },
             { " _M_ARM64 ", "arm64-pc-win32"  },
@@ -20,6 +20,7 @@ void LintCombine::PrepareInputsCLion::specifyTargetArch() {
         for( std::string macroDefinition; std::getline( macrosFile, macroDefinition );) {
             for( const auto & [macrosArch, archTriple] : macroTargetPairs ) {
                 if( macroDefinition.find( macrosArch ) != std::string::npos ) {
+                    // to avoid errors if different arch specified
                     if( !linterArchExtraArg.empty() ) {
                         return;
                     }
@@ -40,7 +41,7 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
             specifyTargetArch();
         }
-        // File to analysis
+        // File to analyze
         if( unrecognized[0] != '-' && unrecognized[0] != '@' ) {
             filesForAnalysis.emplace_back( unrecognized );
             continue;
@@ -67,14 +68,17 @@ void LintCombine::PrepareInputsCLion::transformFiles() {
 
         // In Linux the following macros must be undefined to avoid redefinition,
         // because clazy also defines this macros
-        macrosFileRes << "#undef __clang_version__\n";
-        macrosFileRes << "#undef __VERSION__\n";
-        macrosFileRes << "#undef __has_feature\n";
-        macrosFileRes << "#undef __has_extension\n";
-        macrosFileRes << "#undef __has_attribute\n";
-        macrosFileRes << "#undef __has_builtin\n";
+        std::string macrosToUndef[] = {
+            "__clang_version__", "__VERSION__",
+            "__has_feature",     "__has_extension",
+            "__has_attribute",   "__has_builtin"
+        };
+        for( const auto & it : macrosToUndef ) {
+            macrosFileRes << "#undef " << it << std::endl;
+        }
         macrosFileRes << sourceMacros.str();
 
+        // TODO: Do we really need macros above?
         // In Linux clang in not compatible with GCC 8 or higher,
         // so we can't use the following macros
         macrosFileRes << "#define _GLIBCXX_USE_MAKE_INTEGER_SEQ 1\n";

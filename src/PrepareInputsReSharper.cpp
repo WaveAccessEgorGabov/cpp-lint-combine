@@ -9,13 +9,13 @@ void LintCombine::PrepareInputsReSharper::appendLintersOptionToCmdLine() {
         std::string strToCompare = "--config=";
         if( unrecognized.find( strToCompare ) == 0 ) {
             addOptionToLinterByName( "clang-tidy",
-                                     optionValueToQuotes( strToCompare, unrecognized ) );
+                optionValueToQuotes( strToCompare, unrecognized ) );
             continue;
         }
         strToCompare = "--line-filter=";
         if( unrecognized.find( strToCompare ) == 0 ) {
             addOptionToLinterByName( "clang-tidy",
-                                     optionValueToQuotes( strToCompare, unrecognized ) );
+                optionValueToQuotes( strToCompare, unrecognized ) );
             continue;
         }
         strToCompare = "--header-filter=";

@@ -1,10 +1,10 @@
 #include "ClangTidyWrapper.h"
 
 LintCombine::ClangTidyWrapper::ClangTidyWrapper( const stringVector & cmdLine,
-                                                 LinterFactoryBase::Services & service )
-    : LinterBase( cmdLine, service, "clang-tidy" ) {}
+    LinterFactoryBase::Services & service )
+    : LinterBase( cmdLine, service, /*name=*/"clang-tidy" ) {}
 
-void LintCombine::ClangTidyWrapper::updateYamlAction( const YAML::Node & yamlNode ) const {
+void LintCombine::ClangTidyWrapper::updateYAMLAction( const YAML::Node & yamlNode ) const {
     addDocLink( yamlNode );
 }
 

@@ -12,10 +12,10 @@ LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
         return std::make_unique< IdeBehaviorBase >( true, false );
     }
     if( m_ideName == "clion" ) {
-        if constexpr (BOOST_OS_WINDOWS) {
+        if constexpr( BOOST_OS_WINDOWS ) {
             return std::make_unique< IdeBehaviorBase >( false, false );
         }
-        if constexpr (BOOST_OS_LINUX) {
+        if constexpr( BOOST_OS_LINUX ) {
             return std::make_unique< IdeBehaviorBase >( false, true );
         }
     }
@@ -28,17 +28,17 @@ LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
 std::unique_ptr< LintCombine::PrepareInputsItf >
 LintCombine::IdeTraitsFactory::getPrepareInputsInstance( stringVector & cmdLine ) {
     if( cmdLine.empty() ) {
-        return std::make_unique< PrepareInputsOnError > ( 
-            Level::Error, "Command Line is empty", "FactoryPreparer",  1, 0 );
+        return std::make_unique< PrepareInputsOnError >(
+            Level::Error, "Command Line is empty", "FactoryPreparer", 1, 0 );
     }
     boost::program_options::options_description programDesc;
     programDesc.add_options()
         ( "ide-profile",
-          boost::program_options::value< std::string >( &m_ideName ) );
+        boost::program_options::value< std::string >( &m_ideName ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( cmdLine ).
-               options( programDesc ).allow_unregistered().run(), vm );
+            options( programDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
     catch( const std::exception & ex ) {
@@ -46,7 +46,7 @@ LintCombine::IdeTraitsFactory::getPrepareInputsInstance( stringVector & cmdLine 
             Level::Error, ex.what(), "FactoryPreparer", 1, 0 );
     }
     cmdLine.erase( std::remove_if( std::begin( cmdLine ), std::end( cmdLine ),
-                   [this]( const std::string & str ) -> bool {
+        [this]( const std::string & str ) -> bool {
         return str.find( "--ide-profile" ) == 0 || str == m_ideName;
     } ), std::end( cmdLine ) );
     if( m_ideName.empty() ) {
@@ -61,8 +61,7 @@ LintCombine::IdeTraitsFactory::getPrepareInputsInstance( stringVector & cmdLine 
         return std::make_unique< PrepareInputsCLion >();
     }
 
-    return std::make_unique< PrepareInputsOnError >(
-        Level::Error, "\"" + ideNameCopy +
-        "\" is not a supported IDE profile",
+    return std::make_unique< PrepareInputsOnError >( Level::Error,
+        "\"" + ideNameCopy + "\" is not a supported IDE profile",
         "FactoryPreparer", 1, 0 );
 }

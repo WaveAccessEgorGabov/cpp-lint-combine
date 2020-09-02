@@ -35,7 +35,7 @@ int main( int argc, char * argv[] ) {
     }
 
     if( ideTraitsFactory.getIdeBehaviorInstance() &&
-        ideTraitsFactory.getIdeBehaviorInstance()->isYamlContainsDocLink() ) {
+        ideTraitsFactory.getIdeBehaviorInstance()->mayYamlContainsDocLink() ) {
         const auto callTotals = pCombine->updateYaml();
         if( !callTotals.successNum ) {
             diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
