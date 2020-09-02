@@ -242,12 +242,12 @@ namespace TestLCC::EmptyCmdLine {
     const LCCTestCase::Output output{ diagnostics, linterData, true };
 }
 
-namespace TestLCC::NoOneLinterSet {
+namespace TestLCC::NoLintersSet {
     const LCCTestCase::Input input{
         LintCombine::stringVector{ "--param_1=value_1", "--param_2=value_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-        "No one linter parsed", "Combine", 1, 0 ) };
+        "No linters specified. Use --sub-linter, see --help.", "Combine", 1, 0 ) };
     const std::vector< LCCTestCase::LinterData > linterData;
     const LCCTestCase::Output output{ diagnostics, linterData, true };
 }
@@ -326,7 +326,7 @@ namespace TestLCC::TwoLintersVEASP {
         LintCombine::stringVector{ "--sub-linter", "--sub-linter" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "No one linter parsed", "Combine", 1, 0 )
+            "No linters specified. Use --sub-linter, see --help.", "Combine", 1, 0 )
     };
     const std::vector< LCCTestCase::LinterData > linterData;
     const LCCTestCase::Output output{ diagnostics, linterData, true };
@@ -477,7 +477,7 @@ namespace TestLCC::ClangTidyAndClazyEWithOptions {
 
 const LCCTestCase LCCTestCaseData[] = {
     /*0 */ { TestLCC::EmptyCmdLine::input, TestLCC::EmptyCmdLine::output },
-    /*1 */ { TestLCC::NoOneLinterSet::input, TestLCC::NoOneLinterSet::output },
+    /*1 */ { TestLCC::NoLintersSet::input, TestLCC::NoLintersSet::output },
     /*2 */ { TestLCC::L1DNE::input, TestLCC::L1DNE::output },
     /*3 */ { TestLCC::L1DNE_L2E::input, TestLCC::L1DNE_L2E::output },
     /*4 */ { TestLCC::L1DNE_L2DNE::input, TestLCC::L1DNE_L2DNE::output },
@@ -1425,8 +1425,6 @@ namespace TestPCL::EmptyCmdLine {
         LintCombine::Diagnostic( LintCombine::Level::Error,
             "Command Line is empty", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
-    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, false };
-}
 
 namespace TestPCL::Verbatim_LintersDNE {
     const PCLTestCase::Input input{ LintCombine::stringVector{
@@ -1435,7 +1433,7 @@ namespace TestPCL::Verbatim_LintersDNE {
         LintCombine::Diagnostic( LintCombine::Level::Info,
             "Options were passed verbatim", "VerbatimPreparer", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "No linters specified. Supported linters are: clang-tidy, clazy.",
+            "No linters specified. Use --sub-linter, see --help.",
             "VerbatimPreparer", 1, 0 )
     };
     const LintCombine::stringVector resultCmdLine;

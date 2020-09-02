@@ -32,7 +32,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
 
     if( subLintersCmdLine.empty() ) {
         m_diagnostics.emplace_back( Level::Error,
-            "No one linter parsed", "Combine", 1, 0 );
+            "No linters specified. Use --sub-linter, see --help.", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 

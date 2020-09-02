@@ -43,7 +43,7 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
 
     if( lintersNames.empty() ) {
         m_diagnostics.emplace_back( Level::Error,
-            "No linters specified. Supported linters are: clang-tidy, clazy.",
+            "No linters specified. Use --sub-linter, see --help.",
             "VerbatimPreparer", 1, 0 );
         return true;
     }
