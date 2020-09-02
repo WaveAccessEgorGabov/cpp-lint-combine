@@ -606,7 +606,7 @@ std::string getRunnerName( const std::string & shellName ) {
 }
 
 std::string getScriptExtension() {
-    if constexpr( BOOST_OS_WINDOWS ) { return ".bat"; }
+    if constexpr( BOOST_OS_WINDOWS ) { return ".cmd"; }
     else { return ".sh"; }
 }
 
