@@ -37,13 +37,13 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
     }
 
     for( const auto & it : subLintersCmdLine ) {
-        const auto linter = factory.createLinter( it );
+        auto linter = factory.createLinter( it );
         if( !linter ) {
             throw Exception( Diagnostic( Level::Error,
                              "Unknown linter name: \"" + *it.begin() + "\"",
                              "Combine", 1, 0 ) );
         }
-        m_linters.emplace_back( factory.createLinter( it ) );
+        m_linters.emplace_back( std::move( linter ) );
     }
     validateCombinedYamlPath( cmdLine );
 }
@@ -90,7 +90,7 @@ LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
     return callTotals;
 }
 
-const std::unique_ptr< LintCombine::LinterItf > &
+std::shared_ptr< LintCombine::LinterItf >
 LintCombine::LinterCombine::linterAt( const size_t pos ) const {
     if( pos >= m_linters.size() )
         throw std::out_of_range( "index out of bounds" );
