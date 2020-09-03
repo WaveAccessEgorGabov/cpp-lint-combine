@@ -166,7 +166,6 @@ const ULFTestCase LCCTestCaseData[] = {
     /*4 */ { TestULF::LinterIsCombine::input, TestULF::LinterIsCombine::output },
 };
 
-// TODO: SFINAE for checking linter type?
 BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
     const auto & correctResult = static_cast< ULFTestCase::Output >( sample.output );
     auto pLinter = LintCombine::UsualLinterFactory::getInstance().createLinter( sample.input.cmdLine );
@@ -175,7 +174,6 @@ BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-
 
 BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
 
@@ -1425,6 +1423,8 @@ namespace TestPCL::EmptyCmdLine {
         LintCombine::Diagnostic( LintCombine::Level::Error,
             "Command Line is empty", "FactoryPreparer", 1, 0 ) };
     const LintCombine::stringVector resultCmdLine;
+    const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, false };
+}
 
 namespace TestPCL::Verbatim_LintersDNE {
     const PCLTestCase::Input input{ LintCombine::stringVector{
@@ -1947,7 +1947,6 @@ namespace TestPCL::LinterEmptyAES {
     const LintCombine::stringVector resultCmdLine;
     const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
-
 
 namespace TestPCL::L1FIN_L2EAES {
     const PCLTestCase::Input input{ LintCombine::stringVector{
