@@ -16,9 +16,9 @@ namespace LintCombine {
 
         CallTotals updateYaml() override;
 
-        const std::string & getName() const;
+        const std::string getName() const;
 
-        const std::string & getOptions() const;
+        const std::string getOptions() const;
 
         const std::string getYamlPath() final;
 
@@ -29,7 +29,6 @@ namespace LintCombine {
     protected:
         std::string name;
         std::string yamlPath;
-
 
         explicit LinterBase( LinterFactoryBase::Services & service );
 

@@ -37,7 +37,7 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     }
     catch( const std::exception & error ) {
         m_diagnostics.emplace_back( Level::Error, error.what(), "LinterBase", 1, 0 );
-        return CallTotals( /*successNum=*/ 0, /*failNum=*/ 1 );
+        return { /*successNum=*/ 0, /*failNum=*/ 1 };
     }
 
     updateYamlData( yamlNode );
@@ -48,15 +48,15 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     }
     catch( const std::exception & ex ) {
         m_diagnostics.emplace_back( Level::Error, ex.what(), "LinterBase", 1, 0 );
-        return CallTotals( /*successNum=*/ 0, /*failNum=*/ 1 );
+        return{ /*successNum=*/ 0, /*failNum=*/ 1 };
     }
 
-    return CallTotals( /*successNum=*/ 1, /*failNum=*/ 0 );
+    return { /*successNum=*/ 1, /*failNum=*/ 0 };
 }
 
-const std::string & LintCombine::LinterBase::getName() const { return name; }
+const std::string LintCombine::LinterBase::getName() const { return name; }
 
-const std::string & LintCombine::LinterBase::getOptions() const { return m_options; }
+const std::string LintCombine::LinterBase::getOptions() const { return m_options; }
 
 const std::string LintCombine::LinterBase::getYamlPath() { return yamlPath; }
 

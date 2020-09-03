@@ -7,15 +7,9 @@ LintCombine::stringVector
 LintCombine::PrepareInputsBase::transformCmdLine( const stringVector & cmdLineVal ) {
     cmdLine = cmdLineVal;
     m_sourceCL = boost::algorithm::join( cmdLineVal, " " );
-    if( parseSourceCmdLine() ) {
-        return {};
-    }
-    if( validateParsedData() ) {
-        return {};
-    }
-    if( initLinters() ) {
-        return {};
-    }
+    if( parseSourceCmdLine() ) { return {}; }
+    if( validateParsedData() ) { return {}; }
+    if( initLinters() )        { return {}; }
     initCmdLine();
     return cmdLine;
 }

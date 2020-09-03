@@ -1,6 +1,8 @@
 #define BOOST_TEST_MODULE CppLintCombineTest
 
 #include "../../src/LinterCombine.h"
+#include "../../src/ClazyWrapper.h"
+#include "../../src/ClangTidyWrapper.h"
 #include "../../src/LinterBase.h"
 #include "../../src/IdeTraitsFactory.h"
 
@@ -105,9 +107,9 @@ BOOST_AUTO_TEST_SUITE( TestUsualLinterFactory )
 struct ULFTestCase {
 
     struct Output {
-        Output( const bool objectReturnedVal )
-            : objectReturned( objectReturnedVal ) {}
-        bool objectReturned = false;
+        Output( const std::string & returnedObjectTypeNameVal )
+            : returnedObjectTypeName( returnedObjectTypeNameVal ) {}
+        std::string returnedObjectTypeName;
     };
 
     struct Input {
@@ -129,33 +131,32 @@ std::ostream & operator<<( std::ostream & os, ULFTestCase ) {
 
 namespace TestULF::EmptyCmdLine {
     const ULFTestCase::Input input{ {} };
-    const ULFTestCase::Output output{ false };
+    const ULFTestCase::Output output{ {} };
 }
 
 namespace TestULF::UnknownLinter {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "--sub-linter=Unknown"} };
-    const ULFTestCase::Output output{ false };
+    const ULFTestCase::Output output{ {} };
 }
 
 namespace TestULF::LinterIsClazy {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "clazy", "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
-    const ULFTestCase::Output output{ true };
+    const ULFTestCase::Output output{ "ClazyWrapper" };
 }
 
 namespace TestULF::LinterIsClangTidy {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "clang-tidy", "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
-    const ULFTestCase::Output output{ true };
+    const ULFTestCase::Output output{ "ClangTidyWrapper" };
 }
 
 namespace TestULF::LinterIsCombine {
     const ULFTestCase::Input input{ LintCombine::stringVector{
         "LinterCombine", "--result-yaml=" CURRENT_BINARY_DIR "mock",
-        "--sub-linter=clazy",
-        "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
-    const ULFTestCase::Output output{ true };
+        "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
+    const ULFTestCase::Output output{ "LinterCombine" };
 }
 
 const ULFTestCase LCCTestCaseData[] = {
@@ -168,9 +169,21 @@ const ULFTestCase LCCTestCaseData[] = {
 
 BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
     const auto & correctResult = static_cast< ULFTestCase::Output >( sample.output );
-    auto pLinter = LintCombine::UsualLinterFactory::getInstance().createLinter( sample.input.cmdLine );
-    if( correctResult.objectReturned ) { BOOST_CHECK( pLinter ); }
-    else { BOOST_CHECK( !pLinter ); }
+    auto linter = LintCombine::UsualLinterFactory::getInstance().createLinter( sample.input.cmdLine );
+    if( !correctResult.returnedObjectTypeName.empty() ) {
+        BOOST_CHECK( linter );
+        if( correctResult.returnedObjectTypeName == "LinterCombine" ) {
+            BOOST_CHECK( dynamic_cast< LintCombine::LinterCombine * >( linter.get() ) );
+        }
+        else if( correctResult.returnedObjectTypeName == "ClazyWrapper" ) {
+            BOOST_CHECK( dynamic_cast< LintCombine::ClazyWrapper * >( linter.get() ) );
+        }
+        else if( correctResult.returnedObjectTypeName == "ClangTidyWrapper" ) {
+            BOOST_CHECK( dynamic_cast< LintCombine::ClangTidyWrapper * >( linter.get() ) );
+        }
+        else { /*Error if returnedObjectTypeName contains unknown class name*/BOOST_CHECK( 1 == 2 ); }
+    }
+    else { BOOST_CHECK( !linter ); }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -596,11 +609,11 @@ std::ostream & operator<<( std::ostream & os, CWLTestCase ) {
 
 std::string getRunnerName( const std::string & shellName ) {
     if constexpr( BOOST_OS_WINDOWS ) {
-        if( shellName == "cmd" ) { return std::string(); }
+        if( shellName == "cmd" ) { return {}; }
         if( shellName == "bash" ) { return "sh.exe "; }
     }
     if constexpr( BOOST_OS_LINUX ) { return "sh "; }
-    return std::string();
+    return {};
 }
 
 std::string getScriptExtension() {
@@ -1418,7 +1431,7 @@ std::ostream & operator<<( std::ostream & os, PCLTestCase ) {
 }
 
 namespace TestPCL::EmptyCmdLine {
-    const PCLTestCase::Input input{ {LintCombine::stringVector()} };
+    const PCLTestCase::Input input{ {} };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
             "Command Line is empty", "FactoryPreparer", 1, 0 ) };
@@ -2282,9 +2295,7 @@ BOOST_AUTO_TEST_SUITE( TestSpecifyTargetArch )
 
 void checkTargetArch( const std::string & macrosDir,
     const std::string & targetTriple = std::string() ) {
-    if constexpr( !BOOST_OS_WINDOWS ) {
-        return;
-    }
+    if constexpr( !BOOST_OS_WINDOWS ) { return; }
     LintCombine::stringVector cmdLine = {
         "--ide-profile=CLion", "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/"
         + macrosDir, "--export-fixes=pathToResultYaml"

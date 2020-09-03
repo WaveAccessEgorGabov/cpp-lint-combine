@@ -57,9 +57,7 @@ void LintCombine::LinterCombine::callLinter() {
 }
 
 int LintCombine::LinterCombine::waitLinter() {
-    if( m_linters.empty() ) {
-        return 0;
-    }
+    if( m_linters.empty() ) { return 0; }
     int returnCode = 1;
     m_services.getIOService().run();
     for( const auto & subLinterIt : m_linters ) {

@@ -34,8 +34,8 @@ namespace LintCombine {
         std::vector< Diagnostic > diagnostics() const {
             return m_diagnostics;
         }
+
     private:
         std::vector< Diagnostic > m_diagnostics;
     };
 }
-

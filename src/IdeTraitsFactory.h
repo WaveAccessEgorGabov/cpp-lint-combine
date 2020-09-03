@@ -10,9 +10,7 @@ namespace LintCombine {
     class IdeTraitsFactory {
 
     public:
-        class IdeBehaviorItf {
-
-        public:
+        struct IdeBehaviorItf {
             virtual bool mayYamlFileContainDocLink() const = 0;
             virtual bool isLinterExitCodeTolerant() const = 0;
             virtual ~IdeBehaviorItf() = default;
