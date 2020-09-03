@@ -1,4 +1,4 @@
-#include "LinterCombine.h"
+#include "LinterCombine.h" // for LintCombine::WaitLinterReturnCode
 #include "LintCombineUtils.h"
 #include "IdeTraitsFactory.h"
 #include "DiagnosticWorker.h"
@@ -15,39 +15,39 @@ int main( int argc, char * argv[] ) {
         return 0;
     }
 
-    std::unique_ptr< LintCombine::LinterItf > pCombine;
+    std::unique_ptr< LintCombine::LinterItf > lintCombine;
     try {
         cmdLine.insert( cmdLine.begin(), "LinterCombine" );
-        pCombine = LintCombine::UsualLinterFactory::getInstance().createLinter( cmdLine );
+        lintCombine = LintCombine::UsualLinterFactory::getInstance().createLinter( cmdLine );
     }
     catch( const LintCombine::Exception & ex ) {
         diagnosticWorker.printDiagnostics( ex.diagnostics() );
         return 1; // Error occurred in LinterCombine constructor.
     }
 
-    pCombine->callLinter();
-    const auto callReturnCode = pCombine->waitLinter();
+    lintCombine->callLinter();
+    const auto callReturnCode = lintCombine->waitLinter();
     if( callReturnCode == LintCombine::AllLintersFailed ) {
-        diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
+        diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
         if( !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
             return callReturnCode; // All linters failed.
         }
     }
 
     if( ideTraitsFactory.getIdeBehaviorInstance() &&
-        ideTraitsFactory.getIdeBehaviorInstance()->mayYamlContainsDocLink() ) {
-        const auto callTotals = pCombine->updateYaml();
+        ideTraitsFactory.getIdeBehaviorInstance()->mayYamlFileContainDocLink() ) {
+        const auto callTotals = lintCombine->updateYaml();
         if( !callTotals.successNum ) {
-            diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
+            diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
             return 2; // Error while updating YAML-file
         }
     }
 
-    if( pCombine->getYamlPath().empty() ) {
-        diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
+    if( lintCombine->getYamlPath().empty() ) {
+        diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
         return 4; // Error while put diagnostics into result YAML-file.
     }
-    diagnosticWorker.printDiagnostics( pCombine->diagnostics() );
+    diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
 
     return 0;
 }

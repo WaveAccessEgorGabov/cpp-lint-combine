@@ -27,20 +27,20 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
         throw Exception( m_diagnostics );
     }
 
-    const std::vector< stringVector > subLintersCmdLine =
+    const std::vector< stringVector > lintersCmdLines =
         splitCmdLineBySubLinters( cmdLine );
 
-    if( subLintersCmdLine.empty() ) {
+    if( lintersCmdLines.empty() ) {
         m_diagnostics.emplace_back( Level::Error,
             "No linters specified. Use --sub-linter, see --help.", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 
-    for( const auto & it : subLintersCmdLine ) {
-        auto linter = factory.createLinter( it );
+    for( const auto & linterCmdLine : lintersCmdLines ) {
+        auto linter = factory.createLinter( linterCmdLine );
         if( !linter ) {
             throw Exception( Diagnostic( Level::Error,
-                "Unknown linter name: \"" + *it.begin() + "\"",
+                "Unknown linter name: \"" + *linterCmdLine.begin() + "\"",
                 "Combine", 1, 0 ) );
         }
         m_linters.emplace_back( std::move( linter ) );
@@ -84,7 +84,7 @@ LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
     }
     if( callTotals.failNum ) {
         m_diagnostics.emplace_back( Level::Error,
-            "Updating " + std::to_string( callTotals.failNum ) + " YAML files failed",
+            "Updating " + std::to_string( callTotals.failNum ) + " YAML-files failed",
             "Combine", 1, 0 );
     }
     return callTotals;
@@ -148,7 +148,7 @@ void LintCombine::LinterCombine::initCombinedYamlPath( const stringVector & cmdL
     boost::program_options::options_description optDesc;
     optDesc.add_options()
         ( "result-yaml",
-        boost::program_options::value< std::string >( &m_combinedYAMLPath ) );
+        boost::program_options::value< std::string >( &m_combinedYamlPath ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( cmdLine ).
@@ -160,23 +160,23 @@ void LintCombine::LinterCombine::initCombinedYamlPath( const stringVector & cmdL
         throw Exception( m_diagnostics );
     }
 
-    if( m_combinedYAMLPath.empty() ) {
+    if( m_combinedYamlPath.empty() ) {
         m_diagnostics.emplace_back(
             Level::Error, "Path to combined YAML-file is not set", "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 
-    if( !isFileCreatable( m_combinedYAMLPath ) ) {
+    if( !isFileCreatable( m_combinedYamlPath ) ) {
         m_diagnostics.emplace_back( Level::Error,
-            "Combined YAML-file \"" + m_combinedYAMLPath + "\" is not creatable",
+            "Combined YAML-file \"" + m_combinedYamlPath + "\" is not creatable",
             "Combine", 1, 0 );
         throw Exception( m_diagnostics );
     }
 }
 
 const std::string LintCombine::LinterCombine::getYamlPath() {
-    std::filesystem::remove( m_combinedYAMLPath );
-    if( !m_combinedYAMLPath.empty() ) {
+    std::filesystem::remove( m_combinedYamlPath );
+    if( !m_combinedYamlPath.empty() ) {
         for( const auto & subLinterIt : m_linters ) {
             if( subLinterIt->getYamlPath().empty() ) {
                 m_diagnostics.emplace_back( Level::Warning,
@@ -186,7 +186,7 @@ const std::string LintCombine::LinterCombine::getYamlPath() {
             }
             if( !std::filesystem::exists( subLinterIt->getYamlPath() ) ) {
                 m_diagnostics.emplace_back( Level::Warning,
-                    "Linter's YAML file path \"" + subLinterIt->getYamlPath()
+                    "Linter's YAML-file path \"" + subLinterIt->getYamlPath()
                     + "\" doesn't exist", "Combine", 1, 0 );
                 continue;
             }
@@ -200,29 +200,29 @@ const std::string LintCombine::LinterCombine::getYamlPath() {
     }
     else {
         m_diagnostics.emplace_back( Level::Error,
-            "Combined YAML file path value is empty",
+            "Combined YAML-file path value is empty",
             "Combine", 1, 0 );
     }
-    if( std::filesystem::exists( m_combinedYAMLPath ) ) {
-        return m_combinedYAMLPath;
+    if( std::filesystem::exists( m_combinedYamlPath ) ) {
+        return m_combinedYamlPath;
     }
     m_diagnostics.emplace_back( Level::Error,
-        "Combined YAML file isn't created", "Combine", 1, 0 );
-    m_combinedYAMLPath.clear();
-    return m_combinedYAMLPath;
+        "Combined YAML-file isn't created", "Combine", 1, 0 );
+    m_combinedYamlPath.clear();
+    return m_combinedYamlPath;
 }
 
 void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge ) {
-    if( !std::filesystem::exists( m_combinedYAMLPath ) ) {
+    if( !std::filesystem::exists( m_combinedYamlPath ) ) {
         try {
-            std::filesystem::copy( yamlPathToMerge, m_combinedYAMLPath );
+            std::filesystem::copy( yamlPathToMerge, m_combinedYamlPath );
         }
         catch( std::exception & ex ) {
             m_diagnostics.emplace_back( Level::Error, ex.what(), "Combine", 1, 0 );
         }
     }
     else {
-        YAML::Node yamlNodeResult = loadYamlNode( m_combinedYAMLPath );
+        YAML::Node yamlNodeResult = loadYamlNode( m_combinedYamlPath );
         YAML::Node yamlNodeForAdd = loadYamlNode( yamlPathToMerge );
 
         for( const auto & diagnosticsIt : yamlNodeForAdd["Diagnostics"] ) {
@@ -230,7 +230,7 @@ void LintCombine::LinterCombine::mergeYaml( const std::string & yamlPathToMerge 
         }
 
         try {
-            std::ofstream mergedYamlOutputFile( m_combinedYAMLPath );
+            std::ofstream mergedYamlOutputFile( m_combinedYamlPath );
             mergedYamlOutputFile << yamlNodeResult;
         }
         catch( std::exception & error ) {
@@ -244,7 +244,7 @@ YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToY
     try {
         const std::ifstream filePathToYaml( pathToYaml );
         if( filePathToYaml.fail() ) {
-            throw std::logic_error( "YAML file path \"" + pathToYaml + "\" doesn't exist" );
+            throw std::logic_error( "YAML-file path \"" + pathToYaml + "\" doesn't exist" );
         }
         yamlNode = YAML::LoadFile( pathToYaml );
     }

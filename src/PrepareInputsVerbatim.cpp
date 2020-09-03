@@ -48,16 +48,16 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
         return true;
     }
 
-    auto errorOccur = false;
-    for( auto & it : lintersNames ) {
-        if( it != "clang-tidy" && it != "clazy" ) {
+    auto errorOccurred = false;
+    for( auto & linterName : lintersNames ) {
+        if( linterName != "clang-tidy" && linterName != "clazy" ) {
             m_diagnostics.emplace_back( Level::Error,
-                "Unknown linter name: \"" + it + "\"",
+                "Unknown linter name: \"" + linterName + "\"",
                 "VerbatimPreparer", 1, 0 );
-            errorOccur = true;
+            errorOccurred = true;
         }
     }
-    if( errorOccur ) {
+    if( errorOccurred ) {
         return true;
     }
     return false;
@@ -65,10 +65,10 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
 
 bool LintCombine::PrepareInputsVerbatim::validateCombinedYamlPath() {
     boost::program_options::options_description optDesc;
-    std::string combinedYAMLPath;
+    std::string combinedYamlPath;
     optDesc.add_options()
         ( "result-yaml",
-        boost::program_options::value< std::string >( &combinedYAMLPath ) );
+        boost::program_options::value< std::string >( &combinedYamlPath ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
@@ -80,14 +80,14 @@ bool LintCombine::PrepareInputsVerbatim::validateCombinedYamlPath() {
             Level::Error, error.what(), "VerbatimPreparer", 1, 0 );
         return true;
     }
-    if( combinedYAMLPath.empty() ) {
+    if( combinedYamlPath.empty() ) {
         m_diagnostics.emplace_back( Level::Error,
             "Path to combined YAML-file is not set", "VerbatimPreparer", 1, 0 );
         return true;
     }
-    if( !isFileCreatable( combinedYAMLPath ) ) {
+    if( !isFileCreatable( combinedYamlPath ) ) {
         m_diagnostics.emplace_back( Level::Error,
-            "Combined YAML-file \"" + combinedYAMLPath + "\" is not creatable",
+            "Combined YAML-file \"" + combinedYamlPath + "\" is not creatable",
             "VerbatimPreparer", 1, 0 );
         return true;
     }

@@ -13,7 +13,7 @@ namespace LintCombine {
         class IdeBehaviorItf {
 
         public:
-            virtual bool mayYamlContainsDocLink() const = 0;
+            virtual bool mayYamlFileContainDocLink() const = 0;
             virtual bool isLinterExitCodeTolerant() const = 0;
             virtual ~IdeBehaviorItf() = default;
         };
@@ -21,17 +21,17 @@ namespace LintCombine {
         class IdeBehaviorBase final : public IdeBehaviorItf {
 
         public:
-            IdeBehaviorBase( const bool yamlContainsDocLinkVal,
+            IdeBehaviorBase( const bool mayYamlFileContainDocLinkVal,
                 const bool linterExitCodeTolerantVal )
-                : m_yamlContainsDocLink( yamlContainsDocLinkVal ),
+                : m_mayYamlFileContainDocLink( mayYamlFileContainDocLinkVal ),
                 m_linterExitCodeTolerant( linterExitCodeTolerantVal ) {}
 
-            bool mayYamlContainsDocLink() const override { return m_yamlContainsDocLink; }
+            bool mayYamlFileContainDocLink() const override { return m_mayYamlFileContainDocLink; }
 
             bool isLinterExitCodeTolerant() const override { return m_linterExitCodeTolerant; }
 
         private:
-            bool m_yamlContainsDocLink;
+            bool m_mayYamlFileContainDocLink;
             bool m_linterExitCodeTolerant;
         };
 
@@ -45,8 +45,8 @@ namespace LintCombine {
                                              firstPosVal, lastPosVal ) } {}
 
             stringVector transformCmdLine( const stringVector & commandLine ) override {
-                for( const auto & it : m_diagnostics ) {
-                    if( it.level == Level::Error || it.level == Level::Fatal ) {
+                for( const auto & diagnostic : m_diagnostics ) {
+                    if( diagnostic.level == Level::Error || diagnostic.level == Level::Fatal ) {
                         return {};
                     }
                 }

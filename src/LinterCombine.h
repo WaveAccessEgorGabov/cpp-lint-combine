@@ -10,8 +10,7 @@
 namespace LintCombine {
 
     enum WaitLinterReturnCode {
-        AllLintersWorkedSuccessfully = 0,
-        SomeLintersFailed = 2, AllLintersFailed = 3
+        AllLintersSucceeded = 0, SomeLintersFailed = 2, AllLintersFailed = 3
     };
 
     class LinterCombine final : public LinterItf {
@@ -45,7 +44,7 @@ namespace LintCombine {
         YAML::Node loadYamlNode( const std::string & pathToYaml );
 
         std::vector< std::shared_ptr< LinterItf > > m_linters;
-        std::string m_combinedYAMLPath;
+        std::string m_combinedYamlPath;
         LinterFactoryBase::Services & m_services;
         std::vector< Diagnostic > m_diagnostics;
     };

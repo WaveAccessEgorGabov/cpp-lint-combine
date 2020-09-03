@@ -43,7 +43,7 @@ namespace LintCombine {
             }
         }
 
-        void updateYAMLAction( const YAML::Node & ) const override {}
+        void updateYamlData( const YAML::Node & ) const override {}
     };
 
     struct MocksLinterFactory : LinterFactoryBase {
@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_SUITE( TestUsualLinterFactory )
 struct ULFTestCase {
 
     struct Output {
-        Output( const bool returnedNullptrVal )
-            : objectReturned( returnedNullptrVal ) {}
+        Output( const bool objectReturnedVal )
+            : objectReturned( objectReturnedVal ) {}
         bool objectReturned = false;
     };
 
@@ -900,8 +900,8 @@ const CWLTestCase CWLTestCaseData[] = {
 };
 
 BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
-    for( const auto & it : sample.input.fileNamesForLinterEndsEarlyTest ) {
-        std::ofstream{ it };
+    for( const auto & fileName : sample.input.fileNamesForLinterEndsEarlyTest ) {
+        std::ofstream{ fileName };
     }
     const auto & correctResult = static_cast< CWLTestCase::Output >( sample.output );
     const StreamCapture stdoutCapture( std::cout );
@@ -913,11 +913,11 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
     const auto stdoutData = stdoutCapture.getBufferData();
     const auto stderrData = stderrCapture.getBufferData();
     BOOST_CHECK( combineReturnCode == correctResult.returnCode );
-    for( const auto & it : correctResult.stdoutData ) {
-        BOOST_CHECK( stdoutData.find( it ) != std::string::npos );
+    for( const auto & correctStdoutStr : correctResult.stdoutData ) {
+        BOOST_CHECK( stdoutData.find( correctStdoutStr ) != std::string::npos );
     }
-    for( const auto & it : correctResult.stderrData ) {
-        BOOST_CHECK( stderrData.find( it ) != std::string::npos );
+    for( const auto & correctStderrStr : correctResult.stderrData ) {
+        BOOST_CHECK( stderrData.find( correctStderrStr ) != std::string::npos );
     }
     for( const auto & itFile : correctResult.filesWithContent ) {
         BOOST_REQUIRE( std::filesystem::exists( itFile.filename ) );
@@ -934,9 +934,9 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
     for( size_t i = 0; i < correctResultDiagnostics.size(); ++i ) {
         compareDiagnostics( combineDiagnostics[i], correctResultDiagnostics[i] );
     }
-    for( const auto & it : sample.input.fileNamesForLinterEndsEarlyTest ) {
-        BOOST_CHECK( !std::filesystem::exists( it ) );
-        std::filesystem::remove( it );
+    for( const auto & fileName : sample.input.fileNamesForLinterEndsEarlyTest ) {
+        BOOST_CHECK( !std::filesystem::exists( fileName ) );
+        std::filesystem::remove( fileName );
     }
 }
 
@@ -991,9 +991,9 @@ std::ostream & operator<<( std::ostream & os, UYTestCase ) {
 namespace TestUY::L1YPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "YAML file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 ),
+            "YAML-file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "Updating 1 YAML files failed", "Combine", 1, 0 )
+            "Updating 1 YAML-files failed", "Combine", 1, 0 )
     };
     const LintCombine::CallTotals callTotals{ 0, 1 };
     const pairStrStrVec filesForCompare;
@@ -1006,9 +1006,9 @@ namespace TestUY::L1YPDNE {
 namespace TestUY::L1YPEmpty {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "YAML file path \"\" doesn't exist", "LinterBase", 1, 0 ),
+            "YAML-file path \"\" doesn't exist", "LinterBase", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "Updating 1 YAML files failed", "Combine", 1, 0 )
+            "Updating 1 YAML-files failed", "Combine", 1, 0 )
     };
     const LintCombine::CallTotals callTotals{ 0, 1 };
     const pairStrStrVec filesForCompare;
@@ -1021,9 +1021,9 @@ namespace TestUY::L1YPEmpty {
 namespace TestUY::L1YPEmpty_L2YPE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "YAML file path \"\" doesn't exist", "LinterBase", 1, 0 ),
+            "YAML-file path \"\" doesn't exist", "LinterBase", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "Updating 1 YAML files failed", "Combine", 1, 0 )
+            "Updating 1 YAML-files failed", "Combine", 1, 0 )
     };
     const LintCombine::CallTotals callTotals{ 1, 1 };
     const pairStrStrVec filesForCompare{
@@ -1040,11 +1040,11 @@ namespace TestUY::L1YPEmpty_L2YPE {
 namespace TestUY::TwoLintersYPEmpty {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "YAML file path \"\" doesn't exist", "LinterBase", 1, 0 ),
+            "YAML-file path \"\" doesn't exist", "LinterBase", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "YAML file path \"\" doesn't exist", "LinterBase", 1, 0 ),
+            "YAML-file path \"\" doesn't exist", "LinterBase", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "Updating 2 YAML files failed", "Combine", 1, 0 )
+            "Updating 2 YAML-files failed", "Combine", 1, 0 )
     };
     const LintCombine::CallTotals callTotals{ 0, 2 };
     const pairStrStrVec filesForCompare;
@@ -1058,9 +1058,9 @@ namespace TestUY::TwoLintersYPEmpty {
 namespace TestUY::L1YPE_L2YPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "YAML file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 ),
+            "YAML-file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "Updating 1 YAML files failed", "Combine", 1, 0 )
+            "Updating 1 YAML-files failed", "Combine", 1, 0 )
     };
     const LintCombine::CallTotals callTotals{ 1, 1 };
     const pairStrStrVec filesForCompare{
@@ -1077,11 +1077,11 @@ namespace TestUY::L1YPE_L2YPDNE {
 namespace TestUY::TwoLintersYPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "YAML file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 ),
+            "YAML-file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "YAML file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 ),
+            "YAML-file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "Updating 2 YAML files failed", "Combine", 1, 0 )
+            "Updating 2 YAML-files failed", "Combine", 1, 0 )
     };
     const LintCombine::CallTotals callTotals{ 0, 2 };
     const pairStrStrVec filesForCompare;
@@ -1206,12 +1206,12 @@ struct MYTestCase {
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
             const pairStrStrVec & filesForCompareVal,
-            const std::string & pathToCombinedYAMLVal )
+            const std::string & pathToCombinedYamlVal )
             : diagnostics( diagnosticsVal ), filesForCompare( filesForCompareVal ),
-            pathToCombinedYAML( pathToCombinedYAMLVal ) {}
+            pathToCombinedYaml( pathToCombinedYamlVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
         pairStrStrVec filesForCompare;
-        std::string pathToCombinedYAML;
+        std::string pathToCombinedYaml;
     };
 
     struct Input {
@@ -1239,14 +1239,14 @@ namespace TestMY::L1YPDNE {
         "--export-fixes=" CURRENT_SOURCE_DIR "NotExistentFile" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Warning,
-            "Linter's YAML file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
+            "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
             "doesn't exist", "Combine", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "Combined YAML file isn't created", "Combine", 1, 0 )
+            "Combined YAML-file isn't created", "Combine", 1, 0 )
     };
-    std::string resultPathToCombinedYAML;
+    std::string resultPathToCombinedYaml;
     const pairStrStrVec filesForCompare;
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYaml };
 }
 
 namespace TestMY::L1YPE {
@@ -1255,11 +1255,11 @@ namespace TestMY::L1YPE {
         "--sub-linter=clang-tidy",
         "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" } };
     const std::vector< LintCombine::Diagnostic > diagnostics;
-    std::string resultPathToCombinedYAML = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const pairStrStrVec filesForCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" ) };
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYaml };
 }
 
 namespace TestMY::L1YPE_L2YPDNE {
@@ -1271,14 +1271,14 @@ namespace TestMY::L1YPE_L2YPDNE {
         "--export-fixes=" CURRENT_SOURCE_DIR "NotExistentFile"} };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Warning,
-            "Linter's YAML file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
+            "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
             "doesn't exist", "Combine", 1, 0 )
     };
-    std::string resultPathToCombinedYAML = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const pairStrStrVec filesForCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" ) };
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYaml };
 }
 
 namespace TestMY::TwoLintersYPDNE {
@@ -1290,17 +1290,17 @@ namespace TestMY::TwoLintersYPDNE {
         "--export-fixes=" CURRENT_SOURCE_DIR "NotExistentFile"} };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         LintCombine::Diagnostic( LintCombine::Level::Warning,
-            "Linter's YAML file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
+            "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
             "doesn't exist", "Combine", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Warning,
-            "Linter's YAML file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
+            "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" "
             "doesn't exist", "Combine", 1, 0 ),
         LintCombine::Diagnostic( LintCombine::Level::Error,
-            "Combined YAML file isn't created", "Combine", 1, 0 )
+            "Combined YAML-file isn't created", "Combine", 1, 0 )
     };
-    std::string resultPathToCombinedYAML;
+    std::string resultPathToCombinedYaml;
     const pairStrStrVec filesForCompare;
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYaml };
 }
 
 namespace TestMY::TwoLintersYPE {
@@ -1311,11 +1311,11 @@ namespace TestMY::TwoLintersYPE {
         "--sub-linter=clang-tidy",
         "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml"} };
     const std::vector< LintCombine::Diagnostic > diagnostics;
-    std::string resultPathToCombinedYAML = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const pairStrStrVec filesForCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/combinedResult_save.yaml" ) };
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYAML };
+    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYaml };
 }
 
 const MYTestCase MYTestCaseData[] = {
@@ -1330,12 +1330,12 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
     const auto & correctResult = static_cast< MYTestCase::Output >( sample.output );
     LintCombine::LinterCombine combine( sample.input.cmdLine );
     recoverYamlFiles();
-    BOOST_CHECK( combine.getYamlPath() == correctResult.pathToCombinedYAML );
-    if( correctResult.pathToCombinedYAML.empty() ) {
-        BOOST_REQUIRE( !std::filesystem::exists( correctResult.pathToCombinedYAML ) );
+    BOOST_CHECK( combine.getYamlPath() == correctResult.pathToCombinedYaml );
+    if( correctResult.pathToCombinedYaml.empty() ) {
+        BOOST_REQUIRE( !std::filesystem::exists( correctResult.pathToCombinedYaml ) );
     }
     else {
-        BOOST_REQUIRE( std::filesystem::exists( correctResult.pathToCombinedYAML ) );
+        BOOST_REQUIRE( std::filesystem::exists( correctResult.pathToCombinedYaml ) );
     }
     const auto & combineDiagnostics = combine.diagnostics();
     const auto & correctResultDiagnostics = correctResult.diagnostics;
@@ -1350,8 +1350,8 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
         std::istream_iterator< char > fileIterSave( yamlFileSave ), endSave;
         BOOST_CHECK_EQUAL_COLLECTIONS( fileIter, end, fileIterSave, endSave );
     }
-    if( !correctResult.pathToCombinedYAML.empty() ) {
-        std::filesystem::remove( correctResult.pathToCombinedYAML );
+    if( !correctResult.pathToCombinedYaml.empty() ) {
+        std::filesystem::remove( correctResult.pathToCombinedYaml );
     }
 }
 
@@ -1394,14 +1394,14 @@ struct PCLTestCase {
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
             const LintCombine::stringVector & resultCmdLineVal,
-            const std::optional< bool > & YAMLContainsDocLinkVal,
+            const std::optional< bool > & mayYamlFileContainDocLinkVal,
             const std::optional< bool > & linterExitCodeTolerantVal )
             : diagnostics( diagnosticsVal ), resultCmdLine( resultCmdLineVal ),
-            YAMLContainsDocLink( YAMLContainsDocLinkVal ),
+            mayYamlFileContainDocLink( mayYamlFileContainDocLinkVal ),
             linterExitCodeTolerant( linterExitCodeTolerantVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
         LintCombine::stringVector resultCmdLine;
-        std::optional< bool > YAMLContainsDocLink;
+        std::optional< bool > mayYamlFileContainDocLink;
         std::optional< bool > linterExitCodeTolerant;
     };
 
@@ -1497,7 +1497,7 @@ namespace TestPCL::Verbatim_L1CN_L2CN {
     const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
-namespace TestPCL::Verbatim_CombinedYAMLDNE {
+namespace TestPCL::Verbatim_CombinedYamlDNE {
     const PCLTestCase::Input input{ LintCombine::stringVector{
         "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
@@ -1510,7 +1510,7 @@ namespace TestPCL::Verbatim_CombinedYAMLDNE {
     const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_VERBATIM_VAL };
 }
 
-namespace TestPCL::Verbatim_CombinedYAMLIN {
+namespace TestPCL::Verbatim_CombinedYamlIN {
     const PCLTestCase::Input input{ LintCombine::stringVector{
         "--result-yaml=\\\\", "--sub-linter=clazy",
         "--param=value", "-p=val", "--param", "val" } };
@@ -1546,7 +1546,7 @@ namespace TestPCL::SpecifiedTwice {
     const PCLTestCase::Output output{ diagnostics, resultCmdLine, true, TOLERANT_RESHARPER_VAL };
 }
 
-namespace TestPCL::GenYAMLPathEmpty {
+namespace TestPCL::GenYamlPathEmpty {
     const PCLTestCase::Input input{ LintCombine::stringVector{
         "--ide-profile=ReSharper", "-p=pathToCompilationDataBase" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
@@ -1585,18 +1585,18 @@ namespace TestPCL::RequiredOptionsE {
         const std::vector< LintCombine::Diagnostic > diagnostics{
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1618,18 +1618,18 @@ namespace TestPCL::CTOptionsPassed {
         const std::vector< LintCombine::Diagnostic > diagnostics{
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1652,18 +1652,18 @@ namespace TestPCL::FilesPassed {
         const std::vector< LintCombine::Diagnostic > diagnostics{
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1743,18 +1743,18 @@ namespace TestPCL::CLChecksEmptyASP {
                 "Parameter \"clazy-checks\" was set but "
                  "the parameter's value was not set. "
                  "The parameter will be ignored.", "BasePreparer", 63, 75 ) };
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1780,18 +1780,18 @@ namespace TestPCL::ClangXArgsEmptyASP {
                 "Parameter \"clang-extra-args\" was set but "
                  "the parameter's value was not set. "
                  "The parameter will be ignored.", "BasePreparer", 63, 79 ) };
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1821,18 +1821,18 @@ namespace TestPCL::ParamsEmptyASP {
                 "Parameter \"clang-extra-args\" was set but "
                  "the parameter's value was not set. "
                  "The parameter will be ignored.", "BasePreparer", 78, 94 ) };
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1854,18 +1854,18 @@ namespace TestPCL::CLChecksE {
         const std::vector< LintCombine::Diagnostic > diagnostics{
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1887,18 +1887,18 @@ namespace TestPCL::ClangXArgsE {
         const std::vector< LintCombine::Diagnostic > diagnostics{
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -1921,18 +1921,18 @@ namespace TestPCL::ParamsEAES {
         const std::vector< LintCombine::Diagnostic > diagnostics{
             LintCombine::Diagnostic( LintCombine::Level::Info,
                 "All linters are used", "BasePreparer", 1, 0 ) };
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -2092,18 +2092,18 @@ namespace TestPCL::LinterIsCT {
             PATH_SEP "diagnosticsClangTidy.yaml" };
 
         const std::vector< LintCombine::Diagnostic > diagnostics;
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -2121,18 +2121,18 @@ namespace TestPCL::LinterIsCL {
             PATH_SEP "diagnosticsClazy.yaml" };
 
         const std::vector< LintCombine::Diagnostic > diagnostics;
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -2152,18 +2152,18 @@ namespace TestPCL::AllLintersAES {
             PATH_SEP "diagnosticsClazy.yaml" };
 
         const std::vector< LintCombine::Diagnostic > diagnostics;
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -2183,18 +2183,18 @@ namespace TestPCL::AllLintersASP {
             PATH_SEP "diagnosticsClazy.yaml" };
 
         const std::vector< LintCombine::Diagnostic > diagnostics;
-        auto YAMLContainsDocLink = false;
+        auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
         if( ideName == "CLion" ) {
-            YAMLContainsDocLink = false;
+            yamlContainsDocLink = false;
             linterExitCodeTolerant = TOLERANT_CLION_VAL;
         }
         if( ideName == "ReSharper" ) {
-            YAMLContainsDocLink = true;
+            yamlContainsDocLink = true;
             linterExitCodeTolerant = TOLERANT_RESHARPER_VAL;
         }
         return PCLTestCase::Output{ diagnostics, resultCmdLine,
-            YAMLContainsDocLink, linterExitCodeTolerant };
+            yamlContainsDocLink, linterExitCodeTolerant };
     }
 }
 
@@ -2205,12 +2205,12 @@ const PCLTestCase PCLTestCaseData[] = {
     /*3 */ { TestPCL::Verbatim_L1IN_L2IN::input, TestPCL::Verbatim_L1IN_L2IN::output },
     /*4 */ { TestPCL::Verbatim_L1CN::input, TestPCL::Verbatim_L1CN::output },
     /*5 */ { TestPCL::Verbatim_L1CN_L2CN::input, TestPCL::Verbatim_L1CN_L2CN::output },
-    /*6 */ { TestPCL::Verbatim_CombinedYAMLDNE::input, TestPCL::Verbatim_CombinedYAMLDNE::output },
-    /*7 */ { TestPCL::Verbatim_CombinedYAMLIN::input, TestPCL::Verbatim_CombinedYAMLIN::output },
+    /*6 */ { TestPCL::Verbatim_CombinedYamlDNE::input, TestPCL::Verbatim_CombinedYamlDNE::output },
+    /*7 */ { TestPCL::Verbatim_CombinedYamlIN::input, TestPCL::Verbatim_CombinedYamlIN::output },
     /*8 */ { TestPCL::UnsupportedIDE::input, TestPCL::UnsupportedIDE::output },
     /*9 */ { TestPCL::SpecifiedTwice::input, TestPCL::SpecifiedTwice::output },
     /*10*/ { TestPCL::CompilationDBEmpty::input, TestPCL::CompilationDBEmpty::output },
-    /*11*/ { TestPCL::GenYAMLPathEmpty::input, TestPCL::GenYAMLPathEmpty::output },
+    /*11*/ { TestPCL::GenYamlPathEmpty::input, TestPCL::GenYamlPathEmpty::output },
     /*12*/ { TestPCL::RequiredOptionsE::input( "ReSharper" ), TestPCL::RequiredOptionsE::output( "ReSharper" ) },
     /*13*/ { TestPCL::RequiredOptionsE::input( "CLion" ), TestPCL::RequiredOptionsE::output( "CLion" ) },
     /*14*/ { TestPCL::CTOptionsPassed::input( "ReSharper" ), TestPCL::CTOptionsPassed::output( "ReSharper" ) },
@@ -2258,9 +2258,9 @@ BOOST_DATA_TEST_CASE( TestPrepareCmdLine, PCLTestCaseData, sample ) {
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto inputCmdLine = sample.input.cmdLine;
     auto prepareCmdLine = ideTraitsFactory.getPrepareInputsInstance( inputCmdLine );
-    if( correctResult.YAMLContainsDocLink.has_value() ) {
-        BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->mayYamlContainsDocLink() ==
-            correctResult.YAMLContainsDocLink );
+    if( correctResult.mayYamlFileContainDocLink.has_value() ) {
+        BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->mayYamlFileContainDocLink() ==
+            correctResult.mayYamlFileContainDocLink );
     }
     if( correctResult.linterExitCodeTolerant.has_value() ) {
         BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ==

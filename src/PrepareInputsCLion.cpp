@@ -18,8 +18,8 @@ void LintCombine::PrepareInputsCLion::specifyTargetArch() {
         std::ifstream macrosFile( pathToWorkDir + "/macros" );
         std::string linterArchExtraArg;
         for( std::string macroDefinition; std::getline( macrosFile, macroDefinition );) {
-            for( const auto & [macrosArch, archTriple] : macroTargetPairs ) {
-                if( macroDefinition.find( macrosArch ) != std::string::npos ) {
+            for( const auto & [archMacro, archTriple] : macroTargetPairs ) {
+                if( macroDefinition.find( archMacro ) != std::string::npos ) {
                     // to avoid errors if different arch specified
                     if( !linterArchExtraArg.empty() ) {
                         return;
@@ -35,7 +35,7 @@ void LintCombine::PrepareInputsCLion::specifyTargetArch() {
 }
 
 void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
-    stringVector filesForAnalysis;
+    stringVector filesForAnalyze;
     for( auto & unrecognized : unrecognizedCollection ) {
         if constexpr( BOOST_OS_WINDOWS ) {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
@@ -43,14 +43,14 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
         }
         // File to analyze
         if( unrecognized[0] != '-' && unrecognized[0] != '@' ) {
-            filesForAnalysis.emplace_back( unrecognized );
+            filesForAnalyze.emplace_back( unrecognized );
             continue;
         }
         addOptionToLinterByName( "clang-tidy", unrecognized );
     }
 
-    for( const auto & it : filesForAnalysis ) {
-        addOptionToAllLinters( it );
+    for( const auto & fileForAnalyze : filesForAnalyze ) {
+        addOptionToAllLinters( fileForAnalyze );
     }
 
     PrepareInputsBase::appendLintersOptionToCmdLine();
@@ -67,14 +67,14 @@ void LintCombine::PrepareInputsCLion::transformFiles() {
         std::ofstream macrosFileRes( pathToWorkDir + "/macros" );
 
         // In Linux the following macros must be undefined to avoid redefinition,
-        // because clazy also defines this macros
+        // because clazy also defines these macros
         std::string macrosToUndef[] = {
             "__clang_version__", "__VERSION__",
             "__has_feature",     "__has_extension",
             "__has_attribute",   "__has_builtin"
         };
-        for( const auto & it : macrosToUndef ) {
-            macrosFileRes << "#undef " << it << std::endl;
+        for( const auto & macro : macrosToUndef ) {
+            macrosFileRes << "#undef " << macro << std::endl;
         }
         macrosFileRes << sourceMacros.str();
 

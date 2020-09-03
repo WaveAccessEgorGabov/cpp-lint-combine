@@ -30,8 +30,8 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     try {
         const std::ifstream filePathToYaml( yamlPath );
         if( filePathToYaml.fail() ) {
-            throw std::logic_error( 
-                "YAML file path \"" + yamlPath + "\" doesn't exist" );
+            throw std::logic_error(
+                "YAML-file path \"" + yamlPath + "\" doesn't exist" );
         }
         yamlNode = YAML::LoadFile( yamlPath );
     }
@@ -40,7 +40,7 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
         return CallTotals( /*successNum=*/ 0, /*failNum=*/ 1 );
     }
 
-    updateYAMLAction( yamlNode );
+    updateYamlData( yamlNode );
 
     try {
         std::ofstream yamlWithDocLinkFile( yamlPath );
@@ -89,8 +89,8 @@ void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
         const stringVector linterOptions =
             collect_unrecognized( parsed.options,
             boost::program_options::include_positional );
-        for( const auto & it : linterOptions ) {
-            m_options.append( it + " " );
+        for( const auto & linterOption : linterOptions ) {
+            m_options.append( linterOption + " " );
         }
     }
     catch( const std::exception & ex ) {
@@ -100,20 +100,20 @@ void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
 
     if( yamlPath.empty() ) {
         m_diagnostics.emplace_back(
-            Level::Error, "Path to linter's YAML-file is not set", 
+            Level::Error, "Path to linter's YAML-file is not set",
             name.c_str(), 1, 0 );
         throw Exception( m_diagnostics );
     }
 
     if( !isFileCreatable( yamlPath ) ) {
-        m_diagnostics.emplace_back( Level::Error, 
-            "Linter's YAML-file \"" + yamlPath + "\" is not creatable", 
+        m_diagnostics.emplace_back( Level::Error,
+            "Linter's YAML-file \"" + yamlPath + "\" is not creatable",
             name.c_str(), 1, 0 );
         throw Exception( m_diagnostics );
     }
 }
 
-void LintCombine::LinterBase::readFromPipeToStream( 
+void LintCombine::LinterBase::readFromPipeToStream(
     boost::process::async_pipe & pipe, std::ostream & outputStream ) {
     pipe.async_read_some( boost::process::buffer( m_buffer ),
         [&]( boost::system::error_code ec, size_t size ) {

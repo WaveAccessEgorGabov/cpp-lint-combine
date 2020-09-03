@@ -48,15 +48,15 @@ bool LintCombine::DiagnosticWorker::printDiagnostics(
         return true;
     }
 
-    for( const auto & it : m_cmdLine ) {
-        if( it == "--help" ) {
+    for( const auto & cmdLineEl : m_cmdLine ) {
+        if( cmdLineEl == "--help" ) {
             std::cout << helpStr();
             return true;
         }
     }
 
-    for( const auto & it : prepareOutput( diagnostics ) ) {
-        std::cerr << it << std::endl;
+    for( const auto & diagnostic : prepareOutput( diagnostics ) ) {
+        std::cerr << diagnostic << std::endl;
     }
 
     return false;
@@ -67,10 +67,10 @@ LintCombine::DiagnosticWorker::prepareOutput(
     const std::vector< Diagnostic > & diagnostics ) const {
     const auto sourceCmdLine = boost::algorithm::join( m_cmdLine, " " );
     stringVector preparedOutput;
-    auto errorOccur = false;
-    for( const auto & it : diagnostics ) {
+    auto errorOccurred = false;
+    for( const auto & diagnostic : diagnostics ) {
         std::string levelAsString;
-        switch( it.level ) {
+        switch( diagnostic.level ) {
             case Level::Trace:   levelAsString = "Trace";   break;
             case Level::Debug:   levelAsString = "Debug";   break;
             case Level::Info:    levelAsString = "Info";    break;
@@ -79,19 +79,18 @@ LintCombine::DiagnosticWorker::prepareOutput(
             case Level::Fatal:   levelAsString = "Fatal";   break;
         }
         if( levelAsString == "Error" || levelAsString == "Fatal" ) {
-            errorOccur = true;
+            errorOccurred = true;
         }
-        preparedOutput.emplace_back( levelAsString + ": " + it.text );
-        if( it.firstPos < it.lastPos ) {
+        preparedOutput.emplace_back( levelAsString + ": " + diagnostic.text );
+        if( diagnostic.firstPos < diagnostic.lastPos ) {
             auto errorShow = sourceCmdLine + "\n";
-            errorShow.append( it.firstPos, ' ' );
-            errorShow.append( it.lastPos - it.firstPos, '~' );
+            errorShow.append( diagnostic.firstPos, ' ' );
+            errorShow.append( diagnostic.lastPos - diagnostic.firstPos, '~' );
             preparedOutput.emplace_back( errorShow );
         }
     }
-    if( errorOccur ) {
+    if( errorOccurred ) {
         preparedOutput.emplace_back( "\n--help\t\t\tDisplay all available options.\n" );
     }
     return preparedOutput;
 }
-

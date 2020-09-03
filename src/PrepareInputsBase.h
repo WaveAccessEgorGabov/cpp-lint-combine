@@ -90,9 +90,9 @@ namespace LintCombine {
                     options.emplace_back( "--checks=" + checks );
                 }
                 if( !clangExtraArgs.empty() ) {
-                    for( const auto & it : clangExtraArgs ) {
-                        if( !it.empty() ) {
-                            options.emplace_back( "--extra-arg=" + it );
+                    for( const auto & clangExtraArg : clangExtraArgs ) {
+                        if( !clangExtraArg.empty() ) {
+                            options.emplace_back( "--extra-arg=" + clangExtraArg );
                         }
                     }
                 }

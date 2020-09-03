@@ -69,23 +69,23 @@ bool LintCombine::PrepareInputsBase::parseSourceCmdLine() {
 }
 
 bool LintCombine::PrepareInputsBase::validateParsedData() {
-    auto isErrorOccur = false;
+    auto errorOccurred = false;
     if( pathToWorkDir.empty() ) {
         diagnosticsList.emplace_back( Level::Error,
             "Path to compilation database is empty.",
             "BasePreparer", 1, 0 );
-        isErrorOccur = true;
+        errorOccurred = true;
     }
     if( m_pathToCombinedYaml.empty() ) {
         diagnosticsList.emplace_back( Level::Error,
             "Path to yaml-file is empty.",
             "BasePreparer", 1, 0 );
-        isErrorOccur = true;
+        errorOccurred = true;
     }
     checkIsOptionsValueInit( "clang-extra-args", m_clangExtraArgs );
     checkIsOptionsValueInit( "clazy-checks", m_clazyChecks );
 
-    return isErrorOccur;
+    return errorOccurred;
 }
 
 void LintCombine::PrepareInputsBase::checkIsOptionsValueInit( const std::string & optionName,
@@ -106,12 +106,12 @@ void LintCombine::PrepareInputsBase::checkIsOptionsValueInit( const std::string 
 }
 
 bool LintCombine::PrepareInputsBase::initLinters() {
-    auto isErrorOccur = false;
-    for( auto & it : m_lintersNames ) {
-        if( it == "clang-tidy" ) {
+    auto errorOccurred = false;
+    for( auto & linterName : m_lintersNames ) {
+        if( linterName == "clang-tidy" ) {
             lintersOptions.emplace_back( std::make_unique< ClangTidyOptions >( pathToWorkDir ) );
         }
-        else if( it == "clazy" ) {
+        else if( linterName == "clazy" ) {
             std::istringstream iss( m_clangExtraArgs );
             lintersOptions.emplace_back(
                 std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks,
@@ -121,16 +121,16 @@ bool LintCombine::PrepareInputsBase::initLinters() {
         else {
             unsigned findFrom = 0;
             // skip parameter name and underline value
-            if( it == "--sub-linter" ) {
-                const auto firstPos = static_cast< unsigned >( m_sourceCL.find( it ) );
-                const auto lastPos = firstPos + static_cast< unsigned >( it.size() );
+            if( linterName == "--sub-linter" ) {
+                const auto firstPos = static_cast< unsigned >( m_sourceCL.find( linterName ) );
+                const auto lastPos = firstPos + static_cast< unsigned >( linterName.size() );
                 findFrom = lastPos;
             }
-            const auto firstPos = static_cast< unsigned >( m_sourceCL.find( it, findFrom ) );
-            const auto lastPos = firstPos + static_cast< unsigned >( it.size() );
+            const auto firstPos = static_cast< unsigned >( m_sourceCL.find( linterName, findFrom ) );
+            const auto lastPos = firstPos + static_cast< unsigned >( linterName.size() );
             diagnosticsList.emplace_back( Level::Error,
-                "Unknown linter name \"" + it + "\"", "BasePreparer", firstPos, lastPos );
-            isErrorOccur = true;
+                "Unknown linter name \"" + linterName + "\"", "BasePreparer", firstPos, lastPos );
+            errorOccurred = true;
         }
     }
 
@@ -143,7 +143,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
             std::istream_iterator< std::string > {} ) ) );
         diagnosticsList.emplace_back( Level::Info, "All linters are used", "BasePreparer", 1, 0 );
     }
-    return isErrorOccur;
+    return errorOccurred;
 }
 
 void LintCombine::PrepareInputsBase::initCmdLine() {
@@ -161,17 +161,17 @@ void LintCombine::PrepareInputsBase::initCommonOptions() {
 
 void LintCombine::PrepareInputsBase::addOptionToLinterByName( const std::string & name,
     const std::string & option ) {
-    for( auto & it : lintersOptions ) {
-        if( it->name == name ) {
-            it->options.emplace_back( option );
+    for( auto & linterOptions : lintersOptions ) {
+        if( linterOptions->name == name ) {
+            linterOptions->options.emplace_back( option );
             break;
         }
     }
 }
 
 void LintCombine::PrepareInputsBase::addOptionToAllLinters( const std::string & option ) {
-    for( const auto & it : lintersOptions ) {
-        it->options.emplace_back( option );
+    for( const auto & linterOptions : lintersOptions ) {
+        linterOptions->options.emplace_back( option );
     }
 }
 
@@ -182,7 +182,7 @@ std::string LintCombine::PrepareInputsBase::optionValueToQuotes(
 }
 
 void LintCombine::PrepareInputsBase::appendLintersOptionToCmdLine() {
-    for( const auto & it : lintersOptions ) {
-        std::copy( it->options.begin(), it->options.end(), std::back_inserter( cmdLine ) );
+    for( const auto & linterOptions : lintersOptions ) {
+        std::copy( linterOptions->options.begin(), linterOptions->options.end(), std::back_inserter( cmdLine ) );
     }
 }

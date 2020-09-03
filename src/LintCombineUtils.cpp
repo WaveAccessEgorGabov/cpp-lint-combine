@@ -11,29 +11,29 @@ LintCombine::stringVector LintCombine::moveCmdLineIntoSTLContainer( const int ar
 }
 
 void LintCombine::fixHyphensInCmdLine( stringVector & cmdLine ) {
-    for( auto & it : cmdLine ) {
-        if( it.find( "--" ) != 0 && it.find( '-' ) == 0 ) {
-            if( it.find( '=' ) != std::string::npos ) {
+    for( auto & cmdLineElement : cmdLine ) {
+        if( cmdLineElement.find( "--" ) != 0 && cmdLineElement.find( '-' ) == 0 ) {
+            if( cmdLineElement.find( '=' ) != std::string::npos ) {
                 // -param=value -> --param=value
-                if( it.find( '=' ) != std::string( "-p" ).size() ) {
-                    it.insert( 0, "-" );
+                if( cmdLineElement.find( '=' ) != std::string( "-p" ).size() ) {
+                    cmdLineElement.insert( 0, "-" );
                 }
             }
             // -param value -> --param value
-            else if( it.size() > std::string( "-p" ).size() ) {
-                it.insert( 0, "-" );
+            else if( cmdLineElement.size() > std::string( "-p" ).size() ) {
+                cmdLineElement.insert( 0, "-" );
             }
         }
-        if( it.find( "--" ) == 0 ) {
-            if( it.find( '=' ) != std::string::npos ) {
+        if( cmdLineElement.find( "--" ) == 0 ) {
+            if( cmdLineElement.find( '=' ) != std::string::npos ) {
                 // --p=value -> -p=value
-                if( it.find( '=' ) == std::string( "--p" ).size() ) {
-                    it.erase( it.begin() );
+                if( cmdLineElement.find( '=' ) == std::string( "--p" ).size() ) {
+                    cmdLineElement.erase( cmdLineElement.begin() );
                 }
             }
             // --p value -> -p value
-            else if( it.size() == std::string( "--p" ).size() ) {
-                it.erase( it.begin() );
+            else if( cmdLineElement.size() == std::string( "--p" ).size() ) {
+                cmdLineElement.erase( cmdLineElement.begin() );
             }
         }
     }

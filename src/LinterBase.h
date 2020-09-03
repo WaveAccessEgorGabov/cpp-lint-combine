@@ -39,7 +39,7 @@ namespace LintCombine {
 
         void parseCmdLine( const stringVector & cmdLine );
 
-        virtual void updateYAMLAction( const YAML::Node & yamlNode ) const = 0;
+        virtual void updateYamlData( const YAML::Node & yamlNode ) const = 0;
 
     private:
         std::string m_options;
