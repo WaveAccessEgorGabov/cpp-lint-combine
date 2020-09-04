@@ -25,6 +25,6 @@ if(WIN32)
     add_custom_command(TARGET ${executableName} POST_BUILD COMMAND
         $<$<CONFIG:ReleaseChecked>:${CMAKE_COMMAND}> "${ASAN_CMD_ARGS}" COMMAND_EXPAND_LISTS)
 elseif(UNIX)
-    target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
+    target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread)
 endif()
 add_test(${executableName} ${executableName})

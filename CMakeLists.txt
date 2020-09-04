@@ -41,7 +41,7 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 -D_WIN32_WINNT=0x0601")
 endif()
 
-find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread filesystem date_time REQUIRED)
+find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 if(${Boost_VERSION_STRING} STREQUAL 1.72.0)
@@ -94,7 +94,7 @@ if(WIN32)
     add_custom_command(TARGET ${executableName} POST_BUILD COMMAND
         $<$<CONFIG:ReleaseChecked>:${CMAKE_COMMAND}> "${ASAN_CMD_ARGS}" COMMAND_EXPAND_LISTS)
 elseif(UNIX)
-    target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread Boost::filesystem)
+    target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread)
 endif()
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/version.rsrc")
