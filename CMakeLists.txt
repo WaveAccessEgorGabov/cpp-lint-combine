@@ -42,6 +42,7 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /MP /W4 -D_WIN32_WINNT=0x0601")
 endif()
 
+# Boost::thread required for Boost::process on Linux
 find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
