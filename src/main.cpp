@@ -11,7 +11,7 @@ int main( int argc, char * argv[] ) {
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     prepareInputs->transformFiles();
 
-    if( diagnosticWorker.printDiagnostics( prepareInputs->diagnostics() ) ) {
+    if( diagnosticWorker.printDiagnostics( prepareInputs->diagnostics() ) || cmdLine.empty() ) {
         return 0;
     }
 
@@ -29,7 +29,8 @@ int main( int argc, char * argv[] ) {
     const auto callReturnCode = lintCombine->waitLinter();
     if( callReturnCode == LintCombine::AllLintersFailed ) {
         diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
-        if( !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
+        if( ideTraitsFactory.getIdeBehaviorInstance() &&
+            !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
             return callReturnCode; // All linters failed.
         }
     }
