@@ -5,11 +5,11 @@ LintCombine::ClazyWrapper::ClazyWrapper( const stringVector & cmdLine,
     // TODO: "--standalone" for clazy installed binary (in Linux)
     : LinterBase( cmdLine, service, /*name=*/"clazy-standalone" ) {}
 
-void LintCombine::ClazyWrapper::updateYamlData( const YAML::Node & yamlNode ) const {
+void LintCombine::ClazyWrapper::updateYamlData( YAML::Node & yamlNode ) const {
     addDocLink( yamlNode );
 }
 
-void LintCombine::ClazyWrapper::addDocLink( const YAML::Node & yamlNode ) {
+void LintCombine::ClazyWrapper::addDocLink( YAML::Node & yamlNode ) {
     for( auto diagnostic : yamlNode["Diagnostics"] ) {
         std::ostringstream docLink;
         std::ostringstream diagnosticName;

@@ -13,16 +13,15 @@ void LintCombine::PrepareInputsCLion::specifyTargetArch() {
             { " _M_X64 ",   "x86_64-pc-win32" },
             { " _M_IX86 ",  "i386-pc-win32"   },
             { " _M_ARM64 ", "arm64-pc-win32"  },
-            { " _M_ARM ",   "arm-pc-win32"    }
+            { " _M_ARM ",   "arm-pc-win32"    },
         };
         std::ifstream macrosFile( pathToWorkDir + "/macros" );
         std::string linterArchExtraArg;
         for( std::string macroDefinition; std::getline( macrosFile, macroDefinition );) {
             for( const auto & [archMacro, archTriple] : macroTargetPairs ) {
                 if( macroDefinition.find( archMacro ) != std::string::npos ) {
-                    // to avoid errors if different arch specified
                     if( !linterArchExtraArg.empty() ) {
-                        return;
+                        return; // several different target architectures specified
                     }
                     linterArchExtraArg = "--extra-arg-before=\"--target=" + archTriple + "\"";
                 }
@@ -35,7 +34,7 @@ void LintCombine::PrepareInputsCLion::specifyTargetArch() {
 }
 
 void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
-    stringVector filesForAnalyze;
+    stringVector filesToAnalyze;
     for( auto & unrecognized : unrecognizedCollection ) {
         if constexpr( BOOST_OS_WINDOWS ) {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
@@ -43,14 +42,14 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
         }
         // File to analyze
         if( unrecognized[0] != '-' && unrecognized[0] != '@' ) {
-            filesForAnalyze.emplace_back( unrecognized );
+            filesToAnalyze.emplace_back( unrecognized );
             continue;
         }
         addOptionToLinterByName( "clang-tidy", unrecognized );
     }
 
-    for( const auto & fileForAnalyze : filesForAnalyze ) {
-        addOptionToAllLinters( fileForAnalyze );
+    for( const auto & fileToAnalyze : filesToAnalyze ) {
+        addOptionToAllLinters( fileToAnalyze );
     }
 
     PrepareInputsBase::appendLintersOptionToCmdLine();
@@ -58,20 +57,21 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
 
 void LintCombine::PrepareInputsCLion::transformFiles() {
     if constexpr( BOOST_OS_LINUX ) {
-        std::ifstream macrosFileSrc( pathToWorkDir + "/macros" );
+        const auto pathToFileWithMacros = pathToWorkDir + "/macros";
+        std::ifstream macrosFileSrc( pathToFileWithMacros );
 
         // save source macros
         std::ostringstream sourceMacros;
         sourceMacros << macrosFileSrc.rdbuf();
+        macrosFileSrc.close();
 
-        std::ofstream macrosFileRes( pathToWorkDir + "/macros" );
+        std::ofstream macrosFileRes( pathToFileWithMacros );
 
         // In Linux the following macros must be undefined to avoid redefinition,
         // because clazy also defines these macros
         std::string macrosToUndef[] = {
-            "__clang_version__", "__VERSION__",
-            "__has_feature",     "__has_extension",
-            "__has_attribute",   "__has_builtin"
+            "__clang_version__", "__VERSION__", "__has_feature",
+            "__has_extension", "__has_attribute", "__has_builtin",
         };
         for( const auto & macro : macrosToUndef ) {
             macrosFileRes << "#undef " << macro << std::endl;

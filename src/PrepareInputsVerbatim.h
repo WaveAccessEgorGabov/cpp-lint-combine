@@ -22,4 +22,3 @@ namespace LintCombine {
         std::vector< Diagnostic > m_diagnostics;
     };
 }
-

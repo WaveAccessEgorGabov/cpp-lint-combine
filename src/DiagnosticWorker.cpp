@@ -11,28 +11,23 @@ std::string LintCombine::DiagnosticWorker::helpStr() {
     boost::program_options::options_description optDesc( /*line_length=*/100 );
     optDesc.add_options()
         ( "help", "Print this message." )
-        ( "ide-profile", "Choose IDE: ReSharper C++, CLion. "
-        "By default options will pass verbatim." )
-        ( "result-yaml",
-        "Path to YAML with diagnostics from all linters." )
-        ( "sub-linter",
-        "Linter to use. You can use this param several times to set"
-        " several linters. Supported linters are: clang-tidy, clazy." )
-        ( "clazy-checks",
-        "Comma-separated list of clazy checks. Default is level1." )
-        ( "clang-extra-args",
-        "Additional argument to append to the compiler command line." );
-    std::string str;
-    str.append( productInfoStr() );
-    str.append( "Usage:\n" );
-    str.append( boost::lexical_cast< std::string >( optDesc ) );
-    return str;
+        ( "ide-profile", "Choose IDE: ReSharper C++, CLion. By default options will pass verbatim." )
+        ( "result-yaml", "Path to YAML with diagnostics from all linters." )
+        ( "sub-linter", "Linter to use. You can use this param several times to set "
+          "several linters. Supported linters are: clang-tidy, clazy." )
+        ( "clazy-checks", "Comma-separated list of clazy checks. Default is level1." )
+        ( "clang-extra-args", "Additional argument to append to the compiler command line." );
+    std::string helpStr;
+    helpStr.append( productInfoStr() );
+    helpStr.append( "Usage:\n" );
+    helpStr.append( boost::lexical_cast< std::string >( optDesc ) );
+    return helpStr;
 }
 
 std::string LintCombine::DiagnosticWorker::howToPrintHelpStr() {
     boost::program_options::options_description optDesc;
-    optDesc.add_options()
-        ( "help", "Display all available options." );
+    optDesc.add_options() (
+        "help", "Display all available options." );
     return boost::lexical_cast< std::string >( optDesc );
 }
 
@@ -40,7 +35,7 @@ std::string LintCombine::DiagnosticWorker::productInfoStr() {
     return PRODUCTNAME_STR " " PRODUCTVERSION_STR "\n\n";
 }
 
-bool LintCombine::DiagnosticWorker::printDiagnostics(
+bool LintCombine::DiagnosticWorker::printDiagnostics (
     const std::vector< Diagnostic > & diagnostics ) const {
     if( m_isCmdLineEmpty ) {
         std::cout << productInfoStr();
@@ -63,8 +58,7 @@ bool LintCombine::DiagnosticWorker::printDiagnostics(
 }
 
 LintCombine::stringVector
-LintCombine::DiagnosticWorker::prepareOutput(
-    const std::vector< Diagnostic > & diagnostics ) const {
+LintCombine::DiagnosticWorker::prepareOutput( const std::vector< Diagnostic > & diagnostics ) const {
     const auto sourceCmdLine = boost::algorithm::join( m_cmdLine, " " );
     stringVector preparedOutput;
     auto errorOccurred = false;

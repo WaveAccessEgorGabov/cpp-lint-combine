@@ -17,7 +17,7 @@ namespace LintCombine {
 
         virtual CallTotals updateYaml() = 0;
 
-        virtual const std::string getYamlPath() = 0;
+        virtual std::string getYamlPath() = 0;
 
         virtual std::vector< Diagnostic > diagnostics() = 0;
     };

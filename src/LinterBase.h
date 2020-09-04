@@ -16,11 +16,11 @@ namespace LintCombine {
 
         CallTotals updateYaml() override;
 
-        const std::string getName() const;
+        std::string getName() const;
 
-        const std::string getOptions() const;
+        std::string getOptions() const;
 
-        const std::string getYamlPath() final;
+        std::string getYamlPath() final;
 
         std::vector< Diagnostic > diagnostics() override;
 
@@ -33,12 +33,12 @@ namespace LintCombine {
         explicit LinterBase( LinterFactoryBase::Services & service );
 
         explicit LinterBase( const stringVector & cmdLine,
-            LinterFactoryBase::Services & service,
-            const std::string & nameVal );
+                             LinterFactoryBase::Services & service,
+                             const std::string & nameVal );
 
         void parseCmdLine( const stringVector & cmdLine );
 
-        virtual void updateYamlData( const YAML::Node & yamlNode ) const = 0;
+        virtual void updateYamlData( YAML::Node & yamlNode ) const = 0;
 
     private:
         std::string m_options;
@@ -51,6 +51,6 @@ namespace LintCombine {
         std::array< char, 64 > m_buffer = {};
 
         void readFromPipeToStream( boost::process::async_pipe & pipe,
-            std::ostream & outputStream );
+                                   std::ostream & outputStream );
     };
 }

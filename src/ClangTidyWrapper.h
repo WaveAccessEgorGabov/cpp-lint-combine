@@ -10,9 +10,8 @@ namespace LintCombine {
         ClangTidyWrapper( const stringVector & cmdLine, LinterFactoryBase::Services & service );
 
     private:
-        void updateYamlData( const YAML::Node & yamlNode ) const override;
+        void updateYamlData( YAML::Node & yamlNode ) const override;
 
-        static void addDocLink( const YAML::Node & yamlNode );
+        static void addDocLink( YAML::Node & yamlNode );
     };
 }
-

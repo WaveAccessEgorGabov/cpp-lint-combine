@@ -44,7 +44,7 @@ namespace LintCombine {
             }
         }
 
-        void updateYamlData( const YAML::Node & ) const override {}
+        void updateYamlData( YAML::Node & ) const override {}
     };
 
     struct MocksLinterFactory : LinterFactoryBase {
