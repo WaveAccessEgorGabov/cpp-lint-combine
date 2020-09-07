@@ -15,7 +15,7 @@ namespace LintCombine {
 
         void transformFiles() override {}
 
-        std::vector< Diagnostic > diagnostics() override;
+        std::vector< Diagnostic > diagnostics() const override;
 
     private:
         bool parseSourceCmdLine();
@@ -58,11 +58,11 @@ namespace LintCombine {
                     options.emplace_back( "-p=" + pathToWorkDirVal );
                     if constexpr( BOOST_OS_WINDOWS ) {
                         options.emplace_back( "--export-fixes=" + pathToWorkDirVal +
-                            "\\diagnosticsClangTidy.yaml" );
+                                              "\\diagnosticsClangTidy.yaml" );
                     }
                     if constexpr( BOOST_OS_LINUX ) {
                         options.emplace_back( "--export-fixes=" + pathToWorkDirVal +
-                            "/diagnosticsClangTidy.yaml" );
+                                              "/diagnosticsClangTidy.yaml" );
                     }
                 }
             }

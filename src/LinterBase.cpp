@@ -7,7 +7,7 @@
 #include <fstream>
 #include <iostream>
 
-std::vector< LintCombine::Diagnostic > LintCombine::LinterBase::diagnostics() {
+std::vector< LintCombine::Diagnostic > LintCombine::LinterBase::diagnostics() const {
     return m_diagnostics;
 }
 

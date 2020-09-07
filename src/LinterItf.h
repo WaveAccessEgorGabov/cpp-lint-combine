@@ -19,7 +19,7 @@ namespace LintCombine {
 
         virtual std::string getYamlPath() = 0;
 
-        virtual std::vector< Diagnostic > diagnostics() = 0;
+        virtual std::vector< Diagnostic > diagnostics() const = 0;
     };
 
     class Exception final : public std::exception {

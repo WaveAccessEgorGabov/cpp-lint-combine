@@ -31,12 +31,21 @@ std::string LintCombine::DiagnosticWorker::howToPrintHelpStr() {
     return boost::lexical_cast< std::string >( optDesc );
 }
 
+void LintCombine::DiagnosticWorker::sortDiagnostics( std::vector< Diagnostic > & diagnostics ) const {
+    std::sort( std::begin( diagnostics ), std::end( diagnostics ),
+               []( const Diagnostic & lhs, const Diagnostic & rhs ) {
+        if( lhs.level == rhs.level ) {
+            return lhs.firstPos < rhs.firstPos;
+        }
+        return lhs.level < rhs.level;
+    } );
+}
+
 std::string LintCombine::DiagnosticWorker::productInfoStr() {
     return PRODUCTNAME_STR " " PRODUCTVERSION_STR "\n\n";
 }
 
-bool LintCombine::DiagnosticWorker::printDiagnostics (
-    const std::vector< Diagnostic > & diagnostics ) const {
+bool LintCombine::DiagnosticWorker::printDiagnostics ( std::vector< Diagnostic > & diagnostics ) const {
     if( m_isCmdLineEmpty ) {
         std::cout << productInfoStr();
         std::cout << howToPrintHelpStr();
@@ -58,7 +67,8 @@ bool LintCombine::DiagnosticWorker::printDiagnostics (
 }
 
 LintCombine::stringVector
-LintCombine::DiagnosticWorker::prepareOutput( const std::vector< Diagnostic > & diagnostics ) const {
+LintCombine::DiagnosticWorker::prepareOutput( std::vector< Diagnostic > & diagnostics ) const {
+    sortDiagnostics( diagnostics );
     const auto sourceCmdLine = boost::algorithm::join( m_cmdLine, " " );
     stringVector preparedOutput;
     auto errorOccurred = false;

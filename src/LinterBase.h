@@ -22,7 +22,7 @@ namespace LintCombine {
 
         std::string getYamlPath() final;
 
-        std::vector< Diagnostic > diagnostics() override;
+        std::vector< Diagnostic > diagnostics() const override;
 
         ~LinterBase() override = default;
 

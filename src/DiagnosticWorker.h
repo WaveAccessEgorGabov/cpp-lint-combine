@@ -11,7 +11,7 @@ namespace LintCombine {
                                    const bool isCmdLineEmptyVal )
             : m_cmdLine( cmdLineVal ), m_isCmdLineEmpty( isCmdLineEmptyVal ) {}
 
-        bool printDiagnostics( const std::vector< Diagnostic > & diagnostics ) const;
+        bool printDiagnostics( std::vector< Diagnostic > & diagnostics ) const;
 
     private:
         static std::string howToPrintHelpStr();
@@ -20,7 +20,9 @@ namespace LintCombine {
 
         static std::string helpStr();
 
-        stringVector prepareOutput( const std::vector< Diagnostic > & diagnostics ) const;
+        void sortDiagnostics( std::vector< Diagnostic > & diagnostics ) const;
+
+        stringVector prepareOutput( std::vector< Diagnostic > & diagnostics ) const;
 
         stringVector m_cmdLine;
 

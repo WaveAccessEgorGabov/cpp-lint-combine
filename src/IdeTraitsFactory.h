@@ -53,7 +53,7 @@ namespace LintCombine {
 
             void transformFiles() override {}
 
-            std::vector< Diagnostic > diagnostics() override {
+            std::vector< Diagnostic > diagnostics() const override {
                 return m_diagnostics;
             }
 

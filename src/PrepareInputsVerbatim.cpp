@@ -12,7 +12,7 @@ LintCombine::PrepareInputsVerbatim::transformCmdLine( const stringVector & cmdLi
 }
 
 std::vector< LintCombine::Diagnostic >
-LintCombine::PrepareInputsVerbatim::diagnostics() {
+LintCombine::PrepareInputsVerbatim::diagnostics() const {
     return m_diagnostics;
 }
 

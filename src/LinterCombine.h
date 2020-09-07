@@ -32,7 +32,7 @@ namespace LintCombine {
 
         size_t numLinters() const noexcept;
 
-        std::vector< Diagnostic > diagnostics() override;
+        std::vector< Diagnostic > diagnostics() const override;
 
     private:
         std::vector< stringVector > splitCmdLineBySubLinters( const stringVector & cmdLine );

@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <boost/program_options.hpp>
 
-std::vector<LintCombine::Diagnostic> LintCombine::LinterCombine::diagnostics() {
+std::vector<LintCombine::Diagnostic> LintCombine::LinterCombine::diagnostics() const {
     std::vector< Diagnostic > allDiagnostics;
     for( const auto & linter : m_linters ) {
         const auto & linterDiagnostics = linter->diagnostics();
@@ -172,22 +172,23 @@ void LintCombine::LinterCombine::initCombinedYamlPath( const stringVector & cmdL
 std::string LintCombine::LinterCombine::getYamlPath() {
     if( !m_combinedYamlPath.empty() ) {
         if( std::filesystem::exists( m_combinedYamlPath ) ) {
-            std::ofstream{ m_combinedYamlPath };
+            std::ofstream{ m_combinedYamlPath, std::ios_base::trunc };
         }
         for( const auto & subLinterIt : m_linters ) {
-            if( subLinterIt->getYamlPath().empty() ) {
+            const auto & lintersYamlPath = subLinterIt->getYamlPath();
+            if( lintersYamlPath.empty() ) {
                 m_diagnostics.emplace_back(
                     Level::Warning, "Linter's YAML file path value is empty", "LintCombine", 1, 0 );
                 continue;
             }
-            if( !std::filesystem::exists( subLinterIt->getYamlPath() ) ) {
+            if( !std::filesystem::exists( lintersYamlPath ) ) {
                 m_diagnostics.emplace_back(
-                    Level::Warning, "Linter's YAML-file path \"" + subLinterIt->getYamlPath() + "\" doesn't exist",
+                    Level::Warning, "Linter's YAML-file path \"" + lintersYamlPath + "\" doesn't exist",
                     "LintCombine", 1, 0 );
                 continue;
             }
             try {
-                combineYamlFiles( subLinterIt->getYamlPath() );
+                combineYamlFiles( lintersYamlPath );
             }
             catch( std::exception & ex ) {
                 m_diagnostics.emplace_back( Level::Error, ex.what(), "LintCombine", 1, 0 );

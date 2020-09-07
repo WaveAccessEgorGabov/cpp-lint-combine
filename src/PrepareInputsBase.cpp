@@ -15,14 +15,7 @@ LintCombine::PrepareInputsBase::transformCmdLine( const stringVector & cmdLineVa
 }
 
 std::vector<LintCombine::Diagnostic>
-LintCombine::PrepareInputsBase::diagnostics() {
-    std::sort( std::begin( m_diagnostics ), std::end( m_diagnostics ),
-               []( const Diagnostic & lhs, const Diagnostic & rhs ) {
-        if( lhs.level == rhs.level ) {
-            return lhs.firstPos < rhs.firstPos;
-        }
-        return lhs.level < rhs.level;
-    } );
+LintCombine::PrepareInputsBase::diagnostics() const {
     return m_diagnostics;
 }
 
