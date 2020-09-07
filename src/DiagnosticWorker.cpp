@@ -45,7 +45,15 @@ std::string LintCombine::DiagnosticWorker::productInfoStr() {
     return PRODUCTNAME_STR " " PRODUCTVERSION_STR "\n\n";
 }
 
-bool LintCombine::DiagnosticWorker::printDiagnostics ( std::vector< Diagnostic > & diagnostics ) const {
+bool LintCombine::DiagnosticWorker::printDiagnostics( std::vector< Diagnostic > & diagnostics ) const {
+    return printDiagnosticsBase( diagnostics );
+}
+
+bool LintCombine::DiagnosticWorker::printDiagnostics( std::vector< Diagnostic > && diagnostics ) const {
+    return printDiagnosticsBase( diagnostics );
+}
+
+bool LintCombine::DiagnosticWorker::printDiagnosticsBase( std::vector< Diagnostic > & diagnostics ) const {
     if( m_isCmdLineEmpty ) {
         std::cout << productInfoStr();
         std::cout << howToPrintHelpStr();

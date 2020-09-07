@@ -11,9 +11,13 @@ namespace LintCombine {
                                    const bool isCmdLineEmptyVal )
             : m_cmdLine( cmdLineVal ), m_isCmdLineEmpty( isCmdLineEmptyVal ) {}
 
+        bool printDiagnostics( std::vector< Diagnostic > && diagnostics ) const;
+
         bool printDiagnostics( std::vector< Diagnostic > & diagnostics ) const;
 
     private:
+        bool printDiagnosticsBase( std::vector< Diagnostic > & diagnostics ) const;
+
         static std::string howToPrintHelpStr();
 
         static std::string productInfoStr();
