@@ -3,6 +3,11 @@
 #include "IdeTraitsFactory.h"
 #include "DiagnosticWorker.h"
 
+namespace LintCombine {
+    enum ReturnCode{ Success, LinterCombineConstructorFailed,  UpdatingYamlFailed,
+                     CallLintersFailed, PutDiagnosticsIntoYamlFailed };
+}
+
 int main( int argc, char * argv[] ) {
     LintCombine::stringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
@@ -12,7 +17,7 @@ int main( int argc, char * argv[] ) {
     prepareInputs->transformFiles();
 
     if( diagnosticWorker.printDiagnostics( prepareInputs->diagnostics() ) || cmdLine.empty() ) {
-        return 0;
+        return LintCombine::ReturnCode::Success;
     }
 
     std::unique_ptr< LintCombine::LinterItf > lintCombine;
@@ -22,16 +27,16 @@ int main( int argc, char * argv[] ) {
     }
     catch( const LintCombine::Exception & ex ) {
         diagnosticWorker.printDiagnostics( ex.diagnostics() );
-        return 1; // Error occurred in LinterCombine constructor.
+        return LintCombine::ReturnCode::LinterCombineConstructorFailed;
     }
 
     lintCombine->callLinter();
     const auto callReturnCode = lintCombine->waitLinter();
-    if( callReturnCode == LintCombine::AllLintersFailed ) {
+    if( callReturnCode == LintCombine::WaitLinterReturnCode::AllLintersFailed ) {
         diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
         if( ideTraitsFactory.getIdeBehaviorInstance() &&
             !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
-            return callReturnCode; // All linters failed.
+            return LintCombine::ReturnCode::CallLintersFailed;
         }
     }
 
@@ -40,13 +45,13 @@ int main( int argc, char * argv[] ) {
         const auto callTotals = lintCombine->updateYaml();
         if( !callTotals.successNum ) {
             diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
-            return 2; // Error while updating YAML-file
+            return LintCombine::ReturnCode::UpdatingYamlFailed;
         }
     }
 
     if( lintCombine->getYamlPath().empty() ) {
         diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
-        return 4; // Error while put diagnostics into result YAML-file.
+        return LintCombine::ReturnCode::PutDiagnosticsIntoYamlFailed;
     }
     diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
 
