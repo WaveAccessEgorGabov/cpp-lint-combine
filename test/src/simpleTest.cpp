@@ -74,13 +74,29 @@ namespace LintCombine {
     };
 }
 
-void compareDiagnostics( const LintCombine::Diagnostic & lhs,
+bool isDiagnosticsEqual( const LintCombine::Diagnostic & lhs,
                          const LintCombine::Diagnostic & rhs ) {
-    BOOST_CHECK( lhs.level == rhs.level );
-    BOOST_CHECK( lhs.origin == rhs.origin );
-    BOOST_CHECK( lhs.firstPos == rhs.firstPos );
-    BOOST_CHECK( lhs.lastPos == rhs.lastPos );
-    BOOST_CHECK( lhs.text == rhs.text );
+    if( lhs.level == rhs.level     &&
+        lhs.origin == rhs.origin   && lhs.firstPos == rhs.firstPos &&
+        lhs.lastPos == rhs.lastPos && lhs.text == rhs.text ) {
+        return true;
+    }
+    return false;
+}
+
+void compareDiagnostics( const std::vector< LintCombine::Diagnostic > & lhs,
+                         const std::vector< LintCombine::Diagnostic > & rhs ) {
+    auto diagnosticsToCompare = rhs;
+    BOOST_REQUIRE( lhs.size() == diagnosticsToCompare.size() );
+    for( const auto & diagnostic : lhs ) {
+        for( size_t j = 0; j < diagnosticsToCompare.size(); ++j ) {
+            if( isDiagnosticsEqual(diagnostic, diagnosticsToCompare[j] ) ) {
+                diagnosticsToCompare.erase( diagnosticsToCompare.begin() + j );
+                break;
+            }
+        }
+    }
+    BOOST_CHECK( diagnosticsToCompare.empty() ); // diagnostics are equal
 }
 
 void compareContainers( const LintCombine::stringVector & lhs,
@@ -422,10 +438,7 @@ BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
             LintCombine::LinterCombine{ sample.input.cmdLine };
         }
         catch( const LintCombine::Exception & ex ) {
-            BOOST_REQUIRE( ex.diagnostics().size() == correctResult.diagnostics.size() );
-            for( size_t i = 0; i < correctResult.diagnostics.size(); ++i ) {
-                compareDiagnostics( ex.diagnostics()[i], correctResult.diagnostics[i] );
-            }
+            compareDiagnostics( ex.diagnostics(), correctResult.diagnostics );
         }
     }
     else {
@@ -437,12 +450,7 @@ BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
             BOOST_CHECK( correctResult.linterData[i].options == linter->getOptions() );
             BOOST_CHECK( correctResult.linterData[i].yamlPath == linter->getYamlPath() );
         }
-        const auto & combineDiagnostics = combine.diagnostics();
-        const auto & correctResultDiagnostics = correctResult.diagnostics;
-        BOOST_REQUIRE( combineDiagnostics.size() == correctResultDiagnostics.size() );
-        for( size_t i = 0; i < correctResultDiagnostics.size(); ++i ) {
-            compareDiagnostics( combineDiagnostics[i], correctResultDiagnostics[i] );
-        }
+        compareDiagnostics( combine.diagnostics(), correctResult.diagnostics );
     }
 }
 
@@ -768,12 +776,7 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
         }
         std::filesystem::remove( itFile.filename );
     }
-    const auto & combineDiagnostics = combine.diagnostics();
-    const auto & correctResultDiagnostics = correctResult.diagnostics;
-    BOOST_REQUIRE( combineDiagnostics.size() == correctResultDiagnostics.size() );
-    for( size_t i = 0; i < correctResultDiagnostics.size(); ++i ) {
-        compareDiagnostics( combineDiagnostics[i], correctResultDiagnostics[i] );
-    }
+    compareDiagnostics( combine.diagnostics(), correctResult.diagnostics );
     for( const auto & fileName : sample.input.fileNamesForLinterEndsEarlyTest ) {
         BOOST_CHECK( !std::filesystem::exists( fileName ) );
         std::filesystem::remove( fileName );
@@ -972,12 +975,7 @@ BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
     const auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == correctResult.callTotals.successNum );
     BOOST_CHECK( callTotals.failNum == correctResult.callTotals.failNum );
-    const auto & combineDiagnostics = combine.diagnostics();
-    const auto & correctResultDiagnostics = correctResult.diagnostics;
-    BOOST_REQUIRE( combineDiagnostics.size() == correctResultDiagnostics.size() );
-    for( size_t i = 0; i < correctResultDiagnostics.size(); ++i ) {
-        compareDiagnostics( combineDiagnostics[i], correctResultDiagnostics[i] );
-    }
+    compareDiagnostics( combine.diagnostics(), correctResult.diagnostics );
     for( const auto & [lhs, rhs] : correctResult.filesForCompare ) {
         std::ifstream yamlFile( lhs );
         std::ifstream yamlFileSave( rhs );
@@ -1129,12 +1127,7 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
     else {
         BOOST_REQUIRE( std::filesystem::exists( correctResult.pathToCombinedYaml ) );
     }
-    const auto & combineDiagnostics = combine.diagnostics();
-    const auto & correctResultDiagnostics = correctResult.diagnostics;
-    BOOST_REQUIRE( combineDiagnostics.size() == correctResultDiagnostics.size() );
-    for( size_t i = 0; i < correctResultDiagnostics.size(); ++i ) {
-        compareDiagnostics( combineDiagnostics[i], correctResultDiagnostics[i] );
-    }
+    compareDiagnostics( combine.diagnostics(), correctResult.diagnostics );
     for( const auto & [lhs, rhs] : correctResult.filesForCompare ) {
         std::ifstream yamlFile( lhs );
         std::ifstream yamlFileSave( rhs );
@@ -1874,12 +1867,7 @@ BOOST_DATA_TEST_CASE( TestPrepareCmdLine, PCLTestCaseData, sample ) {
     }
     compareContainers( prepareCmdLine->transformCmdLine( inputCmdLine ),
                        correctResult.resultCmdLine );
-    const auto & preparerDiagnostics = prepareCmdLine->diagnostics();
-    const auto & correctResultDiagnostics = correctResult.diagnostics;
-    BOOST_REQUIRE( preparerDiagnostics.size() == correctResultDiagnostics.size() );
-    for( size_t i = 0; i < correctResultDiagnostics.size(); ++i ) {
-        compareDiagnostics( preparerDiagnostics[i], correctResultDiagnostics[i] );
-    }
+    compareDiagnostics( prepareCmdLine->diagnostics(), correctResult.diagnostics );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
