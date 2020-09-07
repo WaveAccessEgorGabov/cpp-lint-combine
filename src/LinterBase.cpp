@@ -113,7 +113,7 @@ void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
 void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe & pipe,
                                                     std::ostream & outputStream ) {
     pipe.async_read_some( boost::process::buffer( m_buffer ),
-                          [&]( boost::system::error_code ec, size_t size ) {
+                          [&]( boost::system::error_code ec, std::streamsize size ) {
         outputStream.write( m_buffer.data(), size );
         if( !ec )
             readFromPipeToStream( pipe, outputStream );

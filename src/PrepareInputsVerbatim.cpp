@@ -17,13 +17,12 @@ LintCombine::PrepareInputsVerbatim::diagnostics() const {
 }
 
 bool LintCombine::PrepareInputsVerbatim::validateLinters() {
-    m_diagnostics.emplace_back( Level::Info,
-                                "Options were passed verbatim", "VerbatimPreparer", 1, 0 );
+    m_diagnostics.emplace_back(
+        Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 );
     stringVector lintersNames;
     boost::program_options::options_description optDesc;
     optDesc.add_options()(
         "sub-linter", boost::program_options::value< stringVector >( &lintersNames ) );
-
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).
@@ -36,9 +35,8 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
     }
 
     if( lintersNames.empty() ) {
-        m_diagnostics.emplace_back( Level::Error,
-                                    "No linters specified. Use --sub-linter, see --help.",
-                                    "VerbatimPreparer", 1, 0 );
+        m_diagnostics.emplace_back(
+            Level::Error, "No linters specified. Use --sub-linter, see --help.", "VerbatimPreparer", 1, 0 );
         return true;
     }
 

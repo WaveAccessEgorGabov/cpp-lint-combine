@@ -6,15 +6,15 @@
 #include <boost/program_options.hpp>
 
 std::vector<LintCombine::Diagnostic> LintCombine::LinterCombine::diagnostics() const {
-    std::vector< Diagnostic > allDiagnostics;
+    std::vector< Diagnostic > diagnosticsFromAllLinters;
     for( const auto & linter : m_linters ) {
         const auto & linterDiagnostics = linter->diagnostics();
-        allDiagnostics.insert( allDiagnostics.end(),
-                               linterDiagnostics.begin(), linterDiagnostics.end() );
+        diagnosticsFromAllLinters.insert( diagnosticsFromAllLinters.end(),
+                                          linterDiagnostics.begin(), linterDiagnostics.end() );
     }
-    allDiagnostics.insert( allDiagnostics.end(),
-                           m_diagnostics.begin(), m_diagnostics.end() );
-    return allDiagnostics;
+    diagnosticsFromAllLinters.insert( diagnosticsFromAllLinters.end(),
+                                      m_diagnostics.begin(), m_diagnostics.end() );
+    return diagnosticsFromAllLinters;
 }
 
 LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
@@ -27,8 +27,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
         throw Exception( m_diagnostics );
     }
 
-    const std::vector< stringVector > lintersCmdLines =
-        splitCmdLineBySubLinters( cmdLine );
+    const std::vector< stringVector > lintersCmdLines = splitCmdLineBySubLinters( cmdLine );
 
     if( lintersCmdLines.empty() ) {
         m_diagnostics.emplace_back(
@@ -60,8 +59,7 @@ int LintCombine::LinterCombine::waitLinter() {
     int returnCode = 1;
     m_services.getIOService().run();
     for( const auto & subLinterIt : m_linters ) {
-        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) :
-            ( returnCode |= 2 );
+        subLinterIt->waitLinter() == 0 ? ( returnCode &= ~1 ) : ( returnCode |= 2 );
     }
     if( returnCode == SomeLintersFailed ) {
         m_diagnostics.emplace_back(

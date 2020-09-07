@@ -11,28 +11,29 @@ LintCombine::stringVector LintCombine::moveCmdLineIntoSTLContainer( const int ar
 }
 
 void LintCombine::fixHyphensInCmdLine( stringVector & cmdLine ) {
+    enum StrSize{ TwoSymbol = 2, ThreeSymbols = 3 };
     for( auto & cmdLineElement : cmdLine ) {
         if( cmdLineElement.find( "--" ) != 0 && cmdLineElement.find( '-' ) == 0 ) {
             if( cmdLineElement.find( '=' ) != std::string::npos ) {
                 // -param=value -> --param=value
-                if( cmdLineElement.find( '=' ) != std::string( "-p" ).size() ) {
+                if( cmdLineElement.find( '=' ) != StrSize::TwoSymbol ) {
                     cmdLineElement.insert( 0, "-" );
                 }
             }
             // -param value -> --param value
-            else if( cmdLineElement.size() > std::string( "-p" ).size() ) {
+            else if( cmdLineElement.size() > StrSize::TwoSymbol ) {
                 cmdLineElement.insert( 0, "-" );
             }
         }
         if( cmdLineElement.find( "--" ) == 0 ) {
             if( cmdLineElement.find( '=' ) != std::string::npos ) {
                 // --p=value -> -p=value
-                if( cmdLineElement.find( '=' ) == std::string( "--p" ).size() ) {
+                if( cmdLineElement.find( '=' ) == StrSize::ThreeSymbols ) {
                     cmdLineElement.erase( cmdLineElement.begin() );
                 }
             }
             // --p value -> -p value
-            else if( cmdLineElement.size() == std::string( "--p" ).size() ) {
+            else if( cmdLineElement.size() == StrSize::ThreeSymbols ) {
                 cmdLineElement.erase( cmdLineElement.begin() );
             }
         }

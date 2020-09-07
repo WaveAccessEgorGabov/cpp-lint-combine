@@ -38,7 +38,6 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
     for( auto & unrecognized : unrecognizedCollection ) {
         if constexpr( BOOST_OS_WINDOWS ) {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
-            specifyTargetArch();
         }
         // File to analyze
         if( unrecognized[0] != '-' && unrecognized[0] != '@' ) {
@@ -47,6 +46,7 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
         }
         addOptionToLinterByName( "clang-tidy", unrecognized );
     }
+    specifyTargetArch();
 
     for( const auto & fileToAnalyze : filesToAnalyze ) {
         addOptionToAllLinters( fileToAnalyze );

@@ -71,18 +71,20 @@ bool LintCombine::PrepareInputsBase::validateParsedData() {
 
 void LintCombine::PrepareInputsBase::checkIsOptionsValueInit( const std::string & optionName,
                                                               const std::string & option ) {
-    if( std::find_if( std::begin( cmdLine ), std::end( cmdLine ),
-        [&]( const std::string & str ) -> bool {
-        return str.find( optionName ) != std::string::npos; } ) != std::end( cmdLine )
-            && option.empty() ) {
+    const auto optionPlaceIt =
+        std::find_if( std::begin( cmdLine ), std::end( cmdLine ),
+                      [&]( const std::string & str ) -> bool {
+                          return str.find( optionName ) != std::string::npos;
+                      } );
+    if( optionPlaceIt != std::end( cmdLine ) && option.empty() ) {
         const auto warningBeginInCL =
             static_cast< const unsigned int >( m_sourceCmdLine.find( std::string( optionName ) ) );
         const auto warningEndInCL = warningBeginInCL +
             static_cast< const unsigned int >( std::string( optionName ).size() );
-        m_diagnostics.emplace_back( Level::Warning,
-                                    "Parameter \"" + optionName + "\" was set but the parameter's "
-                                    "value was not set. The parameter will be ignored.",
-                                    "BasePreparer", warningBeginInCL, warningEndInCL );
+        m_diagnostics.emplace_back(
+            Level::Warning, "Parameter \"" + optionName + "\" was set but the parameter's "
+            "value was not set. The parameter will be ignored.",
+            "BasePreparer", warningBeginInCL, warningEndInCL );
     }
 }
 
@@ -94,10 +96,11 @@ bool LintCombine::PrepareInputsBase::initLinters() {
         }
         else if( linterName == "clazy" ) {
             std::istringstream iss( m_clangExtraArgs );
-            lintersOptions.emplace_back(
-                std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks,
+            const auto separatedClangExtraArgs =
                 stringVector( std::istream_iterator< std::string >{ iss },
-                std::istream_iterator< std::string > {} ) ) );
+                              std::istream_iterator< std::string > {} );
+            lintersOptions.emplace_back(
+                std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks, separatedClangExtraArgs) );
         }
         else {
             unsigned searchFrom = 0;
@@ -118,10 +121,12 @@ bool LintCombine::PrepareInputsBase::initLinters() {
     if( lintersOptions.empty() ) {
         // Use all linters by default
         std::istringstream iss( m_clangExtraArgs );
+        const auto separatedClangExtraArgs =
+            stringVector( std::istream_iterator< std::string >{ iss },
+                          std::istream_iterator< std::string > {} );
         lintersOptions.emplace_back( std::make_unique< ClangTidyOptions >( pathToWorkDir ) );
-        lintersOptions.emplace_back( std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks,
-                                     stringVector( std::istream_iterator< std::string > { iss },
-                                     std::istream_iterator< std::string > {} ) ) );
+        lintersOptions.emplace_back(
+            std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks, separatedClangExtraArgs ) );
         m_diagnostics.emplace_back( Level::Info, "All linters are used", "BasePreparer", 1, 0 );
     }
     return errorOccurred;
@@ -130,7 +135,6 @@ bool LintCombine::PrepareInputsBase::initLinters() {
 void LintCombine::PrepareInputsBase::initCmdLine() {
     cmdLine.clear();
     initCommonOptions();
-    specifyTargetArch();
     appendLintersOptionToCmdLine();
 }
 
@@ -156,10 +160,9 @@ void LintCombine::PrepareInputsBase::addOptionToAllLinters( const std::string & 
     }
 }
 
-std::string LintCombine::PrepareInputsBase::optionValueToQuotes(
-    const std::string & optionName, const std::string & optionNameWithValue ) {
-    return optionName + "\"" +
-           optionNameWithValue.substr( optionName.size(), std::string::npos ) + "\"";
+std::string LintCombine::PrepareInputsBase::optionValueToQuotes( const std::string & optionName,
+                                                                 const std::string & optionNameWithValue ) {
+    return optionName + "\"" + optionNameWithValue.substr( optionName.size(), std::string::npos ) + "\"";
 }
 
 void LintCombine::PrepareInputsBase::appendLintersOptionToCmdLine() {

@@ -150,7 +150,7 @@ namespace TestULF::EmptyCmdLine {
 }
 
 namespace TestULF::UnknownLinter {
-    const ULFTestCase::Input input{ { "--sub-linter=Unknown"} };
+    const ULFTestCase::Input input{ { "--sub-linter=Unknown" } };
     const ULFTestCase::Output output{ {} };
 }
 

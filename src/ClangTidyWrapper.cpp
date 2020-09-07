@@ -11,7 +11,8 @@ void LintCombine::ClangTidyWrapper::updateYamlData( YAML::Node & yamlNode ) cons
 void LintCombine::ClangTidyWrapper::addDocLink( YAML::Node & yamlNode ) {
     for( auto diagnostic : yamlNode["Diagnostics"] ) {
         std::ostringstream docLink;
-        docLink << "https://clang.llvm.org/extra/clang-tidy/checks/" << diagnostic["DiagnosticName"] << ".html";
+        docLink << "https://clang.llvm.org/extra/clang-tidy/checks/"
+                << diagnostic["DiagnosticName"] << ".html";
         diagnostic["DocumentationLink"] = docLink.str();
     }
 }

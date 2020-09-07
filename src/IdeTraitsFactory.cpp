@@ -9,17 +9,17 @@ std::unique_ptr< LintCombine::IdeTraitsFactory::IdeBehaviorItf >
 LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     boost::algorithm::to_lower( m_ideName );
     if( m_ideName == "resharper" ) {
-        return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink*/true,
-                                                    /*linterExitCodeTolerant*/false );
+        return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink=*/true,
+                                                    /*linterExitCodeTolerant=*/false );
     }
     if( m_ideName == "clion" ) {
         if constexpr( BOOST_OS_WINDOWS ) {
-            return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink*/false,
-                                                        /*linterExitCodeTolerant*/false );
+            return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink=*/false,
+                                                        /*linterExitCodeTolerant=*/false );
         }
         if constexpr( BOOST_OS_LINUX ) {
-            return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink*/false,
-                                                        /*linterExitCodeTolerant*/true );
+            return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink=*/false,
+                                                        /*linterExitCodeTolerant=*/true );
         }
     }
     if( m_ideName.empty() ) { // verbatim mode
@@ -50,8 +50,8 @@ LintCombine::IdeTraitsFactory::getPrepareInputsInstance( stringVector & cmdLine 
     }
     cmdLine.erase( std::remove_if( std::begin( cmdLine ), std::end( cmdLine ),
                    [this]( const std::string & str ) -> bool {
-        return str.find( "--ide-profile" ) == 0 || str == m_ideName;
-    } ), std::end( cmdLine ) );
+                       return str.find( "--ide-profile" ) == 0 || str == m_ideName;
+                   } ), std::end( cmdLine ) );
     if( m_ideName.empty() ) {
         return std::make_unique< PrepareInputsVerbatim >();
     }
@@ -65,6 +65,5 @@ LintCombine::IdeTraitsFactory::getPrepareInputsInstance( stringVector & cmdLine 
     }
 
     return std::make_unique< PrepareInputsOnError >(
-        Level::Error, "\"" + ideNameCopy + "\" is not a supported IDE profile",
-        "FactoryPreparer", 1, 0 );
+        Level::Error, "\"" + ideNameCopy + "\" is not a supported IDE profile", "FactoryPreparer", 1, 0 );
 }

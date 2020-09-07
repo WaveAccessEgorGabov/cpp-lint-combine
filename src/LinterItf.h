@@ -28,8 +28,8 @@ namespace LintCombine {
         Exception( const Diagnostic & diagnostic )
             : m_diagnostics{ diagnostic } {}
 
-        Exception( const std::vector< Diagnostic > & diagnosticsVal )
-            : m_diagnostics( diagnosticsVal ) {}
+        Exception( const std::vector< Diagnostic > & diagnostics )
+            : m_diagnostics( diagnostics ) {}
 
         std::vector< Diagnostic > diagnostics() const {
             return m_diagnostics;

@@ -22,8 +22,7 @@ namespace LintCombine {
 
         bool validateParsedData();
 
-        void checkIsOptionsValueInit( const std::string & optionName,
-            const std::string & option );
+        void checkIsOptionsValueInit( const std::string & optionName, const std::string & option );
 
         bool initLinters();
 
@@ -34,14 +33,12 @@ namespace LintCombine {
     protected:
         virtual void specifyTargetArch() {}
 
-        void addOptionToLinterByName( const std::string & name,
-            const std::string & option );
+        void addOptionToLinterByName( const std::string & name, const std::string & option );
 
         void addOptionToAllLinters( const std::string & option );
 
-        static std::string
-            optionValueToQuotes( const std::string & optionName,
-            const std::string & optionNameWithValue );
+        static std::string optionValueToQuotes( const std::string & optionName,
+                                                const std::string & optionNameWithValue );
 
         virtual void appendLintersOptionToCmdLine();
 
@@ -57,12 +54,12 @@ namespace LintCombine {
                 if( !pathToWorkDirVal.empty() ) {
                     options.emplace_back( "-p=" + pathToWorkDirVal );
                     if constexpr( BOOST_OS_WINDOWS ) {
-                        options.emplace_back( "--export-fixes=" + pathToWorkDirVal +
-                                              "\\diagnosticsClangTidy.yaml" );
+                        options.emplace_back(
+                            "--export-fixes=" + pathToWorkDirVal + "\\diagnosticsClangTidy.yaml" );
                     }
                     if constexpr( BOOST_OS_LINUX ) {
-                        options.emplace_back( "--export-fixes=" + pathToWorkDirVal +
-                                              "/diagnosticsClangTidy.yaml" );
+                        options.emplace_back(
+                            "--export-fixes=" + pathToWorkDirVal + "/diagnosticsClangTidy.yaml" );
                     }
                 }
             }
