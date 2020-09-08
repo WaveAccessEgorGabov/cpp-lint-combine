@@ -47,5 +47,6 @@ namespace LintCombine {
         std::string m_combinedYamlPath;
         LinterFactoryBase::Services & m_services;
         std::vector< Diagnostic > m_diagnostics;
+        auto m_alreadyTriedToGetYamlPath = false;
     };
 }

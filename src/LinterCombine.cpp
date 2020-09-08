@@ -168,6 +168,9 @@ void LintCombine::LinterCombine::initCombinedYamlPath( const StringVector & cmdL
 }
 
 std::string LintCombine::LinterCombine::getYamlPath() {
+    if( m_alreadyTriedToGetYamlPath )
+        return m_combinedYamlPath;
+    m_alreadyTriedToGetYamlPath = true;
     if( !m_combinedYamlPath.empty() ) {
         if( std::filesystem::exists( m_combinedYamlPath ) ) {
             std::ofstream{ m_combinedYamlPath, std::ios_base::trunc };
