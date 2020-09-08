@@ -55,7 +55,8 @@ void LintCombine::LinterCombine::callLinter() {
 }
 
 int LintCombine::LinterCombine::waitLinter() {
-    if( m_linters.empty() ) { return 0; }
+    if( m_linters.empty() )
+        return 0;
     int returnCode = 1;
     m_services.getIOService().run();
     for( const auto & subLinterIt : m_linters ) {
@@ -209,11 +210,11 @@ std::string LintCombine::LinterCombine::getYamlPath() {
     return m_combinedYamlPath;
 }
 
-void LintCombine::LinterCombine::combineYamlFiles( const std::string & yamlPathForAppend ) {
+void LintCombine::LinterCombine::combineYamlFiles( const std::string & yamlPathToAppend ) {
     if( !std::filesystem::exists( m_combinedYamlPath ) ||
         std::filesystem::is_empty( m_combinedYamlPath ) ) {
         try {
-            std::filesystem::copy( yamlPathForAppend, m_combinedYamlPath );
+            std::filesystem::copy( yamlPathToAppend, m_combinedYamlPath );
         }
         catch( const std::exception & ex ) {
             m_diagnostics.emplace_back( Level::Error, ex.what(), "LintCombine", 1, 0 );
@@ -221,9 +222,9 @@ void LintCombine::LinterCombine::combineYamlFiles( const std::string & yamlPathF
     }
     else {
         YAML::Node yamlNodeResult = loadYamlNode( m_combinedYamlPath );
-        YAML::Node yamlNodeForAppend = loadYamlNode( yamlPathForAppend );
+        YAML::Node yamlNodeToAppend = loadYamlNode( yamlPathToAppend );
 
-        for( const auto & diagnostic : yamlNodeForAppend["Diagnostics"] ) {
+        for( const auto & diagnostic : yamlNodeToAppend["Diagnostics"] ) {
             yamlNodeResult["Diagnostics"].push_back( diagnostic );
         }
 

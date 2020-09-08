@@ -53,11 +53,17 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     return { /*successNum=*/ 1, /*failNum=*/ 0 };
 }
 
-std::string LintCombine::LinterBase::getName() const { return name; }
+std::string LintCombine::LinterBase::getName() const {
+    return name;
+}
 
-std::string LintCombine::LinterBase::getOptions() const { return m_options; }
+std::string LintCombine::LinterBase::getOptions() const {
+    return m_options;
+}
 
-std::string LintCombine::LinterBase::getYamlPath() { return yamlPath; }
+std::string LintCombine::LinterBase::getYamlPath() {
+    return yamlPath;
+}
 
 LintCombine::LinterBase::LinterBase( LinterFactoryBase::Services & service )
     : m_stdoutPipe( service.getIOService() ),

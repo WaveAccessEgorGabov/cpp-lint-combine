@@ -6,35 +6,34 @@ LintCombine::StringVector LintCombine::moveCmdLineIntoSTLContainer( const int ar
     for( auto i = 1; i < argc; ++i ) {
         cmdLine.emplace_back( argv[i] );
     }
-    fixHyphensInCmdLine( cmdLine );
+    normalizeHyphensInCmdLine( cmdLine );
     return cmdLine;
 }
 
-void LintCombine::fixHyphensInCmdLine( StringVector & cmdLine ) {
-    enum StrSize{ TwoSymbol = 2, ThreeSymbols = 3 };
-    for( auto & cmdLineElement : cmdLine ) {
-        if( cmdLineElement.find( "--" ) != 0 && cmdLineElement.find( '-' ) == 0 ) {
-            if( cmdLineElement.find( '=' ) != std::string::npos ) {
+void LintCombine::normalizeHyphensInCmdLine( StringVector & cmdLine ) {
+    for( auto & cmdLineElem : cmdLine ) {
+        if( cmdLineElem.find( "--" ) != 0 && cmdLineElem.find( '-' ) == 0 ) {
+            if( cmdLineElem.find( '=' ) != std::string::npos ) {
                 // -param=value -> --param=value
-                if( cmdLineElement.find( '=' ) != StrSize::TwoSymbol ) {
-                    cmdLineElement.insert( 0, "-" );
+                if( cmdLineElem.find( '=' ) != 2 ) {
+                    cmdLineElem.insert( 0, "-" );
                 }
             }
             // -param value -> --param value
-            else if( cmdLineElement.size() > StrSize::TwoSymbol ) {
-                cmdLineElement.insert( 0, "-" );
+            else if( cmdLineElem.size() > 2 ) {
+                cmdLineElem.insert( 0, "-" );
             }
         }
-        if( cmdLineElement.find( "--" ) == 0 ) {
-            if( cmdLineElement.find( '=' ) != std::string::npos ) {
+        if( cmdLineElem.find( "--" ) == 0 ) {
+            if( cmdLineElem.find( '=' ) != std::string::npos ) {
                 // --p=value -> -p=value
-                if( cmdLineElement.find( '=' ) == StrSize::ThreeSymbols ) {
-                    cmdLineElement.erase( cmdLineElement.begin() );
+                if( cmdLineElem.find( '=' ) == 3 ) {
+                    cmdLineElem.erase( cmdLineElem.begin() );
                 }
             }
             // --p value -> -p value
-            else if( cmdLineElement.size() == StrSize::ThreeSymbols ) {
-                cmdLineElement.erase( cmdLineElement.begin() );
+            else if( cmdLineElem.size() == 3 ) {
+                cmdLineElem.erase( cmdLineElem.begin() );
             }
         }
     }
@@ -43,9 +42,11 @@ void LintCombine::fixHyphensInCmdLine( StringVector & cmdLine ) {
 bool LintCombine::isFileCreatable( const std::filesystem::path & filePath ) {
     std::error_code errorCode;
     create_directory( filePath.parent_path(), errorCode );
-    if( errorCode.value() ) { return false; }
+    if( errorCode.value() )
+        return false;
     std::ofstream file( filePath );
-    if( file.fail() ) { return false; }
+    if( file.fail() )
+        return false;
     file.close();
     std::filesystem::remove( filePath );
     return true;

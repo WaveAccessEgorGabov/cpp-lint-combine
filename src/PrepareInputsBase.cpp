@@ -7,9 +7,12 @@ LintCombine::StringVector
 LintCombine::PrepareInputsBase::transformCmdLine( const StringVector & cmdLineVal ) {
     cmdLine = cmdLineVal;
     m_sourceCmdLine = boost::algorithm::join( cmdLineVal, " " );
-    if( parseSourceCmdLine() ) { return {}; }
-    if( validateParsedData() ) { return {}; }
-    if( initLinters() ) { return {}; }
+    if( !parseSourceCmdLine() )
+        return {};
+    if( !validateParsedData() )
+        return {};
+    if( !initLinters() )
+        return {};
     initCmdLine();
     return cmdLine;
 }
@@ -46,27 +49,27 @@ bool LintCombine::PrepareInputsBase::parseSourceCmdLine() {
     }
     catch( const std::exception & ex ) {
         m_diagnostics.emplace_back( Level::Error, ex.what(), "BasePreparer", 1, 0 );
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 
 bool LintCombine::PrepareInputsBase::validateParsedData() {
-    auto errorOccurred = false;
+    auto success = true;
     if( pathToWorkDir.empty() ) {
         m_diagnostics.emplace_back(
             Level::Error, "Path to compilation database is empty.", "BasePreparer", 1, 0 );
-        errorOccurred = true;
+        success = false;
     }
     if( m_pathToCombinedYaml.empty() ) {
         m_diagnostics.emplace_back(
             Level::Error, "Path to yaml-file is empty.", "BasePreparer", 1, 0 );
-        errorOccurred = true;
+        success = false;
     }
     checkIsOptionsValueInit( "clang-extra-args", m_clangExtraArgs );
     checkIsOptionsValueInit( "clazy-checks", m_clazyChecks );
 
-    return errorOccurred;
+    return success;
 }
 
 void LintCombine::PrepareInputsBase::checkIsOptionsValueInit( const std::string & optionName,
@@ -89,7 +92,7 @@ void LintCombine::PrepareInputsBase::checkIsOptionsValueInit( const std::string 
 }
 
 bool LintCombine::PrepareInputsBase::initLinters() {
-    auto errorOccurred = false;
+    auto success = true;
     for( const auto & linterName : m_lintersNames ) {
         if( linterName == "clang-tidy" ) {
             lintersOptions.emplace_back( std::make_unique< ClangTidyOptions >( pathToWorkDir ) );
@@ -114,7 +117,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
             const auto lastPos = firstPos + static_cast< unsigned >( linterName.size() );
             m_diagnostics.emplace_back(
                 Level::Error, "Unknown linter name \"" + linterName + "\"", "BasePreparer", firstPos, lastPos );
-            errorOccurred = true;
+            success = false;
         }
     }
 
@@ -129,7 +132,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
             std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks, separatedClangExtraArgs ) );
         m_diagnostics.emplace_back( Level::Info, "All linters are used", "BasePreparer", 1, 0 );
     }
-    return errorOccurred;
+    return success;
 }
 
 void LintCombine::PrepareInputsBase::initCmdLine() {

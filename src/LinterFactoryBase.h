@@ -28,6 +28,7 @@ namespace LintCombine {
         }
 
         virtual std::unique_ptr< LinterItf > createLinter( const StringVector & cmdLine ) = 0;
+
     protected:
         Services services;
     };

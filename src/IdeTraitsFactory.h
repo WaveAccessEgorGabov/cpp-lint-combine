@@ -20,13 +20,17 @@ namespace LintCombine {
 
         public:
             IdeBehaviorBase( const bool mayYamlFileContainDocLinkVal,
-                const bool linterExitCodeTolerantVal )
+                             const bool linterExitCodeTolerantVal )
                 : m_mayYamlFileContainDocLink( mayYamlFileContainDocLinkVal ),
                 m_linterExitCodeTolerant( linterExitCodeTolerantVal ) {}
 
-            bool mayYamlFileContainDocLink() const override { return m_mayYamlFileContainDocLink; }
+            bool mayYamlFileContainDocLink() const override {
+                return m_mayYamlFileContainDocLink;
+            }
 
-            bool isLinterExitCodeTolerant() const override { return m_linterExitCodeTolerant; }
+            bool isLinterExitCodeTolerant() const override {
+                return m_linterExitCodeTolerant;
+            }
 
         private:
             bool m_mayYamlFileContainDocLink;

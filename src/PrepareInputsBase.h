@@ -9,26 +9,12 @@
 namespace LintCombine {
 
     class PrepareInputsBase : public PrepareInputsItf {
-
     public:
         StringVector transformCmdLine( const StringVector & cmdLineVal ) override;
 
         void transformFiles() override {}
 
         std::vector< Diagnostic > diagnostics() const override;
-
-    private:
-        bool parseSourceCmdLine();
-
-        bool validateParsedData();
-
-        void checkIsOptionsValueInit( const std::string & optionName, const std::string & option );
-
-        bool initLinters();
-
-        void initCmdLine();
-
-        void initCommonOptions();
 
     protected:
         virtual void specifyTargetArch() {}
@@ -97,17 +83,30 @@ namespace LintCombine {
         };
 
     private:
-        std::string  m_pathToCombinedYaml;
-        std::string  m_clazyChecks;
-        std::string  m_clangExtraArgs;
-        StringVector m_lintersNames;
-        std::string  m_sourceCmdLine;
-        std::vector< Diagnostic > m_diagnostics;
+        bool parseSourceCmdLine();
+
+        bool validateParsedData();
+
+        void checkIsOptionsValueInit( const std::string & optionName, const std::string & option );
+
+        bool initLinters();
+
+        void initCmdLine();
+
+        void initCommonOptions();
 
     protected:
         std::string  pathToWorkDir;
         StringVector cmdLine;
         StringVector unrecognizedCollection;
         std::vector< std::unique_ptr< LinterOptionsBase > > lintersOptions;
+
+    private:
+        std::string  m_pathToCombinedYaml;
+        std::string  m_clazyChecks;
+        std::string  m_clangExtraArgs;
+        StringVector m_lintersNames;
+        std::string  m_sourceCmdLine;
+        std::vector< Diagnostic > m_diagnostics;
     };
 }

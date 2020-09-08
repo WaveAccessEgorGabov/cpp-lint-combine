@@ -6,8 +6,10 @@
 LintCombine::StringVector
 LintCombine::PrepareInputsVerbatim::transformCmdLine( const StringVector & cmdLineVal ) {
     m_cmdLine = cmdLineVal;
-    if( validateLinters() ) { return {}; }
-    if( validateCombinedYamlPath() ) { return {}; }
+    if( !validateLinters() )
+        return {};
+    if( !validateCombinedYamlPath() )
+        return {};
     return m_cmdLine;
 }
 
@@ -31,25 +33,24 @@ bool LintCombine::PrepareInputsVerbatim::validateLinters() {
     }
     catch( const std::exception & ex ) {
         m_diagnostics.emplace_back( Level::Error, ex.what(), "VerbatimPreparer", 1, 0 );
-        return true;
+        return false;
     }
 
     if( lintersNames.empty() ) {
         m_diagnostics.emplace_back(
             Level::Error, "No linters specified. Use --sub-linter, see --help.", "VerbatimPreparer", 1, 0 );
-        return true;
+        return false;
     }
 
-    auto errorOccurred = false;
+    auto success = true;
     for( const auto & name : lintersNames ) {
         if( name != "clang-tidy" && name != "clazy" ) {
             m_diagnostics.emplace_back(
                 Level::Error, "Unknown linter name: \"" + name + "\"", "VerbatimPreparer", 1, 0 );
-            errorOccurred = true;
+            success = false;
         }
     }
-    if( errorOccurred ) { return true; }
-    return false;
+    return success;
 }
 
 bool LintCombine::PrepareInputsVerbatim::validateCombinedYamlPath() {
@@ -65,18 +66,18 @@ bool LintCombine::PrepareInputsVerbatim::validateCombinedYamlPath() {
     }
     catch( const std::exception & ex ) {
         m_diagnostics.emplace_back( Level::Error, ex.what(), "VerbatimPreparer", 1, 0 );
-        return true;
+        return false;
     }
     if( combinedYamlPath.empty() ) {
         m_diagnostics.emplace_back(
             Level::Error, "Path to combined YAML-file is not set", "VerbatimPreparer", 1, 0 );
-        return true;
+        return false;
     }
     if( !isFileCreatable( combinedYamlPath ) ) {
         m_diagnostics.emplace_back(
             Level::Error, "Combined YAML-file \"" + combinedYamlPath + "\" is not creatable",
             "VerbatimPreparer", 1, 0 );
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }

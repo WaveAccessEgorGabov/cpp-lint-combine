@@ -39,7 +39,7 @@ namespace LintCombine {
 
         void initCombinedYamlPath( const StringVector & cmdLine );
 
-        void combineYamlFiles( const std::string & yamlPathForAppend );
+        void combineYamlFiles( const std::string & yamlPathToAppend );
 
         YAML::Node loadYamlNode( const std::string & pathToYaml );
 
@@ -47,6 +47,6 @@ namespace LintCombine {
         std::string m_combinedYamlPath;
         LinterFactoryBase::Services & m_services;
         std::vector< Diagnostic > m_diagnostics;
-        auto m_alreadyTriedToGetYamlPath = false;
+        bool m_alreadyTriedToGetYamlPath = false;
     };
 }

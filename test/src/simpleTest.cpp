@@ -165,9 +165,9 @@ namespace TestULF::LinterIsClangTidy {
 }
 
 namespace TestULF::LinterIsCombine {
-    const ULFTestCase::Input input{ {
-        "LinterCombine", "--result-yaml=" CURRENT_BINARY_DIR "mock",
-        "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
+    const ULFTestCase::Input input{
+        { "LinterCombine", "--result-yaml=" CURRENT_BINARY_DIR "mock",
+          "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mock" } };
     const ULFTestCase::Output output{ "LinterCombine" };
 }
 
@@ -193,7 +193,7 @@ BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
         else if( correctResult.returnedObjectTypeName == "ClangTidyWrapper" ) {
             BOOST_CHECK( dynamic_cast< LintCombine::ClangTidyWrapper * >( linter.get() ) );
         }
-        else { /*Error if returnedObjectTypeName contains unknown class name*/BOOST_CHECK( 1 == 2 ); }
+        else { BOOST_CHECK( !"returnedObjectTypeName contains unknown class name" ); }
     }
     else { BOOST_CHECK( !linter ); }
 }
@@ -259,139 +259,157 @@ namespace TestLCC::EmptyCmdLine {
 
 namespace TestLCC::NoLintersSet {
     const LCCTestCase::Input input{ { "--param_1=value_1", "--param_2=value_2" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "No linters specified. Use --sub-linter, see --help.", "LintCombine", 1, 0 } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "No linters specified. Use --sub-linter, see --help.", "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::L1DNE {
     const LCCTestCase::Input input{ { "--sub-linter=NotExistentLinter" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "Unknown linter name: \"NotExistentLinter\"", "LintCombine", 1, 0 } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "Unknown linter name: \"NotExistentLinter\"", "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::L1DNE_L2E {
     const LCCTestCase::Input input{ { "--sub-linter=NotExistentLinter", "--sub-linter=clazy" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "Unknown linter name: \"NotExistentLinter\"", "LintCombine", 1, 0 } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "Unknown linter name: \"NotExistentLinter\"", "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::L1DNE_L2DNE {
-    const LCCTestCase::Input input{ {
-        "--sub-linter=NotExistentLinter_1", "--sub-linter=NotExistentLinter_2" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "Unknown linter name: \"NotExistentLinter_1\"", "LintCombine", 1, 0 } };
+    const LCCTestCase::Input input{
+        { "--sub-linter=NotExistentLinter_1", "--sub-linter=NotExistentLinter_2" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "Unknown linter name: \"NotExistentLinter_1\"", "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::OneLintersVEAES {
     const LCCTestCase::Input input{ { "--sub-linter=" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "the argument for option '--sub-linter' should follow immediately after the equal sign",
-        "LintCombine", 1, 0 } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "the argument for option '--sub-linter' should follow immediately after the equal sign",
+          "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::OneLintersVEASP {
     const LCCTestCase::Input input{ { "--sub-linter" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "the required argument for option '--sub-linter' is missing", "LintCombine", 1, 0 } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "the required argument for option '--sub-linter' is missing", "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::TwoLintersVEAES {
     const LCCTestCase::Input input{ { "--sub-linter=", "--sub-linter=" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "the argument for option '--sub-linter' should follow immediately after the equal sign",
-        "LintCombine", 1, 0 } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "the argument for option '--sub-linter' should follow immediately after the equal sign",
+          "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::TwoLintersVEASP {
     const LCCTestCase::Input input{ { "--sub-linter", "--sub-linter" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "No linters specified. Use --sub-linter, see --help.", "LintCombine", 1, 0 } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "No linters specified. Use --sub-linter, see --help.", "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::CombinedYamlPathVEAES {
     const LCCTestCase::Input input{ { "--result-yaml=", "--sub-linter=clazy" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "the argument for option '--result-yaml' should follow immediately after the equal sign",
-        "LintCombine", 1, 0 } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "the argument for option '--result-yaml' should follow immediately after the equal sign",
+          "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::CombinedYamlPathVEASP {
-    const LCCTestCase::Input input{ {
-        "--result-yaml", "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "Combined YAML-file \"--sub-linter=clazy\" is not creatable", "LintCombine", 1, 0 } };
+    const LCCTestCase::Input input{
+        { "--result-yaml", "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "Combined YAML-file \"--sub-linter=clazy\" is not creatable", "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::CombinedYamlPathVI {
-    const LCCTestCase::Input input{ {
-        "--result-yaml=\\\\", "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "Combined YAML-file \"\\\\\" is not creatable", "LintCombine", 1, 0 } };
+    const LCCTestCase::Input input{
+        { "--result-yaml=\\\\", "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          R"(Combined YAML-file "\\" is not creatable)", "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::LinterYamlPathVEAES {
     const LCCTestCase::Input input{ { "--sub-linter=clazy", "--export-fixes=" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "the argument for option '--export-fixes' should follow immediately after the equal sign",
-        "LintCombine", 1, 0 } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "the argument for option '--export-fixes' should follow immediately after the equal sign",
+          "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::LinterYamlPathVEASP {
-    const LCCTestCase::Input input{ {
-        "--result-yaml=" CURRENT_BINARY_DIR "mockG", "--sub-linter=clazy", "--export-fixes" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "the required argument for option '--export-fixes' is missing", "clazy-standalone", 1, 0 } };
+    const LCCTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG", "--sub-linter=clazy", "--export-fixes" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "the required argument for option '--export-fixes' is missing", "clazy-standalone", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::LinterYamlPathVI {
-    const LCCTestCase::Input input{ {
-        "--result-yaml=" CURRENT_BINARY_DIR "mockG", "--sub-linter=clazy", "--export-fixes=\\\\" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "Linter's YAML-file \"\\\\\" is not creatable", "clazy-standalone", 1, 0 } };
+    const LCCTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG", "--sub-linter=clazy", "--export-fixes=\\\\" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          R"(Linter's YAML-file "\\" is not creatable)", "clazy-standalone", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::ClazyExists {
-    const LCCTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
-        "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
-    const std::vector< LCCTestCase::LinterData > linterData{ {
-        "clazy-standalone", /*options=*/{}, CURRENT_BINARY_DIR "mockL" } };
+    const LCCTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
+          "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
+    const std::vector< LCCTestCase::LinterData > linterData{
+        { "clazy-standalone", /*options=*/{}, CURRENT_BINARY_DIR "mockL" } };
     const LCCTestCase::Output output{ /*diagnostics=*/{}, linterData, /*exceptionOccurred=*/false };
 }
 
 namespace TestLCC::ClangTidyExists {
-    const LCCTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
-        "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
-    const std::vector< LCCTestCase::LinterData > linterData{ {
-        "clang-tidy", /*options=*/{}, CURRENT_BINARY_DIR "mockL" } };
+    const LCCTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
+          "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
+    const std::vector< LCCTestCase::LinterData > linterData{
+        { "clang-tidy", /*options=*/{}, CURRENT_BINARY_DIR "mockL" } };
     const LCCTestCase::Output output{ /*diagnostics=*/{}, linterData, /*exceptionOccurred=*/false };
 }
 
 namespace TestLCC::ClazyEWithOptions {
-    const LCCTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
-        "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL", "CLParam_1", "CLParam_2"} };
-    const std::vector< LCCTestCase::LinterData > linterData{ {
-        "clazy-standalone", "CLParam_1 CLParam_2 ", CURRENT_BINARY_DIR "mockL" } };
+    const LCCTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
+          "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL", "CLParam_1", "CLParam_2"} };
+    const std::vector< LCCTestCase::LinterData > linterData{
+        { "clazy-standalone", "CLParam_1 CLParam_2 ", CURRENT_BINARY_DIR "mockL" } };
     const LCCTestCase::Output output{ /*diagnostics=*/{}, linterData, /*exceptionOccurred=*/false };
 }
 
 namespace TestLCC::ClangTidyAndClazyE {
-    const LCCTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
-        "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_BINARY_DIR "mockL",
-        "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
+    const LCCTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
+          "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_BINARY_DIR "mockL",
+          "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
     const std::vector< LCCTestCase::LinterData > linterData{
         { "clang-tidy",/*options=*/{}, CURRENT_BINARY_DIR "mockL" },
         { "clazy-standalone", /*options=*/{}, CURRENT_BINARY_DIR "mockL" } };
@@ -399,9 +417,10 @@ namespace TestLCC::ClangTidyAndClazyE {
 }
 
 namespace TestLCC::ClangTidyAndClazyEWithOptions {
-    const LCCTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
-        "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_BINARY_DIR "mockL", "CTParam_1", "CTParam_2",
-        "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL", "CLParam_1", "CLParam_2" } };
+    const LCCTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockR",
+          "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_BINARY_DIR "mockL", "CTParam_1", "CTParam_2",
+          "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL", "CLParam_1", "CLParam_2" } };
     const std::vector< LCCTestCase::LinterData > linterData{
         { "clang-tidy", "CTParam_1 CTParam_2 ", CURRENT_BINARY_DIR "mockL" },
         { "clazy-standalone", "CLParam_1 CLParam_2 ", CURRENT_BINARY_DIR "mockL" } };
@@ -442,7 +461,7 @@ BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
         }
     }
     else {
-        LintCombine::LinterCombine combine( sample.input.cmdLine );
+        const LintCombine::LinterCombine combine( sample.input.cmdLine );
         BOOST_CHECK( combine.numLinters() == correctResult.linterData.size() );
         for( size_t i = 0; i < combine.numLinters(); ++i ) {
             const auto & linter = dynamic_cast< LintCombine::LinterBase * >( combine.linterAt( i ).get() );
@@ -495,12 +514,12 @@ struct CWLTestCase {
 
     struct Input {
         Input( const LintCombine::StringVector & cmdLineVal,
-               const LintCombine::StringVector & fileNamesForLinterEndsEarlyTestVal = {} )
+               const LintCombine::StringVector & fileNamesToLinterEndsEarlyTestVal = {} )
             : cmdLine( cmdLineVal ),
-              fileNamesForLinterEndsEarlyTest( fileNamesForLinterEndsEarlyTestVal ) {}
+              fileNamesToLinterEndsEarlyTest( fileNamesToLinterEndsEarlyTestVal ) {}
         LintCombine::StringVector cmdLine;
         // files to check that linter ends early than combine
-        LintCombine::StringVector fileNamesForLinterEndsEarlyTest;
+        LintCombine::StringVector fileNamesToLinterEndsEarlyTest;
     };
 
     CWLTestCase( const Input & inputVal, const Output & outputVal )
@@ -529,27 +548,29 @@ std::string getScriptExtension() {
 }
 
 namespace TestCWL::L1Terminate {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) + CURRENT_SOURCE_DIR
-        "mockPrograms/mockWriteToStdoutAndTerminate.sh stdoutLinter_1" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "All linters failed while running", "LintCombine", 1, 0 } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) + CURRENT_SOURCE_DIR
+          "mockPrograms/mockWriteToStdoutAndTerminate.sh stdoutLinter_1" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const CWLTestCase::Output output{
         diagnostics, stdoutData, /*stderrData=*/{}, /*filesWithContent=*/{}, LintCombine::AllLintersFailed };
 }
 
 namespace TestCWL::L1Terminate_L2WSFR0 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStdoutAndTerminate.sh "
-        "stdoutLinter_1", "--sub-linter=MockLinterWrapper",
-        getRunnerName( "cmd" ) + CURRENT_SOURCE_DIR
-        "mockPrograms/mockWriteToStreamsAndToFile" +
-        getScriptExtension() + " 0 " CURRENT_BINARY_DIR
-        "MockFile_2 fileLinter_2 stdoutLinter_2 stderrLinter_2" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ {
-        LintCombine::Level::Warning, "Some linters failed while running", "LintCombine", 1, 0 } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStdoutAndTerminate.sh "
+          "stdoutLinter_1", "--sub-linter=MockLinterWrapper",
+          getRunnerName( "cmd" ) + CURRENT_SOURCE_DIR
+          "mockPrograms/mockWriteToStreamsAndToFile" +
+          getScriptExtension() + " 0 " CURRENT_BINARY_DIR
+          "MockFile_2 fileLinter_2 stdoutLinter_2 stderrLinter_2" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Warning, "Some linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_2" };
     const std::vector< CWLTestCase::FileData > filesWithContent{ { "MockFile_2", { "fileLinter_2" } } };
@@ -558,26 +579,28 @@ namespace TestCWL::L1Terminate_L2WSFR0 {
 }
 
 namespace TestCWL::L1Terminate_L2Terminate {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStdoutAndTerminate.sh "
-        "stdoutLinter_1", "--sub-linter=MockLinterWrapper",
-        getRunnerName( "bash" ) + CURRENT_SOURCE_DIR
-        "mockPrograms/mockWriteToStdoutAndTerminate.sh stdoutLinter_2" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ {
-        LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStdoutAndTerminate.sh "
+          "stdoutLinter_1", "--sub-linter=MockLinterWrapper",
+          getRunnerName( "bash" ) + CURRENT_SOURCE_DIR
+          "mockPrograms/mockWriteToStdoutAndTerminate.sh stdoutLinter_2" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const CWLTestCase::Output output{
         diagnostics, stdoutData, /*stderrData*/{}, /*filesWithContent*/{}, LintCombine::AllLintersFailed };
 }
 
 namespace TestCWL::L1WSR1 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
-        getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ {
-        LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
+          getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1" };
     const CWLTestCase::Output output{
@@ -585,16 +608,17 @@ namespace TestCWL::L1WSR1 {
 }
 
 namespace TestCWL::L1WSR1_L2WSFR0 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
-        getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
-        getScriptExtension() + " 0 " CURRENT_BINARY_DIR "MockFile_2 "
-        "fileLinter_2 stdoutLinter_2 stderrLinter_2" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ {
-        LintCombine::Level::Warning, "Some linters failed while running", "LintCombine", 1, 0 } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
+          getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
+          getScriptExtension() + " 0 " CURRENT_BINARY_DIR "MockFile_2 "
+          "fileLinter_2 stdoutLinter_2 stderrLinter_2" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Warning, "Some linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const std::vector< CWLTestCase::FileData > filesWithContent{ { "MockFile_2", { "fileLinter_2" } } };
@@ -603,15 +627,16 @@ namespace TestCWL::L1WSR1_L2WSFR0 {
 }
 
 namespace TestCWL::L1R1_L2R1 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
-        getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
-        getScriptExtension() + " 2 stdoutLinter_2 stderrLinter_2" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ {
-        LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
+          getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
+          getScriptExtension() + " 2 stdoutLinter_2 stderrLinter_2" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const CWLTestCase::Output output{
@@ -619,10 +644,11 @@ namespace TestCWL::L1R1_L2R1 {
 }
 
 namespace TestCWL::L1WSR0 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
-        getScriptExtension() + " 0 stdoutLinter_1 stderrLinter_1" } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
+          getScriptExtension() + " 0 stdoutLinter_1 stderrLinter_1" } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1" };
     const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, stderrData,
@@ -630,20 +656,22 @@ namespace TestCWL::L1WSR0 {
 }
 
 namespace TestCWL::L1WFR0 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToFile" +
-        getScriptExtension() + " 0 MockFile_1 fileLinter_1" } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToFile" +
+          getScriptExtension() + " 0 MockFile_1 fileLinter_1" } };
     const std::vector< CWLTestCase::FileData > filesWithContent{ { "MockFile_1", { "fileLinter_1" } } };
     const CWLTestCase::Output output{ /*diagnostics*/{}, /*stdoutData*/{}, /*stderrData*/{},
                                       filesWithContent, LintCombine::AllLintersSucceeded };
 }
 
 namespace TestCWL::L1WSFR0 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
-        getScriptExtension() + " 0 MockFile_1 fileLinter_1 " "stdoutLinter_1 stderrLinter_1" } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
+          getScriptExtension() + " 0 MockFile_1 fileLinter_1 " "stdoutLinter_1 stderrLinter_1" } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1" };
     const std::vector< CWLTestCase::FileData > filesWithContent{ { "MockFile_1", { "fileLinter_1" } } };
@@ -652,13 +680,14 @@ namespace TestCWL::L1WSFR0 {
 }
 
 namespace TestCWL::L1WSR0_L2WSR0 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
-        getScriptExtension() + " 0 stdoutLinter_1 stderrLinter_1",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
-        getScriptExtension() + " 0 stdoutLinter_2 stderrLinter_2" } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
+          getScriptExtension() + " 0 stdoutLinter_1 stderrLinter_1",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
+          getScriptExtension() + " 0 stdoutLinter_2 stderrLinter_2" } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, stderrData,
@@ -666,13 +695,14 @@ namespace TestCWL::L1WSR0_L2WSR0 {
 }
 
 namespace TestCWL::L1WFR0_L2WFR0 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToFile" +
-        getScriptExtension() + " 0 MockFile_1 fileLinter_1",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToFile" +
-        getScriptExtension() + " 0 MockFile_2 fileLinter_2" } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToFile" +
+          getScriptExtension() + " 0 MockFile_1 fileLinter_1",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToFile" +
+          getScriptExtension() + " 0 MockFile_2 fileLinter_2" } };
     const std::vector< CWLTestCase::FileData > filesWithContent{
         { "MockFile_1", { "fileLinter_1" } }, { "MockFile_2", { "fileLinter_2" } } };
     const CWLTestCase::Output output{ /*diagnostics*/{}, /*stdoutData*/{}, /*stderrData*/{},
@@ -680,15 +710,16 @@ namespace TestCWL::L1WFR0_L2WFR0 {
 }
 
 namespace TestCWL::L1WSFR0_L2WSFR0 {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
-        getScriptExtension() + " 0 MockFile_1 fileLinter_1 "
-        "stdoutLinter_1 stderrLinter_1",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
-        getScriptExtension() + " 0 MockFile_2 fileLinter_2 "
-        "stdoutLinter_2 stderrLinter_2" } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
+          getScriptExtension() + " 0 MockFile_1 fileLinter_1 "
+          "stdoutLinter_1 stderrLinter_1",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
+          getScriptExtension() + " 0 MockFile_2 fileLinter_2 "
+          "stdoutLinter_2 stderrLinter_2" } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const std::vector< CWLTestCase::FileData > filesWithContent{
@@ -698,32 +729,35 @@ namespace TestCWL::L1WSFR0_L2WSFR0 {
 }
 
 namespace TestCWL::LintersWorkInParallel {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh 0 0.5 mes_1 mes_3",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh 0 0.25 mes_2" } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh 0 0.5 mes_1 mes_3",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh 0 0.25 mes_2" } };
     const LintCombine::StringVector stdoutData{ "mes_1\nmes_2\nmes_3\n" };
     const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, /*stderrData*/{},
                                       /*filesWithContent*/{}, LintCombine::AllLintersSucceeded };
 }
 
 namespace TestCWL::OneLinterEETC {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
-        CURRENT_BINARY_DIR "file_1.txt" }, { CURRENT_BINARY_DIR "file_1.txt" } };
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+          CURRENT_BINARY_DIR "file_1.txt" }, { CURRENT_BINARY_DIR "file_1.txt" } };
     const CWLTestCase::Output output{ /*diagnostics=*/{}, /*stdoutData=*/{}, /*stderrData=*/{},
                                       /*filesWithContent=*/{}, LintCombine::AllLintersSucceeded };
 }
 
 namespace TestCWL::TwoLinterEETC {
-    const CWLTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-        "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
-        CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
-        CURRENT_BINARY_DIR "file_1.txt", "--sub-linter=MockLinterWrapper",
-        getRunnerName( "bash" ) + CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
-        CURRENT_BINARY_DIR "file_2.txt" },
+    const CWLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
+          CURRENT_BINARY_DIR "file_1.txt", "--sub-linter=MockLinterWrapper",
+          getRunnerName( "bash" ) + CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
+          CURRENT_BINARY_DIR "file_2.txt" },
         { CURRENT_BINARY_DIR "file_1.txt", CURRENT_BINARY_DIR "file_2.txt" } };
     const CWLTestCase::Output output{ /*diagnostics=*/{}, /*stdoutData=*/{}, /*stderrData=*/{},
                                       /*filesWithContent=*/{}, LintCombine::AllLintersSucceeded };
@@ -748,7 +782,7 @@ const CWLTestCase CWLTestCaseData[] = {
 };
 
 BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
-    for( const auto & fileName : sample.input.fileNamesForLinterEndsEarlyTest ) {
+    for( const auto & fileName : sample.input.fileNamesToLinterEndsEarlyTest ) {
         std::ofstream{ fileName };
     }
     const auto & correctResult = static_cast< CWLTestCase::Output >( sample.output );
@@ -777,7 +811,7 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
         std::filesystem::remove( itFile.filename );
     }
     compareDiagnostics( combine.diagnostics(), correctResult.diagnostics );
-    for( const auto & fileName : sample.input.fileNamesForLinterEndsEarlyTest ) {
+    for( const auto & fileName : sample.input.fileNamesToLinterEndsEarlyTest ) {
         BOOST_CHECK( !std::filesystem::exists( fileName ) );
         std::filesystem::remove( fileName );
     }
@@ -802,12 +836,12 @@ struct UYTestCase {
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
                 const LintCombine::CallTotals & callTotalsVal,
-                const pairStrStrVec & filesForCompareVal )
+                const pairStrStrVec & filesToCompareVal )
             : diagnostics( diagnosticsVal ), callTotals( callTotalsVal ),
-              filesForCompare( filesForCompareVal ) {}
+              filesToCompare( filesToCompareVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
         LintCombine::CallTotals callTotals;
-        pairStrStrVec filesForCompare;
+        pairStrStrVec filesToCompare;
     };
 
     struct Input {
@@ -833,13 +867,13 @@ std::ostream & operator<<( std::ostream & os, UYTestCase ) {
 namespace TestUY::L1YPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error,
-          "YAML-file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 },
+          "YAML-file path \"NoneExistentFile\" doesn't exist", "LinterBase", 1, 0 },
         { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const UYTestCase::Input input{
         { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-          "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile" } };
+          "--sub-linter=MockLinterWrapper", "defaultLinter", "NoneExistentFile" } };
     const UYTestCase::Output output{
-        diagnostics, { /*successNum=*/0, /*failNum=*/1 }, /*filesForCompare=*/{}};
+        diagnostics, { /*successNum=*/0, /*failNum=*/1 }, /*filesToCompare=*/{}};
 }
 
 namespace TestUY::L1YPEmpty {
@@ -849,14 +883,14 @@ namespace TestUY::L1YPEmpty {
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "" } };
     const UYTestCase::Output output{
-        diagnostics, { /*successNum=*/0, /*failNum=*/1 }, /*filesForCompare=*/{}};
+        diagnostics, { /*successNum=*/0, /*failNum=*/1 }, /*filesToCompare=*/{}};
 }
 
 namespace TestUY::L1YPEmpty_L2YPE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error, "YAML-file path \"\" doesn't exist", "LinterBase", 1, 0 },
         { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
-    const pairStrStrVec filesForCompare{
+    const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_save.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
@@ -864,7 +898,7 @@ namespace TestUY::L1YPEmpty_L2YPE {
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
                                      CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" } };
     const UYTestCase::Output output{
-        diagnostics, { /*successNum=*/1, /*failNum=*/1 }, filesForCompare };
+        diagnostics, { /*successNum=*/1, /*failNum=*/1 }, filesToCompare };
 }
 
 namespace TestUY::TwoLintersYPEmpty {
@@ -876,48 +910,48 @@ namespace TestUY::TwoLintersYPEmpty {
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "" } };
     const UYTestCase::Output output{
-        diagnostics, { /*successNum=*/0, /*failNum=*/2 }, /*filesForCompare=*/{} };
+        diagnostics, { /*successNum=*/0, /*failNum=*/2 }, /*filesToCompare=*/{} };
 }
 
 namespace TestUY::L1YPE_L2YPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error,
-          "YAML-file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 },
+          "YAML-file path \"NoneExistentFile\" doesn't exist", "LinterBase", 1, 0 },
         { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
-    const pairStrStrVec filesForCompare{
+    const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_save.yaml" ) };
-    const UYTestCase::Input input{ {
-            "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-            "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile",
-            "--sub-linter=MockLinterWrapper", "defaultLinter",
-            CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" } };
-    const UYTestCase::Output output{ diagnostics, { /*successNum=*/1, /*failNum=*/1 }, filesForCompare };
+    const UYTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=MockLinterWrapper", "defaultLinter", "NoneExistentFile",
+          "--sub-linter=MockLinterWrapper", "defaultLinter",
+          CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" } };
+    const UYTestCase::Output output{ diagnostics, { /*successNum=*/1, /*failNum=*/1 }, filesToCompare };
 }
 
 namespace TestUY::TwoLintersYPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Error, "YAML-file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Error, "YAML-file path \"NotExistentFile\" doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Error, "YAML-file path \"NoneExistentFile\" doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Error, "YAML-file path \"NoneExistentFile\" doesn't exist", "LinterBase", 1, 0 },
         { LintCombine::Level::Error, "Updating 2 YAML-files failed", "LintCombine", 1, 0 } };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NotExistentFile" } };
-    const UYTestCase::Output output{ diagnostics, { /*successNum=*/0, /*failNum=*/2 }, /*filesForCompare=*/{} };
+                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NoneExistentFile",
+                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NoneExistentFile" } };
+    const UYTestCase::Output output{ diagnostics, { /*successNum=*/0, /*failNum=*/2 }, /*filesToCompare=*/{} };
 }
 
 namespace TestUY::L1_YPE {
-    const pairStrStrVec filesForCompare{
+    const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
                         CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_save.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
                                      CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" } };
-    const UYTestCase::Output output{ /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesForCompare };
+    const UYTestCase::Output output{ /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
 }
 
 namespace TestUY::L1YPE_L2YPE {
-    const pairStrStrVec filesForCompare{
+    const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
                         CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_save.yaml" ),
         std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml",
@@ -928,11 +962,11 @@ namespace TestUY::L1YPE_L2YPE {
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
                                      CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" } };
     const UYTestCase::Output output{
-        /*diagnostics=*/{}, { /*successNum=*/2, /*failNum=*/0 }, filesForCompare };
+        /*diagnostics=*/{}, { /*successNum=*/2, /*failNum=*/0 }, filesToCompare };
 }
 
 namespace TestUY::clangTidyUpdateYaml {
-    const pairStrStrVec filesForCompare{
+    const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1_result.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
@@ -940,11 +974,11 @@ namespace TestUY::clangTidyUpdateYaml {
                                      CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" },
                                      LintCombine::UsualLinterFactory::getInstance() };
     const UYTestCase::Output output{
-        /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesForCompare };
+        /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
 }
 
 namespace TestUY::clazyUpdateYaml {
-    const pairStrStrVec filesForCompare{
+    const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_result.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
@@ -952,7 +986,7 @@ namespace TestUY::clazyUpdateYaml {
                                      CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml" },
                                      LintCombine::UsualLinterFactory::getInstance() };
     const UYTestCase::Output output{
-        /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesForCompare };
+        /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
 }
 
 const UYTestCase UYTestCaseData[] = {
@@ -976,7 +1010,7 @@ BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
     BOOST_CHECK( callTotals.successNum == correctResult.callTotals.successNum );
     BOOST_CHECK( callTotals.failNum == correctResult.callTotals.failNum );
     compareDiagnostics( combine.diagnostics(), correctResult.diagnostics );
-    for( const auto & [lhs, rhs] : correctResult.filesForCompare ) {
+    for( const auto & [lhs, rhs] : correctResult.filesToCompare ) {
         std::ifstream yamlFile( lhs );
         std::ifstream yamlFileSave( rhs );
         std::istream_iterator< char > fileIter( yamlFile ), end;
@@ -1004,12 +1038,12 @@ using pairStrStrVec = std::vector< std::pair< std::string, std::string > >;
 struct MYTestCase {
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const pairStrStrVec & filesForCompareVal,
+                const pairStrStrVec & filesToCompareVal,
                 const std::string & pathToCombinedYamlVal )
-            : diagnostics( diagnosticsVal ), filesForCompare( filesForCompareVal ),
+            : diagnostics( diagnosticsVal ), filesToCompare( filesToCompareVal ),
               pathToCombinedYaml( pathToCombinedYamlVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
-        pairStrStrVec filesForCompare;
+        pairStrStrVec filesToCompare;
         std::string pathToCombinedYaml;
     };
 
@@ -1032,80 +1066,79 @@ std::ostream & operator<<( std::ostream & os, MYTestCase ) {
 }
 
 namespace TestMY::L1YPDNE {
-    const MYTestCase::Input input{ {
-        "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
-        "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_SOURCE_DIR "NotExistentFile" } };
+    const MYTestCase::Input input{
+        { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+          "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_SOURCE_DIR "NoneExistentFile" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Warning,
-          "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" doesn't exist",
+          "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NoneExistentFile\" doesn't exist",
           "LintCombine", 1, 0 },
         { LintCombine::Level::Error, "Combined YAML-file isn't created", "LintCombine", 1, 0 } };
     const MYTestCase::Output output{
-        diagnostics, /*filesForCompare=*/{}, /*resultPathToCombinedYaml=*/{} };
+        diagnostics, /*filesToCompare=*/{}, /*resultPathToCombinedYaml=*/{} };
 }
 
 namespace TestMY::L1YPE {
-    const MYTestCase::Input input{ {
-        "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" } };
+    const MYTestCase::Input input{
+        { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+          "--sub-linter=clang-tidy",
+          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" } };
     std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
-    const pairStrStrVec filesForCompare{
+    const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" ) };
-    const MYTestCase::Output output{ /*diagnostics=*/{}, filesForCompare, resultPathToCombinedYaml };
+    const MYTestCase::Output output{ /*diagnostics=*/{}, filesToCompare, resultPathToCombinedYaml };
 }
 
 namespace TestMY::L1YPE_L2YPDNE {
-    const MYTestCase::Input input{ {
-        "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" CURRENT_SOURCE_DIR "NotExistentFile"} };
+    const MYTestCase::Input input{
+        { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+          "--sub-linter=clang-tidy",
+          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
+          "--sub-linter=clang-tidy",
+          "--export-fixes=" CURRENT_SOURCE_DIR "NoneExistentFile"} };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Warning,
-          "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" doesn't exist",
+          "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NoneExistentFile\" doesn't exist",
           "LintCombine", 1, 0 } };
     std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
-    const pairStrStrVec filesForCompare{
+    const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" ) };
-    const MYTestCase::Output output{ diagnostics, filesForCompare, resultPathToCombinedYaml };
+    const MYTestCase::Output output{ diagnostics, filesToCompare, resultPathToCombinedYaml };
 }
 
 namespace TestMY::TwoLintersYPDNE {
     const MYTestCase::Input input{ {
         "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
         "--sub-linter=clang-tidy",
-        "--export-fixes=" CURRENT_SOURCE_DIR "NotExistentFile",
+        "--export-fixes=" CURRENT_SOURCE_DIR "NoneExistentFile",
         "--sub-linter=clang-tidy",
-        "--export-fixes=" CURRENT_SOURCE_DIR "NotExistentFile"} };
+        "--export-fixes=" CURRENT_SOURCE_DIR "NoneExistentFile"} };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Warning,
-          "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" doesn't exist",
+          "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NoneExistentFile\" doesn't exist",
           "LintCombine", 1, 0 },
         { LintCombine::Level::Warning,
-          "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NotExistentFile\" doesn't exist",
+          "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NoneExistentFile\" doesn't exist",
           "LintCombine", 1, 0 },
         { LintCombine::Level::Error, "Combined YAML-file isn't created", "LintCombine", 1, 0 } };
-    const MYTestCase::Output output{
-        diagnostics, /*filesForCompare=*/{}, /*resultPathToCombinedYaml=*/{} };
+    const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{}, /*resultPathToCombinedYaml=*/{} };
 }
 
 namespace TestMY::TwoLintersYPE {
-    const MYTestCase::Input input{ {
-        "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
-        "--sub-linter=clang-tidy",
-        "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml"} };
+    const MYTestCase::Input input{
+        { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+          "--sub-linter=clang-tidy",
+          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
+          "--sub-linter=clang-tidy",
+          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml"} };
     std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
-    const pairStrStrVec filesForCompare{
+    const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/combinedResult_save.yaml" ) };
     const MYTestCase::Output output{
-        /*diagnostics=*/{}, filesForCompare, resultPathToCombinedYaml };
+        /*diagnostics=*/{}, filesToCompare, resultPathToCombinedYaml };
 }
 
 const MYTestCase MYTestCaseData[] = {
@@ -1128,7 +1161,7 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
         BOOST_REQUIRE( std::filesystem::exists( correctResult.pathToCombinedYaml ) );
     }
     compareDiagnostics( combine.diagnostics(), correctResult.diagnostics );
-    for( const auto & [lhs, rhs] : correctResult.filesForCompare ) {
+    for( const auto & [lhs, rhs] : correctResult.filesToCompare ) {
         std::ifstream yamlFile( lhs );
         std::ifstream yamlFileSave( rhs );
         std::istream_iterator< char > fileIter( yamlFile ), end;
@@ -1160,8 +1193,9 @@ BOOST_AUTO_TEST_SUITE( TestPrepareCommandLine )
 
 constexpr bool YAML_MUST_CONTAIN_DOCLINK = true;
 constexpr bool YAML_MUST_NOT_CONTAIN_DOCLINK = false;
-constexpr bool LINTER_EXIT_CODE_MUST_BE_TOLERANT = true;
-constexpr bool LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT = false;
+constexpr bool TOLERANT_TO_LINTER_EXIT_CODE = true;
+constexpr bool INTOLERANT_TO_LINTER_EXIT_CODE = false;
+
 #ifdef _WIN32
     #define PATH_SEP "\\"
 #else
@@ -1204,15 +1238,15 @@ void setUpIdeBehaviour( const std::string & ideName,
     if( ideName == "CLion" ) {
         yamlContainsDocLink = YAML_MUST_NOT_CONTAIN_DOCLINK;
         if constexpr( BOOST_OS_WINDOWS ) {
-            linterExitCodeTolerant = LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT;
+            linterExitCodeTolerant = INTOLERANT_TO_LINTER_EXIT_CODE;
         }
         if constexpr( BOOST_OS_LINUX ) {
-            linterExitCodeTolerant = LINTER_EXIT_CODE_MUST_BE_TOLERANT;
+            linterExitCodeTolerant = TOLERANT_TO_LINTER_EXIT_CODE;
         }
     }
     if( ideName == "ReSharper" ) {
         yamlContainsDocLink = YAML_MUST_CONTAIN_DOCLINK;
-        linterExitCodeTolerant = LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT;
+        linterExitCodeTolerant = INTOLERANT_TO_LINTER_EXIT_CODE;
     }
 }
 
@@ -1221,7 +1255,7 @@ namespace TestPCL::EmptyCmdLine {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error, "Command Line is empty", "FactoryPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::Verbatim_LintersDNE {
@@ -1231,17 +1265,17 @@ namespace TestPCL::Verbatim_LintersDNE {
         { LintCombine::Level::Error, "No linters specified. Use --sub-linter, see --help.",
           "VerbatimPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::Verbatim_L1IN {
-    const PCLTestCase::Input input{ {
-        "--sub-linter=Incorrect", "--param=value", "-p=val", "--param", "val" } };
+    const PCLTestCase::Input input{
+        { "--sub-linter=Incorrect", "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 },
         { LintCombine::Level::Error, "Unknown linter name: \"Incorrect\"", "VerbatimPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::Verbatim_L1IN_L2IN {
@@ -1252,52 +1286,52 @@ namespace TestPCL::Verbatim_L1IN_L2IN {
         { LintCombine::Level::Error, "Unknown linter name: \"Incorrect_1\"", "VerbatimPreparer", 1, 0 },
         { LintCombine::Level::Error, "Unknown linter name: \"Incorrect_2\"", "VerbatimPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::Verbatim_L1CN {
-    const PCLTestCase::Input input{ {
-        "--result-yaml=" CURRENT_BINARY_DIR "file.yaml",
-        "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
+    const PCLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "file.yaml",
+          "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 } };
     const LintCombine::StringVector resultCmdLine{ input.cmdLine };
     const PCLTestCase::Output output{ diagnostics, resultCmdLine,
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::Verbatim_L1CN_L2CN {
-    const PCLTestCase::Input input{ {
-        "--result-yaml=" CURRENT_BINARY_DIR "file.yaml", "--sub-linter=clazy",
-        "--sub-linter=clang-tidy", "--param=value", "-p=val", "--param", "val" } };
+    const PCLTestCase::Input input{
+        { "--result-yaml=" CURRENT_BINARY_DIR "file.yaml", "--sub-linter=clazy",
+          "--sub-linter=clang-tidy", "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 } };
     const LintCombine::StringVector resultCmdLine{
         "--result-yaml=" CURRENT_BINARY_DIR "file.yaml", "--sub-linter=clazy",
         "--sub-linter=clang-tidy", "--param=value", "-p=val", "--param", "val" };
     const PCLTestCase::Output output{ diagnostics, resultCmdLine,
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::Verbatim_CombinedYamlDNE {
-    const PCLTestCase::Input input{ {
-        "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
+    const PCLTestCase::Input input{
+        { "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 },
         { LintCombine::Level::Error, "Path to combined YAML-file is not set", "VerbatimPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::Verbatim_CombinedYamlIN {
-    const PCLTestCase::Input input{ {
-        "--result-yaml=\\\\", "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
+    const PCLTestCase::Input input{
+        { "--result-yaml=\\\\", "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 },
         { LintCombine::Level::Error,
-          "Combined YAML-file \"\\\\\" is not creatable", "VerbatimPreparer", 1, 0 } };
+          R"(Combined YAML-file "\\" is not creatable)", "VerbatimPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::UnsupportedIDE {
@@ -1309,12 +1343,13 @@ namespace TestPCL::UnsupportedIDE {
 }
 
 namespace TestPCL::SpecifiedTwice {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase", "-p=pathToCompilationDataBase" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase", "-p=pathToCompilationDataBase" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
           "option '--p' cannot be specified more than once", "BasePreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::GenYamlPathEmpty {
@@ -1322,7 +1357,7 @@ namespace TestPCL::GenYamlPathEmpty {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error, "Path to yaml-file is empty.", "BasePreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::CompilationDBEmpty {
@@ -1330,7 +1365,7 @@ namespace TestPCL::CompilationDBEmpty {
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error, "Path to compilation database is empty.", "BasePreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::RequiredOptionsE {
@@ -1417,40 +1452,43 @@ namespace TestPCL::ReSharperHeaderFilterPassed {
         "--export-fixes=pathToCompilationDataBase"
         PATH_SEP "diagnosticsClazy.yaml", "--header-filter=file.cpp" };
     const PCLTestCase::Output output{ diagnostics, resultCmdLine,
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::CLChecksEmptyAES {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--clazy-checks=" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--clazy-checks=" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
           "the argument for option '--clazy-checks' should follow immediately after the equal sign",
           "FactoryPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::ClangExtraArgsEmptyAES {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--clang-extra-args=" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--clang-extra-args=" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
           "the argument for option '--clang-extra-args' should follow immediately after the equal sign",
           "FactoryPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::ParamsEmptyAES {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--clazy-checks=", "--clang-extra-args=" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--clazy-checks=", "--clang-extra-args=" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
           "the argument for option '--clazy-checks' should follow immediately after the equal sign",
           "FactoryPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::CLChecksEmptyASP {
@@ -1583,8 +1621,8 @@ namespace TestPCL::ClangXArgsE {
 namespace TestPCL::ParamsEAES {
     PCLTestCase::Input input( const std::string & ideName ) {
         return { { "--ide-profile=" + ideName,
-            "-p=pathToCompilationDataBase", "--export-fixes=pathToResultYaml",
-            "--clazy-checks=level0,level1", "--clang-extra-args=arg_1 arg_2 " } };
+                   "-p=pathToCompilationDataBase", "--export-fixes=pathToResultYaml",
+                   "--clazy-checks=level0,level1", "--clang-extra-args=arg_1 arg_2 " } };
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
@@ -1606,114 +1644,120 @@ namespace TestPCL::ParamsEAES {
 }
 
 namespace TestPCL::LinterEmptyAES {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--sub-linter=" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--sub-linter=" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
           "the argument for option '--sub-linter' should follow immediately after the equal sign",
           "FactoryPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::L1FIN_L2EAES {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--sub-linter=IncorrectName_1", "--sub-linter=" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--sub-linter=IncorrectName_1", "--sub-linter=" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
           "the argument for option '--sub-linter' should follow immediately after the equal sign",
           "FactoryPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::L1EmptyAES_L2IN {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--sub-linter=", "--sub-linter=IncorrectName_1" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--sub-linter=", "--sub-linter=IncorrectName_1" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
           "the argument for option '--sub-linter' should follow immediately after the equal sign",
           "FactoryPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::L1EmptyAES_L2EmptyAES {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--sub-linter=", "--sub-linter=" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "the argument for option '--sub-linter' should follow immediately after the equal sign",
-        "FactoryPreparer", 1, 0 } };
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--sub-linter=", "--sub-linter=" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "the argument for option '--sub-linter' should follow immediately after the equal sign",
+          "FactoryPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::L1Empty {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--sub-linter" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "the required argument for option '--sub-linter' is missing", "BasePreparer", 1, 0 } };
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--sub-linter" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "the required argument for option '--sub-linter' is missing", "BasePreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 
 }
 
 namespace TestPCL::L1IN_L2EmptyASP {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--sub-linter", "IncorrectName_1", "--sub-linter" } };
-    const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
-        "the required argument for option '--sub-linter' is missing", "BasePreparer", 1, 0 } };
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--sub-linter", "IncorrectName_1", "--sub-linter" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Error,
+          "the required argument for option '--sub-linter' is missing", "BasePreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::L1EmptyASP_L2IN {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--sub-linter", "--sub-linter", "IncorrectName_1" } };
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--sub-linter", "--sub-linter", "IncorrectName_1" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "All linters are used", "BasePreparer", 1, 0 },
         { LintCombine::Level::Error, "Unknown linter name \"--sub-linter\"", "BasePreparer", 74, 86 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::L1EmptyASP_L2EmptyASP {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--sub-linter", "--sub-linter" } };
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--sub-linter", "--sub-linter" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "All linters are used", "BasePreparer", 1, 0 },
         { LintCombine::Level::Error, "Unknown linter name \"--sub-linter\"", "BasePreparer", 74, 86 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::L1IN {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml", "--sub-linter=IncorrectName_1" } };
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml", "--sub-linter=IncorrectName_1" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "All linters are used", "BasePreparer", 1, 0 },
         { LintCombine::Level::Error, "Unknown linter name \"IncorrectName_1\"", "BasePreparer", 74, 89 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::L1IN_L2IN {
-    const PCLTestCase::Input input{ {
-        "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
-        "--export-fixes=pathToResultYaml",
-        "--sub-linter=IncorrectName_1", "--sub-linter=IncorrectName_2" } };
+    const PCLTestCase::Input input{
+        { "--ide-profile=ReSharper", "-p=pathToCompilationDataBase",
+          "--export-fixes=pathToResultYaml",
+          "--sub-linter=IncorrectName_1", "--sub-linter=IncorrectName_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "All linters are used", "BasePreparer", 1, 0 },
         { LintCombine::Level::Error, "Unknown linter name \"IncorrectName_1\"", "BasePreparer", 74, 89 },
         { LintCombine::Level::Error, "Unknown linter name \"IncorrectName_2\"", "BasePreparer", 103, 118 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
-                                      YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
+                                      YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
 
 namespace TestPCL::LinterIsCT {

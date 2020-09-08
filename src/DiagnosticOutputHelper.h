@@ -4,11 +4,11 @@
 
 namespace LintCombine {
 
-    class DiagnosticWorker {
+    class DiagnosticOutputHelper {
 
     public:
-        explicit DiagnosticWorker( const StringVector & cmdLineVal,
-                                   const bool isCmdLineEmptyVal )
+        explicit DiagnosticOutputHelper( const StringVector & cmdLineVal,
+                                         const bool isCmdLineEmptyVal )
             : m_cmdLine( cmdLineVal ), m_isCmdLineEmpty( isCmdLineEmptyVal ) {}
 
         bool printDiagnostics( std::vector< Diagnostic > && diagnostics ) const;

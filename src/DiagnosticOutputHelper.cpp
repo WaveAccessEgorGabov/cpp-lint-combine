@@ -1,4 +1,4 @@
-#include "DiagnosticWorker.h"
+#include "DiagnosticOutputHelper.h"
 #include PATH_TO_VERSION_RESOURCE
 
 #include <boost/algorithm/string/join.hpp>
@@ -7,14 +7,14 @@
 
 #include <iostream>
 
-std::string LintCombine::DiagnosticWorker::helpStr() {
+std::string LintCombine::DiagnosticOutputHelper::helpStr() {
     boost::program_options::options_description optDesc( /*line_length=*/100 );
     optDesc.add_options()
         ( "help",             "Print this message." )
         ( "ide-profile",      "Choose IDE: ReSharper C++, CLion. By default options will pass verbatim." )
         ( "result-yaml",      "Path to YAML with diagnostics from all linters." )
-        ( "sub-linter",       "Linter to use. You can use this param several times to set "
-                              "several linters. Supported linters are: clang-tidy, clazy." )
+        ( "sub-linter",       "Linter to use (may be specified several times). "
+                              "Supported linters are: clang-tidy, clazy." )
         ( "clazy-checks",     "Comma-separated list of clazy checks. Default is level1." )
         ( "clang-extra-args", "Additional argument to append to the compiler command line." );
     std::string helpStr;
@@ -22,44 +22,38 @@ std::string LintCombine::DiagnosticWorker::helpStr() {
     return helpStr;
 }
 
-std::string LintCombine::DiagnosticWorker::howToPrintHelpStr() {
+std::string LintCombine::DiagnosticOutputHelper::howToPrintHelpStr() {
     boost::program_options::options_description optDesc;
     optDesc.add_options() (
         "help", "Display all available options." );
     return boost::lexical_cast< std::string >( optDesc );
 }
 
-void LintCombine::DiagnosticWorker::sortDiagnostics( std::vector< Diagnostic > & diagnostics ) const {
-    std::sort( std::begin( diagnostics ), std::end( diagnostics ),
-               []( const Diagnostic & lhs, const Diagnostic & rhs ) {
-        if( lhs.level == rhs.level ) {
-            return lhs.firstPos < rhs.firstPos;
-        }
-        return lhs.level < rhs.level;
-    } );
+void LintCombine::DiagnosticOutputHelper::sortDiagnostics( std::vector< Diagnostic > & diagnostics ) const {
+    std::sort( std::begin( diagnostics ), std::end( diagnostics ) );
 }
 
-std::string LintCombine::DiagnosticWorker::productInfoStr() {
+std::string LintCombine::DiagnosticOutputHelper::productInfoStr() {
     return PRODUCTNAME_STR " " PRODUCTVERSION_STR "\n\n";
 }
 
-bool LintCombine::DiagnosticWorker::printDiagnostics( std::vector< Diagnostic > & diagnostics ) const {
+bool LintCombine::DiagnosticOutputHelper::printDiagnostics( std::vector< Diagnostic > & diagnostics ) const {
     return printDiagnosticsBase( diagnostics );
 }
 
-bool LintCombine::DiagnosticWorker::printDiagnostics( std::vector< Diagnostic > && diagnostics ) const {
+bool LintCombine::DiagnosticOutputHelper::printDiagnostics( std::vector< Diagnostic > && diagnostics ) const {
     return printDiagnosticsBase( diagnostics );
 }
 
-bool LintCombine::DiagnosticWorker::printDiagnosticsBase( std::vector< Diagnostic > & diagnostics ) const {
+bool LintCombine::DiagnosticOutputHelper::printDiagnosticsBase( std::vector< Diagnostic > & diagnostics ) const {
     if( m_isCmdLineEmpty ) {
         std::cout << productInfoStr();
         std::cout << howToPrintHelpStr();
         return true;
     }
 
-    for( const auto & cmdLineEl : m_cmdLine ) {
-        if( cmdLineEl == "--help" ) {
+    for( const auto & cmdLineElem : m_cmdLine ) {
+        if( cmdLineElem == "--help" ) {
             std::cout << helpStr();
             return true;
         }
@@ -73,7 +67,7 @@ bool LintCombine::DiagnosticWorker::printDiagnosticsBase( std::vector< Diagnosti
 }
 
 LintCombine::StringVector
-LintCombine::DiagnosticWorker::prepareOutput( std::vector< Diagnostic > & diagnostics ) const {
+LintCombine::DiagnosticOutputHelper::prepareOutput( std::vector< Diagnostic > & diagnostics ) const {
     sortDiagnostics( diagnostics );
     const auto sourceCmdLine = boost::algorithm::join( m_cmdLine, " " );
     StringVector preparedOutput;

@@ -7,7 +7,7 @@
 namespace LintCombine {
     StringVector moveCmdLineIntoSTLContainer( int argc, char ** argv );
 
-    void fixHyphensInCmdLine( StringVector & cmdLine );
+    void normalizeHyphensInCmdLine( StringVector & cmdLine );
 
     bool isFileCreatable( const std::filesystem::path & filePath );
 }

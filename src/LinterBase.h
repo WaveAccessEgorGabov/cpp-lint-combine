@@ -8,7 +8,6 @@
 
 namespace LintCombine {
     class LinterBase : public LinterItf {
-
     public:
         void callLinter() override;
 
