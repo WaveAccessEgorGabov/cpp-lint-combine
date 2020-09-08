@@ -3,8 +3,8 @@
 
 #include <boost/program_options.hpp>
 
-LintCombine::stringVector
-LintCombine::PrepareInputsVerbatim::transformCmdLine( const stringVector & cmdLineVal ) {
+LintCombine::StringVector
+LintCombine::PrepareInputsVerbatim::transformCmdLine( const StringVector & cmdLineVal ) {
     m_cmdLine = cmdLineVal;
     if( validateLinters() ) { return {}; }
     if( validateCombinedYamlPath() ) { return {}; }
@@ -19,10 +19,10 @@ LintCombine::PrepareInputsVerbatim::diagnostics() const {
 bool LintCombine::PrepareInputsVerbatim::validateLinters() {
     m_diagnostics.emplace_back(
         Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 );
-    stringVector lintersNames;
+    StringVector lintersNames;
     boost::program_options::options_description optDesc;
     optDesc.add_options()(
-        "sub-linter", boost::program_options::value< stringVector >( &lintersNames ) );
+        "sub-linter", boost::program_options::value< StringVector >( &lintersNames ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( m_cmdLine ).

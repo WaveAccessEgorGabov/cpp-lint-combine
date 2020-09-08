@@ -9,7 +9,7 @@ namespace LintCombine {
 }
 
 int main( int argc, char * argv[] ) {
-    LintCombine::stringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
+    LintCombine::StringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto prepareInputs = ideTraitsFactory.getPrepareInputsInstance( cmdLine );
     const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );

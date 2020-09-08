@@ -17,7 +17,7 @@ std::vector<LintCombine::Diagnostic> LintCombine::LinterCombine::diagnostics() c
     return diagnosticsFromAllLinters;
 }
 
-LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
+LintCombine::LinterCombine::LinterCombine( const StringVector & cmdLine,
                                            LinterFactoryBase & factory )
     : m_services( factory.getServices() )
 {
@@ -27,7 +27,7 @@ LintCombine::LinterCombine::LinterCombine( const stringVector & cmdLine,
         throw Exception( m_diagnostics );
     }
 
-    const std::vector< stringVector > lintersCmdLines = splitCmdLineBySubLinters( cmdLine );
+    const std::vector< StringVector > lintersCmdLines = splitCmdLineBySubLinters( cmdLine );
 
     if( lintersCmdLines.empty() ) {
         m_diagnostics.emplace_back(
@@ -96,12 +96,12 @@ size_t LintCombine::LinterCombine::numLinters() const noexcept {
     return m_linters.size();
 }
 
-std::vector< LintCombine::stringVector >
-LintCombine::LinterCombine::splitCmdLineBySubLinters( const stringVector & cmdLine ) {
-    stringVector lintersNames;
+std::vector< LintCombine::StringVector >
+LintCombine::LinterCombine::splitCmdLineBySubLinters( const StringVector & cmdLine ) {
+    StringVector lintersNames;
     boost::program_options::options_description optDesc;
     optDesc.add_options()(
-        "sub-linter", boost::program_options::value< stringVector >( &lintersNames ) );
+        "sub-linter", boost::program_options::value< StringVector >( &lintersNames ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( cmdLine ).
@@ -113,8 +113,8 @@ LintCombine::LinterCombine::splitCmdLineBySubLinters( const stringVector & cmdLi
         throw Exception( m_diagnostics );
     }
 
-    stringVector currentSubLinter;
-    std::vector< stringVector > subLintersVec;
+    StringVector currentSubLinter;
+    std::vector< StringVector > subLintersVec;
     for( size_t i = 0, linterNum = 0; i < cmdLine.size(); ++i ) {
         if( linterNum != lintersNames.size() && cmdLine[i] ==
             "--sub-linter=" + lintersNames[linterNum] ) {
@@ -138,7 +138,7 @@ LintCombine::LinterCombine::splitCmdLineBySubLinters( const stringVector & cmdLi
     return subLintersVec;
 }
 
-void LintCombine::LinterCombine::initCombinedYamlPath( const stringVector & cmdLine ) {
+void LintCombine::LinterCombine::initCombinedYamlPath( const StringVector & cmdLine ) {
     boost::program_options::options_description optDesc;
     optDesc.add_options()(
         "result-yaml", boost::program_options::value< std::string >( &m_combinedYamlPath ) );

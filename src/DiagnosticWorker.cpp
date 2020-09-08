@@ -72,11 +72,11 @@ bool LintCombine::DiagnosticWorker::printDiagnosticsBase( std::vector< Diagnosti
     return false;
 }
 
-LintCombine::stringVector
+LintCombine::StringVector
 LintCombine::DiagnosticWorker::prepareOutput( std::vector< Diagnostic > & diagnostics ) const {
     sortDiagnostics( diagnostics );
     const auto sourceCmdLine = boost::algorithm::join( m_cmdLine, " " );
-    stringVector preparedOutput;
+    StringVector preparedOutput;
     auto errorOccurred = false;
     for( const auto & diagnostic : diagnostics ) {
         std::string levelAsString;

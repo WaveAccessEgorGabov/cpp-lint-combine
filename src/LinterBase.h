@@ -32,11 +32,11 @@ namespace LintCombine {
 
         explicit LinterBase( LinterFactoryBase::Services & service );
 
-        explicit LinterBase( const stringVector & cmdLine,
+        explicit LinterBase( const StringVector & cmdLine,
                              LinterFactoryBase::Services & service,
                              const std::string & nameVal );
 
-        void parseCmdLine( const stringVector & cmdLine );
+        void parseCmdLine( const StringVector & cmdLine );
 
         virtual void updateYamlData( YAML::Node & yamlNode ) const = 0;
 

@@ -36,7 +36,7 @@ private:
 
 namespace LintCombine {
     struct MockLinterWrapper final : LinterBase {
-        MockLinterWrapper( const stringVector & cmdLine,
+        MockLinterWrapper( const StringVector & cmdLine,
                            LinterFactoryBase::Services & service ) : LinterBase( service ) {
             name = cmdLine[1];
             if( cmdLine.size() >= 3 ) {
@@ -62,7 +62,7 @@ namespace LintCombine {
         }
 
         std::unique_ptr< LinterItf >
-            createLinter( const stringVector & cmdLine ) override {
+            createLinter( const StringVector & cmdLine ) override {
             if( *cmdLine.begin() == "MockLinterWrapper" ) {
                 return std::make_unique< MockLinterWrapper >( cmdLine, getServices() );
             }
@@ -99,8 +99,8 @@ void compareDiagnostics( const std::vector< LintCombine::Diagnostic > & lhs,
     BOOST_CHECK( diagnosticsToCompare.empty() ); // diagnostics are equal
 }
 
-void compareContainers( const LintCombine::stringVector & lhs,
-                        const LintCombine::stringVector & rhs ) {
+void compareContainers( const LintCombine::StringVector & lhs,
+                        const LintCombine::StringVector & rhs ) {
     BOOST_REQUIRE( lhs.size() == rhs.size() );
     for( size_t i = 0; i < lhs.size(); ++i ) {
         BOOST_CHECK( lhs[i] == rhs[i] );
@@ -128,9 +128,9 @@ struct ULFTestCase {
     };
 
     struct Input {
-        Input( const LintCombine::stringVector & cmdLineVal )
+        Input( const LintCombine::StringVector & cmdLineVal )
             : cmdLine( cmdLineVal ) {}
-        LintCombine::stringVector cmdLine;
+        LintCombine::StringVector cmdLine;
     };
 
     ULFTestCase( const Input & inputVal, const Output & outputVal )
@@ -235,8 +235,8 @@ struct LCCTestCase {
     };
 
     struct Input {
-        Input( const LintCombine::stringVector & cmdLineVal ) : cmdLine( cmdLineVal ) {}
-        LintCombine::stringVector cmdLine;
+        Input( const LintCombine::StringVector & cmdLineVal ) : cmdLine( cmdLineVal ) {}
+        LintCombine::StringVector cmdLine;
     };
 
     LCCTestCase( const Input & inputVal, const Output & outputVal )
@@ -472,35 +472,35 @@ BOOST_AUTO_TEST_SUITE( TestCallAndWaitLinter )
 struct CWLTestCase {
     struct FileData {
         FileData( const std::string & filenameVal,
-                  const LintCombine::stringVector & fileDataVal )
+                  const LintCombine::StringVector & fileDataVal )
             : filename( filenameVal ), fileData( fileDataVal ) {}
         std::string filename;
-        LintCombine::stringVector fileData;
+        LintCombine::StringVector fileData;
     };
 
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const LintCombine::stringVector & stdoutDataVal,
-                const LintCombine::stringVector & stderrDataVal,
+                const LintCombine::StringVector & stdoutDataVal,
+                const LintCombine::StringVector & stderrDataVal,
                 const std::vector< FileData > & filesWithContentVal, const int returnCodeVal )
             : diagnostics( diagnosticsVal ), stdoutData( stdoutDataVal ),
               stderrData( stderrDataVal ), filesWithContent( filesWithContentVal ),
               returnCode( returnCodeVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
-        LintCombine::stringVector stdoutData;
-        LintCombine::stringVector stderrData;
+        LintCombine::StringVector stdoutData;
+        LintCombine::StringVector stderrData;
         std::vector< FileData > filesWithContent;
         int returnCode;
     };
 
     struct Input {
-        Input( const LintCombine::stringVector & cmdLineVal,
-               const LintCombine::stringVector & fileNamesForLinterEndsEarlyTestVal = {} )
+        Input( const LintCombine::StringVector & cmdLineVal,
+               const LintCombine::StringVector & fileNamesForLinterEndsEarlyTestVal = {} )
             : cmdLine( cmdLineVal ),
               fileNamesForLinterEndsEarlyTest( fileNamesForLinterEndsEarlyTestVal ) {}
-        LintCombine::stringVector cmdLine;
+        LintCombine::StringVector cmdLine;
         // files to check that linter ends early than combine
-        LintCombine::stringVector fileNamesForLinterEndsEarlyTest;
+        LintCombine::StringVector fileNamesForLinterEndsEarlyTest;
     };
 
     CWLTestCase( const Input & inputVal, const Output & outputVal )
@@ -534,7 +534,7 @@ namespace TestCWL::L1Terminate {
         "mockPrograms/mockWriteToStdoutAndTerminate.sh stdoutLinter_1" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{ { LintCombine::Level::Error,
         "All linters failed while running", "LintCombine", 1, 0 } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const CWLTestCase::Output output{
         diagnostics, stdoutData, /*stderrData=*/{}, /*filesWithContent=*/{}, LintCombine::AllLintersFailed };
 }
@@ -550,8 +550,8 @@ namespace TestCWL::L1Terminate_L2WSFR0 {
         "MockFile_2 fileLinter_2 stdoutLinter_2 stderrLinter_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{ {
         LintCombine::Level::Warning, "Some linters failed while running", "LintCombine", 1, 0 } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
-    const LintCombine::stringVector stderrData{ "stderrLinter_2" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
+    const LintCombine::StringVector stderrData{ "stderrLinter_2" };
     const std::vector< CWLTestCase::FileData > filesWithContent{ { "MockFile_2", { "fileLinter_2" } } };
     const CWLTestCase::Output output{
         diagnostics, stdoutData, stderrData, filesWithContent, LintCombine::SomeLintersFailed };
@@ -566,7 +566,7 @@ namespace TestCWL::L1Terminate_L2Terminate {
         "mockPrograms/mockWriteToStdoutAndTerminate.sh stdoutLinter_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{ {
         LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const CWLTestCase::Output output{
         diagnostics, stdoutData, /*stderrData*/{}, /*filesWithContent*/{}, LintCombine::AllLintersFailed };
 }
@@ -578,8 +578,8 @@ namespace TestCWL::L1WSR1 {
         getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{ {
         LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1" };
-    const LintCombine::stringVector stderrData{ "stderrLinter_1" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
+    const LintCombine::StringVector stderrData{ "stderrLinter_1" };
     const CWLTestCase::Output output{
         diagnostics, stdoutData, stderrData, /*filesWithContent*/{}, LintCombine::AllLintersFailed };
 }
@@ -595,8 +595,8 @@ namespace TestCWL::L1WSR1_L2WSFR0 {
         "fileLinter_2 stdoutLinter_2 stderrLinter_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{ {
         LintCombine::Level::Warning, "Some linters failed while running", "LintCombine", 1, 0 } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
-    const LintCombine::stringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
+    const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const std::vector< CWLTestCase::FileData > filesWithContent{ { "MockFile_2", { "fileLinter_2" } } };
     const CWLTestCase::Output output{
         diagnostics, stdoutData, stderrData, filesWithContent, LintCombine::SomeLintersFailed };
@@ -612,8 +612,8 @@ namespace TestCWL::L1R1_L2R1 {
         getScriptExtension() + " 2 stdoutLinter_2 stderrLinter_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{ {
         LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
-    const LintCombine::stringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
+    const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const CWLTestCase::Output output{
         diagnostics, stdoutData, stderrData, /*filesWithContent*/{}, LintCombine::AllLintersFailed };
 }
@@ -623,8 +623,8 @@ namespace TestCWL::L1WSR0 {
         "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
         CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
         getScriptExtension() + " 0 stdoutLinter_1 stderrLinter_1" } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1" };
-    const LintCombine::stringVector stderrData{ "stderrLinter_1" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
+    const LintCombine::StringVector stderrData{ "stderrLinter_1" };
     const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, stderrData,
                                       /*filesWithContent*/{}, LintCombine::AllLintersSucceeded };
 }
@@ -644,8 +644,8 @@ namespace TestCWL::L1WSFR0 {
         "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
         CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
         getScriptExtension() + " 0 MockFile_1 fileLinter_1 " "stdoutLinter_1 stderrLinter_1" } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1" };
-    const LintCombine::stringVector stderrData{ "stderrLinter_1" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
+    const LintCombine::StringVector stderrData{ "stderrLinter_1" };
     const std::vector< CWLTestCase::FileData > filesWithContent{ { "MockFile_1", { "fileLinter_1" } } };
     const CWLTestCase::Output output{
         /*diagnostics*/{}, stdoutData, stderrData, filesWithContent, LintCombine::AllLintersSucceeded };
@@ -659,8 +659,8 @@ namespace TestCWL::L1WSR0_L2WSR0 {
         "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
         CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
         getScriptExtension() + " 0 stdoutLinter_2 stderrLinter_2" } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
-    const LintCombine::stringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
+    const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, stderrData,
                                       /*filesWithContent*/{}, LintCombine::AllLintersSucceeded };
 }
@@ -689,8 +689,8 @@ namespace TestCWL::L1WSFR0_L2WSFR0 {
         CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
         getScriptExtension() + " 0 MockFile_2 fileLinter_2 "
         "stdoutLinter_2 stderrLinter_2" } };
-    const LintCombine::stringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
-    const LintCombine::stringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
+    const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
+    const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const std::vector< CWLTestCase::FileData > filesWithContent{
         { "MockFile_1", { "fileLinter_1" } }, { "MockFile_2", { "fileLinter_2" } } };
     const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, stderrData,
@@ -703,7 +703,7 @@ namespace TestCWL::LintersWorkInParallel {
         CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh 0 0.5 mes_1 mes_3",
         "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
         CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh 0 0.25 mes_2" } };
-    const LintCombine::stringVector stdoutData{ "mes_1\nmes_2\nmes_3\n" };
+    const LintCombine::StringVector stdoutData{ "mes_1\nmes_2\nmes_3\n" };
     const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, /*stderrData*/{},
                                       /*filesWithContent*/{}, LintCombine::AllLintersSucceeded };
 }
@@ -811,11 +811,11 @@ struct UYTestCase {
     };
 
     struct Input {
-        Input( const LintCombine::stringVector & cmdLineVal,
+        Input( const LintCombine::StringVector & cmdLineVal,
                LintCombine::LinterFactoryBase & factoryVal =
                LintCombine::MocksLinterFactory::getInstance() )
             : cmdLine( cmdLineVal ), factory( factoryVal ) {}
-        LintCombine::stringVector cmdLine;
+        LintCombine::StringVector cmdLine;
         LintCombine::LinterFactoryBase & factory;
     };
 
@@ -1014,9 +1014,9 @@ struct MYTestCase {
     };
 
     struct Input {
-        Input( const LintCombine::stringVector & cmdLineVal )
+        Input( const LintCombine::StringVector & cmdLineVal )
             : cmdLine( cmdLineVal ) {}
-        LintCombine::stringVector cmdLine;
+        LintCombine::StringVector cmdLine;
     };
 
     MYTestCase( const Input & inputVal,
@@ -1171,20 +1171,20 @@ constexpr bool LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT = false;
 // PCL means PrepareCommandLine
 struct PCLTestCase {
     struct Input {
-        Input( const LintCombine::stringVector & cmdLineVal ) : cmdLine( cmdLineVal ) {}
-        LintCombine::stringVector cmdLine;
+        Input( const LintCombine::StringVector & cmdLineVal ) : cmdLine( cmdLineVal ) {}
+        LintCombine::StringVector cmdLine;
     };
 
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const LintCombine::stringVector & resultCmdLineVal,
+                const LintCombine::StringVector & resultCmdLineVal,
                 const std::optional< bool > & mayYamlFileContainDocLinkVal,
                 const std::optional< bool > & linterExitCodeTolerantVal )
             : diagnostics( diagnosticsVal ), resultCmdLine( resultCmdLineVal ),
               mayYamlFileContainDocLink( mayYamlFileContainDocLinkVal ),
               linterExitCodeTolerant( linterExitCodeTolerantVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
-        LintCombine::stringVector resultCmdLine;
+        LintCombine::StringVector resultCmdLine;
         std::optional< bool > mayYamlFileContainDocLink;
         std::optional< bool > linterExitCodeTolerant;
     };
@@ -1261,7 +1261,7 @@ namespace TestPCL::Verbatim_L1CN {
         "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 } };
-    const LintCombine::stringVector resultCmdLine{ input.cmdLine };
+    const LintCombine::StringVector resultCmdLine{ input.cmdLine };
     const PCLTestCase::Output output{ diagnostics, resultCmdLine,
                                       YAML_MUST_CONTAIN_DOCLINK, LINTER_EXIT_CODE_MUST_NOT_BE_TOLERANT };
 }
@@ -1272,7 +1272,7 @@ namespace TestPCL::Verbatim_L1CN_L2CN {
         "--sub-linter=clang-tidy", "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 } };
-    const LintCombine::stringVector resultCmdLine{
+    const LintCombine::StringVector resultCmdLine{
         "--result-yaml=" CURRENT_BINARY_DIR "file.yaml", "--sub-linter=clazy",
         "--sub-linter=clang-tidy", "--param=value", "-p=val", "--param", "val" };
     const PCLTestCase::Output output{ diagnostics, resultCmdLine,
@@ -1340,7 +1340,7 @@ namespace TestPCL::RequiredOptionsE {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--sub-linter=clazy",
@@ -1363,7 +1363,7 @@ namespace TestPCL::CTOptionsPassed {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--param_1", "@param_2",
@@ -1386,7 +1386,7 @@ namespace TestPCL::FilesPassed {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "file_1.cpp", "file_2.cpp",
@@ -1409,7 +1409,7 @@ namespace TestPCL::ReSharperHeaderFilterPassed {
         "--export-fixes=pathToResultYaml", "--header-filter=file.cpp" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "All linters are used", "BasePreparer", 1, 0 } };
-    const LintCombine::stringVector resultCmdLine{
+    const LintCombine::StringVector resultCmdLine{
         "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
         "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
         PATH_SEP "diagnosticsClangTidy.yaml", "--header-filter=file.cpp",
@@ -1460,7 +1460,7 @@ namespace TestPCL::CLChecksEmptyASP {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--sub-linter=clazy",
@@ -1486,7 +1486,7 @@ namespace TestPCL::ClangXArgsEmptyASP {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--sub-linter=clazy",
@@ -1512,7 +1512,7 @@ namespace TestPCL::ParamsEmptyASP {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--sub-linter=clazy",
@@ -1541,7 +1541,7 @@ namespace TestPCL::CLChecksE {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--sub-linter=clazy",
@@ -1564,7 +1564,7 @@ namespace TestPCL::ClangXArgsE {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--sub-linter=clazy",
@@ -1588,7 +1588,7 @@ namespace TestPCL::ParamsEAES {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--sub-linter=clazy",
@@ -1723,7 +1723,7 @@ namespace TestPCL::LinterIsCT {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml" };
@@ -1742,7 +1742,7 @@ namespace TestPCL::LinterIsCL {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clazy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClazy.yaml" };
@@ -1761,7 +1761,7 @@ namespace TestPCL::AllLintersAES {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--sub-linter=clazy",
@@ -1783,7 +1783,7 @@ namespace TestPCL::AllLintersASP {
     }
 
     PCLTestCase::Output output( const std::string & ideName ) {
-        const LintCombine::stringVector resultCmdLine{
+        const LintCombine::StringVector resultCmdLine{
             "--result-yaml=pathToResultYaml", "--sub-linter=clang-tidy",
             "-p=pathToCompilationDataBase", "--export-fixes=pathToCompilationDataBase"
             PATH_SEP "diagnosticsClangTidy.yaml", "--sub-linter=clazy",
@@ -1877,11 +1877,11 @@ BOOST_AUTO_TEST_SUITE( TestSpecifyTargetArch )
 void checkTargetArch( const std::string & macrosDir,
                       const std::string & targetTriple = std::string() ) {
     if constexpr( !BOOST_OS_WINDOWS ) { return; }
-    LintCombine::stringVector cmdLine = {
+    LintCombine::StringVector cmdLine = {
         "--ide-profile=CLion", "-p=" CURRENT_SOURCE_DIR "CLionTestsMacros/"
         + macrosDir, "--export-fixes=pathToResultYaml"
     };
-    LintCombine::stringVector result;
+    LintCombine::StringVector result;
     if( !targetTriple.empty() ) {
         const std::string extraArg =
             "--extra-arg-before=\"--target=" + targetTriple + "\"";

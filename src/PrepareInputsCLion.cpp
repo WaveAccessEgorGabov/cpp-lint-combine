@@ -34,7 +34,7 @@ void LintCombine::PrepareInputsCLion::specifyTargetArch() {
 }
 
 void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
-    stringVector filesToAnalyze;
+    StringVector filesToAnalyze;
     for( auto & unrecognized : unrecognizedCollection ) {
         if constexpr( BOOST_OS_WINDOWS ) {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );

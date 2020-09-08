@@ -30,7 +30,7 @@ LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
 };
 
 std::unique_ptr< LintCombine::PrepareInputsItf >
-LintCombine::IdeTraitsFactory::getPrepareInputsInstance( stringVector & cmdLine ) {
+LintCombine::IdeTraitsFactory::getPrepareInputsInstance( StringVector & cmdLine ) {
     if( cmdLine.empty() ) {
         return std::make_unique< PrepareInputsOnError >(
             Level::Error, "Command Line is empty", "FactoryPreparer", 1, 0 );

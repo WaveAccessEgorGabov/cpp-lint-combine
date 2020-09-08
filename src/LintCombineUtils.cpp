@@ -1,8 +1,8 @@
 #include "LintCombineUtils.h"
 #include <fstream>
 
-LintCombine::stringVector LintCombine::moveCmdLineIntoSTLContainer( const int argc, char ** argv ) {
-    stringVector cmdLine;
+LintCombine::StringVector LintCombine::moveCmdLineIntoSTLContainer( const int argc, char ** argv ) {
+    StringVector cmdLine;
     for( auto i = 1; i < argc; ++i ) {
         cmdLine.emplace_back( argv[i] );
     }
@@ -10,7 +10,7 @@ LintCombine::stringVector LintCombine::moveCmdLineIntoSTLContainer( const int ar
     return cmdLine;
 }
 
-void LintCombine::fixHyphensInCmdLine( stringVector & cmdLine ) {
+void LintCombine::fixHyphensInCmdLine( StringVector & cmdLine ) {
     enum StrSize{ TwoSymbol = 2, ThreeSymbols = 3 };
     for( auto & cmdLineElement : cmdLine ) {
         if( cmdLineElement.find( "--" ) != 0 && cmdLineElement.find( '-' ) == 0 ) {

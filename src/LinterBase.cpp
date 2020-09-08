@@ -63,7 +63,7 @@ LintCombine::LinterBase::LinterBase( LinterFactoryBase::Services & service )
     : m_stdoutPipe( service.getIOService() ),
       m_stderrPipe( service.getIOService() ) {}
 
-LintCombine::LinterBase::LinterBase( const stringVector & cmdLine,
+LintCombine::LinterBase::LinterBase( const StringVector & cmdLine,
                                      LinterFactoryBase::Services & service,
                                      const std::string & nameVal )
     : name( nameVal ), m_stdoutPipe( service.getIOService() ),
@@ -71,7 +71,7 @@ LintCombine::LinterBase::LinterBase( const stringVector & cmdLine,
     parseCmdLine( cmdLine );
 }
 
-void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
+void LintCombine::LinterBase::parseCmdLine( const StringVector & cmdLine ) {
     boost::program_options::options_description optDesc;
     optDesc.add_options()(
         "export-fixes", boost::program_options::value< std::string >( &yamlPath ) );
@@ -84,7 +84,7 @@ void LintCombine::LinterBase::parseCmdLine( const stringVector & cmdLine ) {
             .options( optDesc ).allow_unregistered().run();
         store( parsed, vm );
         notify( vm );
-        const stringVector linterOptions =
+        const StringVector linterOptions =
             collect_unrecognized( parsed.options,
                                   boost::program_options::include_positional );
         for( const auto & option : linterOptions ) {

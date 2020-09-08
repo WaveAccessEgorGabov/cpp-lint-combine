@@ -42,7 +42,7 @@ namespace LintCombine {
                 : m_diagnostics{ Diagnostic( levelVal, textVal, originVal,
                                              firstPosVal, lastPosVal ) } {}
 
-            stringVector transformCmdLine( const stringVector & commandLine ) override {
+            StringVector transformCmdLine( const StringVector & commandLine ) override {
                 for( const auto & diagnostic : m_diagnostics ) {
                     if( diagnostic.level == Level::Error || diagnostic.level == Level::Fatal ) {
                         return {};
@@ -61,7 +61,7 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        std::unique_ptr< PrepareInputsItf > getPrepareInputsInstance( stringVector & cmdLine );
+        std::unique_ptr< PrepareInputsItf > getPrepareInputsInstance( StringVector & cmdLine );
 
         std::unique_ptr< IdeBehaviorItf > getIdeBehaviorInstance();
 

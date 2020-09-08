@@ -1,6 +1,6 @@
 #include "ClazyWrapper.h"
 
-LintCombine::ClazyWrapper::ClazyWrapper( const stringVector & cmdLine,
+LintCombine::ClazyWrapper::ClazyWrapper( const StringVector & cmdLine,
     LinterFactoryBase::Services & service )
     // TODO: "--standalone" for clazy installed binary (in Linux)
     : LinterBase( cmdLine, service, /*name=*/"clazy-standalone" ) {}

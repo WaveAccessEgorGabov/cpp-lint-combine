@@ -11,7 +11,7 @@ namespace LintCombine {
     class PrepareInputsBase : public PrepareInputsItf {
 
     public:
-        stringVector transformCmdLine( const stringVector & cmdLineVal ) override;
+        StringVector transformCmdLine( const StringVector & cmdLineVal ) override;
 
         void transformFiles() override {}
 
@@ -44,7 +44,7 @@ namespace LintCombine {
 
         struct LinterOptionsBase {
             std::string name;
-            stringVector options;
+            StringVector options;
         };
 
         struct ClangTidyOptions : LinterOptionsBase {
@@ -100,14 +100,14 @@ namespace LintCombine {
         std::string  m_pathToCombinedYaml;
         std::string  m_clazyChecks;
         std::string  m_clangExtraArgs;
-        stringVector m_lintersNames;
+        StringVector m_lintersNames;
         std::string  m_sourceCmdLine;
         std::vector< Diagnostic > m_diagnostics;
 
     protected:
         std::string  pathToWorkDir;
-        stringVector cmdLine;
-        stringVector unrecognizedCollection;
+        StringVector cmdLine;
+        StringVector unrecognizedCollection;
         std::vector< std::unique_ptr< LinterOptionsBase > > lintersOptions;
     };
 }

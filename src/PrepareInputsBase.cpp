@@ -3,8 +3,8 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/join.hpp>
 
-LintCombine::stringVector
-LintCombine::PrepareInputsBase::transformCmdLine( const stringVector & cmdLineVal ) {
+LintCombine::StringVector
+LintCombine::PrepareInputsBase::transformCmdLine( const StringVector & cmdLineVal ) {
     cmdLine = cmdLineVal;
     m_sourceCmdLine = boost::algorithm::join( cmdLineVal, " " );
     if( parseSourceCmdLine() ) { return {}; }
@@ -31,7 +31,7 @@ bool LintCombine::PrepareInputsBase::parseSourceCmdLine() {
         ( "p",
           boost::program_options::value< std::string >( &pathToWorkDir )->implicit_value( {} ) )
         ( "sub-linter",
-          boost::program_options::value< stringVector >( &m_lintersNames ) );
+          boost::program_options::value< StringVector >( &m_lintersNames ) );
     boost::program_options::variables_map vm;
     try {
         const boost::program_options::parsed_options parsed =
@@ -97,7 +97,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
         else if( linterName == "clazy" ) {
             std::istringstream iss( m_clangExtraArgs );
             const auto separatedClangExtraArgs =
-                stringVector( std::istream_iterator< std::string >{ iss },
+                StringVector( std::istream_iterator< std::string >{ iss },
                               std::istream_iterator< std::string > {} );
             lintersOptions.emplace_back(
                 std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks, separatedClangExtraArgs) );
@@ -122,7 +122,7 @@ bool LintCombine::PrepareInputsBase::initLinters() {
         // Use all linters by default
         std::istringstream iss( m_clangExtraArgs );
         const auto separatedClangExtraArgs =
-            stringVector( std::istream_iterator< std::string >{ iss },
+            StringVector( std::istream_iterator< std::string >{ iss },
                           std::istream_iterator< std::string > {} );
         lintersOptions.emplace_back( std::make_unique< ClangTidyOptions >( pathToWorkDir ) );
         lintersOptions.emplace_back(

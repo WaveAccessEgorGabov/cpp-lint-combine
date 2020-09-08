@@ -3,7 +3,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 void LintCombine::PrepareInputsReSharper::appendLintersOptionToCmdLine() {
-    stringVector filesToAnalyze;
+    StringVector filesToAnalyze;
     for( auto & unrecognized : unrecognizedCollection ) {
         boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         std::string strToCompare = "--config=";

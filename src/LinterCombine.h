@@ -17,7 +17,7 @@ namespace LintCombine {
 
     public:
         explicit LinterCombine(
-            const stringVector & cmdLine,
+            const StringVector & cmdLine,
             LinterFactoryBase & factory = UsualLinterFactory::getInstance() );
 
         void callLinter() override;
@@ -35,9 +35,9 @@ namespace LintCombine {
         std::vector< Diagnostic > diagnostics() const override;
 
     private:
-        std::vector< stringVector > splitCmdLineBySubLinters( const stringVector & cmdLine );
+        std::vector< StringVector > splitCmdLineBySubLinters( const StringVector & cmdLine );
 
-        void initCombinedYamlPath( const stringVector & cmdLine );
+        void initCombinedYamlPath( const StringVector & cmdLine );
 
         void combineYamlFiles( const std::string & yamlPathForAppend );
 

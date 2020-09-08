@@ -7,7 +7,7 @@ namespace LintCombine {
     class PrepareInputsVerbatim final : public PrepareInputsItf {
 
     public:
-        stringVector transformCmdLine( const stringVector & cmdLineVal ) override;
+        StringVector transformCmdLine( const StringVector & cmdLineVal ) override;
 
         void transformFiles() override {}
 
@@ -18,7 +18,7 @@ namespace LintCombine {
 
         bool validateCombinedYamlPath();
 
-        stringVector m_cmdLine;
+        StringVector m_cmdLine;
         std::vector< Diagnostic > m_diagnostics;
     };
 }

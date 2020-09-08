@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace LintCombine {
-    using stringVector = std::vector< std::string >;
+    using StringVector = std::vector< std::string >;
 
     struct LinterItf {
         virtual ~LinterItf() = default;
