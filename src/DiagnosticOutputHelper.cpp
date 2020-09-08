@@ -29,10 +29,6 @@ std::string LintCombine::DiagnosticOutputHelper::howToPrintHelpStr() {
     return boost::lexical_cast< std::string >( optDesc );
 }
 
-void LintCombine::DiagnosticOutputHelper::sortDiagnostics( std::vector< Diagnostic > & diagnostics ) const {
-    std::sort( std::begin( diagnostics ), std::end( diagnostics ) );
-}
-
 std::string LintCombine::DiagnosticOutputHelper::productInfoStr() {
     return PRODUCTNAME_STR " " PRODUCTVERSION_STR "\n\n";
 }
@@ -68,7 +64,7 @@ bool LintCombine::DiagnosticOutputHelper::printDiagnosticsBase( std::vector< Dia
 
 LintCombine::StringVector
 LintCombine::DiagnosticOutputHelper::prepareOutput( std::vector< Diagnostic > & diagnostics ) const {
-    sortDiagnostics( diagnostics );
+    std::sort( std::begin( diagnostics ), std::end( diagnostics ) );
     const auto sourceCmdLine = boost::algorithm::join( m_cmdLine, " " );
     StringVector preparedOutput;
     auto errorOccurred = false;

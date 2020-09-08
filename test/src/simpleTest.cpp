@@ -74,37 +74,11 @@ namespace LintCombine {
     };
 }
 
-bool isDiagnosticsEqual( const LintCombine::Diagnostic & lhs,
-                         const LintCombine::Diagnostic & rhs ) {
-    if( lhs.level == rhs.level     &&
-        lhs.origin == rhs.origin   && lhs.firstPos == rhs.firstPos &&
-        lhs.lastPos == rhs.lastPos && lhs.text == rhs.text ) {
-        return true;
-    }
-    return false;
-}
-
-void compareDiagnostics( const std::vector< LintCombine::Diagnostic > & lhs,
-                         const std::vector< LintCombine::Diagnostic > & rhs ) {
-    auto diagnosticsToCompare = rhs;
-    BOOST_REQUIRE( lhs.size() == diagnosticsToCompare.size() );
-    for( const auto & diagnostic : lhs ) {
-        for( size_t j = 0; j < diagnosticsToCompare.size(); ++j ) {
-            if( isDiagnosticsEqual(diagnostic, diagnosticsToCompare[j] ) ) {
-                diagnosticsToCompare.erase( diagnosticsToCompare.begin() + j );
-                break;
-            }
-        }
-    }
-    BOOST_CHECK( diagnosticsToCompare.empty() ); // diagnostics are equal
-}
-
-void compareContainers( const LintCombine::StringVector & lhs,
-                        const LintCombine::StringVector & rhs ) {
-    BOOST_REQUIRE( lhs.size() == rhs.size() );
-    for( size_t i = 0; i < lhs.size(); ++i ) {
-        BOOST_CHECK( lhs[i] == rhs[i] );
-    }
+void compareDiagnostics( std::vector< LintCombine::Diagnostic > lhs,
+                         std::vector< LintCombine::Diagnostic > rhs ) {
+    std::sort( lhs.begin(), lhs.end() );
+    std::sort( rhs.begin(), rhs.end() );
+    BOOST_CHECK( lhs == rhs );
 }
 
 void recoverYamlFiles() {
@@ -1909,8 +1883,9 @@ BOOST_DATA_TEST_CASE( TestPrepareCmdLine, PCLTestCaseData, sample ) {
         BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ==
                      correctResult.linterExitCodeTolerant );
     }
-    compareContainers( prepareCmdLine->transformCmdLine( inputCmdLine ),
-                       correctResult.resultCmdLine );
+    auto preparerResult = prepareCmdLine->transformCmdLine( inputCmdLine );
+    BOOST_CHECK_EQUAL_COLLECTIONS( preparerResult.begin(), preparerResult.end(),
+                                   correctResult.resultCmdLine.begin(), correctResult.resultCmdLine.end() );
     compareDiagnostics( prepareCmdLine->diagnostics(), correctResult.diagnostics );
 }
 
@@ -1952,7 +1927,9 @@ void checkTargetArch( const std::string & macrosDir,
     }
 
     auto prepareCmdLine = LintCombine::IdeTraitsFactory().getPrepareInputsInstance( cmdLine );
-    compareContainers( prepareCmdLine->transformCmdLine( cmdLine ), result );
+    auto preparerResult = prepareCmdLine->transformCmdLine( cmdLine );
+    BOOST_CHECK_EQUAL_COLLECTIONS( preparerResult.begin(), preparerResult.end(),
+                                   result.begin(), result.end() );
 }
 
 BOOST_AUTO_TEST_CASE( MacrosFileDoesNotExist ) {
