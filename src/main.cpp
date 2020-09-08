@@ -1,7 +1,7 @@
 #include "LinterCombine.h" // for LintCombine::WaitLinterReturnCode
 #include "LintCombineUtils.h"
 #include "IdeTraitsFactory.h"
-#include "DiagnosticWorker.h"
+#include "DiagnosticOutputHelper.h"
 
 namespace LintCombine {
     enum ExitCode{ Success, FailedToConstructLinterCombine, FailedToUpdateYaml,
@@ -12,7 +12,7 @@ int main( int argc, char * argv[] ) {
     LintCombine::StringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto prepareInputs = ideTraitsFactory.getPrepareInputsInstance( cmdLine );
-    const LintCombine::DiagnosticWorker diagnosticWorker( cmdLine, argc == 1 );
+    const LintCombine::DiagnosticOutputHelper diagnosticWorker( cmdLine, argc == 1 );
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     prepareInputs->transformFiles();
 
