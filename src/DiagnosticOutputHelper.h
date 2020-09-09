@@ -22,8 +22,6 @@ namespace LintCombine {
 
         static std::string helpStr();
 
-        void sortDiagnostics( std::vector< Diagnostic > & diagnostics ) const;
-
         StringVector prepareOutput( std::vector< Diagnostic > & diagnostics ) const;
 
         StringVector m_cmdLine;

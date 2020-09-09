@@ -909,8 +909,8 @@ namespace TestUY::TwoLintersYPDNE {
         { LintCombine::Level::Error, "YAML-file path \"NonexistentFile\" doesn't exist", "LinterBase", 1, 0 },
         { LintCombine::Level::Error, "Updating 2 YAML-files failed", "LintCombine", 1, 0 } };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile" } };
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile",
+                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile" } };
     const UYTestCase::Output output{ diagnostics, { /*successNum=*/0, /*failNum=*/2 }, /*filesToCompare=*/{} };
 }
 
