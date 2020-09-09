@@ -488,12 +488,12 @@ struct CWLTestCase {
 
     struct Input {
         Input( const LintCombine::StringVector & cmdLineVal,
-               const LintCombine::StringVector & fileNamesToLinterEndsEarlyTestVal = {} )
+               const LintCombine::StringVector & fileNamesForLinterEndsEarlyTestVal = {} )
             : cmdLine( cmdLineVal ),
-              fileNamesToLinterEndsEarlyTest( fileNamesToLinterEndsEarlyTestVal ) {}
+            fileNamesForLinterEndsEarlyTest( fileNamesForLinterEndsEarlyTestVal ) {}
         LintCombine::StringVector cmdLine;
         // files to check that linter ends early than combine
-        LintCombine::StringVector fileNamesToLinterEndsEarlyTest;
+        LintCombine::StringVector fileNamesForLinterEndsEarlyTest;
     };
 
     CWLTestCase( const Input & inputVal, const Output & outputVal )
@@ -756,7 +756,7 @@ const CWLTestCase CWLTestCaseData[] = {
 };
 
 BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
-    for( const auto & fileName : sample.input.fileNamesToLinterEndsEarlyTest ) {
+    for( const auto & fileName : sample.input.fileNamesForLinterEndsEarlyTest ) {
         std::ofstream{ fileName, std::ios_base::trunc };
     }
     const auto & correctResult = static_cast< CWLTestCase::Output >( sample.output );
@@ -785,7 +785,7 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
         std::filesystem::remove( itFile.filename );
     }
     checkThatDiagnosticsAreEqual( combine.diagnostics(), correctResult.diagnostics );
-    for( const auto & fileName : sample.input.fileNamesToLinterEndsEarlyTest ) {
+    for( const auto & fileName : sample.input.fileNamesForLinterEndsEarlyTest ) {
         BOOST_CHECK( !std::filesystem::exists( fileName ) );
         std::filesystem::remove( fileName );
     }
