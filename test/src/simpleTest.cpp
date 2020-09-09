@@ -83,10 +83,10 @@ void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic > lhs,
 
 void recoverYamlFiles() {
     std::filesystem::remove( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
-    std::filesystem::copy_file( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_save.yaml",
+    std::filesystem::copy_file( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_recovery.yaml",
                                 CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
     std::filesystem::remove( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" );
-    std::filesystem::copy_file( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2_save.yaml",
+    std::filesystem::copy_file( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2_recovery.yaml",
                                 CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" );
 }
 
@@ -866,7 +866,7 @@ namespace TestUY::L1YPEmpty_L2YPE {
         { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
-                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_save.yaml" ) };
+                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_recovery.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
@@ -894,7 +894,7 @@ namespace TestUY::L1YPE_L2YPDNE {
         { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
-                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_save.yaml" ) };
+                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_recovery.yaml" ) };
     const UYTestCase::Input input{
         { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
           "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile",
@@ -917,7 +917,7 @@ namespace TestUY::TwoLintersYPDNE {
 namespace TestUY::L1_YPE {
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
-                        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_save.yaml" ) };
+                        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_recovery.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
                                      CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" } };
@@ -927,9 +927,9 @@ namespace TestUY::L1_YPE {
 namespace TestUY::L1YPE_L2YPE {
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
-                        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_save.yaml" ),
+                        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_recovery.yaml" ),
         std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml",
-                        CURRENT_SOURCE_DIR "yamlFiles/linterFile_2_save.yaml" ) };
+                        CURRENT_SOURCE_DIR "yamlFiles/linterFile_2_recovery.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
                                      CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
@@ -942,7 +942,7 @@ namespace TestUY::L1YPE_L2YPE {
 namespace TestUY::clangTidyUpdateYaml {
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml",
-                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1_result.yaml" ) };
+                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1_expected.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=clang-tidy", "--export-fixes="
                                      CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" },
@@ -954,7 +954,7 @@ namespace TestUY::clangTidyUpdateYaml {
 namespace TestUY::clazyUpdateYaml {
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
-                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_result.yaml" ) };
+                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_expected.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=clazy", "--export-fixes="
                                      CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml" },
@@ -985,11 +985,11 @@ BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
     BOOST_CHECK( callTotals.failNum == correctResult.callTotals.failNum );
     checkThatDiagnosticsAreEqual( combine.diagnostics(), correctResult.diagnostics );
     for( const auto & [lhs, rhs] : correctResult.filesToCompare ) {
-        std::ifstream yamlFile( lhs );
-        std::ifstream yamlFileSave( rhs );
-        std::istream_iterator< char > fileIter( yamlFile ), end;
-        std::istream_iterator< char > fileIterSave( yamlFileSave ), endSave;
-        BOOST_CHECK_EQUAL_COLLECTIONS( fileIter, end, fileIterSave, endSave );
+        std::ifstream yamlFileAct( lhs );
+        std::ifstream yamlFileExp( rhs );
+        std::istream_iterator< char > fileIterAct( yamlFileAct ), endAct;
+        std::istream_iterator< char > fileIterExp( yamlFileExp ), endExp;
+        BOOST_CHECK_EQUAL_COLLECTIONS( fileIterAct, endAct, fileIterExp, endExp );
     }
     recoverYamlFiles();
 }
@@ -1110,7 +1110,7 @@ namespace TestMY::TwoLintersYPE {
     std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
-                        CURRENT_SOURCE_DIR "/yamlFiles/combinedResult_save.yaml" ) };
+                        CURRENT_SOURCE_DIR "/yamlFiles/combinedResult_expected.yaml" ) };
     const MYTestCase::Output output{
         /*diagnostics=*/{}, filesToCompare, resultPathToCombinedYaml };
 }
@@ -1136,11 +1136,11 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
     }
     checkThatDiagnosticsAreEqual( combine.diagnostics(), correctResult.diagnostics );
     for( const auto & [lhs, rhs] : correctResult.filesToCompare ) {
-        std::ifstream yamlFile( lhs );
-        std::ifstream yamlFileSave( rhs );
-        std::istream_iterator< char > fileIter( yamlFile ), end;
-        std::istream_iterator< char > fileIterSave( yamlFileSave ), endSave;
-        BOOST_CHECK_EQUAL_COLLECTIONS( fileIter, end, fileIterSave, endSave );
+        std::ifstream yamlFileAct( lhs );
+        std::ifstream yamlFileExp( rhs );
+        std::istream_iterator< char > fileIterAct( yamlFileAct ), endAct;
+        std::istream_iterator< char > fileIterExp( yamlFileExp ), endExp;
+        BOOST_CHECK_EQUAL_COLLECTIONS( fileIterAct, endAct, fileIterExp, endExp );
     }
     if( !correctResult.pathToCombinedYaml.empty() ) {
         std::filesystem::remove( correctResult.pathToCombinedYaml );
