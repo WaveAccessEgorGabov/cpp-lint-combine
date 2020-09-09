@@ -11,14 +11,12 @@ void LintCombine::ClazyWrapper::updateYamlData( YAML::Node & yamlNode ) const {
 
 void LintCombine::ClazyWrapper::addDocLink( YAML::Node & yamlNode ) {
     for( auto /* shallow copy */ diagnostic : yamlNode["Diagnostics"] ) {
-        std::ostringstream docLink;
-        std::ostringstream diagnosticName;
-        diagnosticName << diagnostic["DiagnosticName"];
-        if( diagnosticName.str().find( "clazy-" ) == 0 ) {
-            docLink << "https://github.com/KDE/clazy/blob/master/docs/checks/README-"
-                    << diagnosticName.str().substr( std::string( "clazy-" ).size(),
-                    diagnosticName.str().size() ) << ".md";
-            diagnostic["DocumentationLink"] = docLink.str();
+        auto diagnosticName = diagnostic["DiagnosticName"].as< std::string >( "" );
+        constexpr char prefix[] = "clazy-";
+        if( diagnosticName.find( prefix ) == 0 ) {
+            diagnostic["DocumentationLink"] =
+                "https://github.com/KDE/clazy/blob/master/docs/checks/README-" +
+                diagnosticName.substr( std::size( prefix ) - 1 ) + ".md";
         }
         else {
             diagnostic["DocumentationLink"] = std::string();
