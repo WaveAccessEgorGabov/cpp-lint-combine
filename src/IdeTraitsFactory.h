@@ -6,9 +6,7 @@
 #include <memory>
 
 namespace LintCombine {
-
     class IdeTraitsFactory {
-
     public:
         struct IdeBehaviorItf {
             virtual bool mayYamlFileContainDocLink() const = 0;
@@ -17,7 +15,6 @@ namespace LintCombine {
         };
 
         class IdeBehaviorBase final : public IdeBehaviorItf {
-
         public:
             IdeBehaviorBase( const bool mayYamlFileContainDocLinkVal,
                              const bool linterExitCodeTolerantVal )
@@ -38,7 +35,6 @@ namespace LintCombine {
         };
 
         class PrepareInputsOnError final : public PrepareInputsItf {
-
         public:
             PrepareInputsOnError( const Level levelVal,
                 const std::string & textVal, const std::string & originVal,

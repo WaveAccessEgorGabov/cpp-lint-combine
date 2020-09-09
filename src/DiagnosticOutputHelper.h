@@ -3,9 +3,7 @@
 #include "LinterItf.h"
 
 namespace LintCombine {
-
     class DiagnosticOutputHelper {
-
     public:
         explicit DiagnosticOutputHelper( const StringVector & cmdLineVal,
                                          const bool isCmdLineEmptyVal )

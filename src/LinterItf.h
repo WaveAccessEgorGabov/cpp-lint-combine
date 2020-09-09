@@ -23,7 +23,6 @@ namespace LintCombine {
     };
 
     class Exception final : public std::exception {
-
     public:
         Exception( const Diagnostic & diagnostic )
             : m_diagnostics{ diagnostic } {}

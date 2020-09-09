@@ -4,7 +4,6 @@
 
 namespace LintCombine {
     class PrepareInputsCLion final : public PrepareInputsBase {
-
     public:
         void transformFiles() override;
 

@@ -7,7 +7,6 @@
 #include <memory>
 
 namespace LintCombine {
-
     class PrepareInputsBase : public PrepareInputsItf {
     public:
         StringVector transformCmdLine( const StringVector & cmdLineVal ) override;

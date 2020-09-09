@@ -3,9 +3,7 @@
 #include "PrepareInputsItf.h"
 
 namespace LintCombine {
-
     class PrepareInputsVerbatim final : public PrepareInputsItf {
-
     public:
         StringVector transformCmdLine( const StringVector & cmdLineVal ) override;
 

@@ -8,12 +8,10 @@
 
 namespace LintCombine {
     class LinterFactoryBase {
-
     public:
         virtual ~LinterFactoryBase() = default;
 
         class Services {
-
         public:
             boost::asio::io_service & getIOService() {
                 return m_ios;

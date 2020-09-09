@@ -3,7 +3,6 @@
 #include "LinterItf.h"
 
 namespace LintCombine {
-
     struct PrepareInputsItf {
         virtual ~PrepareInputsItf() = default;
 

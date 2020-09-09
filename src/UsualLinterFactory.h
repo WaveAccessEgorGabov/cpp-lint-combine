@@ -4,7 +4,6 @@
 
 namespace LintCombine {
     class UsualLinterFactory final : public LinterFactoryBase {
-
     public:
         UsualLinterFactory( UsualLinterFactory & ) = delete;
 
