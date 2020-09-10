@@ -74,20 +74,29 @@ namespace LintCombine {
     };
 }
 
+// Create temp directory with necessary files and delete them after leaving test.
+struct TempDirForTest {
+    TempDirForTest() {
+        std::filesystem::remove_all( pathToDirWithYamls + tempDirName );
+        std::filesystem::create_directory( pathToDirWithYamls + tempDirName );
+        for( const auto & yamlFileToCopy : yamlFilesToCopy ) {
+            std::filesystem::copy_file( pathToDirWithYamls + yamlFileToCopy,
+                                        pathToDirWithYamls + tempDirName + yamlFileToCopy );
+        }
+    }
+    ~TempDirForTest() {
+        std::filesystem::remove_all( pathToDirWithYamls + tempDirName );
+    }
+    LintCombine::StringVector yamlFilesToCopy = { "linterFile_1.yaml", "linterFile_2.yaml" };
+    std::string tempDirName = "temp/";
+    std::string pathToDirWithYamls = CURRENT_SOURCE_DIR "yamlFiles/";
+};
+
 void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic > lhs,
                                    std::vector< LintCombine::Diagnostic > rhs ) {
     std::sort( lhs.begin(), lhs.end() );
     std::sort( rhs.begin(), rhs.end() );
     BOOST_CHECK( lhs == rhs );
-}
-
-void recoverYamlFiles() {
-    std::filesystem::remove( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
-    std::filesystem::copy_file( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_recovery.yaml",
-                                CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" );
-    std::filesystem::remove( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" );
-    std::filesystem::copy_file( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2_recovery.yaml",
-                                CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" );
 }
 
 BOOST_AUTO_TEST_SUITE( TestUsualLinterFactory )
@@ -866,11 +875,11 @@ namespace TestUY::L1YPEmpty_L2YPE {
         { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
-                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_recovery.yaml" ) };
+                        CURRENT_SOURCE_DIR "/yamlFiles/temp/linterFile_2.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
-                                     CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" } };
+                                     CURRENT_SOURCE_DIR"/yamlFiles/temp/linterFile_2.yaml" } };
     const UYTestCase::Output output{
         diagnostics, { /*successNum=*/1, /*failNum=*/1 }, filesToCompare };
 }
@@ -894,12 +903,12 @@ namespace TestUY::L1YPE_L2YPDNE {
         { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
-                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_recovery.yaml" ) };
+                        CURRENT_SOURCE_DIR "/yamlFiles/temp/linterFile_2.yaml" ) };
     const UYTestCase::Input input{
         { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
           "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile",
           "--sub-linter=MockLinterWrapper", "defaultLinter",
-          CURRENT_SOURCE_DIR"/yamlFiles/linterFile_2.yaml" } };
+          CURRENT_SOURCE_DIR"/yamlFiles/temp/linterFile_2.yaml" } };
     const UYTestCase::Output output{ diagnostics, { /*successNum=*/1, /*failNum=*/1 }, filesToCompare };
 }
 
@@ -917,35 +926,35 @@ namespace TestUY::TwoLintersYPDNE {
 namespace TestUY::L1_YPE {
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
-                        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_recovery.yaml" ) };
+                        CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_1.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
-                                     CURRENT_SOURCE_DIR"/yamlFiles/linterFile_1.yaml" } };
+                                     CURRENT_SOURCE_DIR"/yamlFiles/temp/linterFile_1.yaml" } };
     const UYTestCase::Output output{ /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
 }
 
 namespace TestUY::L1YPE_L2YPE {
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
-                        CURRENT_SOURCE_DIR "yamlFiles/linterFile_1_recovery.yaml" ),
+                        CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_1.yaml" ),
         std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml",
-                        CURRENT_SOURCE_DIR "yamlFiles/linterFile_2_recovery.yaml" ) };
+                        CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_2.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
-                                     CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
+                                     CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_1.yaml",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
-                                     CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml" } };
+                                     CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_2.yaml" } };
     const UYTestCase::Output output{
         /*diagnostics=*/{}, { /*successNum=*/2, /*failNum=*/0 }, filesToCompare };
 }
 
 namespace TestUY::clangTidyUpdateYaml {
     const pairStrStrVec filesToCompare{
-        std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml",
+        std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/temp/linterFile_1.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1_expected.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=clang-tidy", "--export-fixes="
-                                     CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1.yaml" },
+                                     CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_1.yaml" },
                                      LintCombine::UsualLinterFactory::getInstance() };
     const UYTestCase::Output output{
         /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
@@ -953,11 +962,11 @@ namespace TestUY::clangTidyUpdateYaml {
 
 namespace TestUY::clazyUpdateYaml {
     const pairStrStrVec filesToCompare{
-        std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
+        std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/temp/linterFile_2.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_expected.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=clazy", "--export-fixes="
-                                     CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml" },
+                                     CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_2.yaml" },
                                      LintCombine::UsualLinterFactory::getInstance() };
     const UYTestCase::Output output{
         /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
@@ -979,7 +988,7 @@ const UYTestCase UYTestCaseData[] = {
 BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
     const auto & correctResult = static_cast< UYTestCase::Output >( sample.output );
     LintCombine::LinterCombine combine( sample.input.cmdLine, sample.input.factory );
-    recoverYamlFiles();
+    TempDirForTest restoreLintersYamlFilesAfterCombine;
     const auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == correctResult.callTotals.successNum );
     BOOST_CHECK( callTotals.failNum == correctResult.callTotals.failNum );
@@ -991,7 +1000,6 @@ BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
         std::istream_iterator< char > fileIterExp( yamlFileExp ), endExp;
         BOOST_CHECK_EQUAL_COLLECTIONS( fileIterAct, endAct, fileIterExp, endExp );
     }
-    recoverYamlFiles();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -1056,7 +1064,7 @@ namespace TestMY::L1YPE {
     const MYTestCase::Input input{
         { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
           "--sub-linter=clang-tidy",
-          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml" } };
+          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_1.yaml" } };
     std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
@@ -1068,7 +1076,7 @@ namespace TestMY::L1YPE_L2YPDNE {
     const MYTestCase::Input input{
         { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
           "--sub-linter=clang-tidy",
-          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
+          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_1.yaml",
           "--sub-linter=clang-tidy",
           "--export-fixes=" CURRENT_SOURCE_DIR "NonexistentFile"} };
     const std::vector< LintCombine::Diagnostic > diagnostics{
@@ -1104,9 +1112,9 @@ namespace TestMY::TwoLintersYPE {
     const MYTestCase::Input input{
         { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
           "--sub-linter=clang-tidy",
-          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
+          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_1.yaml",
           "--sub-linter=clang-tidy",
-          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml"} };
+          "--export-fixes=" CURRENT_SOURCE_DIR "yamlFiles/temp/linterFile_2.yaml"} };
     std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
@@ -1126,7 +1134,7 @@ const MYTestCase MYTestCaseData[] = {
 BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
     const auto & correctResult = static_cast< MYTestCase::Output >( sample.output );
     LintCombine::LinterCombine combine( sample.input.cmdLine );
-    recoverYamlFiles();
+    TempDirForTest restoreLintersYamlFilesAfterCombine;
     BOOST_CHECK( combine.getYamlPath() == correctResult.pathToCombinedYaml );
     if( correctResult.pathToCombinedYaml.empty() ) {
         BOOST_REQUIRE( !std::filesystem::exists( correctResult.pathToCombinedYaml ) );
