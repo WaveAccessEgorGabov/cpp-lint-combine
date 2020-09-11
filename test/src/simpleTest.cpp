@@ -76,7 +76,7 @@ namespace LintCombine {
 
 // Temp directory will contain temporary YAML-files
 static std::string generatePathToTempDir() {
-    return std::filesystem::temp_directory_path().string() +
+    return std::filesystem::temp_directory_path().string() + "/" +
            "cpp-lint-combine_" + std::to_string( std::rand() ) + "/";
 }
 
@@ -992,6 +992,7 @@ const UYTestCase UYTestCaseData[] = {
 BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
     const auto & correctResult = static_cast< UYTestCase::Output >( sample.output );
     LintCombine::LinterCombine combine( sample.input.cmdLine, sample.input.factory );
+    std::cout << pathToTempDir << std::endl;
     deleteTempDirWithYamls( pathToTempDir );
     copyRequiredYamlFileIntoTempDir( pathToTempDir );
     const auto callTotals = combine.updateYaml();
