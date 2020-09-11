@@ -992,7 +992,6 @@ const UYTestCase UYTestCaseData[] = {
 BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
     const auto & correctResult = static_cast< UYTestCase::Output >( sample.output );
     LintCombine::LinterCombine combine( sample.input.cmdLine, sample.input.factory );
-    std::cout << pathToTempDir << std::endl;
     deleteTempDirWithYamls( pathToTempDir );
     copyRequiredYamlFileIntoTempDir( pathToTempDir );
     const auto callTotals = combine.updateYaml();
