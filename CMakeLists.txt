@@ -42,8 +42,9 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /MP /W4 -D_WIN32_WINNT=0x0601")
 endif()
 
-# Boost::thread required for Boost::process on Linux
-find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread REQUIRED)
+# Thread is required for Process on Linux, Date_Time is requred for Asio, 
+# Filesystem is required for Process, Regex is requred for Asio
+find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread date_time filesystem regex REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 if(${Boost_VERSION_STRING} STREQUAL 1.72.0)
@@ -95,7 +96,8 @@ if(WIN32)
     set(ASAN_CMD_ARGS $<$<CONFIG:ReleaseChecked>:-E copy_if_different "${ASAN_RT}-i386.dll" "${TARGET_DIR}" >)
     add_custom_command(TARGET ${executableName} POST_BUILD COMMAND
         $<$<CONFIG:ReleaseChecked>:${CMAKE_COMMAND}> "${ASAN_CMD_ARGS}" COMMAND_EXPAND_LISTS)
-elseif(UNIX)
+elseif(UNIX) 
+    # Filesystem, DateTime, Regex are used as header-only
     target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread)
 endif()
 target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
