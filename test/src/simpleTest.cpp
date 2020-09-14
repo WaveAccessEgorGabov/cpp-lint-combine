@@ -852,9 +852,9 @@ std::ostream & operator<<( std::ostream & os, UYTestCase ) {
 
 namespace TestUY::L1YPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Error,
-          "YAML-file path \"NonexistentFile\" doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
+        { LintCombine::Level::Warning,
+          "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const UYTestCase::Input input{
         { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
           "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile" } };
@@ -864,8 +864,8 @@ namespace TestUY::L1YPDNE {
 
 namespace TestUY::L1YPEmpty {
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Error, "YAML-file path \"\" doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
+        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "" } };
     const UYTestCase::Output output{
@@ -874,8 +874,8 @@ namespace TestUY::L1YPEmpty {
 
 namespace TestUY::L1YPEmpty_L2YPE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Error, "YAML-file path \"\" doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
+        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
                         pathToTempDir + "linterFile_2.yaml" ) };
@@ -889,9 +889,9 @@ namespace TestUY::L1YPEmpty_L2YPE {
 
 namespace TestUY::TwoLintersYPEmpty {
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Error, "YAML-file path \"\" doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Error, "YAML-file path \"\" doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Error, "Updating 2 YAML-files failed", "LintCombine", 1, 0 } };
+        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "Updating 2 YAML-files failed", "LintCombine", 1, 0 } };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "" } };
@@ -901,9 +901,9 @@ namespace TestUY::TwoLintersYPEmpty {
 
 namespace TestUY::L1YPE_L2YPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Error,
-          "YAML-file path \"NonexistentFile\" doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Error, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
+        { LintCombine::Level::Warning,
+          "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
                         pathToTempDir + "linterFile_2.yaml" ) };
@@ -917,9 +917,9 @@ namespace TestUY::L1YPE_L2YPDNE {
 
 namespace TestUY::TwoLintersYPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Error, "YAML-file path \"NonexistentFile\" doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Error, "YAML-file path \"NonexistentFile\" doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Error, "Updating 2 YAML-files failed", "LintCombine", 1, 0 } };
+        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "Updating 2 YAML-files failed", "LintCombine", 1, 0 } };
     const UYTestCase::Input input{ { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile" } };

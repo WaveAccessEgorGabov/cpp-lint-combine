@@ -26,30 +26,29 @@ int LintCombine::LinterBase::waitLinter() {
 }
 
 LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
-    YAML::Node yamlNode;
-    try {
-        const std::ifstream filePathToYaml( yamlPath );
-        if( filePathToYaml.fail() ) {
-            throw std::logic_error( "YAML-file path \"" + yamlPath + "\" doesn't exist" );
-        }
-        yamlNode = YAML::LoadFile( yamlPath );
-    }
-    catch( const std::exception & ex ) {
-        m_diagnostics.emplace_back( Level::Error, ex.what(), "LinterBase", 1, 0 );
+    if( !std::filesystem::exists( yamlPath ) ) {
+        m_diagnostics.emplace_back(
+            Level::Warning, name + "'s YAML-file doesn't exist", "LinterBase", 1, 0 );
         return { /*successNum=*/ 0, /*failNum=*/ 1 };
     }
 
+    const std::ifstream filePathToYaml( yamlPath );
+    if( filePathToYaml.fail() ) {
+        m_diagnostics.emplace_back(
+            Level::Error, "Error occur while open \"" + yamlPath + "\" to read", "LinterBase", 1, 0 );
+        return { /*successNum=*/ 0, /*failNum=*/ 1 };
+    }
+
+    YAML::Node yamlNode = YAML::LoadFile(yamlPath);
     updateYamlData( yamlNode );
 
-    try {
-        std::ofstream yamlWithDocLinkFile( yamlPath );
-        yamlWithDocLinkFile << yamlNode;
+    std::ofstream yamlWithDocLinkFile( yamlPath );
+    if( yamlWithDocLinkFile.fail() ) {
+        m_diagnostics.emplace_back(
+            Level::Error, "Error occur while open \"" + yamlPath + "\" to write", "LinterBase", 1, 0 );
+        return { /*successNum=*/ 0, /*failNum=*/ 1 };
     }
-    catch( const std::exception & ex ) {
-        m_diagnostics.emplace_back( Level::Error, ex.what(), "LinterBase", 1, 0 );
-        return{ /*successNum=*/ 0, /*failNum=*/ 1 };
-    }
-
+    yamlWithDocLinkFile << yamlNode;
     return { /*successNum=*/ 1, /*failNum=*/ 0 };
 }
 

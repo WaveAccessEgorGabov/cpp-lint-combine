@@ -80,7 +80,7 @@ LintCombine::CallTotals LintCombine::LinterCombine::updateYaml() {
     }
     if( callTotals.failNum ) {
         m_diagnostics.emplace_back(
-            Level::Error, "Updating " + std::to_string( callTotals.failNum ) + " YAML-files failed",
+            Level::Warning, "Updating " + std::to_string( callTotals.failNum ) + " YAML-files failed",
             "LintCombine", 1, 0 );
     }
     return callTotals;
@@ -176,8 +176,8 @@ std::string LintCombine::LinterCombine::getYamlPath() {
         if( std::filesystem::exists( m_combinedYamlPath ) ) {
             std::ofstream{ m_combinedYamlPath, std::ios_base::trunc };
         }
-        for( const auto & subLinterIt : m_linters ) {
-            const auto & lintersYamlPath = subLinterIt->getYamlPath();
+        for( const auto & linter : m_linters ) {
+            const auto & lintersYamlPath = linter->getYamlPath();
             if( lintersYamlPath.empty() ) {
                 m_diagnostics.emplace_back(
                     Level::Warning, "Linter's YAML file path value is empty", "LintCombine", 1, 0 );
@@ -211,14 +211,18 @@ std::string LintCombine::LinterCombine::getYamlPath() {
 }
 
 void LintCombine::LinterCombine::combineYamlFiles( const std::string & yamlPathToAppend ) {
-    if( !std::filesystem::exists( m_combinedYamlPath ) ||
-        std::filesystem::is_empty( m_combinedYamlPath ) ) {
+    if( !std::filesystem::exists( m_combinedYamlPath ) ) {
         try {
             std::filesystem::copy( yamlPathToAppend, m_combinedYamlPath );
         }
         catch( const std::exception & ex ) {
             m_diagnostics.emplace_back( Level::Error, ex.what(), "LintCombine", 1, 0 );
         }
+    }
+    else if( std::filesystem::is_empty( m_combinedYamlPath ) ) {
+        std::ifstream infile( yamlPathToAppend );
+        std::ofstream outfile( m_combinedYamlPath );
+        outfile << infile.rdbuf();
     }
     else {
         YAML::Node yamlNodeResult = loadYamlNode( m_combinedYamlPath );
@@ -239,16 +243,14 @@ void LintCombine::LinterCombine::combineYamlFiles( const std::string & yamlPathT
 }
 
 YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToYaml ) {
-    YAML::Node yamlNode;
-    try {
-        const std::ifstream filePathToYaml( pathToYaml );
-        if( filePathToYaml.fail() ) {
-            throw std::logic_error( "YAML-file path \"" + pathToYaml + "\" doesn't exist" );
-        }
-        yamlNode = YAML::LoadFile( pathToYaml );
+    const std::ifstream filePathToYaml( pathToYaml );
+    if( !std::filesystem::exists( pathToYaml ) ) {
+        m_diagnostics.emplace_back(
+            Level::Warning, "YAML-file path \"" + pathToYaml + "\" doesn't exist", "LinterBase", 1, 0 );
     }
-    catch( std::exception & error ) {
-        m_diagnostics.emplace_back( Level::Error, error.what(), "LintCombine", 1, 0 );
+    if( filePathToYaml.fail() ) {
+        m_diagnostics.emplace_back(
+            Level::Warning, "Error occur while open \"" + pathToYaml + "\" to read", "LinterBase", 1, 0 );
     }
-    return yamlNode;
+    return YAML::LoadFile(pathToYaml);
 }

@@ -42,11 +42,7 @@ int main( int argc, char * argv[] ) {
 
     if( ideTraitsFactory.getIdeBehaviorInstance() &&
         ideTraitsFactory.getIdeBehaviorInstance()->mayYamlFileContainDocLink() ) {
-        const auto callTotals = lintCombine->updateYaml();
-        if( !callTotals.successNum ) {
-            diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
-            return LintCombine::ExitCode::FailedToUpdateYaml;
-        }
+        lintCombine->updateYaml();
     }
 
     if( lintCombine->getYamlPath().empty() ) {
@@ -54,6 +50,5 @@ int main( int argc, char * argv[] ) {
         return LintCombine::ExitCode::FailedToPutDiagsIntoYaml;
     }
     diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
-
     return 0;
 }
