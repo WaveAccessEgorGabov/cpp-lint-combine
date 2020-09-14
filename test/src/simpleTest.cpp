@@ -80,11 +80,10 @@ static std::string generatePathToTempDir() {
            "cpp-lint-combine_" + std::to_string( std::rand() ) + "/";
 }
 
-static void copyRequiredYamlFileIntoTempDir( const std::string & pathToTempDir ) {
+static void copyRequiredYamlFilesIntoTempDir( const std::string & pathToTempDir ) {
     std::filesystem::create_directory( pathToTempDir );
     const std::string pathToDirWithYamls = CURRENT_SOURCE_DIR "yamlFiles/";
-    LintCombine::StringVector yamlFilesToCopy = { "linterFile_1.yaml", "linterFile_2.yaml" };
-    for( const auto & yamlFileToCopy : yamlFilesToCopy ) {
+    for( const auto & yamlFileToCopy : { "linterFile_1.yaml", "linterFile_2.yaml" } ) {
         std::filesystem::copy_file(
             pathToDirWithYamls + yamlFileToCopy, pathToTempDir + yamlFileToCopy );
     }
@@ -993,7 +992,7 @@ BOOST_DATA_TEST_CASE( TestUpdatedYaml, UYTestCaseData, sample ) {
     const auto & correctResult = static_cast< UYTestCase::Output >( sample.output );
     LintCombine::LinterCombine combine( sample.input.cmdLine, sample.input.factory );
     deleteTempDirWithYamls( pathToTempDir );
-    copyRequiredYamlFileIntoTempDir( pathToTempDir );
+    copyRequiredYamlFilesIntoTempDir( pathToTempDir );
     const auto callTotals = combine.updateYaml();
     BOOST_CHECK( callTotals.successNum == correctResult.callTotals.successNum );
     BOOST_CHECK( callTotals.failNum == correctResult.callTotals.failNum );
@@ -1143,7 +1142,7 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
     const auto & correctResult = static_cast< MYTestCase::Output >( sample.output );
     LintCombine::LinterCombine combine( sample.input.cmdLine );
     deleteTempDirWithYamls( pathToTempDir );
-    copyRequiredYamlFileIntoTempDir( pathToTempDir );
+    copyRequiredYamlFilesIntoTempDir( pathToTempDir );
     BOOST_CHECK( combine.getYamlPath() == correctResult.pathToCombinedYaml );
     if( correctResult.pathToCombinedYaml.empty() ) {
         BOOST_REQUIRE( !std::filesystem::exists( correctResult.pathToCombinedYaml ) );
