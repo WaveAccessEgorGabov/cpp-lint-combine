@@ -35,7 +35,8 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     const std::ifstream filePathToYaml( yamlPath );
     if( filePathToYaml.fail() ) {
         m_diagnostics.emplace_back(
-            Level::Error, "Error occur while open \"" + yamlPath + "\" to read", "LinterBase", 1, 0 );
+            Level::Error,
+            "An error occurred while opening \"" + yamlPath + "\" for reading", "LinterBase", 1, 0 );
         return { /*successNum=*/ 0, /*failNum=*/ 1 };
     }
 
@@ -45,8 +46,9 @@ LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
     std::ofstream yamlWithDocLinkFile( yamlPath );
     if( yamlWithDocLinkFile.fail() ) {
         m_diagnostics.emplace_back(
-            Level::Error, "Error occur while open \"" + yamlPath + "\" to write", "LinterBase", 1, 0 );
-        return { /*successNum=*/ 0, /*failNum=*/ 1 };
+            Level::Error,
+            "An error occurred while opening \"" + yamlPath + "\" for writing", "LinterBase", 1, 0 );
+            return { /*successNum=*/ 0, /*failNum=*/ 1 };
     }
     yamlWithDocLinkFile << yamlNode;
     return { /*successNum=*/ 1, /*failNum=*/ 0 };

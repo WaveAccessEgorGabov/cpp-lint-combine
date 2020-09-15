@@ -40,12 +40,16 @@ void LintCombine::normalizeHyphensInCmdLine( StringVector & cmdLine ) {
 }
 
 bool LintCombine::isFileCreatable( const std::filesystem::path & filePath ) {
-    if( exists( filePath ) )
-        return true;
     std::error_code errorCode;
+    if( exists( filePath, errorCode ) )
+        return true;
+    if( errorCode.value() )
+        return false;
+
     create_directory( filePath.parent_path(), errorCode );
     if( errorCode.value() )
         return false;
+
     std::ofstream file( filePath );
     if( file.fail() )
         return false;

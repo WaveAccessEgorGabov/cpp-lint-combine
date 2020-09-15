@@ -226,7 +226,12 @@ void LintCombine::LinterCombine::combineYamlFiles( const std::string & yamlPathT
     }
     else {
         YAML::Node yamlNodeResult = loadYamlNode( m_combinedYamlPath );
+        if( !yamlNodeResult.size() )
+            return;
+
         YAML::Node yamlNodeToAppend = loadYamlNode( yamlPathToAppend );
+        if( !yamlNodeToAppend.size() )
+            return;
 
         for( const auto & diagnostic : yamlNodeToAppend["Diagnostics"] ) {
             yamlNodeResult["Diagnostics"].push_back( diagnostic );
@@ -247,10 +252,13 @@ YAML::Node LintCombine::LinterCombine::loadYamlNode( const std::string & pathToY
     if( !std::filesystem::exists( pathToYaml ) ) {
         m_diagnostics.emplace_back(
             Level::Warning, "YAML-file path \"" + pathToYaml + "\" doesn't exist", "LinterBase", 1, 0 );
+        return {};
     }
     if( filePathToYaml.fail() ) {
         m_diagnostics.emplace_back(
-            Level::Warning, "Error occur while open \"" + pathToYaml + "\" to read", "LinterBase", 1, 0 );
+            Level::Warning,
+            "An error occurred while opening \"" + pathToYaml + "\" for reading", "LinterBase", 1, 0 );
+        return {};
     }
-    return YAML::LoadFile(pathToYaml);
+    return YAML::LoadFile( pathToYaml );
 }
