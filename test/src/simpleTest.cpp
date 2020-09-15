@@ -100,6 +100,8 @@ static void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic >
     BOOST_CHECK( lhs == rhs );
 }
 
+#define INCORRECT_PATH "<*:?:*>"
+
 BOOST_AUTO_TEST_SUITE( TestUsualLinterFactory )
 
 // ULF means UsualLinterFactory
@@ -328,10 +330,10 @@ namespace TestLCC::CombinedYamlPathVEASP {
 
 namespace TestLCC::CombinedYamlPathVI {
     const LCCTestCase::Input input{
-        { "--result-yaml=\\\\", "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
+        { "--result-yaml=" INCORRECT_PATH, "--sub-linter=clazy", "--export-fixes=" CURRENT_BINARY_DIR "mockL" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error,
-          R"(Combined YAML-file "\\" is not creatable)", "LintCombine", 1, 0 } };
+          "Combined YAML-file \"" INCORRECT_PATH "\" is not creatable", "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
@@ -355,10 +357,11 @@ namespace TestLCC::LinterYamlPathVEASP {
 
 namespace TestLCC::LinterYamlPathVI {
     const LCCTestCase::Input input{
-        { "--result-yaml=" CURRENT_BINARY_DIR "mockG", "--sub-linter=clazy", "--export-fixes=\\\\" } };
+        { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
+          "--sub-linter=clazy", "--export-fixes=" INCORRECT_PATH } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error,
-          R"(Linter's YAML-file "\\" is not creatable)", "clazy-standalone", 1, 0 } };
+          "Linter's YAML-file \"" INCORRECT_PATH "\" is not creatable", "clazy-standalone", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
@@ -438,7 +441,7 @@ BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
     const auto & correctResult = static_cast< LCCTestCase::Output >( sample.output );
     if( correctResult.exceptionOccurred ) {
         try {
-            LintCombine::LinterCombine{ sample.input.cmdLine };
+            LintCombine::LinterCombine combine{ sample.input.cmdLine };
         }
         catch( const LintCombine::Exception & ex ) {
             checkThatDiagnosticsAreEqual( ex.diagnostics(), correctResult.diagnostics );
@@ -901,8 +904,7 @@ namespace TestUY::TwoLintersYPEmpty {
 
 namespace TestUY::L1YPE_L2YPDNE {
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Warning,
-          "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
         { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
@@ -910,8 +912,7 @@ namespace TestUY::L1YPE_L2YPDNE {
     const UYTestCase::Input input{
         { "--result-yaml=" CURRENT_BINARY_DIR "mockG",
           "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile",
-          "--sub-linter=MockLinterWrapper", "defaultLinter",
-          pathToTempDir + "linterFile_2.yaml" } };
+          "--sub-linter=MockLinterWrapper", "defaultLinter", pathToTempDir + "linterFile_2.yaml" } };
     const UYTestCase::Output output{ diagnostics, { /*successNum=*/1, /*failNum=*/1 }, filesToCompare };
 }
 
@@ -1316,11 +1317,12 @@ namespace TestPCL::Verbatim_CombinedYamlDNE {
 
 namespace TestPCL::Verbatim_CombinedYamlIN {
     const PCLTestCase::Input input{
-        { "--result-yaml=\\\\", "--sub-linter=clazy", "--param=value", "-p=val", "--param", "val" } };
+        { "--result-yaml=" INCORRECT_PATH, "--sub-linter=clazy",
+          "--param=value", "-p=val", "--param", "val" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info, "Options were passed verbatim", "VerbatimPreparer", 1, 0 },
         { LintCombine::Level::Error,
-          R"(Combined YAML-file "\\" is not creatable)", "VerbatimPreparer", 1, 0 } };
+          "Combined YAML-file \"" INCORRECT_PATH "\" is not creatable", "VerbatimPreparer", 1, 0 } };
     const PCLTestCase::Output output{ diagnostics, /*resultCmdLine=*/{},
                                       YAML_MUST_CONTAIN_DOCLINK, INTOLERANT_TO_LINTER_EXIT_CODE };
 }
