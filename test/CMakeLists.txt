@@ -8,7 +8,6 @@ add_executable(${executableName} src/simpleTest.cpp ${LINT_COMBINE_SOURCES} ${LI
 
 target_compile_definitions(${executableName} PRIVATE PATH_TO_VERSION_RESOURCE="${CMAKE_CURRENT_BINARY_DIR}/../version.rsrc")
 target_compile_definitions(${executableName} PRIVATE CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
-target_compile_definitions(${executableName} PRIVATE CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 
 if(WIN32)
     if(MSVC_VERSION AND MSVC_VERSION LESS 1924)
