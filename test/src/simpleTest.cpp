@@ -787,14 +787,19 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
         std::ofstream{ fileName, std::ios_base::trunc };
     }
     const auto & correctResult = static_cast< CWLTestCase::Output >( sample.output );
-    const StreamCapture stdoutCapture( std::cout );
-    const StreamCapture stderrCapture( std::cerr );
     LintCombine::LinterCombine combine(
         sample.input.cmdLine, LintCombine::MocksLinterFactory::getInstance() );
-    combine.callLinter();
-    const auto combineReturnCode = combine.waitLinter();
-    const auto stdoutData = stdoutCapture.getBufferData();
-    const auto stderrData = stderrCapture.getBufferData();
+    std::string stdoutData;
+    std::string stderrData;
+    int combineReturnCode;
+    { // Capture only LinterCombine's output
+        const StreamCapture stdoutCapture( std::cout );
+        const StreamCapture stderrCapture( std::cerr );
+        combine.callLinter();
+        combineReturnCode = combine.waitLinter();
+        stdoutData = stdoutCapture.getBufferData();
+        stderrData = stderrCapture.getBufferData();
+    }
     BOOST_CHECK( combineReturnCode == correctResult.returnCode );
     for( const auto & correctStdoutStr : correctResult.stdoutData ) {
         BOOST_CHECK( stdoutData.find( correctStdoutStr ) != std::string::npos );
