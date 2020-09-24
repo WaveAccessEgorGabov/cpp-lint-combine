@@ -42,7 +42,7 @@ bool LintCombine::DiagnosticOutputHelper::printDiagnostics( std::vector< Diagnos
 }
 
 bool LintCombine::DiagnosticOutputHelper::printDiagnosticsBase( std::vector< Diagnostic > & diagnostics ) const {
-    if( m_isCmdLineEmpty ) {
+    if( m_cmdLine.empty() ) {
         std::cout << productInfoStr();
         std::cout << howToPrintHelpStr();
         return true;
@@ -90,7 +90,7 @@ LintCombine::DiagnosticOutputHelper::prepareOutput( std::vector< Diagnostic > & 
         }
     }
     if( errorOccurred ) {
-        preparedOutput.emplace_back( "\n--help\t\t\tDisplay all available options.\n" );
+        preparedOutput.emplace_back( "\n--help\t\t\tDisplay all available options." );
     }
     return preparedOutput;
 }

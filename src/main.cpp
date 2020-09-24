@@ -12,7 +12,7 @@ int main( int argc, char * argv[] ) {
     LintCombine::StringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
     LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto prepareInputs = ideTraitsFactory.getPrepareInputsInstance( cmdLine );
-    const LintCombine::DiagnosticOutputHelper diagnosticWorker( cmdLine, argc == 1 );
+    const LintCombine::DiagnosticOutputHelper diagnosticWorker( cmdLine );
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     prepareInputs->transformFiles();
 
