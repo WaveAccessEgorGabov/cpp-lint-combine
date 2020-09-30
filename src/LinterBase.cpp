@@ -12,17 +12,27 @@ std::vector< LintCombine::Diagnostic > LintCombine::LinterBase::diagnostics() co
 }
 
 void LintCombine::LinterBase::callLinter() {
-    m_linterProcess = boost::process::child(
-        name + " --export-fixes=" + yamlPath + " " + m_options,
-        boost::process::std_out > m_stdoutPipe,
-        boost::process::std_err > m_stderrPipe );
+    try{
+        m_linterProcess = boost::process::child(
+            name + " --export-fixes=" + yamlPath + " " + m_options,
+            boost::process::std_out > m_stdoutPipe,
+            boost::process::std_err > m_stderrPipe );
+    }
+    catch( const std::exception & ex ) {
+        m_diagnostics.emplace_back( Level::Error, ex.what(), "LinterBase", 1, 0 );
+        m_linterProcess.terminate();
+        return;
+    }
     readFromPipeToStream( m_stdoutPipe, std::cout );
     readFromPipeToStream( m_stderrPipe, std::cerr );
 }
 
 int LintCombine::LinterBase::waitLinter() {
-    m_linterProcess.wait();
-    return m_linterProcess.exit_code();
+    if( m_linterProcess.valid() ) { // linter doesn't terminate
+        m_linterProcess.wait();
+        return m_linterProcess.exit_code();
+    }
+    return 1;
 }
 
 LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
