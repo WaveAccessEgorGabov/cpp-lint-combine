@@ -10,7 +10,10 @@ CLAZY_PATH="<Full directory path of the clazy executable>"
 
 # Set path to the IDE's clang-tidy. If you don't have some IDE, just ignore it.
 CLION_CLANG_TIDY_PATH="<Full directory path of the CLion's clang-tidy>"
-RESHARPER_DIR="$LOCALAPPDATA/JetBrains/Installations/ReSharperPlatformVs15_689a5022"
+
+# Path to ReSharper's clang-tidy is already set. You shouldn't need to change it.
+PATH_TO_JETBRAINS_INSTALLATIONS="/${LOCALAPPDATA/:}/JetBrains/Installations"
+RESHARPER_DIR="$PATH_TO_JETBRAINS_INSTALLATIONS/$(ls $PATH_TO_JETBRAINS_INSTALLATIONS | grep ReSharperPlatformVs | tail -1)"
 RESHARPER_CLANG_TIDY_PATH="${RESHARPER_DIR}/x86:${RESHARPER_DIR}_000/x86"
 
 # Set clazy checks
