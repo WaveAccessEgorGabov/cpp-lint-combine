@@ -4,8 +4,10 @@
 #include "../../src/ClazyWrapper.h"
 #include "../../src/ClangTidyWrapper.h"
 #include "../../src/IdeTraitsFactory.h"
+#include "../../src/DiagnosticOutputHelper.h"
 
 #include <boost/test/included/unit_test.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/test/data/test_case.hpp>
 #include <boost/program_options.hpp>
 #include <fstream>
@@ -108,6 +110,155 @@ static void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic >
 
 #define INCORRECT_PATH "<*:?:*>"
 const std::string pathToTempDir = generatePathToTempDir() + PATH_SEP;
+
+BOOST_AUTO_TEST_SUITE( TestLinterCombineOutput )
+
+// LCO means LinterCombineOutput
+struct LCOTestCase {
+
+    struct Output {
+        Output( const std::vector< LintCombine::StringVector > & stdoutDataVal,
+                const std::vector< LintCombine::StringVector > & stderrDataVal )
+            : stdoutData( stdoutDataVal ), stderrData( stderrDataVal ) {}
+        std::vector< LintCombine::StringVector > stdoutData;
+        std::vector< LintCombine::StringVector > stderrData;
+    };
+
+    struct Input {
+        Input( const LintCombine::StringVector & cmdLineVal,
+               const std::vector< LintCombine::Diagnostic > & diagnosticsVal )
+            : cmdLine( cmdLineVal ), diagnostics( diagnosticsVal ){}
+        LintCombine::StringVector cmdLine;
+        std::vector< LintCombine::Diagnostic > diagnostics;
+    };
+
+    LCOTestCase( const Input & inputVal, const Output & outputVal )
+        : input( inputVal ), output( outputVal ) {}
+
+    Input input;
+    Output output;
+};
+
+std::ostream & operator<<( std::ostream & os, LCOTestCase ) {
+    return os;
+}
+
+namespace TestLCO::EmptyCmdLine {
+    const LCOTestCase::Input input{ /*cmdLine=*/{}, /*diagnostics=*/{} };
+    const LCOTestCase::Output output{
+        { { "Cpp-lint-combine" }, { "" }, { "--help", "Display all" }, {""} }, /*stderrData*/{} };
+}
+
+namespace TestLCO::EmptyCmdLineAndWarningIsPassed {
+    const std::vector< LintCombine::Diagnostic > diagnostics = {
+        { { LintCombine::Level::Warning, "WarningMessage", "LintCombine", 1, 0 } }
+    };
+    const LCOTestCase::Input input{ /*cmdLine=*/{}, diagnostics };
+    const LCOTestCase::Output output{
+        { { "Cpp-lint-combine" }, { "" }, { "--help", "Display all" }, {""} }, /*stderrData*/{} };
+}
+
+namespace TestLCO::HelpOptionExists {
+    const LCOTestCase::Input input{ /*cmdLine=*/{ "--help" }, /*diagnostics=*/{} };
+    const LCOTestCase::Output output{
+        { { "Cpp-lint-combine" }, { "" }, { "Usage:" }, { "--help", "Print this message" },
+        { "--ide-profile", "ReSharper", "CLion" }, { "--result-yaml", "Path to YAML" },
+        { "--sub-linter", "Linter to use" }, { "clang-tidy", "clazy" },
+        { "--clazy-checks", "Comma-separated list" },
+        { "--clang-extra-args", "Additional argument" }, { "" } },
+        /*stderrData*/{} };
+}
+
+namespace TestLCO::WarningDiagnosticIsPassed {
+    const std::vector< LintCombine::Diagnostic > diagnostics = {
+        { { LintCombine::Level::Warning, "WarningMessage", "LintCombine", 1, 0 } } };
+    const LCOTestCase::Input input{ /*cmdLine=*/{ "non-empty" }, diagnostics };
+    const LCOTestCase::Output output{ /*stdoutData*/{}, { { "Warning: WarningMessage" }, { "" } } };
+}
+
+namespace TestLCO::ErrorDiagnosticIsPassed {
+    const std::vector< LintCombine::Diagnostic > diagnostics = {
+        { { LintCombine::Level::Error, "ErrorMessage", "LintCombine", 1, 0 } }
+    };
+    const LCOTestCase::Input input{ /*cmdLine=*/{ "non-empty" }, diagnostics };
+    const LCOTestCase::Output output{
+        /*stdoutData*/{}, { { "Error: ErrorMessage" }, { "" }, { "--help", "Display all" }, {""} } };
+}
+
+namespace TestLCO::TwoWarningDiagnosticsArePassed {
+    const std::vector< LintCombine::Diagnostic > diagnostics = {
+        { LintCombine::Level::Warning, "WarningMessage", "LintCombine", 1, 0 },
+        { LintCombine::Level::Warning, "WarningMessage", "LintCombine", 1, 0 }
+    };
+    const LCOTestCase::Input input{ /*cmdLine=*/{ "non-empty" }, diagnostics };
+    const LCOTestCase::Output output{
+        /*stdoutData*/{},{ { "Warning: WarningMessage" }, { "Warning: WarningMessage" }, { "" } } };
+}
+
+namespace TestLCO::WarningAndErrorDiagnosticsArePassed {
+    const std::vector< LintCombine::Diagnostic > diagnostics = {
+        { LintCombine::Level::Warning, "WarningMessage", "LintCombine", 1, 0 },
+        { LintCombine::Level::Error,   "ErrorMessage", "LintCombine", 1, 0 }
+    };
+    const LCOTestCase::Input input{ /*cmdLine=*/{ "non-empty" }, diagnostics };
+    const LCOTestCase::Output output{
+        /*stdoutData*/{},
+        { { "Warning: WarningMessage" },
+        { "Error: ErrorMessage" }, { "" }, { "--help", "Display all" }, {""} } };
+}
+
+namespace TestLCO::TwoErrorDiagnosticsArePassed {
+    const std::vector< LintCombine::Diagnostic > diagnostics = {
+        { LintCombine::Level::Error, "ErrorMessage", "LintCombine", 1, 0 },
+        { LintCombine::Level::Error, "ErrorMessage", "LintCombine", 1, 0 }
+    };
+    const LCOTestCase::Input input{ /*cmdLine=*/{ "non-empty" }, diagnostics };
+    const LCOTestCase::Output output{
+        /*stdoutData*/{},
+        { { "Error: ErrorMessage" }, { "Error: ErrorMessage" },
+        { "" }, { "--help", "Display all" }, { "" } } };
+}
+
+const LCOTestCase LCOTestCaseData[] = {
+    /*0 */ { TestLCO::EmptyCmdLine::input, TestLCO::EmptyCmdLine::output },
+    /*1 */ { TestLCO::EmptyCmdLineAndWarningIsPassed::input, TestLCO::EmptyCmdLineAndWarningIsPassed::output },
+    /*2 */ { TestLCO::HelpOptionExists::input, TestLCO::HelpOptionExists::output },
+    /*3 */ { TestLCO::WarningDiagnosticIsPassed::input, TestLCO::WarningDiagnosticIsPassed::output },
+    /*4 */ { TestLCO::ErrorDiagnosticIsPassed::input, TestLCO::ErrorDiagnosticIsPassed::output },
+    /*5 */ { TestLCO::TwoWarningDiagnosticsArePassed::input, TestLCO::TwoWarningDiagnosticsArePassed::output },
+    /*6 */ { TestLCO::WarningAndErrorDiagnosticsArePassed::input, TestLCO::WarningAndErrorDiagnosticsArePassed::output },
+    /*7 */ { TestLCO::TwoErrorDiagnosticsArePassed::input, TestLCO::TwoErrorDiagnosticsArePassed::output },
+};
+
+void testLinterCombineOutputHelper( const bool isStdout, const LCOTestCase::Input & input,
+                                    const std::vector< LintCombine::StringVector > & output ) {
+    const LintCombine::DiagnosticOutputHelper diagnosticWorker( input.cmdLine );
+    std::vector< std::string > outputSplitByLine;
+    {
+        const StreamCapture stdoutCapture( std::cout );
+        const StreamCapture stderrCapture( std::cerr );
+        diagnosticWorker.printDiagnostics( // TODO: why const_cast doesn't work here, but static_cast does ???
+            static_cast< std::vector< LintCombine::Diagnostic > >( input.diagnostics ) );
+        const auto streamOutput = isStdout ? stdoutCapture.getBufferData() : stderrCapture.getBufferData();
+        split( outputSplitByLine, streamOutput, boost::is_any_of( "\n" ) );
+        if( outputSplitByLine.size() == 1 )
+            outputSplitByLine.clear();
+    }
+    BOOST_REQUIRE( outputSplitByLine.size() == output.size() );
+    for( size_t i = 0; i < outputSplitByLine.size(); ++i ) {
+        for( size_t j = 0; j < output[i].size(); ++j ) {
+            BOOST_CHECK( outputSplitByLine[i].find( output[i][j] ) != std::string::npos );
+        }
+    }
+}
+
+// TODO: Reduce code duplication
+BOOST_DATA_TEST_CASE( TestLinterCombineOutput, LCOTestCaseData, sample ) {
+    testLinterCombineOutputHelper( /*stdout=*/ true, sample.input, sample.output.stdoutData );
+    testLinterCombineOutputHelper( /*stderr=*/false, sample.input, sample.output.stderrData );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE( TestUsualLinterFactory )
 
@@ -663,12 +814,12 @@ namespace TestCWL::L1WFR0 {
     const CWLTestCase::Output output{ /*diagnostics*/{}, /*stdoutData*/{}, /*stderrData*/{},
                                       filesWithContent, LintCombine::AllLintersSucceeded };
 }
+
 namespace TestCWL::L1WSFR0 {
     const CWLTestCase::Input input{
         { "--result-yaml=" + pathToTempDir + "mockG",
           "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
-          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
-          getScriptExtension() +
+          CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" + getScriptExtension() +
           " 0 " + pathToTempDir + "MockFile_1 fileLinter_1 stdoutLinter_1 stderrLinter_1" } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1" };
