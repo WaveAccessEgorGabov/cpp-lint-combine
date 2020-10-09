@@ -81,8 +81,8 @@ file(GLOB LINT_COMBINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB LINT_COMBINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"  )
 
 add_executable(${executableName} ${LINT_COMBINE_SOURCES} ${LINT_COMBINE_HEADERS})
-add_executable(combineCaller src/combineCaller/combineCaller.cpp)
-target_compile_definitions(combineCaller PRIVATE PATH_TO_COMBINES_BOOTSTRAP="${CMAKE_CURRENT_SOURCE_DIR}/cpp-lint-combine.cmd")
+add_executable(msvc-shim src/msvc-shim/msvc-shim.cpp)
+target_compile_definitions(msvc-shim PRIVATE PATH_TO_COMBINES_BOOTSTRAP="${CMAKE_CURRENT_SOURCE_DIR}/cpp-lint-combine.cmd")
 
 if(WIN32)
     if(MSVC_VERSION AND MSVC_VERSION LESS 1924)
