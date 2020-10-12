@@ -983,18 +983,15 @@ public:
     CDLYFTestCaseDataWrapper( const LintCombine::StringVector & yamlFilesVal )
         : yamlFiles( yamlFilesVal ) {}
     LintCombine::StringVector yamlFiles;
-    static std::vector < std::vector <std::string> > getData() {
-        return { { "yamlFile_1.yaml", "yamlFile_2.yaml" }, { "yamlFile_1.yaml" } };
-    }
 };
-
-const CDLYFTestCaseDataWrapper testCaseData[] = {
-     { { "yamlFile_1.yaml", "yamlFile_2.yaml" } },
-     { { "yamlFile_1.yaml" } } };
 
 std::ostream & operator<<( std::ostream & os, CDLYFTestCaseDataWrapper ) {
     return os;
 }
+
+const CDLYFTestCaseDataWrapper testCaseData[] = {
+     { { "yamlFile_1.yaml", "yamlFile_2.yaml" } },
+     { { "yamlFile_1.yaml" } } };
 
 BOOST_DATA_TEST_CASE( TestCombineDeleteLintersYamlFiles, testCaseData, sample ) {
     LintCombine::StringVector cmdLine = { "--result-yaml=" + pathToTempDir + "mockG" };
