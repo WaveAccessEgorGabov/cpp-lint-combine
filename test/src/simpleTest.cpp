@@ -78,8 +78,9 @@ namespace LintCombine {
 
 // Temp directory will contain temporary YAML-files
 static std::string generatePathToTempDir() {
+    std::srand( static_cast< unsigned >( std::time( nullptr ) ) );
     return std::filesystem::temp_directory_path().string() + "/" +
-           "cpp-lint-combine_" + std::to_string( std::rand() ) + "/";
+           "cpp-lint-combine_" + std::to_string( std::rand() );
 }
 
 static void copyRequiredYamlFilesIntoTempDir( const std::string & pathToTempDir ) {
@@ -237,7 +238,7 @@ void testLinterCombineOutputHelper( const bool isStdout, const LCOTestCase::Inpu
     {
         const StreamCapture stdoutCapture( std::cout );
         const StreamCapture stderrCapture( std::cerr );
-        diagnosticWorker.printDiagnostics( // TODO: why const_cast doesn't work here, but static_cast does ???
+        diagnosticWorker.printDiagnostics(
             static_cast< std::vector< LintCombine::Diagnostic > >( input.diagnostics ) );
         const auto streamOutput = isStdout ? stdoutCapture.getBufferData() : stderrCapture.getBufferData();
         split( outputSplitByLine, streamOutput, boost::is_any_of( "\n" ) );
@@ -252,7 +253,6 @@ void testLinterCombineOutputHelper( const bool isStdout, const LCOTestCase::Inpu
     }
 }
 
-// TODO: Reduce code duplication
 BOOST_DATA_TEST_CASE( TestLinterCombineOutput, LCOTestCaseData, sample ) {
     testLinterCombineOutputHelper( /*stdout=*/ true, sample.input, sample.output.stdoutData );
     testLinterCombineOutputHelper( /*stderr=*/false, sample.input, sample.output.stderrData );
@@ -976,6 +976,48 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+BOOST_AUTO_TEST_SUITE( TestCombineDeleteLintersYamlFiles )
+
+class CDLYFTestCaseDataWrapper {
+public:
+    CDLYFTestCaseDataWrapper( const LintCombine::StringVector & yamlFilesVal )
+        : yamlFiles( yamlFilesVal ) {}
+    LintCombine::StringVector yamlFiles;
+    static std::vector < std::vector <std::string> > getData() {
+        return { { "yamlFile_1.yaml", "yamlFile_2.yaml" }, { "yamlFile_1.yaml" } };
+    }
+};
+
+const CDLYFTestCaseDataWrapper testCaseData[] = {
+     { { "yamlFile_1.yaml", "yamlFile_2.yaml" } },
+     { { "yamlFile_1.yaml" } } };
+
+std::ostream & operator<<( std::ostream & os, CDLYFTestCaseDataWrapper ) {
+    return os;
+}
+
+BOOST_DATA_TEST_CASE( TestCombineDeleteLintersYamlFiles, testCaseData, sample ) {
+    LintCombine::StringVector cmdLine = { "--result-yaml=" + pathToTempDir + "mockG" };
+    for( const auto & yamlFileName : sample.yamlFiles ) {
+        cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
+        cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/createFileByExportFixesParam.sh" );
+        cmdLine.emplace_back( pathToTempDir + yamlFileName );
+    }
+    {
+        LintCombine::LinterCombine combine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+        combine.callLinter();
+        BOOST_CHECK( !combine.waitLinter() );
+        for( const auto & yamlFileName : sample.yamlFiles ) {
+            BOOST_CHECK( std::filesystem::exists( pathToTempDir + yamlFileName ) );
+        }
+    }
+    for( const auto & yamlFileName : sample.yamlFiles ) {
+        BOOST_CHECK( !std::filesystem::exists( pathToTempDir + yamlFileName ) );
+    }
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE( TestUpdatedYaml )
 
 /*
@@ -1189,8 +1231,6 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 */
 
 using pairStrStrVec = std::vector< std::pair< std::string, std::string > >;
-
-const std::string pathToTempDir = generatePathToTempDir();
 
 // MY means MergeYaml
 struct MYTestCase {
