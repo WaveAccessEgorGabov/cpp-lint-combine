@@ -990,8 +990,8 @@ std::ostream & operator<<( std::ostream & os, CDLYFTestCaseDataWrapper ) {
 }
 
 const CDLYFTestCaseDataWrapper testCaseData[] = {
-     { { "yamlFile_1.yaml", "yamlFile_2.yaml" } },
-     { { "yamlFile_1.yaml" } } };
+    /*0 */ { { "yamlFile_1.yaml", "yamlFile_2.yaml" } },
+    /*1 */ { { "yamlFile_1.yaml" } } }; // if only one linter works, it still leaves the file
 
 BOOST_DATA_TEST_CASE( TestCombineDeleteLintersYamlFiles, testCaseData, sample ) {
     LintCombine::StringVector cmdLine = { "--result-yaml=" + pathToTempDir + "mockG" };

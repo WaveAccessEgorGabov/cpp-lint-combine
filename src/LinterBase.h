@@ -23,7 +23,7 @@ namespace LintCombine {
 
         std::vector< Diagnostic > diagnostics() const override;
 
-        ~LinterBase() override = default;
+        ~LinterBase() override;
 
     protected:
         std::string name;

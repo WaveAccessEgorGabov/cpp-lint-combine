@@ -7,6 +7,11 @@
 #include <fstream>
 #include <iostream>
 
+LintCombine::LinterBase::~LinterBase() {
+    std::error_code errorCode;
+    std::filesystem::remove( yamlPath, errorCode );
+}
+
 std::vector< LintCombine::Diagnostic > LintCombine::LinterBase::diagnostics() const {
     return m_diagnostics;
 }
