@@ -997,7 +997,8 @@ BOOST_DATA_TEST_CASE( TestCombineDeleteLintersYamlFiles, testCaseData, sample ) 
     LintCombine::StringVector cmdLine = { "--result-yaml=" + pathToTempDir + "mockG" };
     for( const auto & yamlFileName : sample.yamlFiles ) {
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
-        cmdLine.emplace_back( "sh " CURRENT_SOURCE_DIR "mockPrograms/createFileByExportFixesParam.sh" );
+        std::string bashName = BOOST_OS_WINDOWS ? "sh.exe " : "bash ";
+        cmdLine.emplace_back( bashName + CURRENT_SOURCE_DIR "mockPrograms/createFileByExportFixesParam.sh" );
         cmdLine.emplace_back( pathToTempDir + yamlFileName );
     }
     {
@@ -1011,6 +1012,7 @@ BOOST_DATA_TEST_CASE( TestCombineDeleteLintersYamlFiles, testCaseData, sample ) 
     for( const auto & yamlFileName : sample.yamlFiles ) {
         BOOST_CHECK( !std::filesystem::exists( pathToTempDir + yamlFileName ) );
     }
+    deleteTempDirWithYamls( pathToTempDir );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
