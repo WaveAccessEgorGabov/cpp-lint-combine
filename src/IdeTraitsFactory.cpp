@@ -1,6 +1,7 @@
 #include "IdeTraitsFactory.h"
 #include "PrepareInputsCLion.h"
 #include "PrepareInputsReSharper.h"
+#include "PrepareInputsBareMSVC.h"
 #include "PrepareInputsVerbatim.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
@@ -8,6 +9,10 @@
 std::unique_ptr< LintCombine::IdeTraitsFactory::IdeBehaviorItf >
 LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     boost::algorithm::to_lower( m_ideName );
+    if( m_ideName == "baremsvc" ) {
+        return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink=*/false,
+                                                    /*linterExitCodeTolerant=*/false );
+    }
     if( m_ideName == "resharper" ) {
         return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink=*/true,
                                                     /*linterExitCodeTolerant=*/false );
@@ -57,6 +62,9 @@ LintCombine::IdeTraitsFactory::getPrepareInputsInstance( StringVector & cmdLine 
     }
     const auto ideNameCopy = m_ideName;
     boost::algorithm::to_lower( m_ideName );
+    if( m_ideName == "baremsvc" ) {
+        return std::make_unique< PrepareInputsBareMSVC >();
+    }
     if( m_ideName == "resharper" ) {
         return std::make_unique< PrepareInputsReSharper >();
     }

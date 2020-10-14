@@ -4,6 +4,7 @@
 
 #include <boost/predef.h>
 
+#include <filesystem>
 #include <memory>
 
 namespace LintCombine {
@@ -33,18 +34,23 @@ namespace LintCombine {
         };
 
         struct ClangTidyOptions : LinterOptionsBase {
-            explicit ClangTidyOptions( const std::string & pathToWorkDirVal ) {
+            explicit ClangTidyOptions( const std::string & pathToWorkDirVal,
+                                       const bool linterHasYaml ) {
                 name = "clang-tidy";
                 options.emplace_back( "--sub-linter=clang-tidy" );
                 if( !pathToWorkDirVal.empty() ) {
                     options.emplace_back( "-p=" + pathToWorkDirVal );
+                }
+                if( linterHasYaml ) {
                     if constexpr( BOOST_OS_WINDOWS ) {
                         options.emplace_back(
-                            "--export-fixes=" + pathToWorkDirVal + "\\diagnosticsClangTidy.yaml" );
+                            "--export-fixes=" + std::filesystem::temp_directory_path().string()
+                            + "\\diagnosticsClangTidy.yaml" );
                     }
-                    if constexpr( BOOST_OS_LINUX ) {
+                    else {
                         options.emplace_back(
-                            "--export-fixes=" + pathToWorkDirVal + "/diagnosticsClangTidy.yaml" );
+                            "--export-fixes=" + std::filesystem::temp_directory_path().string()
+                            + "/diagnosticsClangTidy.yaml" );
                     }
                 }
             }
@@ -52,21 +58,24 @@ namespace LintCombine {
 
         struct ClazyOptions : LinterOptionsBase {
             explicit ClazyOptions( const std::string & pathToWorkDirVal,
-                                   const std::string & checks,
+                                   const bool linterHasYaml, const std::string & checks,
                                    const std::vector< std::string > & clangExtraArgs ) {
                 name = "clazy";
                 options.emplace_back( "--sub-linter=clazy" );
                 if( !pathToWorkDirVal.empty() ) {
                     options.emplace_back( "-p=" + pathToWorkDirVal );
+                }
+                if( linterHasYaml ) {
                     if constexpr( BOOST_OS_WINDOWS ) {
                         options.emplace_back(
-                            "--export-fixes=" + pathToWorkDirVal + "\\diagnosticsClazy.yaml" );
+                            "--export-fixes=" + std::filesystem::temp_directory_path().string()
+                            + "\\diagnosticsClazy.yaml" );
                     }
-                    if constexpr( BOOST_OS_LINUX ) {
+                    else {
                         options.emplace_back(
-                            "--export-fixes=" + pathToWorkDirVal + "/diagnosticsClazy.yaml" );
+                            "--export-fixes=" + std::filesystem::temp_directory_path().string()
+                            + "/diagnosticsClazy.yaml" );
                     }
-
                 }
                 if( !checks.empty() ) {
                     options.emplace_back( "--checks=" + checks );
