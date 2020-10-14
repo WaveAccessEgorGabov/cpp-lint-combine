@@ -31,6 +31,11 @@ if [ "${IDE_PROFILE,,}" = "clion" ]; then
     IDE_CLANG_TIDY_PATH=$CLION_CLANG_TIDY_PATH
 fi
 
+if [ "${IDE_PROFILE,,}" = "baremsvc" ]; then
+    IDE_CLANG_TIDY_PATH="/${1/:}"
+    shift
+fi
+
 export PATH="$CLAZY_PATH:$IDE_CLANG_TIDY_PATH:$PATH"
 
 "$CPP_LINT_COMBINE_PATH/cpp-lint-combine" "--ide-profile=$IDE_PROFILE" "--clazy-checks=$CLAZY_CHECKS" "--clang-extra-args=$CLANG_EXTRA_ARGS" "$@"
