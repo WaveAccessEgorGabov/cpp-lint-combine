@@ -95,8 +95,6 @@ namespace LintCombine {
 
         bool validateParsedData();
 
-        void checkIsOptionsValueInit( const std::string & optionName, const std::string & option );
-
         bool initLinters();
 
         void initCmdLine();

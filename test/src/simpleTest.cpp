@@ -15,6 +15,16 @@
 #include <memory>
 #include <optional>
 
+class TestGlobalConfiguration {
+public:
+    TestGlobalConfiguration() {
+        std::srand( static_cast< unsigned >( std::time( nullptr ) ) );
+    }
+    ~TestGlobalConfiguration() = default;
+};
+
+BOOST_TEST_GLOBAL_CONFIGURATION( TestGlobalConfiguration );
+
 class StreamCapture {
 public:
     explicit StreamCapture( std::ostream & stream ) : m_stream( &stream ) {
@@ -78,7 +88,6 @@ namespace LintCombine {
 
 // Temp directory will contain temporary YAML-files
 static std::string generatePathToCombineTempDir() {
-    std::srand(static_cast< unsigned >(std::time(nullptr)));
     return std::filesystem::temp_directory_path().string() + "/" +
            "cpp-lint-combine_" + std::to_string( std::rand() ) + "/";
 }
@@ -354,6 +363,7 @@ BOOST_AUTO_TEST_SUITE( TestLinterCombineConstructor )
  * VEAES means: params value empty after equal sign
  * VEASP means: params value empty after space
  * VI means: params value incorrect
+ * DNS means: params do/does not set
 */
 
 // LCC means LinterCombineConstructor
@@ -479,17 +489,19 @@ namespace TestLCC::CombinedYamlPathVEAES {
 
 namespace TestLCC::CombinedYamlPathVEASP {
     const LCCTestCase::Input input{
-        { "--result-yaml", "--sub-linter=clazy", "--export-fixes=" + pathToCombineTempDir + "mockL" } };
+        { "--result-yaml", "--sub-linter=clazy" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Error,
-          "Combined YAML-file \"--sub-linter=clazy\" is not creatable", "LintCombine", 1, 0 } };
+        { LintCombine::Level::Info,
+          "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 },
+        { LintCombine::Level::Warning,
+          "Parameter \"result-yaml\" was set but the parameter's value was not set. "
+          "The parameter will be ignored.", "LintCombine", 2, 13 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::CombinedYamlPathVI {
     const LCCTestCase::Input input{
-        { "--result-yaml=" INCORRECT_PATH, "--sub-linter=clazy",
-          "--export-fixes=" + pathToCombineTempDir + "mockL" } };
+        { "--result-yaml=" INCORRECT_PATH, "--sub-linter=clazy" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error,
           "Combined YAML-file \"" INCORRECT_PATH "\" is not creatable", "LintCombine", 1, 0 } };
@@ -506,25 +518,58 @@ namespace TestLCC::LinterYamlPathVEAES {
 }
 
 namespace TestLCC::LinterYamlPathVEASP {
-    const LCCTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG", "--sub-linter=clazy", "--export-fixes" } };
+    const LCCTestCase::Input input{ { "--sub-linter=clazy", "--export-fixes" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Error,
-          "the required argument for option '--export-fixes' is missing", "clazy-standalone", 1, 0 } };
+        { LintCombine::Level::Info,
+          "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
+        { LintCombine::Level::Warning,
+          "Parameter \"export-fixes\" was set but the parameter's value was not set. "
+          "The parameter will be ignored.", "clazy-standalone", 2, 14 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::LinterYamlPathVI {
-    const LCCTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=clazy", "--export-fixes=" INCORRECT_PATH } };
+    const LCCTestCase::Input input{ { "--sub-linter=clazy", "--export-fixes=" INCORRECT_PATH } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error,
           "Linter's YAML-file \"" INCORRECT_PATH "\" is not creatable", "clazy-standalone", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
-namespace TestLCC::ClazyExists {
+namespace TestLCC::CombinedYAMLPathDNS {
+    const LCCTestCase::Input input{
+        { "--sub-linter=clazy", "--export-fixes=" + pathToCombineTempDir + "mockL" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
+}
+
+namespace TestLCC::LinterYAMLPathDNS {
+    const LCCTestCase::Input input{
+        { "--result-yaml=" + pathToCombineTempDir + "mockR", "--sub-linter=clazy" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 } };
+    const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
+}
+
+namespace TestLCC::L1EYAMLsDNS {
+    const LCCTestCase::Input input{ { "--sub-linter=clazy" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 },
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
+}
+
+namespace TestLCC::L1L2EYAMLsDNS {
+    const LCCTestCase::Input input{ { "--sub-linter=clazy", "--sub-linter=clang-tidy" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 },
+        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clang-tidy", 1, 0 },
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
+}
+
+namespace TestLCC::ClazyE {
     const LCCTestCase::Input input{
         { "--result-yaml=" + pathToCombineTempDir + "mockR",
           "--sub-linter=clazy", "--export-fixes=" + pathToCombineTempDir + "mockL" } };
@@ -533,7 +578,7 @@ namespace TestLCC::ClazyExists {
     const LCCTestCase::Output output{ /*diagnostics=*/{}, linterData, /*exceptionOccurred=*/false };
 }
 
-namespace TestLCC::ClangTidyExists {
+namespace TestLCC::ClangTidyE {
     const LCCTestCase::Input input{
         { "--result-yaml=" + pathToCombineTempDir + "mockR",
           "--sub-linter=clang-tidy", "--export-fixes=" + pathToCombineTempDir + "mockL" } };
@@ -542,7 +587,18 @@ namespace TestLCC::ClangTidyExists {
     const LCCTestCase::Output output{ /*diagnostics=*/{}, linterData, /*exceptionOccurred=*/false };
 }
 
-namespace TestLCC::ClazyEWithOptions {
+namespace TestLCC::L1EWithOptionsYAMLsDNS {
+    const LCCTestCase::Input input{
+        { "--sub-linter=clazy", "CLParam_1", "CLParam_2"} };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 },
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const std::vector< LCCTestCase::LinterData > linterData{
+        { "clazy-standalone", "CLParam_1 CLParam_2 ", /*yamlPath=*/{} } };
+    const LCCTestCase::Output output{ diagnostics, linterData, /*exceptionOccurred=*/false };
+}
+
+namespace TestLCC::L1EWithOptionsWithYAMLs {
     const LCCTestCase::Input input{
         { "--result-yaml=" + pathToCombineTempDir + "mockR",
           "--sub-linter=clazy", "--export-fixes=" + pathToCombineTempDir + "mockL", "CLParam_1", "CLParam_2"} };
@@ -551,7 +607,7 @@ namespace TestLCC::ClazyEWithOptions {
     const LCCTestCase::Output output{ /*diagnostics=*/{}, linterData, /*exceptionOccurred=*/false };
 }
 
-namespace TestLCC::ClangTidyAndClazyE {
+namespace TestLCC::L1L2E {
     const LCCTestCase::Input input{
         { "--result-yaml=" + pathToCombineTempDir + "mockR",
           "--sub-linter=clang-tidy", "--export-fixes=" + pathToCombineTempDir + "mockL",
@@ -562,11 +618,26 @@ namespace TestLCC::ClangTidyAndClazyE {
     const LCCTestCase::Output output{ /*diagnostics=*/{}, linterData, /*exceptionOccurred=*/false };
 }
 
-namespace TestLCC::ClangTidyAndClazyEWithOptions {
+namespace TestLCC::L1L2EWithOptionsYAMLsDNS {
+    const LCCTestCase::Input input{ { "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
+                                      "--sub-linter=clazy", "CLParam_1", "CLParam_2" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clang-tidy", 1, 0 },
+        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 },
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const std::vector< LCCTestCase::LinterData > linterData{
+        { "clang-tidy", "CTParam_1 CTParam_2 ", /*yamlPath=*/{} },
+        { "clazy-standalone", "CLParam_1 CLParam_2 ", /*yamlPath=*/{} } };
+    const LCCTestCase::Output output{ diagnostics, linterData, /*exceptionOccurred=*/false };
+}
+
+namespace TestLCC::L1L2EWithOptions {
     const LCCTestCase::Input input{
         { "--result-yaml=" + pathToCombineTempDir + "mockR",
-          "--sub-linter=clang-tidy", "--export-fixes=" + pathToCombineTempDir + "mockL", "CTParam_1", "CTParam_2",
-          "--sub-linter=clazy", "--export-fixes=" + pathToCombineTempDir + "mockL", "CLParam_1", "CLParam_2" } };
+          "--sub-linter=clang-tidy",
+          "--export-fixes=" + pathToCombineTempDir + "mockL", "CTParam_1", "CTParam_2",
+          "--sub-linter=clazy",
+          "--export-fixes=" + pathToCombineTempDir + "mockL", "CLParam_1", "CLParam_2" } };
     const std::vector< LCCTestCase::LinterData > linterData{
         { "clang-tidy", "CTParam_1 CTParam_2 ", pathToCombineTempDir + "mockL" },
         { "clazy-standalone", "CLParam_1 CLParam_2 ", pathToCombineTempDir + "mockL" } };
@@ -589,22 +660,31 @@ const LCCTestCase LCCTestCaseData[] = {
     /*12*/ { TestLCC::LinterYamlPathVEAES::input, TestLCC::LinterYamlPathVEAES::output },
     /*13*/ { TestLCC::LinterYamlPathVEASP::input, TestLCC::LinterYamlPathVEASP::output },
     /*14*/ { TestLCC::LinterYamlPathVI::input, TestLCC::LinterYamlPathVI::output },
-    /*15*/ { TestLCC::ClazyExists::input, TestLCC::ClazyExists::output },
-    /*16*/ { TestLCC::ClangTidyExists::input, TestLCC::ClangTidyExists::output },
-    /*17*/ { TestLCC::ClazyEWithOptions::input, TestLCC::ClazyEWithOptions::output },
-    /*18*/ { TestLCC::ClangTidyAndClazyE::input, TestLCC::ClangTidyAndClazyE::output },
-    /*19*/ { TestLCC::ClangTidyAndClazyEWithOptions::input, TestLCC::ClangTidyAndClazyEWithOptions::output },
+    /*15*/ { TestLCC::CombinedYAMLPathDNS::input, TestLCC::CombinedYAMLPathDNS::output },
+    /*16*/ { TestLCC::LinterYAMLPathDNS::input, TestLCC::LinterYAMLPathDNS::output },
+    /*17*/ { TestLCC::L1EYAMLsDNS::input, TestLCC::L1EYAMLsDNS::output },
+    /*18*/ { TestLCC::L1L2EYAMLsDNS::input, TestLCC::L1L2EYAMLsDNS::output },
+    /*19*/ { TestLCC::ClazyE::input, TestLCC::ClazyE::output },
+    /*20*/ { TestLCC::ClangTidyE::input, TestLCC::ClangTidyE::output },
+    /*21*/ { TestLCC::L1EWithOptionsYAMLsDNS::input, TestLCC::L1EWithOptionsYAMLsDNS::output },
+    /*22*/ { TestLCC::L1EWithOptionsWithYAMLs::input, TestLCC::L1EWithOptionsWithYAMLs::output },
+    /*23*/ { TestLCC::L1L2E::input, TestLCC::L1L2E::output },
+    /*24*/ { TestLCC::L1L2EWithOptionsYAMLsDNS::input, TestLCC::L1L2EWithOptionsYAMLsDNS::output },
+    /*25*/ { TestLCC::L1L2EWithOptions::input, TestLCC::L1L2EWithOptions::output },
 };
 
 BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
     const auto & correctResult = static_cast< LCCTestCase::Output >( sample.output );
     if( correctResult.exceptionOccurred ) {
+        std::unique_ptr< LintCombine::LinterItf > combine;
         try {
-            LintCombine::LinterCombine combine{ sample.input.cmdLine };
+            combine = std::make_unique< LintCombine::LinterCombine >( sample.input.cmdLine );
         }
         catch( const LintCombine::Exception & ex ) {
             checkThatDiagnosticsAreEqual( ex.diagnostics(), correctResult.diagnostics );
+            return;
         }
+        checkThatDiagnosticsAreEqual( combine->diagnostics(), correctResult.diagnostics );
     }
     else {
         const LintCombine::LinterCombine combine( sample.input.cmdLine );
@@ -1730,7 +1810,6 @@ namespace TestPCL::YamlPathEmptyASP {
             { LintCombine::Level::Warning,
               "Parameter \"export-fixes\" was set but the parameter's value was not set. "
               "The parameter will be ignored.", "BasePreparer", 31, 43 },
-            { LintCombine::Level::Info, "Path to combined YAML-file is not set", "BasePreparer", 1, 0 },
             { LintCombine::Level::Info, "All linters are used", "BasePreparer", 1, 0 } };
         auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;
@@ -1760,7 +1839,6 @@ namespace TestPCL::ParamsEmptyASP {
             { LintCombine::Level::Warning,
               "Parameter \"clazy-checks\" was set but the parameter's value was not set. "
               "The parameter will be ignored.", "BasePreparer", 46, 58 },
-            { LintCombine::Level::Info, "Path to combined YAML-file is not set", "BasePreparer", 1, 0 },
             { LintCombine::Level::Info, "All linters are used", "BasePreparer", 1, 0 } };
         auto yamlContainsDocLink = false;
         auto linterExitCodeTolerant = false;

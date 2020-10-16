@@ -4,6 +4,7 @@
 #include <fstream>
 #include <filesystem>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 std::vector<LintCombine::Diagnostic> LintCombine::LinterCombine::diagnostics() const {
     std::vector< Diagnostic > diagnosticsFromAllLinters;
@@ -142,7 +143,8 @@ LintCombine::LinterCombine::splitCmdLineBySubLinters( const StringVector & cmdLi
 void LintCombine::LinterCombine::initCombinedYamlPath( const StringVector & cmdLine ) {
     boost::program_options::options_description optDesc;
     optDesc.add_options()(
-        "result-yaml", boost::program_options::value< std::string >( &m_combinedYamlPath ) );
+        "result-yaml",
+        boost::program_options::value< std::string >( &m_combinedYamlPath )->implicit_value( {} ) );
     boost::program_options::variables_map vm;
     try {
         store( boost::program_options::command_line_parser( cmdLine ).
@@ -154,13 +156,10 @@ void LintCombine::LinterCombine::initCombinedYamlPath( const StringVector & cmdL
         throw Exception( m_diagnostics );
     }
 
-    if( m_combinedYamlPath.empty() ) {
-        m_diagnostics.emplace_back(
-            Level::Error, "Path to combined YAML-file is not set", "LintCombine", 1, 0 );
-        throw Exception( m_diagnostics );
-    }
-
-    if( !isFileCreatable( m_combinedYamlPath ) ) {
+    checkIsOptionsValueInit( boost::algorithm::join( cmdLine, " " ),
+                             m_diagnostics, "result-yaml", m_combinedYamlPath,
+                             "LintCombine", "Path to combined YAML-file is not set" );
+    if( !m_combinedYamlPath.empty() && !isFileCreatable( m_combinedYamlPath ) ) {
         m_diagnostics.emplace_back(
             Level::Error, "Combined YAML-file \"" + m_combinedYamlPath + "\" is not creatable",
             "LintCombine", 1, 0 );

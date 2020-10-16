@@ -1,4 +1,5 @@
 #include "LintCombineUtils.h"
+
 #include <fstream>
 
 LintCombine::StringVector LintCombine::moveCmdLineIntoSTLContainer( const int argc, char ** argv ) {
@@ -56,4 +57,25 @@ bool LintCombine::isFileCreatable( const std::filesystem::path & filePath ) {
     file.close();
     std::filesystem::remove( filePath );
     return true;
+}
+
+void LintCombine::checkIsOptionsValueInit( const std::string & cmdLine,
+                                           std::vector< Diagnostic > & diagnostics,
+                                           const std::string & optionName, const std::string & option,
+                                           const std::string & diagnosticOrigin,
+                                           const std::string & textIfOptionDoesNotExists ) {
+    if( option.empty() ) {
+        const auto optionStartPos = cmdLine.find( std::string( optionName ) );
+        if( optionStartPos != std::string::npos ) {
+            const auto optionEndInCL = optionStartPos + std::string( optionName ).size();
+            diagnostics.emplace_back(
+                Level::Warning, "Parameter \"" + optionName + "\" was set but the parameter's "
+                "value was not set. The parameter will be ignored.", diagnosticOrigin,
+                static_cast< unsigned >( optionStartPos ), static_cast< unsigned >( optionEndInCL ) );
+        }
+        else if ( !textIfOptionDoesNotExists.empty() && !diagnosticOrigin.empty() ) {
+            diagnostics.emplace_back(
+                Level::Info, textIfOptionDoesNotExists, diagnosticOrigin, 1, 0 );
+        }
+    }
 }

@@ -1,6 +1,7 @@
 #include "LinterBase.h"
 #include "LintCombineUtils.h"
 
+#include <boost/algorithm/string/join.hpp>
 #include <boost/program_options.hpp>
 
 #include <filesystem>
@@ -12,11 +13,15 @@ std::vector< LintCombine::Diagnostic > LintCombine::LinterBase::diagnostics() co
 }
 
 void LintCombine::LinterBase::callLinter() {
+    std::string runCommand;
+    if( yamlPath.empty() )
+        runCommand = name + " --export-fixes=" + yamlPath + " " + m_options;
+    else
+        runCommand = name + " " + m_options;
     try{
-        m_linterProcess = boost::process::child(
-            name + " --export-fixes=" + yamlPath + " " + m_options,
-            boost::process::std_out > m_stdoutPipe,
-            boost::process::std_err > m_stderrPipe );
+        m_linterProcess = boost::process::child( runCommand,
+                                                 boost::process::std_out > m_stdoutPipe,
+                                                 boost::process::std_err > m_stderrPipe );
     }
     catch( const std::exception & ex ) {
         m_diagnostics.emplace_back( Level::Error, ex.what(), "LinterBase", 1, 0 );
@@ -91,7 +96,8 @@ LintCombine::LinterBase::LinterBase( const StringVector & cmdLine,
 void LintCombine::LinterBase::parseCmdLine( const StringVector & cmdLine ) {
     boost::program_options::options_description optDesc;
     optDesc.add_options()(
-        "export-fixes", boost::program_options::value< std::string >( &yamlPath ) );
+        "export-fixes",
+        boost::program_options::value< std::string >( &yamlPath )->implicit_value( {} ) );
     boost::program_options::variables_map vm;
     try {
         const boost::program_options::parsed_options parsed =
@@ -113,13 +119,10 @@ void LintCombine::LinterBase::parseCmdLine( const StringVector & cmdLine ) {
         throw Exception( m_diagnostics );
     }
 
-    if( yamlPath.empty() ) {
-        m_diagnostics.emplace_back(
-            Level::Error, "Path to linter's YAML-file is not set", name.c_str(), 1, 0 );
-        throw Exception( m_diagnostics );
-    }
-
-    if( !isFileCreatable( yamlPath ) ) {
+    checkIsOptionsValueInit( boost::algorithm::join( cmdLine, " " ),
+                             m_diagnostics, "export-fixes", yamlPath,
+                             name.c_str(), "Path to linter's YAML-file is not set" );
+    if( !yamlPath.empty() && !isFileCreatable( yamlPath ) ) {
         m_diagnostics.emplace_back(
             Level::Error, "Linter's YAML-file \"" + yamlPath + "\" is not creatable",
             name.c_str(), 1, 0 );

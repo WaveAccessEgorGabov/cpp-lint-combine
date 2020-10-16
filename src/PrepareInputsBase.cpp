@@ -2,6 +2,7 @@
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include "LintCombineUtils.h"
 
 LintCombine::StringVector
 LintCombine::PrepareInputsBase::transformCmdLine( const StringVector & cmdLineVal ) {
@@ -55,38 +56,17 @@ bool LintCombine::PrepareInputsBase::parseSourceCmdLine() {
 }
 
 bool LintCombine::PrepareInputsBase::validateParsedData() {
-    checkIsOptionsValueInit( "export-fixes", m_pathToCombinedYaml );
-    checkIsOptionsValueInit( "clang-extra-args", m_clangExtraArgs );
-    checkIsOptionsValueInit( "clazy-checks", m_clazyChecks );
-    if( m_pathToCombinedYaml.empty() ) {
-        m_diagnostics.emplace_back(
-            Level::Info, "Path to combined YAML-file is not set", "BasePreparer", 1, 0 );
-    }
+    checkIsOptionsValueInit( m_sourceCmdLine, m_diagnostics, "export-fixes", m_pathToCombinedYaml,
+                             "BasePreparer", "Path to combined YAML-file is not set" );
+    checkIsOptionsValueInit(
+        m_sourceCmdLine, m_diagnostics, "clang-extra-args", m_clangExtraArgs, "BasePreparer" );
+    checkIsOptionsValueInit( m_sourceCmdLine, m_diagnostics, "clazy-checks", m_clazyChecks, "BasePreparer" );
     if( pathToWorkDir.empty() ) {
         m_diagnostics.emplace_back(
             Level::Error, "Path to compilation database is empty.", "BasePreparer", 1, 0 );
         return false;
     }
     return true;
-}
-
-void LintCombine::PrepareInputsBase::checkIsOptionsValueInit( const std::string & optionName,
-                                                              const std::string & option ) {
-    const auto optionPlaceInCmdLine =
-        std::find_if( std::begin( cmdLine ), std::end( cmdLine ),
-                      [&]( const std::string & str ) -> bool {
-                          return str.find( optionName ) != std::string::npos;
-                      } );
-    if( optionPlaceInCmdLine != std::end( cmdLine ) && option.empty() ) {
-        const auto warningBeginInCL =
-            static_cast< const unsigned int >( m_sourceCmdLine.find( std::string( optionName ) ) );
-        const auto warningEndInCL = warningBeginInCL +
-            static_cast< const unsigned int >( std::string( optionName ).size() );
-        m_diagnostics.emplace_back(
-            Level::Warning, "Parameter \"" + optionName + "\" was set but the parameter's "
-            "value was not set. The parameter will be ignored.",
-            "BasePreparer", warningBeginInCL, warningEndInCL );
-    }
 }
 
 bool LintCombine::PrepareInputsBase::initLinters() {
