@@ -41,6 +41,9 @@ int LintCombine::LinterBase::waitLinter() {
 }
 
 LintCombine::CallTotals LintCombine::LinterBase::updateYaml() {
+    if( yamlPath.empty() ) {
+        return { /*successNum=*/ 0, /*failNum=*/ 0 };
+    }
     if( !std::filesystem::exists( yamlPath ) ) {
         m_diagnostics.emplace_back(
             Level::Warning, name + "'s YAML-file doesn't exist", "LinterBase", 1, 0 );
@@ -77,8 +80,17 @@ std::string LintCombine::LinterBase::getOptions() const {
     return m_options;
 }
 
-std::string LintCombine::LinterBase::getYamlPath() {
-    return yamlPath;
+LintCombine::CallTotals LintCombine::LinterBase::getYamlPath( std::string & yamlPathOut ) {
+    if( yamlPath.empty() ) {
+        yamlPathOut.clear();
+        return { /*successNum=*/0, /*failNum=*/0 };
+    }
+    if( !std::filesystem::exists( yamlPath ) ) {
+        yamlPathOut = yamlPath;
+        return { /*successNum=*/ 0, /*failNum=*/ 1 };
+    }
+    yamlPathOut = yamlPath;
+    return { /*successNum=*/ 1, /*failNum=*/ 0 };
 }
 
 LintCombine::LinterBase::LinterBase( LinterFactoryBase::Services & service )
@@ -121,10 +133,10 @@ void LintCombine::LinterBase::parseCmdLine( const StringVector & cmdLine ) {
 
     checkIsOptionsValueInit( boost::algorithm::join( cmdLine, " " ),
                              m_diagnostics, "export-fixes", yamlPath,
-                             name.c_str(), "Path to linter's YAML-file is not set" );
+                             name.c_str(), "Path to " + name + "'s YAML-file is not set" );
     if( !yamlPath.empty() && !isFileCreatable( yamlPath ) ) {
         m_diagnostics.emplace_back(
-            Level::Error, "Linter's YAML-file \"" + yamlPath + "\" is not creatable",
+            Level::Error, name + "'s YAML-file \"" + yamlPath + "\" is not creatable",
             name.c_str(), 1, 0 );
         throw Exception( m_diagnostics );
     }

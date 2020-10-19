@@ -1,4 +1,4 @@
-#include "LinterCombine.h" // for LintCombine::WaitLinterReturnCode
+#include "LinterCombine.h" // for LintCombine::RetCode
 #include "LintCombineUtils.h"
 #include "IdeTraitsFactory.h"
 #include "DiagnosticOutputHelper.h"
@@ -32,10 +32,10 @@ int main( int argc, char * argv[] ) {
 
     lintCombine->callLinter();
     const auto callReturnCode = lintCombine->waitLinter();
-    if( callReturnCode == LintCombine::WaitLinterReturnCode::AllLintersFailed ) {
-        diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
+    if( callReturnCode == LintCombine::RetCode::RC_TotalFailure ) {
         if( ideTraitsFactory.getIdeBehaviorInstance() &&
             !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
+            diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
             return LintCombine::ExitCode::FailedToCallLinters;
         }
     }
@@ -45,10 +45,10 @@ int main( int argc, char * argv[] ) {
         lintCombine->updateYaml();
     }
 
-    if( lintCombine->getYamlPath().empty() ) {
+    if( std::string combinedYamlPath; !lintCombine->getYamlPath( combinedYamlPath ).successNum ) {
         diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
         return LintCombine::ExitCode::FailedToPutDiagsIntoYaml;
     }
     diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
-    return 0;
+    return LintCombine::ExitCode::Success;
 }

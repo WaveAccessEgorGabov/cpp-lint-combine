@@ -490,13 +490,15 @@ namespace TestLCC::CombinedYamlPathVEAES {
 namespace TestLCC::CombinedYamlPathVEASP {
     const LCCTestCase::Input input{
         { "--result-yaml", "--sub-linter=clazy" } };
+    const std::vector< LCCTestCase::LinterData > linterData{
+        { "clazy-standalone", /*options=*/{}, /*yamlPath=*/{} } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info,
-          "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 },
+          "Path to clazy-standalone's YAML-file is not set", "clazy-standalone", 1, 0 },
         { LintCombine::Level::Warning,
           "Parameter \"result-yaml\" was set but the parameter's value was not set. "
           "The parameter will be ignored.", "LintCombine", 2, 13 } };
-    const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
+    const LCCTestCase::Output output{ diagnostics, linterData, /*exceptionOccurred=*/false };
 }
 
 namespace TestLCC::CombinedYamlPathVI {
@@ -519,36 +521,47 @@ namespace TestLCC::LinterYamlPathVEAES {
 
 namespace TestLCC::LinterYamlPathVEASP {
     const LCCTestCase::Input input{ { "--sub-linter=clazy", "--export-fixes" } };
+    const std::vector< LCCTestCase::LinterData > linterData{
+        { "clazy-standalone", /*options=*/{}, /*yamlPath=*/{} } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Info,
           "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
         { LintCombine::Level::Warning,
           "Parameter \"export-fixes\" was set but the parameter's value was not set. "
           "The parameter will be ignored.", "clazy-standalone", 2, 14 } };
-    const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
+    const LCCTestCase::Output output{ diagnostics, linterData, /*exceptionOccurred=*/false };
 }
 
 namespace TestLCC::LinterYamlPathVI {
     const LCCTestCase::Input input{ { "--sub-linter=clazy", "--export-fixes=" INCORRECT_PATH } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Error,
-          "Linter's YAML-file \"" INCORRECT_PATH "\" is not creatable", "clazy-standalone", 1, 0 } };
+          "clazy-standalone's YAML-file \"" INCORRECT_PATH "\" is not creatable", "clazy-standalone", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
 namespace TestLCC::CombinedYAMLPathDNS {
     const LCCTestCase::Input input{
         { "--sub-linter=clazy", "--export-fixes=" + pathToCombineTempDir + "mockL" } };
+    const std::vector< LCCTestCase::LinterData > linterData{
+        { "clazy-standalone", /*options=*/{}, pathToCombineTempDir + "mockL" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
-    const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
+        { LintCombine::Level::Warning,
+          "Some of linters set path to YAML-file, but path to combined YAML-file is not set",
+          "LintCombine", 1, 0 } };
+    const LCCTestCase::Output output{ diagnostics, linterData, /*exceptionOccurred=*/false };
 }
 
-namespace TestLCC::LinterYAMLPathDNS {
+namespace TestLCC::LinterYAMLPathDNS { // 16
     const LCCTestCase::Input input{
         { "--result-yaml=" + pathToCombineTempDir + "mockR", "--sub-linter=clazy" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 } };
+        { LintCombine::Level::Info,
+          "Path to clazy-standalone's YAML-file is not set", "clazy-standalone", 1, 0 },
+        { LintCombine::Level::Error,
+          "No linters YAML-file specified, but path to combined YAML-file is set",
+          "LintCombine", 1, 0 } };
     const LCCTestCase::Output output{ diagnostics, /*linterData=*/{}, /*exceptionOccurred=*/true };
 }
 
@@ -591,7 +604,8 @@ namespace TestLCC::L1EWithOptionsYAMLsDNS {
     const LCCTestCase::Input input{
         { "--sub-linter=clazy", "CLParam_1", "CLParam_2"} };
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 },
+        { LintCombine::Level::Info,
+          "Path to clazy-standalone's YAML-file is not set", "clazy-standalone", 1, 0 },
         { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
     const std::vector< LCCTestCase::LinterData > linterData{
         { "clazy-standalone", "CLParam_1 CLParam_2 ", /*yamlPath=*/{} } };
@@ -622,8 +636,10 @@ namespace TestLCC::L1L2EWithOptionsYAMLsDNS {
     const LCCTestCase::Input input{ { "--sub-linter=clang-tidy", "CTParam_1", "CTParam_2",
                                       "--sub-linter=clazy", "CLParam_1", "CLParam_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clang-tidy", 1, 0 },
-        { LintCombine::Level::Info, "Path to linter's YAML-file is not set", "clazy-standalone", 1, 0 },
+        { LintCombine::Level::Info,
+          "Path to clang-tidy's YAML-file is not set", "clang-tidy", 1, 0 },
+        { LintCombine::Level::Info,
+          "Path to clazy-standalone's YAML-file is not set", "clazy-standalone", 1, 0 },
         { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
     const std::vector< LCCTestCase::LinterData > linterData{
         { "clang-tidy", "CTParam_1 CTParam_2 ", /*yamlPath=*/{} },
@@ -676,24 +692,23 @@ const LCCTestCase LCCTestCaseData[] = {
 BOOST_DATA_TEST_CASE( TestLinterCombineConstructor, LCCTestCaseData, sample ) {
     const auto & correctResult = static_cast< LCCTestCase::Output >( sample.output );
     if( correctResult.exceptionOccurred ) {
-        std::unique_ptr< LintCombine::LinterItf > combine;
         try {
-            combine = std::make_unique< LintCombine::LinterCombine >( sample.input.cmdLine );
+            LintCombine::LinterCombine{ sample.input.cmdLine };
         }
         catch( const LintCombine::Exception & ex ) {
             checkThatDiagnosticsAreEqual( ex.diagnostics(), correctResult.diagnostics );
-            return;
         }
-        checkThatDiagnosticsAreEqual( combine->diagnostics(), correctResult.diagnostics );
     }
     else {
         const LintCombine::LinterCombine combine( sample.input.cmdLine );
         BOOST_CHECK( combine.numLinters() == correctResult.linterData.size() );
+        std::string yamlPath;
         for( size_t i = 0; i < combine.numLinters(); ++i ) {
             const auto & linter = dynamic_cast< LintCombine::LinterBase * >( combine.linterAt( i ).get() );
             BOOST_CHECK( correctResult.linterData[i].name == linter->getName() );
             BOOST_CHECK( correctResult.linterData[i].options == linter->getOptions() );
-            BOOST_CHECK( correctResult.linterData[i].yamlPath == linter->getYamlPath() );
+            linter->getYamlPath( yamlPath );
+            BOOST_CHECK( correctResult.linterData[i].yamlPath == yamlPath );
         }
         checkThatDiagnosticsAreEqual( combine.diagnostics(), correctResult.diagnostics );
     }
@@ -775,20 +790,19 @@ std::string getScriptExtension() {
 
 namespace TestCWL::L1Terminate {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStdoutAndTerminate.sh stdoutLinter_1" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
         { LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const CWLTestCase::Output output{
-        diagnostics, stdoutData, /*stderrData=*/{}, /*filesWithContent=*/{}, LintCombine::AllLintersFailed };
+        diagnostics, stdoutData, /*stderrData=*/{}, /*filesWithContent=*/{}, LintCombine::RC_TotalFailure };
 }
 
 namespace TestCWL::L1Terminate_L2WSFR0 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStdoutAndTerminate.sh "
           "stdoutLinter_1", "--sub-linter=MockLinterWrapper",
           getRunnerName( "cmd" ) + CURRENT_SOURCE_DIR
@@ -796,48 +810,48 @@ namespace TestCWL::L1Terminate_L2WSFR0 {
           getScriptExtension() + " 0 " + pathToCombineTempDir +
           "MockFile_2 fileLinter_2 stdoutLinter_2 stderrLinter_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
         { LintCombine::Level::Warning, "Some linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_2" };
     const std::vector< CWLTestCase::FileData > filesWithContent{
         { pathToCombineTempDir + "MockFile_2", { "fileLinter_2" } } };
     const CWLTestCase::Output output{
-        diagnostics, stdoutData, stderrData, filesWithContent, LintCombine::SomeLintersFailed };
+        diagnostics, stdoutData, stderrData, filesWithContent, LintCombine::RC_PartialFailure };
 }
 
 namespace TestCWL::L1Terminate_L2Terminate {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStdoutAndTerminate.sh "
           "stdoutLinter_1", "--sub-linter=MockLinterWrapper",
           getRunnerName( "bash" ) + CURRENT_SOURCE_DIR
           "mockPrograms/mockWriteToStdoutAndTerminate.sh stdoutLinter_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
         { LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const CWLTestCase::Output output{
-        diagnostics, stdoutData, /*stderrData*/{}, /*filesWithContent*/{}, LintCombine::AllLintersFailed };
+        diagnostics, stdoutData, /*stderrData*/{}, /*filesWithContent*/{}, LintCombine::RC_TotalFailure };
 }
 
 namespace TestCWL::L1WSR1 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
           getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
         { LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1" };
     const CWLTestCase::Output output{
-        diagnostics, stdoutData, stderrData, /*filesWithContent*/{}, LintCombine::AllLintersFailed };
+        diagnostics, stdoutData, stderrData, /*filesWithContent*/{}, LintCombine::RC_TotalFailure };
 }
 
 namespace TestCWL::L1WSR1_L2WSFR0 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
           getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1",
           "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
@@ -845,74 +859,77 @@ namespace TestCWL::L1WSR1_L2WSFR0 {
           getScriptExtension() + " 0 " + pathToCombineTempDir + "MockFile_2 "
           "fileLinter_2 stdoutLinter_2 stderrLinter_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
         { LintCombine::Level::Warning, "Some linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const std::vector< CWLTestCase::FileData > filesWithContent{
         { pathToCombineTempDir + "MockFile_2", { "fileLinter_2" } } };
     const CWLTestCase::Output output{
-        diagnostics, stdoutData, stderrData, filesWithContent, LintCombine::SomeLintersFailed };
+        diagnostics, stdoutData, stderrData, filesWithContent, LintCombine::RC_PartialFailure };
 }
 
 namespace TestCWL::L1R1_L2R1 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
           getScriptExtension() + " 1 stdoutLinter_1 stderrLinter_1",
           "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
           getScriptExtension() + " 2 stdoutLinter_2 stderrLinter_2" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
         { LintCombine::Level::Error, "All linters failed while running", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
     const CWLTestCase::Output output{
-        diagnostics, stdoutData, stderrData, /*filesWithContent*/{}, LintCombine::AllLintersFailed };
+        diagnostics, stdoutData, stderrData, /*filesWithContent*/{}, LintCombine::RC_TotalFailure };
 }
 
 namespace TestCWL::L1WSR0 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
           getScriptExtension() + " 0 stdoutLinter_1 stderrLinter_1" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1" };
-    const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, stderrData,
-                                      /*filesWithContent*/{}, LintCombine::AllLintersSucceeded };
+    const CWLTestCase::Output output{ diagnostics, stdoutData, stderrData,
+                                      /*filesWithContent*/{}, LintCombine::RC_Success };
 }
 
 namespace TestCWL::L1WFR0 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToFile" +
           getScriptExtension() + " 0 " + pathToCombineTempDir + "MockFile_1 fileLinter_1" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
     const std::vector< CWLTestCase::FileData > filesWithContent{
         { pathToCombineTempDir + "MockFile_1", { "fileLinter_1" } } };
-    const CWLTestCase::Output output{ /*diagnostics*/{}, /*stdoutData*/{}, /*stderrData*/{},
-                                      filesWithContent, LintCombine::AllLintersSucceeded };
+    const CWLTestCase::Output output{ diagnostics, /*stdoutData*/{}, /*stderrData*/{},
+                                      filesWithContent, LintCombine::RC_Success };
 }
 
 namespace TestCWL::L1WSFR0 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" + getScriptExtension() +
           " 0 " + pathToCombineTempDir + "MockFile_1 fileLinter_1 stdoutLinter_1 stderrLinter_1" } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1" };
     const std::vector< CWLTestCase::FileData > filesWithContent{
         { pathToCombineTempDir + "MockFile_1", { "fileLinter_1" } } };
-    const CWLTestCase::Output output{
-        /*diagnostics*/{}, stdoutData, stderrData, filesWithContent, LintCombine::AllLintersSucceeded };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const CWLTestCase::Output output{ diagnostics, stdoutData, stderrData,
+                                      filesWithContent, LintCombine::RC_Success };
 }
 
 namespace TestCWL::L1WSR0_L2WSR0 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
           getScriptExtension() + " 0 stdoutLinter_1 stderrLinter_1",
           "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
@@ -920,30 +937,32 @@ namespace TestCWL::L1WSR0_L2WSR0 {
           getScriptExtension() + " 0 stdoutLinter_2 stderrLinter_2" } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
-    const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, stderrData,
-                                      /*filesWithContent*/{}, LintCombine::AllLintersSucceeded };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const CWLTestCase::Output output{ diagnostics, stdoutData, stderrData,
+                                      /*filesWithContent*/{}, LintCombine::RC_Success };
 }
 
 namespace TestCWL::L1WFR0_L2WFR0 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToFile" +
           getScriptExtension() + " 0 " + pathToCombineTempDir + "MockFile_1 fileLinter_1",
           "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToFile" +
           getScriptExtension() + " 0 " + pathToCombineTempDir + "MockFile_2 fileLinter_2" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
     const std::vector< CWLTestCase::FileData > filesWithContent{
         { pathToCombineTempDir + "MockFile_1", { "fileLinter_1" } },
         { pathToCombineTempDir + "MockFile_2", { "fileLinter_2" } } };
-    const CWLTestCase::Output output{ /*diagnostics*/{}, /*stdoutData*/{}, /*stderrData*/{},
-                                      filesWithContent, LintCombine::AllLintersSucceeded };
+    const CWLTestCase::Output output{ diagnostics, /*stdoutData*/{}, /*stderrData*/{},
+                                      filesWithContent, LintCombine::RC_Success };
 }
 
 namespace TestCWL::L1WSFR0_L2WSFR0 {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreamsAndToFile" +
           getScriptExtension() + " 0 " + pathToCombineTempDir + "MockFile_1 fileLinter_1 "
           "stdoutLinter_1 stderrLinter_1",
@@ -953,46 +972,51 @@ namespace TestCWL::L1WSFR0_L2WSFR0 {
           "stdoutLinter_2 stderrLinter_2" } };
     const LintCombine::StringVector stdoutData{ "stdoutLinter_1", "stdoutLinter_2" };
     const LintCombine::StringVector stderrData{ "stderrLinter_1", "stderrLinter_2" };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
     const std::vector< CWLTestCase::FileData > filesWithContent{
         { pathToCombineTempDir + "MockFile_1", { "fileLinter_1" } },
         { pathToCombineTempDir + "MockFile_2", { "fileLinter_2" } } };
-    const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, stderrData,
-                                      filesWithContent, LintCombine::AllLintersSucceeded };
+    const CWLTestCase::Output output{ diagnostics, stdoutData, stderrData,
+                                      filesWithContent, LintCombine::RC_Success };
 }
 
 namespace TestCWL::LintersWorkInParallel {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_1.sh 0 0.5 mes_1 mes_3",
           "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockParallelTest_2.sh 0 0.25 mes_2" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
     const LintCombine::StringVector stdoutData{ "mes_1\nmes_2\nmes_3\n" };
-    const CWLTestCase::Output output{ /*diagnostics*/{}, stdoutData, /*stderrData*/{},
-                                      /*filesWithContent*/{}, LintCombine::AllLintersSucceeded };
+    const CWLTestCase::Output output{ diagnostics, stdoutData, /*stderrData*/{},
+                                      /*filesWithContent*/{}, LintCombine::RC_Success };
 }
 
 namespace TestCWL::OneLinterEETC {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
           + pathToCombineTempDir + "file_1.txt" }, { pathToCombineTempDir + "file_1.txt" } };
-    const CWLTestCase::Output output{ /*diagnostics=*/{}, /*stdoutData=*/{}, /*stderrData=*/{},
-                                      /*filesWithContent=*/{}, LintCombine::AllLintersSucceeded };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const CWLTestCase::Output output{ diagnostics, /*stdoutData=*/{}, /*stderrData=*/{},
+                                      /*filesWithContent=*/{}, LintCombine::RC_Success };
 }
 
 namespace TestCWL::TwoLinterEETC {
     const CWLTestCase::Input input{
-        { "--result-yaml=" + pathToCombineTempDir + "mockG",
-          "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+        { "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
           CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.2 "
           + pathToCombineTempDir + "file_1.txt", "--sub-linter=MockLinterWrapper",
           getRunnerName( "bash" ) + CURRENT_SOURCE_DIR "mockPrograms/mockSleepAndRemoveFile.sh 0.3 "
           + pathToCombineTempDir + "file_2.txt" },
           { pathToCombineTempDir + "file_1.txt", pathToCombineTempDir + "file_2.txt" } };
-    const CWLTestCase::Output output{ /*diagnostics=*/{}, /*stdoutData=*/{}, /*stderrData=*/{},
-                                      /*filesWithContent=*/{}, LintCombine::AllLintersSucceeded };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const CWLTestCase::Output output{ diagnostics, /*stdoutData=*/{}, /*stderrData=*/{},
+                                      /*filesWithContent=*/{}, LintCombine::RC_Success };
 }
 
 const CWLTestCase CWLTestCaseData[] = {
@@ -1102,133 +1126,128 @@ std::ostream & operator<<( std::ostream & os, UYTestCase ) {
 }
 
 namespace TestUY::L1YPDNE {
-    const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Warning,
-          "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const UYTestCase::Input input{
         { "--result-yaml=" + pathToCombineTempDir + "mockG",
           "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
     const UYTestCase::Output output{
         diagnostics, { /*successNum=*/0, /*failNum=*/1 }, /*filesToCompare=*/{}};
 }
 
-namespace TestUY::L1YPEmpty {
+namespace TestUY::L1YPDNEResultYamlDNE {
+    const UYTestCase::Input input{
+        { "--sub-linter=MockLinterWrapper", "defaultLinter", {} } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
-    const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "" } };
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
     const UYTestCase::Output output{
-        diagnostics, { /*successNum=*/0, /*failNum=*/1 }, /*filesToCompare=*/{}};
+        diagnostics, { /*successNum=*/0, /*failNum=*/0 }, /*filesToCompare=*/{} };
+}
+
+namespace TestUY::L1ResultYamlDNEYPE {
+    const UYTestCase::Input input{
+        { "--sub-linter=MockLinterWrapper", "defaultLinter", pathToCombineTempDir + "mockL" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info, "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
+        { LintCombine::Level::Warning,
+          "Some of linters set path to YAML-file, but path to combined YAML-file is not set",
+          "LintCombine", 1, 0 } };
+    const UYTestCase::Output output{
+        diagnostics, { /*successNum=*/0, /*failNum=*/0 }, /*filesToCompare=*/{} };
 }
 
 namespace TestUY::L1YPEmpty_L2YPE {
-    const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
+    const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
+                                     "--sub-linter=MockLinterWrapper", "defaultLinter", {},
+                                     "--sub-linter=MockLinterWrapper", "defaultLinter",
+                                     pathToCombineTempDir + "/linterFile_2.yaml" } };
     const pairStrStrVec filesToCompare{
         std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
                         pathToCombineTempDir + "linterFile_2.yaml" ) };
-    const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter",
-                                     pathToCombineTempDir + "/linterFile_2.yaml" } };
     const UYTestCase::Output output{
-        diagnostics, { /*successNum=*/1, /*failNum=*/1 }, filesToCompare };
-}
-
-namespace TestUY::TwoLintersYPEmpty {
-    const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Warning, "Updating 2 YAML-files failed", "LintCombine", 1, 0 } };
-    const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "" } };
-    const UYTestCase::Output output{
-        diagnostics, { /*successNum=*/0, /*failNum=*/2 }, /*filesToCompare=*/{} };
+        /*diagnostics*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
 }
 
 namespace TestUY::L1YPE_L2YPDNE {
-    const std::vector< LintCombine::Diagnostic > diagnostics{
-        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
-        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
-    const pairStrStrVec filesToCompare{
-        std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
-                        pathToCombineTempDir + "linterFile_2.yaml" ) };
     const UYTestCase::Input input{
         { "--result-yaml=" + pathToCombineTempDir + "mockG",
           "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile",
           "--sub-linter=MockLinterWrapper", "defaultLinter", pathToCombineTempDir + "linterFile_2.yaml" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
+        { LintCombine::Level::Warning, "Updating 1 YAML-files failed", "LintCombine", 1, 0 } };
+    const pairStrStrVec filesToCompare{
+        std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2.yaml",
+                        pathToCombineTempDir + "linterFile_2.yaml" ) };
     const UYTestCase::Output output{ diagnostics, { /*successNum=*/1, /*failNum=*/1 }, filesToCompare };
 }
 
 namespace TestUY::TwoLintersYPDNE {
+    const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
+                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile",
+                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
         { LintCombine::Level::Warning, "defaultLinter's YAML-file doesn't exist", "LinterBase", 1, 0 },
         { LintCombine::Level::Warning, "Updating 2 YAML-files failed", "LintCombine", 1, 0 } };
-    const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile",
-                                     "--sub-linter=MockLinterWrapper", "defaultLinter", "NonexistentFile" } };
     const UYTestCase::Output output{ diagnostics, { /*successNum=*/0, /*failNum=*/2 }, /*filesToCompare=*/{} };
 }
 
 namespace TestUY::L1_YPE {
-    const pairStrStrVec filesToCompare{
-        std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
-                        pathToCombineTempDir + "linterFile_1.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
                                      pathToCombineTempDir + "linterFile_1.yaml" } };
+    const pairStrStrVec filesToCompare{
+        std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
+                        pathToCombineTempDir + "linterFile_1.yaml" ) };
     const UYTestCase::Output output{ /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
 }
 
 namespace TestUY::L1YPE_L2YPE {
-    const pairStrStrVec filesToCompare{
-        std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
-                        pathToCombineTempDir + "linterFile_1.yaml" ),
-        std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml",
-                        pathToCombineTempDir + "linterFile_2.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
                                      pathToCombineTempDir + "linterFile_1.yaml",
                                      "--sub-linter=MockLinterWrapper", "defaultLinter",
                                      pathToCombineTempDir + "linterFile_2.yaml" } };
+    const pairStrStrVec filesToCompare{
+        std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_1.yaml",
+                        pathToCombineTempDir + "linterFile_1.yaml" ),
+        std::make_pair( CURRENT_SOURCE_DIR "yamlFiles/linterFile_2.yaml",
+                        pathToCombineTempDir + "linterFile_2.yaml" ) };
     const UYTestCase::Output output{
         /*diagnostics=*/{}, { /*successNum=*/2, /*failNum=*/0 }, filesToCompare };
 }
 
 namespace TestUY::clangTidyUpdateYaml {
-    const pairStrStrVec filesToCompare{
-        std::make_pair( pathToCombineTempDir + "linterFile_1.yaml",
-                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1_expected.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
                                      "--sub-linter=clang-tidy", "--export-fixes=" +
                                      pathToCombineTempDir + "linterFile_1.yaml" },
                                      LintCombine::UsualLinterFactory::getInstance() };
+    const pairStrStrVec filesToCompare{
+        std::make_pair( pathToCombineTempDir + "linterFile_1.yaml",
+                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_1_expected.yaml" ) };
     const UYTestCase::Output output{
         /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
 }
 
 namespace TestUY::clazyUpdateYaml {
-    const pairStrStrVec filesToCompare{
-        std::make_pair( pathToCombineTempDir + "linterFile_2.yaml",
-                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_expected.yaml" ) };
     const UYTestCase::Input input{ { "--result-yaml=" + pathToCombineTempDir + "mockG",
                                      "--sub-linter=clazy", "--export-fixes=" +
                                      pathToCombineTempDir + "linterFile_2.yaml" },
                                      LintCombine::UsualLinterFactory::getInstance() };
+    const pairStrStrVec filesToCompare{
+        std::make_pair( pathToCombineTempDir + "linterFile_2.yaml",
+                        CURRENT_SOURCE_DIR "/yamlFiles/linterFile_2_expected.yaml" ) };
     const UYTestCase::Output output{
         /*diagnostics=*/{}, { /*successNum=*/1, /*failNum=*/0 }, filesToCompare };
 }
 
 const UYTestCase UYTestCaseData[] = {
     /*0 */ { TestUY::L1YPDNE::input, TestUY::L1YPDNE::output },
-    /*1 */ { TestUY::L1YPEmpty::input, TestUY::L1YPEmpty::output },
-    /*2 */ { TestUY::L1YPEmpty_L2YPE::input, TestUY::L1YPEmpty_L2YPE::output },
-    /*3 */ { TestUY::TwoLintersYPEmpty::input, TestUY::TwoLintersYPEmpty::output },
+    /*1 */ { TestUY::L1YPDNEResultYamlDNE::input, TestUY::L1YPDNEResultYamlDNE::output },
+    /*2 */ { TestUY::L1ResultYamlDNEYPE::input, TestUY::L1ResultYamlDNEYPE::output },
+    /*3 */ { TestUY::L1YPEmpty_L2YPE::input, TestUY::L1YPEmpty_L2YPE::output },
     /*4 */ { TestUY::L1YPE_L2YPDNE::input, TestUY::L1YPE_L2YPDNE::output },
     /*5 */ { TestUY::TwoLintersYPDNE::input, TestUY::TwoLintersYPDNE::output },
     /*6 */ { TestUY::L1_YPE::input, TestUY::L1_YPE::output },
@@ -1263,8 +1282,10 @@ BOOST_AUTO_TEST_SUITE( TestMergeYaml )
 /*
  * Tests names abbreviations:
  * L<n> means: <n>-th linter
- * DNE means: do/does not exists
+ * DNE means: do/does not exist
+ * DNS means: do/does not set
  * E means: Exists
+ * S means: Set
  * YP means: YAML-file path
 */
 
@@ -1274,12 +1295,13 @@ using pairStrStrVec = std::vector< std::pair< std::string, std::string > >;
 struct MYTestCase {
     struct Output {
         Output( const std::vector< LintCombine::Diagnostic > & diagnosticsVal,
-                const pairStrStrVec & filesToCompareVal,
+                const pairStrStrVec & filesToCompareVal, LintCombine::CallTotals callTotalsVal,
                 const std::string & pathToCombinedYamlVal )
             : diagnostics( diagnosticsVal ), filesToCompare( filesToCompareVal ),
-              pathToCombinedYaml( pathToCombinedYamlVal ) {}
+              callTotals( callTotalsVal ), pathToCombinedYaml( pathToCombinedYamlVal ) {}
         std::vector< LintCombine::Diagnostic > diagnostics;
         pairStrStrVec filesToCompare;
+        LintCombine::CallTotals callTotals;
         std::string pathToCombinedYaml;
     };
 
@@ -1301,34 +1323,64 @@ std::ostream & operator<<( std::ostream & os, MYTestCase ) {
     return os;
 }
 
-namespace TestMY::L1YPDNE {
+namespace TestMY::ResultYPDNSL1LintYPDNS {
+    const MYTestCase::Input input{ { "--sub-linter=clang-tidy" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info,
+          "Path to clang-tidy's YAML-file is not set", "clang-tidy", 1, 0 },
+        { LintCombine::Level::Info,
+          "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
+    const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{},
+                                     { /*successNum=*/0, /*failNum=*/0 },
+                                     /*resultPathToCombinedYaml=*/{} };
+}
+
+namespace TestMY::ResultYPDNSL1LintYPS {
     const MYTestCase::Input input{
-        { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+        { "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_SOURCE_DIR "NonexistentFile" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info,
+          "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
+        { LintCombine::Level::Warning,
+          "Some of linters set path to YAML-file, but path to combined YAML-file is not set",
+          "LintCombine", 1, 0 } };
+    const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{},
+                                     { /*successNum=*/0, /*failNum=*/0 },
+                                     /*resultPathToCombinedYaml=*/{} };
+}
+
+namespace TestMY::ResultYPDNSL1LintYPS_L2LintYPS {
+    const MYTestCase::Input input{
+        { "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_SOURCE_DIR "NonexistentFile",
+          "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_SOURCE_DIR "NonexistentFile" } };
+    const std::vector< LintCombine::Diagnostic > diagnostics{
+        { LintCombine::Level::Info,
+          "Path to combined YAML-file is not set", "LintCombine", 1, 0 },
+        { LintCombine::Level::Warning,
+          "Some of linters set path to YAML-file, but path to combined YAML-file is not set",
+          "LintCombine", 1, 0 } };
+    const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{},
+                                     { /*successNum=*/0, /*failNum=*/0 },
+                                     /*resultPathToCombinedYaml=*/{} };
+}
+
+namespace TestMY::L1LintYPDNE {
+    const MYTestCase::Input input{
+        { "--result-yaml=" + pathToCombineTempDir + "combinedResult.yaml",
           "--sub-linter=clang-tidy", "--export-fixes=" CURRENT_SOURCE_DIR "NonexistentFile" } };
     const std::vector< LintCombine::Diagnostic > diagnostics{
         { LintCombine::Level::Warning,
           "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NonexistentFile\" doesn't exist",
           "LintCombine", 1, 0 },
         { LintCombine::Level::Error, "Combined YAML-file isn't created", "LintCombine", 1, 0 } };
-    const MYTestCase::Output output{
-        diagnostics, /*filesToCompare=*/{}, /*resultPathToCombinedYaml=*/{} };
+    const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{},
+                                     { /*successNum=*/0, /*failNum=*/1 },
+                                     /*resultPathToCombinedYaml=*/{} };
 }
 
-namespace TestMY::L1YPE {
+namespace TestMY::L1LintYPE_L2LintYPDNE {
     const MYTestCase::Input input{
-        { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
-          "--sub-linter=clang-tidy",
-          "--export-fixes=" + pathToCombineTempDir + "linterFile_1.yaml" } };
-    std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
-    const pairStrStrVec filesToCompare{
-        std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
-                        pathToCombineTempDir + "linterFile_1.yaml" ) };
-    const MYTestCase::Output output{ /*diagnostics=*/{}, filesToCompare, resultPathToCombinedYaml };
-}
-
-namespace TestMY::L1YPE_L2YPDNE {
-    const MYTestCase::Input input{
-        { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+        { "--result-yaml=" + pathToCombineTempDir + "combinedResult.yaml",
           "--sub-linter=clang-tidy",
           "--export-fixes=" + pathToCombineTempDir + "linterFile_1.yaml",
           "--sub-linter=clang-tidy",
@@ -1337,16 +1389,18 @@ namespace TestMY::L1YPE_L2YPDNE {
         { LintCombine::Level::Warning,
           "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NonexistentFile\" doesn't exist",
           "LintCombine", 1, 0 } };
-    std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    const std::string resultPathToCombinedYaml = pathToCombineTempDir + "combinedResult.yaml";
     const pairStrStrVec filesToCompare{
-        std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        std::make_pair( pathToCombineTempDir + "combinedResult.yaml",
                         pathToCombineTempDir + "linterFile_1.yaml" ) };
-    const MYTestCase::Output output{ diagnostics, filesToCompare, resultPathToCombinedYaml };
+    const MYTestCase::Output output{ diagnostics, filesToCompare,
+                                     { /*successNum=*/1, /*failNum=*/1 },
+                                     resultPathToCombinedYaml };
 }
 
-namespace TestMY::TwoLintersYPDNE {
+namespace TestMY::L1LintYPDNE_L2LintYPDNE {
     const MYTestCase::Input input{ {
-        "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+        "--result-yaml=" + pathToCombineTempDir + "combinedResult.yaml",
         "--sub-linter=clang-tidy",
         "--export-fixes=" CURRENT_SOURCE_DIR "NonexistentFile",
         "--sub-linter=clang-tidy",
@@ -1359,30 +1413,50 @@ namespace TestMY::TwoLintersYPDNE {
           "Linter's YAML-file path \"" CURRENT_SOURCE_DIR "NonexistentFile\" doesn't exist",
           "LintCombine", 1, 0 },
         { LintCombine::Level::Error, "Combined YAML-file isn't created", "LintCombine", 1, 0 } };
-    const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{}, /*resultPathToCombinedYaml=*/{} };
+    const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{},
+                                     { /*successNum=*/0, /*failNum=*/2 },
+                                     /*resultPathToCombinedYaml=*/{} };
 }
 
-namespace TestMY::TwoLintersYPE {
+namespace TestMY::L1LintYPE {
     const MYTestCase::Input input{
-        { "--result-yaml=" CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml",
+        { "--result-yaml=" + pathToCombineTempDir + "combinedResult.yaml",
+          "--sub-linter=clang-tidy",
+          "--export-fixes=" + pathToCombineTempDir + "linterFile_1.yaml" } };
+    const std::string resultPathToCombinedYaml = pathToCombineTempDir + "combinedResult.yaml";
+    const pairStrStrVec filesToCompare{
+        std::make_pair( pathToCombineTempDir + "combinedResult.yaml",
+                        pathToCombineTempDir + "linterFile_1.yaml" ) };
+    const MYTestCase::Output output{ /*diagnostics=*/{}, filesToCompare,
+                                     { /*successNum=*/1, /*failNum=*/0 },
+                                     resultPathToCombinedYaml };
+}
+
+namespace TestMY::L1LintYPE_L2LintYPE {
+    const MYTestCase::Input input{
+        { "--result-yaml=" + pathToCombineTempDir + "combinedResult.yaml",
           "--sub-linter=clang-tidy",
           "--export-fixes=" + pathToCombineTempDir + "linterFile_1.yaml",
           "--sub-linter=clang-tidy",
           "--export-fixes=" + pathToCombineTempDir + "linterFile_2.yaml"} };
-    std::string resultPathToCombinedYaml = CURRENT_SOURCE_DIR "yamlFiles/combinedResult.yaml";
+    const std::string resultPathToCombinedYaml = pathToCombineTempDir + "combinedResult.yaml";
     const pairStrStrVec filesToCompare{
-        std::make_pair( CURRENT_SOURCE_DIR "/yamlFiles/combinedResult.yaml",
+        std::make_pair( pathToCombineTempDir + "combinedResult.yaml",
                         CURRENT_SOURCE_DIR "/yamlFiles/combinedResult_expected.yaml" ) };
-    const MYTestCase::Output output{
-        /*diagnostics=*/{}, filesToCompare, resultPathToCombinedYaml };
+    const MYTestCase::Output output{ /*diagnostics=*/{}, filesToCompare,
+                                     { /*successNum=*/2, /*failNum=*/0 },
+                                     resultPathToCombinedYaml };
 }
 
 const MYTestCase MYTestCaseData[] = {
-    /*0 */ { TestMY::L1YPDNE::input, TestMY::L1YPDNE::output },
-    /*1 */ { TestMY::L1YPE::input, TestMY::L1YPE::output },
-    /*2 */ { TestMY::L1YPE_L2YPDNE::input, TestMY::L1YPE_L2YPDNE::output },
-    /*3 */ { TestMY::TwoLintersYPDNE::input, TestMY::TwoLintersYPDNE::output },
-    /*4 */ { TestMY::TwoLintersYPE::input, TestMY::TwoLintersYPE::output },
+    /*0 */ { TestMY::ResultYPDNSL1LintYPDNS::input, TestMY::ResultYPDNSL1LintYPDNS::output },
+    /*1 */ { TestMY::ResultYPDNSL1LintYPS::input, TestMY::ResultYPDNSL1LintYPS::output },
+    /*2 */ { TestMY::ResultYPDNSL1LintYPS_L2LintYPS::input, TestMY::ResultYPDNSL1LintYPS_L2LintYPS::output },
+    /*3 */ { TestMY::L1LintYPDNE::input, TestMY::L1LintYPDNE::output },
+    /*4 */ { TestMY::L1LintYPE_L2LintYPDNE::input, TestMY::L1LintYPE_L2LintYPDNE::output },
+    /*5 */ { TestMY::L1LintYPDNE_L2LintYPDNE::input, TestMY::L1LintYPDNE_L2LintYPDNE::output },
+    /*6 */ { TestMY::L1LintYPE::input, TestMY::L1LintYPE::output },
+    /*7 */ { TestMY::L1LintYPE_L2LintYPE::input, TestMY::L1LintYPE_L2LintYPE::output },
 };
 
 BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
@@ -1390,7 +1464,11 @@ BOOST_DATA_TEST_CASE( TestMergeYaml, MYTestCaseData, sample ) {
     LintCombine::LinterCombine combine( sample.input.cmdLine );
     deleteTempDirWithYamls( pathToCombineTempDir );
     copyRequiredYamlFilesIntoTempDir( pathToCombineTempDir );
-    BOOST_CHECK( combine.getYamlPath() == correctResult.pathToCombinedYaml );
+    std::string pathToCombinedYaml;
+    LintCombine::CallTotals callTotals = combine.getYamlPath( pathToCombinedYaml );
+    BOOST_CHECK( callTotals.successNum == correctResult.callTotals.successNum );
+    BOOST_CHECK( callTotals.failNum == correctResult.callTotals.failNum );
+    BOOST_CHECK( pathToCombinedYaml == correctResult.pathToCombinedYaml );
     if( correctResult.pathToCombinedYaml.empty() ) {
         BOOST_REQUIRE( !std::filesystem::exists( correctResult.pathToCombinedYaml ) );
     }

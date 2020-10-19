@@ -19,7 +19,7 @@ namespace LintCombine {
 
         std::string getOptions() const;
 
-        std::string getYamlPath() final;
+        CallTotals getYamlPath( std::string & yamlPathOut ) final;
 
         std::vector< Diagnostic > diagnostics() const override;
 
