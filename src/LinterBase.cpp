@@ -14,7 +14,7 @@ std::vector< LintCombine::Diagnostic > LintCombine::LinterBase::diagnostics() co
 
 void LintCombine::LinterBase::callLinter() {
     std::string runCommand;
-    if( yamlPath.empty() )
+    if( !yamlPath.empty() )
         runCommand = name + " --export-fixes=" + yamlPath + " " + m_options;
     else
         runCommand = name + " " + m_options;

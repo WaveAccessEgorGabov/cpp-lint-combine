@@ -59,7 +59,7 @@ namespace LintCombine {
         void updateYamlData( YAML::Node & ) const override {}
     };
 
-    struct MocksLinterFactory : LinterFactoryBase {
+    struct MocksLinterFactory final : LinterFactoryBase {
         MocksLinterFactory( const MocksLinterFactory & ) = delete;
 
         MocksLinterFactory( MocksLinterFactory && ) = delete;
@@ -120,6 +120,92 @@ static void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic >
 
 #define INCORRECT_PATH "<*:?:*>"
 const std::string pathToCombineTempDir = generatePathToCombineTempDir() + PATH_SEP;
+
+BOOST_AUTO_TEST_SUITE( TestLinterOutputFormatConversion )
+
+using pairStrStr = std::pair< std::string, std::string >;
+
+// TODO: Set two checks into one buffer
+// Generate test cases for buffer size between 256 and 8192
+pairStrStr generateLOFCTestCaseDataForDifferentBufferSize(
+    const std::string & linterOutputPart, const std::string & convertedLinterOutputPart,
+    const size_t offsetFromBufferEnd )
+{
+    std::string linterOutput;
+    std::string convertedLinterOutput;
+    for( std::size_t buffSize = 256; buffSize < 8193; ++buffSize ) {
+        std::string beginOffsetStr( buffSize - offsetFromBufferEnd, 'o' );
+
+        std::string tempLinterOutput = beginOffsetStr + linterOutputPart;
+        tempLinterOutput +=
+            std::string( buffSize - ( tempLinterOutput.size() % buffSize ), 'o' );
+
+        std::string tempConvertedLinterOutput = beginOffsetStr + convertedLinterOutputPart;
+        tempConvertedLinterOutput +=
+            std::string( buffSize - ( tempConvertedLinterOutput.size() % buffSize ), 'o' );
+
+        linterOutput += tempLinterOutput;
+        convertedLinterOutput += tempConvertedLinterOutput;
+    }
+    return { linterOutput, convertedLinterOutput };
+}
+
+std::string generatePathToFile( const LintCombine::StringVector & partsOfTheFilePath ) {
+    std::string resultPath = BOOST_OS_WINDOWS ? "C:" : "/c";
+    for( const auto & pathPart : partsOfTheFilePath ) {
+        resultPath += PATH_SEP + pathPart;
+    }
+    return resultPath;
+}
+
+namespace LOFCTest::EmptyCmdLine {
+    std::string pathToFile = generatePathToFile( { "some", "path", "main.cpp" } );
+    std::string sourceRowColumnPart = "(42,42):";
+    std::string convertedRowColumnPart = ":42:42:";
+    std::string sourceCheckNamePart = "[-wsome-check]";
+    std::string convertedCheckNamePart = "[wsome-check]";
+    const std::string linterOutputPart =
+        pathToFile + sourceRowColumnPart + " warning: check_text " + sourceCheckNamePart;
+    const std::string convertedLinterOutputPart =
+        pathToFile + convertedRowColumnPart + " warning: check_text " + convertedCheckNamePart;
+    auto testCase =
+        generateLOFCTestCaseDataForDifferentBufferSize(
+            linterOutputPart, convertedLinterOutputPart, pathToFile.size() );
+}
+
+std::string getLinterOutput() {
+    return LOFCTest::EmptyCmdLine::testCase.first;
+}
+
+std::string getLinterConvertedOutput() {
+    return LOFCTest::EmptyCmdLine::testCase.second;
+}
+
+BOOST_AUTO_TEST_CASE( TestLinterOutputFormatConversion ) {
+    std::string bashName = BOOST_OS_WINDOWS ? "sh.exe " : "bash ";
+    LintCombine::LinterCombine combine(
+        { "--sub-linter=MockLinterWrapper",
+          bashName + CURRENT_SOURCE_DIR "mockPrograms/mockForLOFTest.sh -t" },
+          LintCombine::MocksLinterFactory::getInstance() );
+    std::string stdoutData;
+    {
+        const StreamCapture stdoutCapture( std::cout );
+        combine.callLinter();
+        combine.waitLinter();
+        stdoutData = stdoutCapture.getBufferData();
+    }
+    boost::asio::io_service ios;
+    std::future< std::string > linterConvertedResult;
+    boost::process::child async1( "sh " CURRENT_SOURCE_DIR "mockPrograms/mockForLOFTest.sh -r",
+                                  boost::process::std_out > linterConvertedResult, ios );
+    ios.run();
+    async1.wait();
+    const auto & linterConvertedResultStr = linterConvertedResult.get();
+    BOOST_CHECK( stdoutData.size() == linterConvertedResultStr.size() );
+    BOOST_CHECK( stdoutData == linterConvertedResultStr );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE( TestLinterCombineOutput )
 
@@ -1058,6 +1144,9 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
     BOOST_CHECK( combineReturnCode == correctResult.returnCode );
     for( const auto & correctStdoutStr : correctResult.stdoutData ) {
         BOOST_CHECK( stdoutData.find( correctStdoutStr ) != std::string::npos );
+        if( stdoutData.find( correctStdoutStr ) == std::string::npos ) {
+            std::cout << "Get:" << std::endl << stdoutData << "WANT:" << std::endl << correctStdoutStr << std::endl;
+        }
     }
     for( const auto & correctStderrStr : correctResult.stderrData ) {
         BOOST_CHECK( stderrData.find( correctStderrStr ) != std::string::npos );

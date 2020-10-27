@@ -47,7 +47,7 @@ namespace LintCombine {
         std::vector< Diagnostic > m_diagnostics;
 
         // Buffer for reading from pipes
-        std::array< char, 64 > m_buffer = {};
+        std::array< char, 512 > m_buffer = {};
 
         void readFromPipeToStream( boost::process::async_pipe & pipe,
                                    std::ostream & outputStream );
