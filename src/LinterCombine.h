@@ -38,7 +38,7 @@ namespace LintCombine {
 
         void initCombinedYamlPath( const StringVector & cmdLine );
 
-        // Allowing YAML-files combination: are
+        // Allowing YAML-files combination are:
         // 1. Path to result YAML-file set && At least one linter set path to YAML-file
         // 2. Path to result YAML-file not set && No linter's path to YAML-file set
         void checkIsRequiredYamlFilesCombinationSpecified();

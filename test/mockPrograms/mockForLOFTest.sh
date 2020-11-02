@@ -16,28 +16,28 @@ fillBuffer() {
     printf '%*s' $1
 }
 
-# $1 - Linter output size
+# $1 - Linter output offset
 # $2 - Linter output
 # $3 - Converted linter output
 # $4 - Print linter output or expected result
 # $5 - Number of new lines (\n) in the linter output
 generateStringForDifferentBufferSize() {
-    for i in {256..2048}
+    for i in {1000000..1000000} # real buffer size
     do
-        spaceFromBuffersBeginToMessage=$(($i-$1))
-        spaceFromMessageToBuffersEnd=$(($i+$5-$(($(($i-$1+${#2})) % $i))))
+        spaceFromBuffersBeginToMessage=$(fillBuffer $(($i-$1)))
+        spaceFromMessageToBuffersEnd=$(fillBuffer $(($i-$(($(($i-$1+${#2}-$5)) % $i)) - 1)))
 
-        fillBuffer $spaceFromBuffersBeginToMessage
         if $4; then
-            printf "$2" # print linterOutput
+            # print linterOutput
+            printf "${spaceFromBuffersBeginToMessage}${2}${spaceFromMessageToBuffersEnd}\n"
         else
-            printf "$3" # print converted linterOutput
+            # print converted linterOutput
+            printf "${spaceFromBuffersBeginToMessage}${3}${spaceFromMessageToBuffersEnd}\n"
         fi
-        fillBuffer $spaceFromMessageToBuffersEnd
     done
 }
 
-commonCheckPart=" warning : check_text "
+commonCheckPart=" warning: check_text "
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
     pathToFile="C:\some\pa(42,42)th\mai(42,42)n.cpp"
 else
@@ -119,12 +119,12 @@ generateStringForDifferentBufferSize $((${#testStrSource} + 10)) \
                                      "$testStrSource" "$testStrConverted" $getTests 1
 
 # Test 12 - Two check's message completely in buffer
-generateStringForDifferentBufferSize $((${#testStrSource} * 2)) \
+generateStringForDifferentBufferSize $((${#testStrSource} * 2 + 20)) \
                                      "$testStrSource$testStrSource" \
                                      "$testStrConverted$testStrConverted" $getTests 2
 
 # Test 13 - Two check's message completely in buffer, some text between messages exist
-generateStringForDifferentBufferSize $(((${#testStrSource}) * 2)) \
+generateStringForDifferentBufferSize $(((${#testStrSource}) * 2 + 30)) \
                                      "${testStrSource}"HelloWorld"${testStrSource}" \
                                      "${testStrConverted}"HelloWorld"${testStrConverted}" $getTests 2
 

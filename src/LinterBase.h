@@ -3,6 +3,7 @@
 #include "LinterFactoryBase.h"
 #include "LinterItf.h"
 #include "yaml-cpp/yaml.h"
+#include "LinterBehaviorItf.h"
 
 #include <boost/process.hpp>
 
@@ -29,11 +30,13 @@ namespace LintCombine {
         std::string name;
         std::string yamlPath;
 
-        explicit LinterBase( LinterFactoryBase::Services & service );
+        explicit LinterBase( LinterFactoryBase::Services & service,
+                             std::unique_ptr< LinterBehaviorItf > && linterBehaviorVal );
 
         explicit LinterBase( const StringVector & cmdLine,
                              LinterFactoryBase::Services & service,
-                             const std::string & nameVal );
+                             const std::string & nameVal,
+                             std::unique_ptr< LinterBehaviorItf > && linterBehaviorVal );
 
         void parseCmdLine( const StringVector & cmdLine );
 
@@ -45,6 +48,7 @@ namespace LintCombine {
         boost::process::async_pipe m_stdoutPipe;
         boost::process::async_pipe m_stderrPipe;
         std::vector< Diagnostic > m_diagnostics;
+        std::unique_ptr < LinterBehaviorItf > m_linterBehavior;
 
         // Buffer for reading from pipes
         std::array< char, 512 > m_buffer = {};

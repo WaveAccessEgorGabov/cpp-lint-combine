@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE CppLintCombineTest
 
 #include "../../src/LinterCombine.h"
+#include "../../src/ClazyBehavior.h"
 #include "../../src/ClazyWrapper.h"
 #include "../../src/ClangTidyWrapper.h"
 #include "../../src/IdeTraitsFactory.h"
@@ -49,7 +50,9 @@ private:
 namespace LintCombine {
     struct MockLinterWrapper final : LinterBase {
         MockLinterWrapper( const StringVector & cmdLine,
-                           LinterFactoryBase::Services & service ) : LinterBase( service ) {
+                           LinterFactoryBase::Services & service,
+                           std::unique_ptr< LinterBehaviorItf > && linterBehaviorVal )
+        : LinterBase( service, std::move( linterBehaviorVal ) ) {
             name = cmdLine[1];
             if( cmdLine.size() >= 3 ) {
                 yamlPath = cmdLine[2];
@@ -76,7 +79,8 @@ namespace LintCombine {
         std::unique_ptr< LinterItf >
             createLinter( const StringVector & cmdLine ) override {
             if( *cmdLine.begin() == "MockLinterWrapper" ) {
-                return std::make_unique< MockLinterWrapper >( cmdLine, getServices() );
+                return std::make_unique< MockLinterWrapper >( cmdLine, getServices(),
+                                                              std::make_unique< ClazyBehavior >() );
             }
             return nullptr;
         }
@@ -122,64 +126,6 @@ static void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic >
 const std::string pathToCombineTempDir = generatePathToCombineTempDir() + PATH_SEP;
 
 BOOST_AUTO_TEST_SUITE( TestLinterOutputFormatConversion )
-
-using pairStrStr = std::pair< std::string, std::string >;
-
-// TODO: Set two checks into one buffer
-// Generate test cases for buffer size between 256 and 8192
-pairStrStr generateLOFCTestCaseDataForDifferentBufferSize(
-    const std::string & linterOutputPart, const std::string & convertedLinterOutputPart,
-    const size_t offsetFromBufferEnd )
-{
-    std::string linterOutput;
-    std::string convertedLinterOutput;
-    for( std::size_t buffSize = 256; buffSize < 8193; ++buffSize ) {
-        std::string beginOffsetStr( buffSize - offsetFromBufferEnd, 'o' );
-
-        std::string tempLinterOutput = beginOffsetStr + linterOutputPart;
-        tempLinterOutput +=
-            std::string( buffSize - ( tempLinterOutput.size() % buffSize ), 'o' );
-
-        std::string tempConvertedLinterOutput = beginOffsetStr + convertedLinterOutputPart;
-        tempConvertedLinterOutput +=
-            std::string( buffSize - ( tempConvertedLinterOutput.size() % buffSize ), 'o' );
-
-        linterOutput += tempLinterOutput;
-        convertedLinterOutput += tempConvertedLinterOutput;
-    }
-    return { linterOutput, convertedLinterOutput };
-}
-
-std::string generatePathToFile( const LintCombine::StringVector & partsOfTheFilePath ) {
-    std::string resultPath = BOOST_OS_WINDOWS ? "C:" : "/c";
-    for( const auto & pathPart : partsOfTheFilePath ) {
-        resultPath += PATH_SEP + pathPart;
-    }
-    return resultPath;
-}
-
-namespace LOFCTest::EmptyCmdLine {
-    std::string pathToFile = generatePathToFile( { "some", "path", "main.cpp" } );
-    std::string sourceRowColumnPart = "(42,42):";
-    std::string convertedRowColumnPart = ":42:42:";
-    std::string sourceCheckNamePart = "[-wsome-check]";
-    std::string convertedCheckNamePart = "[wsome-check]";
-    const std::string linterOutputPart =
-        pathToFile + sourceRowColumnPart + " warning: check_text " + sourceCheckNamePart;
-    const std::string convertedLinterOutputPart =
-        pathToFile + convertedRowColumnPart + " warning: check_text " + convertedCheckNamePart;
-    auto testCase =
-        generateLOFCTestCaseDataForDifferentBufferSize(
-            linterOutputPart, convertedLinterOutputPart, pathToFile.size() );
-}
-
-std::string getLinterOutput() {
-    return LOFCTest::EmptyCmdLine::testCase.first;
-}
-
-std::string getLinterConvertedOutput() {
-    return LOFCTest::EmptyCmdLine::testCase.second;
-}
 
 BOOST_AUTO_TEST_CASE( TestLinterOutputFormatConversion ) {
     std::string bashName = BOOST_OS_WINDOWS ? "sh.exe " : "bash ";
@@ -1144,9 +1090,6 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
     BOOST_CHECK( combineReturnCode == correctResult.returnCode );
     for( const auto & correctStdoutStr : correctResult.stdoutData ) {
         BOOST_CHECK( stdoutData.find( correctStdoutStr ) != std::string::npos );
-        if( stdoutData.find( correctStdoutStr ) == std::string::npos ) {
-            std::cout << "Get:" << std::endl << stdoutData << "WANT:" << std::endl << correctStdoutStr << std::endl;
-        }
     }
     for( const auto & correctStderrStr : correctResult.stderrData ) {
         BOOST_CHECK( stderrData.find( correctStderrStr ) != std::string::npos );

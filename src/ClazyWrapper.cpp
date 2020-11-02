@@ -1,9 +1,10 @@
 #include "ClazyWrapper.h"
 
 LintCombine::ClazyWrapper::ClazyWrapper( const StringVector & cmdLine,
-    LinterFactoryBase::Services & service )
+                                         LinterFactoryBase::Services & service,
+                                         std::unique_ptr < LinterBehaviorItf > && linterBehaviorVal )
     // TODO: "--standalone" for clazy installed binary (in Linux)
-    : LinterBase( cmdLine, service, /*name=*/"clazy-standalone" ) {}
+    : LinterBase( cmdLine, service, /*name=*/"clazy-standalone", std::move( linterBehaviorVal ) ) {}
 
 void LintCombine::ClazyWrapper::updateYamlData( YAML::Node & yamlNode ) const {
     addDocLink( yamlNode );

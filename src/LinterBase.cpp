@@ -93,15 +93,19 @@ LintCombine::CallTotals LintCombine::LinterBase::getYamlPath( std::string & yaml
     return { /*successNum=*/ 1, /*failNum=*/ 0 };
 }
 
-LintCombine::LinterBase::LinterBase( LinterFactoryBase::Services & service )
+LintCombine::LinterBase::LinterBase( LinterFactoryBase::Services & service,
+                                     std::unique_ptr< LinterBehaviorItf > && linterBehaviorVal )
     : m_stdoutPipe( service.getIOService() ),
-      m_stderrPipe( service.getIOService() ) {}
+      m_stderrPipe( service.getIOService() ),
+      m_linterBehavior( std::move( linterBehaviorVal ) ) {}
 
 LintCombine::LinterBase::LinterBase( const StringVector & cmdLine,
                                      LinterFactoryBase::Services & service,
-                                     const std::string & nameVal )
+                                     const std::string & nameVal,
+                                     std::unique_ptr< LinterBehaviorItf > && linterBehaviorVal )
     : name( nameVal ), m_stdoutPipe( service.getIOService() ),
-      m_stderrPipe( service.getIOService() ) {
+      m_stderrPipe( service.getIOService() ),
+      m_linterBehavior( std::move( linterBehaviorVal ) ) {
     parseCmdLine( cmdLine );
 }
 
@@ -146,7 +150,14 @@ void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe &
                                                     std::ostream & outputStream ) {
     pipe.async_read_some( boost::process::buffer( m_buffer ),
                           [&]( boost::system::error_code ec, std::streamsize size ) {
-        outputStream.write( m_buffer.data(), size );
+        auto readFrom = ReadLinterOutputFrom::Stdout;
+        if( outputStream.rdbuf() == std::cerr.rdbuf() ) {
+            readFrom = ReadLinterOutputFrom::Stderr;
+        }
+        const auto & str =
+            m_linterBehavior->convertLinterOutput(
+                std::string( m_buffer.data(), 0, size ), readFrom );
+        outputStream.write( str.c_str(), str.size() );
         if( !ec )
             readFromPipeToStream( pipe, outputStream );
     } );
