@@ -15,11 +15,8 @@ std::string LintCombine::ClazyBehavior::convertLinterOutput( std::string && lint
 
     currentWorkBuffer += linterOutputPart.substr( 0, pos + 1 );
     while( pos != std::string::npos ) {
-        const auto checkNameReplaceResult =
-            std::regex_replace( currentWorkBuffer, std::regex( m_checkNameDetector ), "$1$3:$6$9" );
-        const auto rowColumnReplaceResult =
-            std::regex_replace( checkNameReplaceResult, std::regex( m_rowColumnDetector ), "$1:$4:$5:" );
-        conversionResult += rowColumnReplaceResult;
+        conversionResult +=
+            std::regex_replace( currentWorkBuffer, std::regex( m_regexForConversion ), "$1:$4:$5:$6$9" );
 
         const auto oldPos = pos;
         pos = linterOutputPart.find( "\n", pos + 1 );

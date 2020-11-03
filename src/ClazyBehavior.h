@@ -12,25 +12,26 @@ namespace LintCombine {
         std::string m_stdoutBuffer;
         std::string m_stderrBuffer;
 
-        const std::string m_rowColumnDetector =
+        const char * const m_regexForConversion =
         #ifdef WIN32
             "([a-zA-Z]:([\\\\/][^\\\"\\*\\?\\\\/<>:|]*)*)" // 1: match windows-like file path
         #else
-            "((/.*)*)" // match unix-like file path
+            "((/.*)*)" // 1: match unix-like file path
         #endif
-            "("
-            "\\("    // match row/column part in clazy style
-            "(\\d+)" // match row number
+            "("      // match row/column part in clazy style
+            "\\("
+            "(\\d+)" // 4: match row number
             ","
-            "(\\d+)" // match column number
+            "(\\d+)" // 5: match column number
             "\\)"
-            "):";
-
-        const std::string m_checkNameDetector =
-            m_rowColumnDetector +
-            "( "
-            "(warning|error): " // match check's level
-            ".* "               // match check's message
-            "\\[)(-)*(.*\\])";  // match check's name
+            "):"
+            "( "                //
+            "(warning|error): " // 6: match check's level
+            ".* "               //    match check's message
+            "\\["               //
+            ")"                 //
+            ""
+            "(-)*"      // match hyphens in the check's name begin
+            "(.*\\])";  // 9: match check's name
     };
 }

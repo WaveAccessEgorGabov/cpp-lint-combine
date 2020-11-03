@@ -155,8 +155,9 @@ void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe &
             readFrom = ReadLinterOutputFrom::Stderr;
         }
         const auto & str =
-            m_linterBehavior->convertLinterOutput(
-                std::string( m_buffer.data(), 0, size ), readFrom );
+            m_linterBehavior->convertLinterOutput( std::string( m_buffer.data(), 0,
+                                                   static_cast< std::string::size_type >(size) ),
+                                                   readFrom );
         outputStream.write( str.c_str(), str.size() );
         if( !ec )
             readFromPipeToStream( pipe, outputStream );
