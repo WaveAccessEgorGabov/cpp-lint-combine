@@ -2,6 +2,8 @@
 
 #include "LinterBehaviorItf.h"
 
+#include <regex>
+
 namespace LintCombine {
     class ClazyBehavior final : public LinterBehaviorItf {
     public:
@@ -12,7 +14,7 @@ namespace LintCombine {
         std::string m_stdoutBuffer;
         std::string m_stderrBuffer;
 
-        const char * const m_regexForConversion =
+        const std::regex m_regexForConversion{
         #ifdef WIN32
             "([a-zA-Z]:([\\\\/][^\\\"\\*\\?\\\\/<>:|]*)*)" // 1: match windows-like file path
         #else
@@ -31,7 +33,7 @@ namespace LintCombine {
             "\\["               //
             ")"                 //
             ""
-            "(-)*"      // match hyphens in the check's name begin
-            "(.*\\])";  // 9: match check's name
+            "(-)*"              // match hyphens in the check's name begin
+            "(.*\\])", std::regex::optimize };  // 9: match check's name
     };
 }

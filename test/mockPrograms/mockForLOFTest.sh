@@ -13,7 +13,7 @@ do
 done
 
 fillBuffer() {
-    printf '%*s' $1
+    printf '%*s' $1 "a"
 }
 
 # $1 - Linter output offset
@@ -22,16 +22,14 @@ fillBuffer() {
 # $4 - Print linter output or expected result
 # $5 - Number of new lines (\n) in the linter output
 generateStringForDifferentBufferSize() {
-    for i in {1000000..1000000} # real buffer size
+    for i in {256..2048}
     do
-        spaceFromBuffersBeginToMessage=$(fillBuffer $(($i-$1)))
-        spaceFromMessageToBuffersEnd=$(fillBuffer $(($i-$(($(($i-$1+${#2}-$5)) % $i)) - 1)))
+        printf -v spaceFromBuffersBeginToMessage '%*s' $(($i-$1)) "a"
+        printf -v spaceFromMessageToBuffersEnd '%*s' $(($i-$(($(($i-${1}+${#2}-${5})) % $i)) - 1)) "a"
 
         if $4; then
-            # print linterOutput
             printf "${spaceFromBuffersBeginToMessage}${2}${spaceFromMessageToBuffersEnd}\n"
         else
-            # print converted linterOutput
             printf "${spaceFromBuffersBeginToMessage}${3}${spaceFromMessageToBuffersEnd}\n"
         fi
     done

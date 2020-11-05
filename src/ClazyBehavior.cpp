@@ -1,7 +1,5 @@
 #include "ClazyBehavior.h"
 
-#include <regex>
-
 std::string LintCombine::ClazyBehavior::convertLinterOutput( std::string && linterOutputPart,
                                                              const ReadLinterOutputFrom readFrom ) {
     std::string conversionResult;
@@ -16,7 +14,7 @@ std::string LintCombine::ClazyBehavior::convertLinterOutput( std::string && lint
     currentWorkBuffer += linterOutputPart.substr( 0, pos + 1 );
     while( pos != std::string::npos ) {
         conversionResult +=
-            std::regex_replace( currentWorkBuffer, std::regex( m_regexForConversion ), "$1:$4:$5:$6$9" );
+            std::regex_replace( currentWorkBuffer, m_regexForConversion, "$1:$4:$5:$6$9" );
 
         const auto oldPos = pos;
         pos = linterOutputPart.find( "\n", pos + 1 );
