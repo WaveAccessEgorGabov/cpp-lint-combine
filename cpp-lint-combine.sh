@@ -32,8 +32,8 @@ if [ "${IDE_PROFILE,,}" = "clion" ]; then
 fi
 
 if [ "${IDE_PROFILE,,}" = "baremsvc" ]; then
-    IDE_CLANG_TIDY_PATH="/${1/:}"
-    shift
+    IDE_CLANG_TIDY_PATH="$(dirname "$0")"
+	IDE_CLANG_TIDY_PATH="/${IDE_CLANG_TIDY_PATH/:}"
 fi
 
 export PATH="$CLAZY_PATH:$IDE_CLANG_TIDY_PATH:$PATH"
