@@ -125,6 +125,7 @@ static void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic >
 #define INCORRECT_PATH "<*:?:*>"
 const std::string pathToCombineTempDir = generatePathToCombineTempDir() + PATH_SEP;
 
+#ifdef _WIN32
 BOOST_AUTO_TEST_SUITE( TestLinterOutputFormatConversion )
 
 BOOST_AUTO_TEST_CASE( TestLinterOutputFormatConversion ) {
@@ -152,6 +153,7 @@ BOOST_AUTO_TEST_CASE( TestLinterOutputFormatConversion ) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+#endif
 
 BOOST_AUTO_TEST_SUITE( TestLinterCombineOutput )
 
