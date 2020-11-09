@@ -5,8 +5,7 @@ std::string LintCombine::ClazyBehavior::convertLinterOutput( std::string && lint
                                                              const ReadLinterOutputFrom readFrom ) {
     static const std::regex s_conform{
         #ifdef WIN32
-            // for UNC path starts with '\\'
-            R"(([a-zA-Z]:(?:[\\/][^\"\\*\\?\\/<>:|]*)*))" // 1: match windows-like file path
+            R"(((?:\\[^\"\\*\\?\\/<>:|]*)*))" // 1: match windows-like file path
         #else
             "((/.*)*)" // 1: match unix-like file path
         #endif
@@ -22,8 +21,8 @@ std::string LintCombine::ClazyBehavior::convertLinterOutput( std::string && lint
             ".* "                 //    match check's message
             "\\["                 //
             ")"                   //
-            "(-)*"                // match hyphens in the check's name begin
-            "(.*\\])",            // 5: match check's name
+            "(-)*"                // 5: match hyphens in the check's name begin
+            "(.*\\])",            // 6: match check's name
             std::regex::optimize };
 
     std::string conversionResult;
