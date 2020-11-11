@@ -5,8 +5,7 @@
 namespace LintCombine {
     class ClazyBehavior final : public LinterBehaviorItf {
     public:
-        std::string convertLinterOutput( std::string && linterOutputPart,
-                                         const ReadLinterOutputFrom readFrom ) override;
+        int convertLinterOutput( std::string & linterOutputPart ) override;
 
     private:
         std::string m_stdoutBuffer;

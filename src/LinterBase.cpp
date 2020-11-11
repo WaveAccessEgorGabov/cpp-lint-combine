@@ -35,6 +35,8 @@ void LintCombine::LinterBase::callLinter() {
 int LintCombine::LinterBase::waitLinter() {
     if( m_linterProcess.valid() ) { // linter doesn't terminate
         m_linterProcess.wait();
+        std::cout << m_stdoutBuffer;
+        std::cerr << m_stderrBuffer;
         return m_linterProcess.exit_code();
     }
     return 1;
@@ -148,17 +150,28 @@ void LintCombine::LinterBase::parseCmdLine( const StringVector & cmdLine ) {
 
 void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe & pipe,
                                                     std::ostream & outputStream ) {
-    pipe.async_read_some( boost::process::buffer( m_buffer ),
-                          [&]( boost::system::error_code ec, std::streamsize size ) {
-        auto readFrom = ReadLinterOutputFrom::Stdout;
-        if( outputStream.rdbuf() == std::cerr.rdbuf() ) {
-            readFrom = ReadLinterOutputFrom::Stderr;
+    pipe.async_read_some( boost::process::buffer( m_readPart ),
+                          [&]( boost::system::error_code ec, std::streamsize readPartSize ) {
+        if( readPartSize == 0 ) {
+            if( !ec )
+                readFromPipeToStream( pipe, outputStream );
+            return;
         }
-        const auto & str =
-            m_linterBehavior->convertLinterOutput( std::string( m_buffer.data(), 0,
-                                                   static_cast< std::string::size_type >( size ) ),
-                                                   readFrom );
-        outputStream.write( str.c_str(), str.size() );
+        auto & currentWorkBuffer =
+            outputStream.rdbuf() == std::cerr.rdbuf() ? m_stderrBuffer
+                                                      : m_stdoutBuffer;
+        const std::string receivedMes(
+            m_readPart.data(), 0, static_cast< std::string::size_type >( readPartSize ) );
+        auto bufferWithReadPart = currentWorkBuffer + receivedMes;
+        const auto convertedCharsNum = m_linterBehavior->convertLinterOutput( bufferWithReadPart );
+        if( convertedCharsNum < 0 ) {
+            outputStream.write( bufferWithReadPart.c_str(), bufferWithReadPart.size() );
+            currentWorkBuffer.clear();
+        }
+        if( convertedCharsNum >= 0 ) {
+            outputStream.write( bufferWithReadPart.c_str(), convertedCharsNum );
+            currentWorkBuffer = bufferWithReadPart.substr( convertedCharsNum );
+        }
         if( !ec )
             readFromPipeToStream( pipe, outputStream );
     } );

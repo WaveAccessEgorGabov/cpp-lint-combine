@@ -45,13 +45,15 @@ namespace LintCombine {
     private:
         std::string m_options;
         boost::process::child m_linterProcess;
+        std::string m_stdoutBuffer;
+        std::string m_stderrBuffer;
         boost::process::async_pipe m_stdoutPipe;
         boost::process::async_pipe m_stderrPipe;
         std::vector< Diagnostic > m_diagnostics;
         std::unique_ptr < LinterBehaviorItf > m_linterBehavior;
 
         // Buffer for reading from pipes
-        std::array< char, 512 > m_buffer = {};
+        std::array< char, 512 > m_readPart{};
 
         void readFromPipeToStream( boost::process::async_pipe & pipe,
                                    std::ostream & outputStream );
