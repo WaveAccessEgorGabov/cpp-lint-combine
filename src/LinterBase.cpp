@@ -18,7 +18,7 @@ void LintCombine::LinterBase::callLinter() {
         runCommand = name + " --export-fixes=" + yamlPath + " " + m_options;
     else
         runCommand = name + " " + m_options;
-    try{
+    try {
         m_linterProcess = boost::process::child( runCommand,
                                                  boost::process::std_out > m_stdoutPipe,
                                                  boost::process::std_err > m_stderrPipe );
@@ -150,6 +150,9 @@ void LintCombine::LinterBase::parseCmdLine( const StringVector & cmdLine ) {
 
 void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe & pipe,
                                                     std::ostream & outputStream ) {
+    std::cerr << &outputStream << std::endl;
+    std::cerr << std::_Ptr_cout << std::endl;
+    std::cerr << &std::cerr << std::endl;
     pipe.async_read_some( boost::process::buffer( m_readPart ),
                           [&]( boost::system::error_code ec, std::streamsize readPartSize ) {
         if( readPartSize == 0 ) {
