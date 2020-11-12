@@ -1,5 +1,5 @@
 #include "ClangTidyBehavior.h"
 
-int LintCombine::ClangTidyBehavior::convertLinterOutput( std::string & ) {
+std::streamsize LintCombine::ClangTidyBehavior::convertLinterOutput( std::string & ) {
     return -1;
 }

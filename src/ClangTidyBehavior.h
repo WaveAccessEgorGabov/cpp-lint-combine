@@ -5,6 +5,6 @@
 namespace LintCombine {
     class ClangTidyBehavior final : public LinterBehaviorItf {
     public:
-        int convertLinterOutput( std::string & linterOutputPart ) override;
+        std::streamsize convertLinterOutput( std::string & linterOutputPart ) override;
     };
 }

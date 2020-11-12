@@ -1,7 +1,7 @@
 #include "ClazyBehavior.h"
 #include <regex>
 
-int LintCombine::ClazyBehavior::convertLinterOutput( std::string & linterOutputPart ) {
+std::streamsize LintCombine::ClazyBehavior::convertLinterOutput( std::string & linterOutputPart ) {
     static const std::string rowColumn = "\\((\\d+),(\\d+)\\):";
     static const std::string path = "((?:[\\\\/][^\"*?\\/<>:|]+)+[^(" + rowColumn + "))])";
     static const std::string levelAndMessage = "( (?:warning|error): .* \\[)";
@@ -29,12 +29,12 @@ int LintCombine::ClazyBehavior::convertLinterOutput( std::string & linterOutputP
 
     if( !wantedMessagePart.empty() ) {
         linterOutputPart = convertedOutput + wantedMessagePart + linterOutputPart;
-        return static_cast< int >( convertedOutput.size() );
+        return convertedOutput.size();
     }
 
     if( !convertedOutput.empty() ) {
         linterOutputPart = convertedOutput + linterOutputPart;
-        return static_cast< int >( linterOutputPart.size() );
+        return linterOutputPart.size();
     }
 
     return -1;

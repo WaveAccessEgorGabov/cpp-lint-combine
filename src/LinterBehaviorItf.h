@@ -7,6 +7,6 @@ namespace LintCombine {
     public:
         virtual ~LinterBehaviorItf() = default;
 
-        virtual int convertLinterOutput( std::string & linterOutputPart ) = 0;
+        virtual std::streamsize convertLinterOutput( std::string & linterOutputPart ) = 0;
     };
 }
