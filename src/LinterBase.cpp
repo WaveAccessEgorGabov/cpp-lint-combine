@@ -6,7 +6,6 @@
 
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 
 std::vector< LintCombine::Diagnostic > LintCombine::LinterBase::diagnostics() const {
     return m_diagnostics;
@@ -35,8 +34,6 @@ void LintCombine::LinterBase::callLinter() {
 int LintCombine::LinterBase::waitLinter() {
     if( m_linterProcess.valid() ) { // linter doesn't terminate
         m_linterProcess.wait();
-        std::cout << m_stdoutBuffer;
-        std::cerr << m_stderrBuffer;
         return m_linterProcess.exit_code();
     }
     return 1;
@@ -150,19 +147,9 @@ void LintCombine::LinterBase::parseCmdLine( const StringVector & cmdLine ) {
 
 void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe & pipe,
                                                     std::ostream & outputStream ) {
-    std::cerr << &outputStream << std::endl;
-    std::cerr << std::_Ptr_cout << std::endl;
-    std::cerr << &std::cerr << std::endl;
     pipe.async_read_some( boost::process::buffer( m_readPart ),
                           [&]( boost::system::error_code ec, std::streamsize readPartSize ) {
-        if( readPartSize == 0 ) {
-            if( !ec )
-                readFromPipeToStream( pipe, outputStream );
-            return;
-        }
-        auto & currentWorkBuffer =
-            outputStream.rdbuf() == std::cerr.rdbuf() ? m_stderrBuffer
-                                                      : m_stdoutBuffer;
+        auto & currentWorkBuffer = m_streamBufferMap[ &outputStream ];
         const std::string receivedMes(
             m_readPart.data(), 0, static_cast< std::string::size_type >( readPartSize ) );
         auto bufferWithReadPart = currentWorkBuffer + receivedMes;
@@ -177,5 +164,7 @@ void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe &
         }
         if( !ec )
             readFromPipeToStream( pipe, outputStream );
+        else
+            outputStream << currentWorkBuffer;
     } );
 }
