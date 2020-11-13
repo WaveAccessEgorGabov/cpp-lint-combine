@@ -22,7 +22,7 @@ fillBuffer() {
 # $4 - Print linter output or expected result
 # $5 - Number of new lines (\n) in the linter output
 generateStringForDifferentBufferSize() {
-    for i in {256..2048}
+    for i in {256..512}
     do
         printf -v spaceFromBuffersBeginToMessage '%*s' $(($i-$1)) "a"
         printf -v spaceFromMessageToBuffersEnd '%*s' $(($i-$(($(($i-${1}+${#2}-${5})) % $i)) - 1)) "a"
@@ -36,11 +36,8 @@ generateStringForDifferentBufferSize() {
 }
 
 commonCheckPart=" warning: check_text "
-if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
-    pathToFile="C:\some\pa(42,42)th\mai(42,42)n.cpp"
-else
-    pathToFile="/c/some/pa(42,42)th/ma(42,42)in.cpp"
-fi
+fileName="mai(42,42)n.cpp"
+pathToFile="C:\some\pa(42,42)th\\"${fileName}
 
 rowColumnSource="(42,42):"
 rowColumnConverted=":42:42:"
@@ -112,21 +109,32 @@ generateStringForDifferentBufferSize $((${#testStrSource} - ${newLineSymSize} - 
                                      ${#checkNameSource} - ${#commonCheckPart} / 2 )) \
                                      "$testStrSource" "$testStrConverted" $getTests 1
 
-# Test 11 - Check's message completely in buffer
+# Test 11 - Path to file is short (e.g. "C:\"). Check's message split between buffers in the following way:
+# path_to_file\
+# <filename>(42,42):
+shortPathToFile="C:\\"${fileName}
+testStrSource="${shortPathToFile}${rowColumnSource}${commonCheckPart}${checkNameSource}\n"
+testStrConverted="${shortPathToFile}${rowColumnConverted}${commonCheckPart}${checkNameConverted}\n"
+generateStringForDifferentBufferSize $((${#testStrSource} - ${newLineSymSize} - \
+                                     ${#checkNameSource} - ${#commonCheckPart} - \
+                                     ${#rowColumnSource} - ${#fileName})) \
+                                     "$testStrSource" "$testStrConverted" $getTests 1
+
+# Test 12 - Check's message completely in buffer
 generateStringForDifferentBufferSize $((${#testStrSource} + 10)) \
                                      "$testStrSource" "$testStrConverted" $getTests 1
 
-# Test 12 - Two check's message completely in buffer
+# Test 13 - Two check's message completely in buffer
 generateStringForDifferentBufferSize $((${#testStrSource} * 2 + 20)) \
                                      "$testStrSource$testStrSource" \
                                      "$testStrConverted$testStrConverted" $getTests 2
 
-# Test 13 - Two check's message completely in buffer, some text between messages exist
+# Test 14 - Two check's message completely in buffer, some text between messages exist
 generateStringForDifferentBufferSize $(((${#testStrSource}) * 2 + 30)) \
                                      "${testStrSource}"HelloWorld"${testStrSource}" \
                                      "${testStrConverted}"HelloWorld"${testStrConverted}" $getTests 2
 
-# Test 14 - Test that all hyphen removed from check's name
+# Test 15 - Test that all hyphen removed from check's name
 checkNameSource="[----wsome-check]"
 checkNameConverted="[wsome-check]"
 testStrSource="${pathToFile}${rowColumnSource}${commonCheckPart}${checkNameSource}\n"
@@ -134,23 +142,35 @@ testStrConverted="${pathToFile}${rowColumnConverted}${commonCheckPart}${checkNam
 generateStringForDifferentBufferSize $((${#testStrSource} + 10)) \
                                      "$testStrSource" "$testStrConverted" $getTests 1
 
-# Tests in which the text is very similar to the message that needs to be changed
+# Test 16 - The message starts with file path that isn't related to check message
+mesBegin="${pathToFile}:"
+testStrSource="${mesBegin}${pathToFile}${rowColumnSource}${commonCheckPart}${checkNameSource}\n"
+testStrConverted="${mesBegin}${pathToFile}${rowColumnConverted}${commonCheckPart}${checkNameConverted}\n"
+generateStringForDifferentBufferSize $((${#testStrSource} + 10)) \
+                                     "$testStrSource" "$testStrConverted" $getTests 1
 
-# Test 15
+# Test 17 - The message ends with file path that isn't related to check message
+mesEnd="${pathToFile}:"
+testStrSource="${pathToFile}${rowColumnSource}${commonCheckPart}${checkNameSource}${mesEnd}\n"
+testStrConverted="${pathToFile}${rowColumnConverted}${commonCheckPart}${checkNameConverted}${mesEnd}\n"
+generateStringForDifferentBufferSize $((${#testStrSource} + 10)) \
+                                     "$testStrSource" "$testStrConverted" $getTests 1
+
+# Test 18
 rowColumnPart="(aa,bb):" # symbol instead of numbers
 checkNamePart="[wsome-check---]"
 testStr="${pathToFile}${rowColumnPart}${commonCheckPart}${checkNamePart}\n"
 generateStringForDifferentBufferSize $((${#testStr} + 10)) \
                                      "${testStr}" "${testStr}" $getTests 1
 
-# Test 16
+# Test 19
 rowColumnPart="(42,    42):" # extra spaces added
 checkNamePart="[wsome----check]"
 testStr="${pathToFile}${rowColumnPart}${commonCheckPart}${checkNamePart}\n"
 generateStringForDifferentBufferSize $((${#testStr} + 10)) \
                                      "${testStr}" "${testStr}" $getTests 1
 
-# Test 17
+# Test 20
 rowColumnPart="(42,42)" # colon does not exist
 checkNamePart="[wsome-check"
 testStr="${pathToFile}${rowColumnPart}${commonCheckPart}${checkNamePart}\n"

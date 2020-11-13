@@ -2,40 +2,30 @@
 #include <regex>
 
 std::streamsize LintCombine::ClazyBehavior::convertLinterOutput( std::string & linterOutputPart ) {
+    static const std::string path = "([\\\\/][^\"*?\\\\/<>:|]*)";
     static const std::string rowColumn = "\\((\\d+),(\\d+)\\):";
-    static const std::string path = "((?:[\\\\/][^\"*?\\/<>:|]+)+[^(" + rowColumn + "))])";
     static const std::string levelAndMessage = "( (?:warning|error): .* \\[)";
     static const std::string hyphens = "(-)*";
     static const std::string name = "(.*\\])";
     static const std::regex s_conform(
-        path + "(?:" + rowColumn + levelAndMessage + hyphens + name + ")?"
+        path + rowColumn + levelAndMessage + hyphens + name, std::regex::optimize
     );
-    std::smatch match;
-    std::string wantedMessagePart;
     std::string convertedOutput;
+    std::smatch match;
     while( std::regex_search( linterOutputPart, match, s_conform ) ) {
         if( match[match.size() - 1].matched ) {
-            convertedOutput += wantedMessagePart;
-            wantedMessagePart.clear();
-            convertedOutput += match.prefix().str();
-            convertedOutput += std::regex_replace( match[0].str(), s_conform, "$1:$2:$3:$4$6" );
-            linterOutputPart = match.suffix().str();
-        }
-        else if( match[1].matched ) {
-            wantedMessagePart += match.prefix().str() + match.str();
-            linterOutputPart = match.suffix().str();
+            convertedOutput +=
+                match.prefix().str() +
+                std::regex_replace( match[0].str(), s_conform, "$1:$2:$3:$4$6" );
+            linterOutputPart = match.suffix();
         }
     }
-
-    if( !wantedMessagePart.empty() ) {
-        linterOutputPart = convertedOutput + wantedMessagePart + linterOutputPart;
+    static const std::regex s_conformPath( path, std::regex::optimize );
+    if( std::regex_search( linterOutputPart, match, s_conformPath ) ) {
+        convertedOutput += match.prefix().str();
+        linterOutputPart = convertedOutput + match[0].str() + match.suffix().str();
         return convertedOutput.size();
     }
-
-    if( !convertedOutput.empty() ) {
-        linterOutputPart = convertedOutput + linterOutputPart;
-        return linterOutputPart.size();
-    }
-
-    return -1;
+    linterOutputPart = convertedOutput + linterOutputPart;
+    return linterOutputPart.size();
 }
