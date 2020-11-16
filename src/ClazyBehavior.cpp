@@ -2,11 +2,11 @@
 #include <regex>
 
 std::streamsize LintCombine::ClazyBehavior::convertLinterOutput( std::string & linterOutputPart ) {
-    static const std::string path = "([\\\\/][^\"*?\\\\/<>:|]*)";
+    static const std::string path = "([\\\\/][^\"*?\\\\/<>:|]*?)";
     static const std::string rowColumn = "\\((\\d+),(\\d+)\\):";
-    static const std::string levelAndMessage = "( (?:warning|error): .* \\[)";
+    static const std::string levelAndMessage = "( (?:warning|error): .*? \\[)";
     static const std::string hyphens = "(-)*";
-    static const std::string name = "(.*\\])";
+    static const std::string name = "(.*?\\])";
     static const std::regex s_conform(
         path + rowColumn + levelAndMessage + hyphens + name, std::regex::optimize
     );
