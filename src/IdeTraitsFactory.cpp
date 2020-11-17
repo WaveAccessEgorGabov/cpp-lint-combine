@@ -6,6 +6,9 @@
 
 #include <boost/algorithm/string/case_conv.hpp>
 
+LintCombine::IdeTraitsFactory::IdeTraitsFactory( StringVector & cmdLine )
+    : m_cmdLine( cmdLine ) {}
+
 std::unique_ptr< LintCombine::IdeTraitsFactory::IdeBehaviorItf >
 LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     boost::algorithm::to_lower( m_ideName );
@@ -35,8 +38,8 @@ LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
 };
 
 std::unique_ptr< LintCombine::PrepareInputsItf >
-LintCombine::IdeTraitsFactory::getPrepareInputsInstance( StringVector & cmdLine ) {
-    if( cmdLine.empty() ) {
+LintCombine::IdeTraitsFactory::getPrepareInputsInstance() {
+    if( m_cmdLine.empty() ) {
         return std::make_unique< PrepareInputsOnError >(
             Level::Error, "Command Line is empty", "FactoryPreparer", 1, 0 );
     }
@@ -45,7 +48,7 @@ LintCombine::IdeTraitsFactory::getPrepareInputsInstance( StringVector & cmdLine 
         "ide-profile", boost::program_options::value< std::string >( &m_ideName ) );
     boost::program_options::variables_map vm;
     try {
-        store( boost::program_options::command_line_parser( cmdLine ).
+        store( boost::program_options::command_line_parser( m_cmdLine ).
                options( programDesc ).allow_unregistered().run(), vm );
         notify( vm );
     }
@@ -53,10 +56,10 @@ LintCombine::IdeTraitsFactory::getPrepareInputsInstance( StringVector & cmdLine 
         return std::make_unique< PrepareInputsOnError >(
             Level::Error, ex.what(), "FactoryPreparer", 1, 0 );
     }
-    cmdLine.erase( std::remove_if( std::begin( cmdLine ), std::end( cmdLine ),
+    m_cmdLine.erase( std::remove_if( m_cmdLine.begin(), m_cmdLine.end(),
                    [this]( const std::string & str ) -> bool {
                        return str.find( "--ide-profile" ) == 0 || str == m_ideName;
-                   } ), std::end( cmdLine ) );
+                   } ), m_cmdLine.end() );
     if( m_ideName.empty() ) {
         return std::make_unique< PrepareInputsVerbatim >();
     }

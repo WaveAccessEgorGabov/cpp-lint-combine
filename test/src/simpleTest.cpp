@@ -2375,9 +2375,9 @@ const PCLTestCase PCLTestCaseData[] = {
 
 BOOST_DATA_TEST_CASE( TestPrepareCmdLine, PCLTestCaseData, sample ) {
     const auto & correctResult = static_cast< PCLTestCase::Output >( sample.output );
-    LintCombine::IdeTraitsFactory ideTraitsFactory;
     auto inputCmdLine = sample.input.cmdLine;
-    auto prepareCmdLine = ideTraitsFactory.getPrepareInputsInstance( inputCmdLine );
+    LintCombine::IdeTraitsFactory ideTraitsFactory( inputCmdLine );
+    auto prepareCmdLine = ideTraitsFactory.getPrepareInputsInstance();
     if( correctResult.mayYamlFileContainDocLink.has_value() ) {
         BOOST_CHECK( ideTraitsFactory.getIdeBehaviorInstance()->mayYamlFileContainDocLink() ==
                      correctResult.mayYamlFileContainDocLink );
@@ -2419,7 +2419,7 @@ void checkTargetArch( const std::string & macrosDir,
         };
     }
 
-    auto prepareCmdLine = LintCombine::IdeTraitsFactory().getPrepareInputsInstance( cmdLine );
+    auto prepareCmdLine = LintCombine::IdeTraitsFactory( cmdLine ).getPrepareInputsInstance();
     auto preparerResult = prepareCmdLine->transformCmdLine( cmdLine );
     BOOST_CHECK_EQUAL_COLLECTIONS( preparerResult.begin(), preparerResult.end(),
                                    result.begin(), result.end() );

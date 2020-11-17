@@ -8,6 +8,8 @@
 namespace LintCombine {
     class IdeTraitsFactory {
     public:
+        IdeTraitsFactory( StringVector & cmdLine );
+
         struct IdeBehaviorItf {
             virtual bool mayYamlFileContainDocLink() const = 0;
             virtual bool isLinterExitCodeTolerant() const = 0;
@@ -61,11 +63,12 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        std::unique_ptr< PrepareInputsItf > getPrepareInputsInstance( StringVector & cmdLine );
+        std::unique_ptr< PrepareInputsItf > getPrepareInputsInstance();
 
         std::unique_ptr< IdeBehaviorItf > getIdeBehaviorInstance();
 
     private:
         std::string m_ideName;
+        StringVector & m_cmdLine;
     };
 }
