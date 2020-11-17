@@ -13,7 +13,7 @@
 namespace LintCombine {
     class LinterBase : public LinterItf {
     public:
-        void callLinter() override;
+        void callLinter( const std::unique_ptr< IdeBehaviorItf > & ideBehavior ) override;
 
         int waitLinter() override;
 

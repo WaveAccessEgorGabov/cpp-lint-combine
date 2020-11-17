@@ -116,6 +116,30 @@ static void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic >
     BOOST_CHECK( lhs == rhs );
 }
 
+std::string getRunnerName( const std::string & shellName ) {
+    if constexpr( BOOST_OS_WINDOWS ) {
+        if( shellName == "cmd" ) {
+            return {};
+        }
+        if( shellName == "bash" ) {
+            return "sh.exe ";
+        }
+    }
+    if constexpr( BOOST_OS_LINUX ) {
+        return "sh ";
+    }
+    return {};
+}
+
+std::string getScriptExtension() {
+    if constexpr( BOOST_OS_WINDOWS ) {
+        return ".cmd";
+    }
+    else {
+        return ".sh";
+    }
+}
+
 #ifdef _WIN32
 #define PATH_SEP "\\"
 #else
@@ -124,6 +148,56 @@ static void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic >
 
 #define INCORRECT_PATH "<*:?:*>"
 const std::string pathToCombineTempDir = generatePathToCombineTempDir() + PATH_SEP;
+
+BOOST_AUTO_TEST_SUITE( TestStreamsMergedForRequiredIdes )
+
+// SMFRIde means streams merged for required ides
+struct SMFRIdeTestCase {
+    SMFRIdeTestCase( const std::string & ideNameVal, const std::string & stdoutDataVal,
+                     const std::string & stderrDataVal )
+        : ideName( ideNameVal ), stdoutData( stdoutDataVal ), stderrData( stderrDataVal ) {}
+
+    std::string ideName;
+    std::string stdoutData;
+    std::string stderrData;
+};
+
+std::ostream & operator<<( std::ostream & os, SMFRIdeTestCase ) {
+    return os;
+}
+
+const SMFRIdeTestCase LCOTestCaseData[] = {
+    /*0 */ { "BareMSVC", "stdoutstderr", {} },
+    /*1 */ { "ReSharper", "stdout", "stderr" },
+    /*2 */ { "CLion", "stdout", "stderr" },
+};
+
+BOOST_DATA_TEST_CASE( TestSMFRIde, LCOTestCaseData, sample ) {
+    const LintCombine::StringVector cmdLine = {
+        "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
+        CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
+        getScriptExtension() + " 0 stdout stderr" };
+    LintCombine::LinterCombine combine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
+    int combineReturnCode;
+    std::string stdoutData;
+    std::string stderrData;
+    {   // Capture only LinterCombine's output
+        const StreamCapture stdoutCapture( std::cout );
+        const StreamCapture stderrCapture( std::cerr );
+        LintCombine::StringVector ideStr = { "--ide-profile=" + sample.ideName };
+        LintCombine::IdeTraitsFactory ideTraitsFactory( ideStr );
+        ideTraitsFactory.getPrepareInputsInstance();
+        combine.callLinter( ideTraitsFactory.getIdeBehaviorInstance() );
+        combineReturnCode = combine.waitLinter();
+        stdoutData = stdoutCapture.getBufferData();
+        stderrData = stderrCapture.getBufferData();
+    }
+    BOOST_CHECK( combineReturnCode == 0 );
+    BOOST_CHECK( stdoutData == sample.stdoutData );
+    BOOST_CHECK( stderrData == sample.stderrData );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
 
 #ifdef _WIN32
 BOOST_AUTO_TEST_SUITE( TestLinterOutputFormatConversion )
@@ -137,7 +211,8 @@ BOOST_AUTO_TEST_CASE( TestLinterOutputFormatConversion ) {
     std::string stdoutData;
     {
         const StreamCapture stdoutCapture( std::cout );
-        combine.callLinter();
+        LintCombine::StringVector cmdLine;
+        combine.callLinter( LintCombine::IdeTraitsFactory( cmdLine ).getIdeBehaviorInstance() );
         combine.waitLinter();
         stdoutData = stdoutCapture.getBufferData();
     }
@@ -808,20 +883,6 @@ std::ostream & operator<<( std::ostream & os, CWLTestCase ) {
     return os;
 }
 
-std::string getRunnerName( const std::string & shellName ) {
-    if constexpr( BOOST_OS_WINDOWS ) {
-        if( shellName == "cmd" ) { return {}; }
-        if( shellName == "bash" ) { return "sh.exe "; }
-    }
-    if constexpr( BOOST_OS_LINUX ) { return "sh "; }
-    return {};
-}
-
-std::string getScriptExtension() {
-    if constexpr( BOOST_OS_WINDOWS ) { return ".cmd"; }
-    else { return ".sh"; }
-}
-
 namespace TestCWL::L1Terminate {
     const CWLTestCase::Input input{
         { "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
@@ -1084,7 +1145,8 @@ BOOST_DATA_TEST_CASE( TestCallAndWaitLinter, CWLTestCaseData, sample ) {
     { // Capture only LinterCombine's output
         const StreamCapture stdoutCapture( std::cout );
         const StreamCapture stderrCapture( std::cerr );
-        combine.callLinter();
+        LintCombine::StringVector cmdLine;
+        combine.callLinter( LintCombine::IdeTraitsFactory( cmdLine ).getIdeBehaviorInstance() );
         combineReturnCode = combine.waitLinter();
         stdoutData = stdoutCapture.getBufferData();
         stderrData = stderrCapture.getBufferData();

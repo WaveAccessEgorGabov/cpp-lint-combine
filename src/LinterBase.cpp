@@ -11,16 +11,23 @@ std::vector< LintCombine::Diagnostic > LintCombine::LinterBase::diagnostics() co
     return m_diagnostics;
 }
 
-void LintCombine::LinterBase::callLinter() {
+void LintCombine::LinterBase::callLinter( const std::unique_ptr< IdeBehaviorItf > & ideBehavior ) {
     std::string runCommand;
     if( !yamlPath.empty() )
         runCommand = name + " --export-fixes=" + yamlPath + " " + m_options;
     else
         runCommand = name + " " + m_options;
     try {
-        m_linterProcess = boost::process::child( runCommand,
-                                                 boost::process::std_out > m_stdoutPipe,
-                                                 boost::process::std_err > m_stderrPipe );
+        if( ideBehavior->doesMergeStdoutAndStderr() ) {
+            m_linterProcess = boost::process::child( runCommand,
+                                                     boost::process::std_out > m_stdoutPipe,
+                                                     boost::process::std_err > m_stdoutPipe );
+        }
+        else {
+            m_linterProcess = boost::process::child( runCommand,
+                                                     boost::process::std_out > m_stdoutPipe,
+                                                     boost::process::std_err > m_stderrPipe );
+        }
     }
     catch( const std::exception & ex ) {
         m_diagnostics.emplace_back( Level::Error, ex.what(), "LinterBase", 1, 0 );
@@ -28,7 +35,9 @@ void LintCombine::LinterBase::callLinter() {
         return;
     }
     readFromPipeToStream( m_stdoutPipe, std::cout );
-    readFromPipeToStream( m_stderrPipe, std::cerr );
+    if( !ideBehavior->doesMergeStdoutAndStderr() ) {
+        readFromPipeToStream( m_stderrPipe, std::cerr );
+    }
 }
 
 int LintCombine::LinterBase::waitLinter() {

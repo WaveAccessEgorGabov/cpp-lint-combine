@@ -3,35 +3,41 @@
 #include "PrepareInputsReSharper.h"
 #include "PrepareInputsBareMSVC.h"
 #include "PrepareInputsVerbatim.h"
+#include "IdeBehaviorBase.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
 
 LintCombine::IdeTraitsFactory::IdeTraitsFactory( StringVector & cmdLine )
     : m_cmdLine( cmdLine ) {}
 
-std::unique_ptr< LintCombine::IdeTraitsFactory::IdeBehaviorItf >
+std::unique_ptr< LintCombine::IdeBehaviorItf >
 LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     boost::algorithm::to_lower( m_ideName );
     if( m_ideName == "baremsvc" ) {
-        return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink=*/false,
+        return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/true,
+                                                    /*mayYamlFileContainDocLink=*/false,
                                                     /*linterExitCodeTolerant=*/false );
     }
     if( m_ideName == "resharper" ) {
-        return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink=*/true,
+        return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/false,
+                                                    /*mayYamlFileContainDocLink=*/true,
                                                     /*linterExitCodeTolerant=*/false );
     }
     if( m_ideName == "clion" ) {
         if constexpr( BOOST_OS_WINDOWS ) {
-            return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink=*/false,
+            return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/false,
+                                                        /*mayYamlFileContainDocLink=*/false,
                                                         /*linterExitCodeTolerant=*/false );
         }
         if constexpr( BOOST_OS_LINUX ) {
-            return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink=*/false,
+            return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/false,
+                                                        /*mayYamlFileContainDocLink=*/false,
                                                         /*linterExitCodeTolerant=*/true );
         }
     }
     if( m_ideName.empty() ) { // verbatim mode
-        return std::make_unique< IdeBehaviorBase >( /*mayYamlFileContainDocLink*/true,
+        return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/false,
+                                                    /*mayYamlFileContainDocLink*/true,
                                                     /*linterExitCodeTolerant*/false );
     }
     return nullptr;

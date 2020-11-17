@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PrepareInputsItf.h"
+#include "IdeBehaviorItf.h"
 
 #include <boost/program_options.hpp>
 #include <memory>
@@ -9,32 +10,6 @@ namespace LintCombine {
     class IdeTraitsFactory {
     public:
         IdeTraitsFactory( StringVector & cmdLine );
-
-        struct IdeBehaviorItf {
-            virtual bool mayYamlFileContainDocLink() const = 0;
-            virtual bool isLinterExitCodeTolerant() const = 0;
-            virtual ~IdeBehaviorItf() = default;
-        };
-
-        class IdeBehaviorBase final : public IdeBehaviorItf {
-        public:
-            IdeBehaviorBase( const bool mayYamlFileContainDocLinkVal,
-                             const bool linterExitCodeTolerantVal )
-                : m_mayYamlFileContainDocLink( mayYamlFileContainDocLinkVal ),
-                m_linterExitCodeTolerant( linterExitCodeTolerantVal ) {}
-
-            bool mayYamlFileContainDocLink() const override {
-                return m_mayYamlFileContainDocLink;
-            }
-
-            bool isLinterExitCodeTolerant() const override {
-                return m_linterExitCodeTolerant;
-            }
-
-        private:
-            bool m_mayYamlFileContainDocLink;
-            bool m_linterExitCodeTolerant;
-        };
 
         class PrepareInputsOnError final : public PrepareInputsItf {
         public:

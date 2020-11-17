@@ -70,10 +70,10 @@ LintCombine::LinterCombine::LinterCombine( const StringVector & cmdLine,
     checkIsRequiredYamlFilesCombinationSpecified();
 }
 
-void LintCombine::LinterCombine::callLinter() {
+void LintCombine::LinterCombine::callLinter( const std::unique_ptr< IdeBehaviorItf > & ideBehavior ) {
     m_services.getIOService().restart(); // otherwise io_service's work ends
     for( const auto & linter : m_linters ) {
-        linter->callLinter();
+        linter->callLinter( ideBehavior );
     }
 }
 

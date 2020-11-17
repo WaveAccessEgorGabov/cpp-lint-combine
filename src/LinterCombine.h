@@ -18,7 +18,7 @@ namespace LintCombine {
             const StringVector & cmdLine,
             LinterFactoryBase & factory = UsualLinterFactory::getInstance() );
 
-        void callLinter() override;
+        void callLinter( const std::unique_ptr< IdeBehaviorItf > & ideBehavior ) override;
 
         // Returns: 0 if successful, implementation-defined nonzero value otherwise.
         int waitLinter() override;
