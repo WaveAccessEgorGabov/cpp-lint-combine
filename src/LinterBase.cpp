@@ -19,9 +19,8 @@ void LintCombine::LinterBase::callLinter( const std::unique_ptr< IdeBehaviorItf 
         runCommand = name + " " + m_options;
     try {
         if( ideBehavior->doesMergeStdoutAndStderr() ) {
-            m_linterProcess = boost::process::child( runCommand,
-                                                     boost::process::std_out > m_stdoutPipe,
-                                                     boost::process::std_err > m_stdoutPipe );
+            m_linterProcess = boost::process::child(
+                runCommand, ( boost::process::std_out & boost::process::std_err ) > m_stdoutPipe );
         }
         else {
             m_linterProcess = boost::process::child( runCommand,
