@@ -30,7 +30,7 @@
       
       4.2. [Via Linux CLI](#42-via-linux-cli)
       
-      4.4. [Via Visual Studio](#43-via-visual-studio)
+      4.3. [Via Visual Studio](#43-via-visual-studio)
       
       4.4. [Via ReSharper](#44-via-resharper)
       
@@ -38,37 +38,47 @@
       
    5. [Get Cpp-lint-combine in Visual Studio (Windows)](#5-get-cpp-lint-combine-in-visual-studio-windows)
    
-      5.1. [Install Visual Studio and ReSharper C++](#51-install-visual-studio-and-resharper-c)
+      5.1. [Install Visual Studio](#51-install-visual-studio)
       
       5.2. [Install supported linters](#52-install-supported-linters)
       
-      5.3. [Set up ReSharper to use Cpp-lint-combine](#53-set-up-resharper-to-use-cpp-lint-combine)
-       
-   6. [Get Cpp-lint-combine in CLion](#6-get-cpp-lint-combine-in-clion)
-       
-      6.1. [Install CLion](#61-install-clion)
+      5.3. [Set up Visual Studio to use Cpp-lint-combine in applications with x64 target architecture](#53-set-up-visual-studio-to-use-cpp-lint-combine-in-applications-with-x64-target-architecture)
+      
+      5.4. [Set up Visual Studio to use Cpp-lint-combine in applications with x86 target architecture](#54-set-up-visual-studio-to-use-cpp-lint-combine-in-applications-with-x86-target-architecture)
+      
+   6. [Get Cpp-lint-combine in ReSharper via Visual Studio (Windows)](#6-get-cpp-lint-combine-in-resharper-via-visual-studio-windows)
+   
+      6.1. [Install Visual Studio and ReSharper C++](#61-install-visual-studio-and-resharper-c)
       
       6.2. [Install supported linters](#62-install-supported-linters)
       
-      6.3. [Set up CLion to use Cpp-lint-combine](#63-set-up-clion-to-use-cpp-lint-combine)
+      6.3. [Set up ReSharper to use Cpp-lint-combine](#63-set-up-resharper-to-use-cpp-lint-combine)
        
-   7. [Configure the cpp-lint-combine.sh bootstrapper script](#7-configure-the-cpp-lint-combinesh-bootstrapper-script)
+   7. [Get Cpp-lint-combine in CLion](#7-get-cpp-lint-combine-in-clion)
+       
+      7.1. [Install CLion](#71-install-clion)
+      
+      7.2. [Install supported linters](#72-install-supported-linters)
+      
+      7.3. [Set up CLion to use Cpp-lint-combine](#73-set-up-clion-to-use-cpp-lint-combine)
+       
+   8. [Configure the cpp-lint-combine.sh bootstrapper script](#8-configure-the-cpp-lint-combinesh-bootstrapper-script)
    
-      7.1. [Choose IDE to run Cpp-lint-combine](#71-choose-ide-to-run-cpp-lint-combine)
+      8.1. [Choose IDE to run Cpp-lint-combine](#81-choose-ide-to-run-cpp-lint-combine)
       
-      7.2. [Set paths](#72-set-paths)
+      8.2. [Set paths](#82-set-paths)
       
-      7.3. [Configure Clazy's checks/levels](#73-configure-clazys-checkslevels)
+      8.3. [Configure Clazy's checks/levels](#83-configure-clazys-checkslevels)
       
-      7.4. [Configure extra clang arguments](#74-configure-extra-clang-arguments)
+      8.4. [Configure extra clang arguments](#84-configure-extra-clang-arguments)
       
-      7.5 [Choose linters to use](#75-choose-linters-to-use)
+      8.5 [Choose linters to use](#85-choose-linters-to-use)
        
-   8. [Q&A/ troubleshooting](#8-qa-troubleshooting)
+   9. [Q&A/ troubleshooting](#9-qa-troubleshooting)
        
-      8.1. [How to set up Cpp-lint-combine for both ReSharper and CLion on the same Windows machine?](#81-how-to-set-up-cpp-lint-combine-for-both-resharper-and-clion-on-the-same-windows-machine)
+      9.1. [How to set up Cpp-lint-combine for both ReSharper and CLion on the same Windows machine?](#91-how-to-set-up-cpp-lint-combine-for-both-resharper-and-clion-on-the-same-windows-machine)
        
-      8.2. [Issue: not seeing ANY inspection messages from clang-tidy among ReSharper's ones](#82-issue-not-seeing-any-inspection-messages-from-clang-tidy-among-resharpers-ones)
+      9.2. [Issue: not seeing ANY inspection messages from clang-tidy among ReSharper's ones](#92-issue-not-seeing-any-inspection-messages-from-clang-tidy-among-resharpers-ones)
    
 ## 1. Overview
 
