@@ -213,8 +213,10 @@ BOOST_DATA_TEST_CASE( TestSMFCRIde, SMFCRIdeTestCaseData, sample ) {
         stderrData = stderrCapture.getBufferData();
     }
     BOOST_CHECK( combineReturnCode == 0 );
+    // Quotes should be removed because cmd-scripts and bash-scripts
+    // have different policies regarding quotes in output.
     auto removeQuotes = []( std::string & str ) {
-        str.erase( std::remove( str.begin(), str.end(), '\"' ), str.end() );
+        str.erase( std::remove( str.begin(), str.end(), '"' ), str.end() );
     };
     removeQuotes( stdoutData );
     removeQuotes( stderrData );
