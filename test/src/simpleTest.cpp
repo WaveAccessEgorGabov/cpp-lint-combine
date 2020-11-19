@@ -174,9 +174,9 @@ std::ostream & operator<<( std::ostream & os, SMCFRIdeTestCase ) {
 }
 
 constexpr auto checkMessage =
-    "\"C:\\some\\path\\main.cpp(42,42): warning: check message [-check-name]\"";
+    "C:\\some\\path\\main.cpp(42,42): warning: check message [-check-name]";
 constexpr auto convertedCheckMessage =
-    "\"C:\\some\\path\\main.cpp:42:42: warning: check message [check-name]\"";
+    "C:\\some\\path\\main.cpp:42:42: warning: check message [check-name]";
 
 const SMCFRIdeTestCase SMFCRIdeTestCaseData[] = {
     // Test that streams merges for required IDEs
@@ -196,7 +196,7 @@ BOOST_DATA_TEST_CASE( TestSMFCRIde, SMFCRIdeTestCaseData, sample ) {
     const LintCombine::StringVector cmdLine = {
         "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
         CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
-        getScriptExtension() + " 0 " + sample.sentStdoutData + " " + sample.sentStderrData };
+        getScriptExtension() + " 0 \"" + sample.sentStdoutData + "\" \"" + sample.sentStderrData + "\"" };
     LintCombine::LinterCombine combine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     int combineReturnCode;
     std::string stdoutData;
@@ -213,6 +213,11 @@ BOOST_DATA_TEST_CASE( TestSMFCRIde, SMFCRIdeTestCaseData, sample ) {
         stderrData = stderrCapture.getBufferData();
     }
     BOOST_CHECK( combineReturnCode == 0 );
+    auto removeQuotes = []( std::string & str ) {
+        str.erase( std::remove( str.begin(), str.end(), '\"' ), str.end() );
+    };
+    removeQuotes( stdoutData );
+    removeQuotes( stderrData );
     BOOST_CHECK( stdoutData == sample.receivedStdoutData );
     BOOST_CHECK( stderrData == sample.receivedStderrData );
 }
