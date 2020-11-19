@@ -33,6 +33,7 @@ void LintCombine::LinterBase::callLinter( const std::unique_ptr< IdeBehaviorItf 
         m_linterProcess.terminate();
         return;
     }
+    m_convertLinterOutput = ideBehavior->doesConvertLinterOutput();
     readFromPipeToStream( m_stdoutPipe, std::cout );
     if( !ideBehavior->doesMergeStdoutAndStderr() ) {
         readFromPipeToStream( m_stderrPipe, std::cerr );
@@ -161,7 +162,10 @@ void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe &
         const std::string receivedMes(
             m_readPart.data(), 0, static_cast< std::string::size_type >( readPartSize ) );
         auto bufferWithReadPart = currentWorkBuffer + receivedMes;
-        const auto convertedCharsNum = m_linterBehavior->convertLinterOutput( bufferWithReadPart );
+        std::streamsize convertedCharsNum = -1;
+        if( m_convertLinterOutput ) {
+            convertedCharsNum = m_linterBehavior->convertLinterOutput( bufferWithReadPart );
+        }
         if( convertedCharsNum < 0 ) {
             outputStream.write( bufferWithReadPart.c_str(), bufferWithReadPart.size() );
             currentWorkBuffer.clear();

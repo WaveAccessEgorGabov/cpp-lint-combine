@@ -57,6 +57,7 @@ namespace LintCombine {
         std::array< char, 512 > m_readPart{};
         std::map< std::ostream *, std::string > m_streamBufferMap = {
             { &std::cout, {} }, { &std::cerr, {} } };
+        bool m_convertLinterOutput = false;
 
         void readFromPipeToStream( boost::process::async_pipe & pipe,
                                    std::ostream & outputStream );

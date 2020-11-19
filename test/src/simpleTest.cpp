@@ -149,34 +149,54 @@ std::string getScriptExtension() {
 #define INCORRECT_PATH "<*:?:*>"
 const std::string pathToCombineTempDir = generatePathToCombineTempDir() + PATH_SEP;
 
-BOOST_AUTO_TEST_SUITE( TestStreamsMergedForRequiredIdes )
+BOOST_AUTO_TEST_SUITE( TestStreamsMergedAndConvertedForRequiredIdes )
 
 // SMFRIde means streams merged for required ides
-struct SMFRIdeTestCase {
-    SMFRIdeTestCase( const std::string & ideNameVal, const std::string & stdoutDataVal,
-                     const std::string & stderrDataVal )
-        : ideName( ideNameVal ), stdoutData( stdoutDataVal ), stderrData( stderrDataVal ) {}
+struct SMCFRIdeTestCase {
+    SMCFRIdeTestCase( const std::string & ideNameVal,
+                      const std::string & sentStdoutDataVal,
+                      const std::string & sentStderrDataVal,
+                      const std::string & receivedStdoutDataVal,
+                      const std::string & receivedStderrDataVal )
+        : ideName( ideNameVal ),
+          sentStdoutData( sentStdoutDataVal ), sentStderrData( sentStderrDataVal ),
+          receivedStdoutData( receivedStdoutDataVal ), receivedStderrData( receivedStderrDataVal ) {}
 
     std::string ideName;
-    std::string stdoutData;
-    std::string stderrData;
+    std::string sentStdoutData;
+    std::string sentStderrData;
+    std::string receivedStdoutData;
+    std::string receivedStderrData;
 };
 
-std::ostream & operator<<( std::ostream & os, SMFRIdeTestCase ) {
+std::ostream & operator<<( std::ostream & os, SMCFRIdeTestCase ) {
     return os;
 }
 
-const SMFRIdeTestCase LCOTestCaseData[] = {
-    /*0 */ { "BareMSVC", "stdoutstderr", {} },
-    /*1 */ { "ReSharper", "stdout", "stderr" },
-    /*2 */ { "CLion", "stdout", "stderr" },
+constexpr auto checkMessage =
+    "\"C:\\some\\path\\main.cpp(42,42): warning: check message [-check-name]\"";
+constexpr auto convertedCheckMessage =
+    "\"C:\\some\\path\\main.cpp:42:42: warning: check message [check-name]\"";
+
+const SMCFRIdeTestCase SMFCRIdeTestCaseData[] = {
+    // Test that streams merges for required IDEs
+    /*0 */ { "BareMSVC", "stdout", "stderr", "stdoutstderr", {} },
+    /*1 */ { "ReSharper", "stdout", "stderr", "stdout", "stderr" },
+    /*2 */ { "CLion", "stdout", "stderr", "stdout", "stderr" },
+    /*3 */ { /*verbatim mode*/"", "stdout", "stderr", "stdout", "stderr" },
+
+    // Test that linter's outputs convert for required IDEs
+    /*4 */ { "BareMSVC", checkMessage, {}, convertedCheckMessage, {} },
+    /*5 */ { "ReSharper", checkMessage, {}, checkMessage, {} },
+    /*6 */ { "CLion", checkMessage, {}, checkMessage, {} },
+    /*7 */ { /*verbatim mode*/"", checkMessage, {}, checkMessage, {} },
 };
 
-BOOST_DATA_TEST_CASE( TestSMFRIde, LCOTestCaseData, sample ) {
+BOOST_DATA_TEST_CASE( TestSMFCRIde, SMFCRIdeTestCaseData, sample ) {
     const LintCombine::StringVector cmdLine = {
         "--sub-linter=MockLinterWrapper", getRunnerName( "cmd" ) +
         CURRENT_SOURCE_DIR "mockPrograms/mockWriteToStreams" +
-        getScriptExtension() + " 0 stdout stderr" };
+        getScriptExtension() + " 0 " + sample.sentStdoutData + " " + sample.sentStderrData };
     LintCombine::LinterCombine combine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
     int combineReturnCode;
     std::string stdoutData;
@@ -193,8 +213,8 @@ BOOST_DATA_TEST_CASE( TestSMFRIde, LCOTestCaseData, sample ) {
         stderrData = stderrCapture.getBufferData();
     }
     BOOST_CHECK( combineReturnCode == 0 );
-    BOOST_CHECK( stdoutData == sample.stdoutData );
-    BOOST_CHECK( stderrData == sample.stderrData );
+    BOOST_CHECK( stdoutData == sample.receivedStdoutData );
+    BOOST_CHECK( stderrData == sample.receivedStderrData );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -211,8 +231,10 @@ BOOST_AUTO_TEST_CASE( TestLinterOutputFormatConversion ) {
     std::string stdoutData;
     {
         const StreamCapture stdoutCapture( std::cout );
-        LintCombine::StringVector cmdLine;
-        combine.callLinter( LintCombine::IdeTraitsFactory( cmdLine ).getIdeBehaviorInstance() );
+        LintCombine::StringVector cmdLine = { { "--ide-profile=BareMSVC" } };
+        LintCombine::IdeTraitsFactory ideTraitsFactory( cmdLine );
+        ideTraitsFactory.getPrepareInputsInstance();
+        combine.callLinter( ideTraitsFactory.getIdeBehaviorInstance() );
         combine.waitLinter();
         stdoutData = stdoutCapture.getBufferData();
     }

@@ -1,5 +1,9 @@
 #include "IdeBehaviorBase.h"
 
+bool LintCombine::IdeBehaviorBase::doesConvertLinterOutput() const {
+    return m_convertLinterOutput;
+}
+
 bool LintCombine::IdeBehaviorBase::doesMergeStdoutAndStderr() const {
     return m_mergeStdoutAndStderr;
 }

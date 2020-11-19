@@ -14,29 +14,34 @@ std::unique_ptr< LintCombine::IdeBehaviorItf >
 LintCombine::IdeTraitsFactory::getIdeBehaviorInstance() {
     boost::algorithm::to_lower( m_ideName );
     if( m_ideName == "baremsvc" ) {
-        return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/true,
+        return std::make_unique< IdeBehaviorBase >( /*convertLinterOutput*/ true,
+                                                    /*mergeStdoutAndStderr*/true,
                                                     /*mayYamlFileContainDocLink=*/false,
                                                     /*linterExitCodeTolerant=*/false );
     }
     if( m_ideName == "resharper" ) {
-        return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/false,
+        return std::make_unique< IdeBehaviorBase >( /*convertLinterOutput*/ false,
+                                                    /*mergeStdoutAndStderr*/false,
                                                     /*mayYamlFileContainDocLink=*/true,
                                                     /*linterExitCodeTolerant=*/false );
     }
     if( m_ideName == "clion" ) {
         if constexpr( BOOST_OS_WINDOWS ) {
-            return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/false,
+            return std::make_unique< IdeBehaviorBase >( /*convertLinterOutput*/ false,
+                                                        /*mergeStdoutAndStderr*/false,
                                                         /*mayYamlFileContainDocLink=*/false,
                                                         /*linterExitCodeTolerant=*/false );
         }
         if constexpr( BOOST_OS_LINUX ) {
-            return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/false,
+            return std::make_unique< IdeBehaviorBase >( /*convertLinterOutput*/ false,
+                                                        /*mergeStdoutAndStderr*/false,
                                                         /*mayYamlFileContainDocLink=*/false,
                                                         /*linterExitCodeTolerant=*/true );
         }
     }
     if( m_ideName.empty() ) { // verbatim mode
-        return std::make_unique< IdeBehaviorBase >( /*mergeStdoutAndStderr*/false,
+        return std::make_unique< IdeBehaviorBase >( /*convertLinterOutput*/ false,
+                                                    /*mergeStdoutAndStderr*/false,
                                                     /*mayYamlFileContainDocLink*/true,
                                                     /*linterExitCodeTolerant*/false );
     }
