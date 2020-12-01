@@ -196,7 +196,7 @@ LintCombine::CallTotals LintCombine::LinterCombine::getYamlPath( std::string & y
     m_alreadyTriedToGetYamlPath = true;
     if( m_combinedYamlPath.empty() ) {
         yamlPathOut.clear();
-        return { /*successNum=*/0, /*failNum=*/0 };
+        return { /*successNum=*/1, /*failNum=*/0 };
     }
     if( std::filesystem::exists( m_combinedYamlPath ) ) {
         std::ofstream{ m_combinedYamlPath, std::ios_base::trunc };

@@ -91,7 +91,7 @@ std::string LintCombine::LinterBase::getOptions() const {
 LintCombine::CallTotals LintCombine::LinterBase::getYamlPath( std::string & yamlPathOut ) {
     if( yamlPath.empty() ) {
         yamlPathOut.clear();
-        return { /*successNum=*/0, /*failNum=*/0 };
+        return { /*successNum=*/1, /*failNum=*/0 };
     }
     if( !std::filesystem::exists( yamlPath ) ) {
         yamlPathOut = yamlPath;
