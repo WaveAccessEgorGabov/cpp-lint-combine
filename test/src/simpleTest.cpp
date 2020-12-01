@@ -1456,7 +1456,7 @@ namespace TestMY::ResultYPDNSL1LintYPDNS {
         { LintCombine::Level::Info,
           "Path to combined YAML-file is not set", "LintCombine", 1, 0 } };
     const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{},
-                                     { /*successNum=*/0, /*failNum=*/0 },
+                                     { /*successNum=*/1, /*failNum=*/0 },
                                      /*resultPathToCombinedYaml=*/{} };
 }
 
@@ -1470,7 +1470,7 @@ namespace TestMY::ResultYPDNSL1LintYPS {
           "Some of linters set path to YAML-file, but path to combined YAML-file is not set",
           "LintCombine", 1, 0 } };
     const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{},
-                                     { /*successNum=*/0, /*failNum=*/0 },
+                                     { /*successNum=*/1, /*failNum=*/0 },
                                      /*resultPathToCombinedYaml=*/{} };
 }
 
@@ -1485,7 +1485,7 @@ namespace TestMY::ResultYPDNSL1LintYPS_L2LintYPS {
           "Some of linters set path to YAML-file, but path to combined YAML-file is not set",
           "LintCombine", 1, 0 } };
     const MYTestCase::Output output{ diagnostics, /*filesToCompare=*/{},
-                                     { /*successNum=*/0, /*failNum=*/0 },
+                                     { /*successNum=*/1, /*failNum=*/0 },
                                      /*resultPathToCombinedYaml=*/{} };
 }
 
