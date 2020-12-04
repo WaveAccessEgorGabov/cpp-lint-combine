@@ -1,5 +1,6 @@
 #include "LintCombineUtils.h"
 #include "LinterCombine.h"
+#include "LintCombineException.h"
 
 #include <fstream>
 #include <filesystem>

@@ -6,6 +6,7 @@
 #include "../../src/ClangTidyWrapper.h"
 #include "../../src/IdeTraitsFactory.h"
 #include "../../src/DiagnosticOutputHelper.h"
+#include "../../src/LintCombineException.h"
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/algorithm/string.hpp>

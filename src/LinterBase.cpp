@@ -1,5 +1,6 @@
 #include "LinterBase.h"
 #include "LintCombineUtils.h"
+#include "LintCombineException.h"
 
 #include <boost/algorithm/string/join.hpp>
 #include <boost/program_options.hpp>

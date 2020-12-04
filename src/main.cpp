@@ -2,6 +2,7 @@
 #include "LintCombineUtils.h"
 #include "IdeTraitsFactory.h"
 #include "DiagnosticOutputHelper.h"
+#include "LintCombineException.h"
 
 namespace LintCombine {
     enum class ExitCode{ Success, FailedToConstructLinterCombine, FailedToUpdateYaml,
