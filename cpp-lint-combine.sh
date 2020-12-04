@@ -14,7 +14,8 @@ CLION_CLANG_TIDY_PATH="<Full directory path of the CLion's clang-tidy>"
 # Path to ReSharper's clang-tidy is already set. You shouldn't need to change it.
 PATH_TO_JETBRAINS_INSTALLATIONS="/${LOCALAPPDATA/:}/JetBrains/Installations"
 RESHARPER_DIR="$PATH_TO_JETBRAINS_INSTALLATIONS/$(ls $PATH_TO_JETBRAINS_INSTALLATIONS | grep ReSharperPlatformVs | tail -1)"
-RESHARPER_CLANG_TIDY_PATH="${RESHARPER_DIR}/x86:${RESHARPER_DIR}_000/x86"
+# Since ReSharper C++ 2020.3 clang-tidy is located in "windows-x86" directory
+RESHARPER_CLANG_TIDY_PATH="${RESHARPER_DIR}/windows-x86:${RESHARPER_DIR}_000/windows-x86"
 
 # Set clazy checks
 CLAZY_CHECKS_MANUAL="assert-with-side-effects,container-inside-loop,detaching-member,heap-allocated-small-trivial-type,ifndef-define-typo,inefficient-qlist,isempty-vs-count,jni-signatures,qhash-with-char-pointer-key,qproperty-type-mismatch,qrequiredresult-candidates,qstring-varargs,qt-keywords,qt4-qstring-from-array,qt6-qlatin1string-to-u,qvariant-template-instantiation,raw-environment-function,reserve-candidates,signal-with-return-value,thread-with-slots,tr-non-literal,unneeded-cast"
