@@ -14,7 +14,7 @@
 #endif
 
 namespace LintCombine {
-    StringVector moveCmdLineIntoSTLContainer( int argc, wchar_t ** argv );
+    StringVector moveCmdLineIntoSTLContainer( int argc, _char ** argv );
 
     void normalizeHyphensInCmdLine( StringVector & cmdLine );
 
