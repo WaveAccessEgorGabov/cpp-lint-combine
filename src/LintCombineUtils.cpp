@@ -153,7 +153,7 @@ std::string LintCombine::Utf16ToUtf8( const std::wstring & utf16 ) {
 }
 #endif
 
-LintCombine::StringVector LintCombine::moveCmdLineIntoSTLContainer( const int argc, wchar_t ** argv ) {
+LintCombine::StringVector LintCombine::moveCmdLineIntoSTLContainer( const int argc, _char ** argv ) {
     StringVector cmdLine;
     for( auto i = 1; i < argc; ++i ) {
 #ifdef WIN32
