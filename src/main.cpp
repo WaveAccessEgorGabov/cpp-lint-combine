@@ -5,15 +5,24 @@
 #include "LintCombineException.h"
 
 namespace LintCombine {
-    enum class ExitCode{ Success, FailedToConstructLinterCombine, FailedToUpdateYaml,
+    enum class ExitCode{ Success, FailedToMoveCmdLineIntoSTLContainer,
+                         FailedToConstructLinterCombine, FailedToUpdateYaml,
                          FailedToCallLinters, FailedToPutDiagsIntoYaml };
 }
 
-int main( int argc, char * argv[] ) {
-    LintCombine::StringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
+int _main( const int argc, _char * argv[] ) {
+    LintCombine::StringVector cmdLine;
+    LintCombine::DiagnosticOutputHelper diagnosticWorker;
+    try {
+        cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
+    }
+    catch( const LintCombine::Exception & ex ) {
+        diagnosticWorker.printDiagnostics( ex.diagnostics() );
+        return static_cast< int >( LintCombine::ExitCode::FailedToMoveCmdLineIntoSTLContainer );
+    }
     LintCombine::IdeTraitsFactory ideTraitsFactory( cmdLine );
     auto prepareInputs = ideTraitsFactory.getPrepareInputsInstance();
-    const LintCombine::DiagnosticOutputHelper diagnosticWorker( cmdLine );
+    diagnosticWorker.setCmdLine( cmdLine );
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     prepareInputs->transformFiles();
     if( diagnosticWorker.printDiagnostics( prepareInputs->diagnostics() ) || cmdLine.empty() ) {

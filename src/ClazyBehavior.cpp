@@ -1,4 +1,5 @@
 #include "ClazyBehavior.h"
+
 #include <regex>
 
 std::streamsize LintCombine::ClazyBehavior::convertLinterOutput( std::string & linterOutputPart ) {
@@ -28,4 +29,23 @@ std::streamsize LintCombine::ClazyBehavior::convertLinterOutput( std::string & l
     }
     linterOutputPart = convertedOutput + linterOutputPart;
     return linterOutputPart.size();
+}
+
+boost::process::child LintCombine::ClazyBehavior::createProcess(
+        const bool doesMergeStdoutAndStderr,
+        const std::string & name, const std::string & yamlPath, const std::string & options,
+        boost::process::async_pipe & stdoutPipe,
+        boost::process::async_pipe & stderrPipe ) const {
+    std::string runCommand;
+    if( !yamlPath.empty() )
+        runCommand = name + " --export-fixes=" + yamlPath + " " + options;
+    else
+        runCommand = name + " " + options;
+    if( doesMergeStdoutAndStderr ) {
+        return boost::process::child( runCommand,
+                                      ( boost::process::std_out & boost::process::std_err ) > stdoutPipe );
+    }
+    return boost::process::child( runCommand,
+                                  boost::process::std_out > stdoutPipe,
+                                  boost::process::std_err > stderrPipe );
 }

@@ -5,8 +5,9 @@
 namespace LintCombine {
     class DiagnosticOutputHelper {
     public:
-        explicit DiagnosticOutputHelper( const StringVector & cmdLineVal )
-            : m_cmdLine( cmdLineVal ) {}
+        void setCmdLine( const StringVector & cmdLineVal ) {
+            m_cmdLine = cmdLineVal;
+        }
 
         bool printDiagnostics( std::vector< Diagnostic > && diagnostics ) const;
 

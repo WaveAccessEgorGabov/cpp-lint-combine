@@ -381,7 +381,8 @@ const LCOTestCase LCOTestCaseData[] = {
 
 void testLinterCombineOutputHelper( const bool isStdout, const LCOTestCase::Input & input,
                                     const std::vector< LintCombine::StringVector > & output ) {
-    const LintCombine::DiagnosticOutputHelper diagnosticWorker( input.cmdLine );
+    LintCombine::DiagnosticOutputHelper diagnosticWorker;
+    diagnosticWorker.setCmdLine( input.cmdLine );
     std::vector< std::string > outputSplitByLine;
     {
         const StreamCapture stdoutCapture( std::cout );
