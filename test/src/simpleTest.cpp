@@ -227,9 +227,14 @@ BOOST_DATA_TEST_CASE_F( LAFWUTestFixture, TestLAFWU, LAFWUTestCaseData, sample )
     LintCombine::StringVector runCommand;
     for( const auto & linterToCall : sample.lintersToCall ) {
         runCommand.emplace_back( "--sub-linter=" + linterToCall );
+    #ifdef WIN32
         runCommand.emplace_back( "-p=" + LintCombine::Utf16ToUtf8( pathToCombineTempDir ) );
         runCommand.emplace_back( LintCombine::Utf16ToUtf8( pathToCombineTempDir +
                                  LAFWUTestCase::fileForAnalysisName ) );
+    #else
+        runCommand.emplace_back( "-p=" + pathToCombineTempDir );
+        runCommand.emplace_back( pathToCombineTempDir + LAFWUTestCase::fileForAnalysisName );
+    #endif
     }
     LintCombine::LinterCombine combine( runCommand );
     LintCombine::StringVector cmdLine;
