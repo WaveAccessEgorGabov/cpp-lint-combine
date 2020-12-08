@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE CppLintCombineTest
+﻿#define BOOST_TEST_MODULE CppLintCombineTest
 
 #include "../../src/LinterCombine.h"
 #include "../../src/ClazyBehavior.h"
@@ -7,6 +7,7 @@
 #include "../../src/IdeTraitsFactory.h"
 #include "../../src/DiagnosticOutputHelper.h"
 #include "../../src/LintCombineException.h"
+#include "../../src/LintCombineUtils.h"
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
@@ -93,6 +94,7 @@ namespace LintCombine {
 
 #ifdef _WIN32
 #define PATH_SEP "\\"
+#define W_PATH_SEP L"\\"
 #else
 #define PATH_SEP "/"
 #endif
@@ -148,12 +150,23 @@ std::string getScriptExtension() {
 }
 
 #define INCORRECT_PATH "<*:?:*>"
-const std::string pathToCombineTempDir = generatePathToCombineTempDir();
 
 BOOST_AUTO_TEST_SUITE( TestLinterAnalizeFilesWithUnicode )
 
+const auto pathToCombineTempDir =
+#ifdef WIN32
+    LintCombine::Utf8ToUtf16( generatePathToCombineTempDir() );
+#else
+    generatePathToCombineTempDir();
+#endif
+
 struct LAFWUTestCase {
-    static inline const std::string fileForAnalysisName = "fileForAnalysis.cpp";
+    static inline const auto fileForAnalysisName =
+    #ifdef WIN32
+        std::wstring( L"fileForAnalysisАБВ.cpp" );
+    #else
+        std::string( "fileForAnalysisАБВ.cpp" );
+    #endif
     LAFWUTestCase( LintCombine::StringVector && lintersToCallVal )
         : lintersToCall( lintersToCallVal ) {}
     LintCombine::StringVector lintersToCall;
@@ -162,13 +175,21 @@ struct LAFWUTestCase {
 struct LAFWUTestFixture {
     LAFWUTestFixture() { // Create required environment
         std::filesystem::create_directory( pathToCombineTempDir );
-        std::ofstream fileForAnalysis{ pathToCombineTempDir + LAFWUTestCase::fileForAnalysisName };
-        std::ofstream compilationDatabaseFile{ pathToCombineTempDir + "compile_commands.json" };
         auto pathToCombineTempDirCopy = pathToCombineTempDir;
         boost::replace_all( pathToCombineTempDirCopy, "\\", "\\\\" );
+    #ifdef WIN32
+        std::wofstream fileForAnalysis{ pathToCombineTempDir + LAFWUTestCase::fileForAnalysisName };
+        std::wofstream compilationDatabaseFile{ pathToCombineTempDir + L"compile_commands.json" };
+        compilationDatabaseFile <<
+            LR"([{"directory": ")" + pathToCombineTempDirCopy +
+            LR"(", "command" : "someCompiler someFile", "file" : ""}])";
+    #else
+        std::ofstream fileForAnalysis{ pathToCombineTempDir + LAFWUTestCase::fileForAnalysisName };
+        std::ofstream compilationDatabaseFile{ pathToCombineTempDir + "compile_commands.json" };
         compilationDatabaseFile <<
             R"([{"directory": ")" + pathToCombineTempDirCopy +
             R"(", "command" : "someCompiler someFile", "file" : ""}])";
+    #endif
     }
 
     ~LAFWUTestFixture() {
@@ -189,8 +210,9 @@ BOOST_DATA_TEST_CASE_F( LAFWUTestFixture, TestLAFWU, LAFWUTestCaseData, sample )
     LintCombine::StringVector runCommand;
     for( const auto & linterToCall : sample.lintersToCall ) {
         runCommand.emplace_back( "--sub-linter=" + linterToCall );
-        runCommand.emplace_back( "-p=" + pathToCombineTempDir );
-        runCommand.emplace_back( pathToCombineTempDir + LAFWUTestCase::fileForAnalysisName );
+        runCommand.emplace_back( "-p=" + LintCombine::Utf16ToUtf8( pathToCombineTempDir ) );
+        runCommand.emplace_back( LintCombine::Utf16ToUtf8( pathToCombineTempDir +
+                                 LAFWUTestCase::fileForAnalysisName ) );
     }
     LintCombine::LinterCombine combine( runCommand );
     LintCombine::StringVector cmdLine;
@@ -199,6 +221,8 @@ BOOST_DATA_TEST_CASE_F( LAFWUTestFixture, TestLAFWU, LAFWUTestCaseData, sample )
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+const auto pathToCombineTempDir = generatePathToCombineTempDir();
 
 BOOST_AUTO_TEST_SUITE( TestStreamsMergedAndConvertedForRequiredIdes )
 
