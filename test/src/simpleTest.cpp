@@ -207,6 +207,23 @@ std::ostream & operator<<( std::ostream & os, LAFWUTestCase ) {
 
 // For this test we must put path to clang-tidy and to clazy into environment variable PATH
 BOOST_DATA_TEST_CASE_F( LAFWUTestFixture, TestLAFWU, LAFWUTestCaseData, sample ) {
+    static auto doesAllLintersExit = true;
+    if( !doesAllLintersExit )
+        return;
+    // Check that all required linters exists
+    try {
+        boost::process::child clang_tidy( "clang-tidy", boost::process::std_out > boost::process::null,
+                                                        boost::process::std_err > boost::process::null );
+        boost::process::child clazy( "clazy-standalone", boost::process::std_out > boost::process::null,
+                                                         boost::process::std_err > boost::process::null );
+        clang_tidy.wait();
+        clazy.wait();
+    }
+    catch( const std::exception & ) {
+        doesAllLintersExit = false;
+        std::cerr << "For LAFWU test all linters must be in the PATH" << std::endl;
+        return;
+    }
     LintCombine::StringVector runCommand;
     for( const auto & linterToCall : sample.lintersToCall ) {
         runCommand.emplace_back( "--sub-linter=" + linterToCall );
