@@ -99,7 +99,7 @@ namespace LintCombine {
 
 // Temp directory will contain temporary YAML-files
 static std::string generatePathToCombineTempDir() {
-    return std::filesystem::temp_directory_path().string() +
+    return std::filesystem::temp_directory_path().string() + PATH_SEP
            "cpp-lint-combine_" + std::to_string( std::rand() ) + PATH_SEP;
 }
 
