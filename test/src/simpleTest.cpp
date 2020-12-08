@@ -91,10 +91,16 @@ namespace LintCombine {
     };
 }
 
+#ifdef _WIN32
+#define PATH_SEP "\\"
+#else
+#define PATH_SEP "/"
+#endif
+
 // Temp directory will contain temporary YAML-files
 static std::string generatePathToCombineTempDir() {
-    return std::filesystem::temp_directory_path().string() + "/" +
-           "cpp-lint-combine_" + std::to_string( std::rand() ) + "/";
+    return std::filesystem::temp_directory_path().string() +
+           "cpp-lint-combine_" + std::to_string( std::rand() ) + PATH_SEP;
 }
 
 static void copyRequiredYamlFilesIntoTempDir( const std::string & pathToTempDir ) {
@@ -141,14 +147,58 @@ std::string getScriptExtension() {
     }
 }
 
-#ifdef _WIN32
-#define PATH_SEP "\\"
-#else
-#define PATH_SEP "/"
-#endif
-
 #define INCORRECT_PATH "<*:?:*>"
-const std::string pathToCombineTempDir = generatePathToCombineTempDir() + PATH_SEP;
+const std::string pathToCombineTempDir = generatePathToCombineTempDir();
+
+BOOST_AUTO_TEST_SUITE( TestLinterAnalizeFilesWithUnicode )
+
+struct LAFWUTestCase {
+    static inline const std::string fileForAnalysisName = "fileForAnalysis.cpp";
+    LAFWUTestCase( LintCombine::StringVector && lintersToCallVal )
+        : lintersToCall( lintersToCallVal ) {}
+    LintCombine::StringVector lintersToCall;
+};
+
+struct LAFWUTestFixture {
+    LAFWUTestFixture() { // Create required environment
+        std::filesystem::create_directory( pathToCombineTempDir );
+        std::ofstream fileForAnalysis{ pathToCombineTempDir + LAFWUTestCase::fileForAnalysisName };
+        std::ofstream compilationDatabaseFile{ pathToCombineTempDir + "compile_commands.json" };
+        auto pathToCombineTempDirCopy = pathToCombineTempDir;
+        boost::replace_all( pathToCombineTempDirCopy, "\\", "\\\\" );
+        compilationDatabaseFile <<
+            R"([{"directory": ")" + pathToCombineTempDirCopy +
+            R"(", "command" : "someCompiler someFile", "file" : ""}])";
+    }
+
+    ~LAFWUTestFixture() {
+        std::filesystem::remove_all( pathToCombineTempDir );
+    }
+};
+
+const std::vector< LAFWUTestCase > LAFWUTestCaseData = {
+    { { "clang-tidy" } }, { { "clazy" } }, { { "clazy", "clang-tidy" } }
+};
+
+std::ostream & operator<<( std::ostream & os, LAFWUTestCase ) {
+    return os;
+}
+
+// For this test we must put path to clang-tidy and to clazy into environment variable PATH
+BOOST_DATA_TEST_CASE_F( LAFWUTestFixture, TestLAFWU, LAFWUTestCaseData, sample ) {
+    LintCombine::StringVector runCommand;
+    for( const auto & linterToCall : sample.lintersToCall ) {
+        runCommand.emplace_back( "--sub-linter=" + linterToCall );
+        runCommand.emplace_back( "-p=" + pathToCombineTempDir );
+        runCommand.emplace_back( pathToCombineTempDir + LAFWUTestCase::fileForAnalysisName );
+    }
+    LintCombine::LinterCombine combine( runCommand );
+    LintCombine::StringVector cmdLine;
+    combine.callLinter( LintCombine::IdeTraitsFactory( cmdLine ).getIdeBehaviorInstance() );
+    BOOST_CHECK( combine.waitLinter() == 0 );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE( TestStreamsMergedAndConvertedForRequiredIdes )
 
