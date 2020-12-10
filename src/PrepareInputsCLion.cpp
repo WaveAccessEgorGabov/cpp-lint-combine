@@ -56,8 +56,19 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
 }
 
 void LintCombine::PrepareInputsCLion::transformFiles() {
+    const auto pathToFileWithMacros = pathToWorkDir + "/macros";
+    if constexpr( BOOST_OS_WINDOWS ) {
+        std::ofstream macrosFileRes( pathToFileWithMacros, std::ios_base::app );
+        std::string macrosToUndefAfter[] = {
+            "__has_cpp_attribute",
+        };
+
+        for( const auto & macro : macrosToUndefAfter ) {
+            macrosFileRes << "#undef " << macro << std::endl;
+        }
+    }
+
     if constexpr( BOOST_OS_LINUX ) {
-        const auto pathToFileWithMacros = pathToWorkDir + "/macros";
         std::ifstream macrosFileSrc( pathToFileWithMacros );
 
         // save source macros
@@ -67,21 +78,27 @@ void LintCombine::PrepareInputsCLion::transformFiles() {
 
         std::ofstream macrosFileRes( pathToFileWithMacros );
 
+        // TODO: Do we really need macros above?
         // In Linux the following macros must be undefined to avoid redefinition,
         // because clazy also defines these macros
-        std::string macrosToUndef[] = {
+        std::string macrosToUndefBefore[] = {
             "__clang_version__", "__VERSION__", "__has_feature",
             "__has_extension", "__has_attribute", "__has_builtin",
         };
-        for( const auto & macro : macrosToUndef ) {
-            macrosFileRes << "#undef " << macro << std::endl;
-        }
-        macrosFileRes << sourceMacros.str();
 
         // TODO: Do we really need macros above?
         // In Linux clang in not compatible with GCC 8 or higher,
         // so we can't use the following macros
-        macrosFileRes << "#define _GLIBCXX_USE_MAKE_INTEGER_SEQ 1\n";
-        macrosFileRes << "#undef __builtin_va_start\n";
+        std::string macrosToUndefAfter[] = {
+            "__builtin_va_start"
+        };
+
+        for( const auto & macro : macrosToUndefBefore )
+            macrosFileRes << "#undef " << macro << std::endl;
+
+        macrosFileRes << sourceMacros.str();
+
+        for( const auto & macro : macrosToUndefAfter )
+            macrosFileRes << "#undef " << macro << std::endl;
     }
 }
