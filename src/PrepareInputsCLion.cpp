@@ -58,30 +58,33 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
 void LintCombine::PrepareInputsCLion::transformFiles() {
     if constexpr( BOOST_OS_LINUX ) {
         const auto pathToFileWithMacros = pathToWorkDir + "/macros";
-        std::ifstream macrosFileSrc( pathToFileWithMacros );
 
-        // save source macros
-        std::ostringstream sourceMacros;
-        sourceMacros << macrosFileSrc.rdbuf();
+        std::array macrosToDelete = {
+                "__has_include(",
+        };
+
+        std::array macrosToUndefAfter = {
+                "__builtin_va_start", "__has_cpp_attribute",
+        };
+
+        std::string result;
+        std::ifstream macrosFileSrc( pathToFileWithMacros );
+        for ( std::string line; std::getline(macrosFileSrc, line); ) {
+            auto macrosToDeleteFound = false;
+            for( const auto & macro : macrosToDelete  ) {
+                if( line.find( macro ) != std::string::npos ) {
+                    macrosToDeleteFound = true;
+                }
+            }
+            if( !macrosToDeleteFound ) {
+                result += line + '\n';
+            }
+        }
         macrosFileSrc.close();
 
         std::ofstream macrosFileRes( pathToFileWithMacros );
-
-        // In Linux the following macros must be undefined to avoid redefinition,
-        // because clazy also defines these macros
-        std::string macrosToUndef[] = {
-            "__clang_version__", "__VERSION__", "__has_feature",
-            "__has_extension", "__has_attribute", "__has_builtin",
-        };
-        for( const auto & macro : macrosToUndef ) {
+        macrosFileRes << result;
+        for( const auto & macro : macrosToUndefAfter )
             macrosFileRes << "#undef " << macro << std::endl;
-        }
-        macrosFileRes << sourceMacros.str();
-
-        // TODO: Do we really need macros above?
-        // In Linux clang in not compatible with GCC 8 or higher,
-        // so we can't use the following macros
-        macrosFileRes << "#define _GLIBCXX_USE_MAKE_INTEGER_SEQ 1\n";
-        macrosFileRes << "#undef __builtin_va_start\n";
     }
 }
