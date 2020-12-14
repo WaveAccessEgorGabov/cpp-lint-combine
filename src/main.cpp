@@ -1,23 +1,32 @@
-#include "LinterCombine.h" // for LintCombine::WaitLinterReturnCode
+#include "LinterCombine.h" // for LintCombine::RetCode
 #include "LintCombineUtils.h"
 #include "IdeTraitsFactory.h"
 #include "DiagnosticOutputHelper.h"
+#include "LintCombineException.h"
 
 namespace LintCombine {
-    enum ExitCode{ Success, FailedToConstructLinterCombine, FailedToUpdateYaml,
-                   FailedToCallLinters, FailedToPutDiagsIntoYaml };
+    enum class ExitCode{ Success, FailedToMoveCmdLineIntoSTLContainer,
+                         FailedToConstructLinterCombine, FailedToUpdateYaml,
+                         FailedToCallLinters, FailedToPutDiagsIntoYaml };
 }
 
-int main( int argc, char * argv[] ) {
-    LintCombine::StringVector cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
-    LintCombine::IdeTraitsFactory ideTraitsFactory;
-    auto prepareInputs = ideTraitsFactory.getPrepareInputsInstance( cmdLine );
-    const LintCombine::DiagnosticOutputHelper diagnosticWorker( cmdLine );
+int _main( const int argc, _char * argv[] ) {
+    LintCombine::StringVector cmdLine;
+    LintCombine::DiagnosticOutputHelper diagnosticWorker;
+    try {
+        cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
+    }
+    catch( const LintCombine::Exception & ex ) {
+        diagnosticWorker.printDiagnostics( ex.diagnostics() );
+        return static_cast< int >( LintCombine::ExitCode::FailedToMoveCmdLineIntoSTLContainer );
+    }
+    LintCombine::IdeTraitsFactory ideTraitsFactory( cmdLine );
+    auto prepareInputs = ideTraitsFactory.getPrepareInputsInstance();
+    diagnosticWorker.setCmdLine( cmdLine );
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     prepareInputs->transformFiles();
-
     if( diagnosticWorker.printDiagnostics( prepareInputs->diagnostics() ) || cmdLine.empty() ) {
-        return LintCombine::ExitCode::Success;
+        return static_cast< int >( LintCombine::ExitCode::Success );
     }
 
     std::unique_ptr< LintCombine::LinterItf > lintCombine;
@@ -27,28 +36,27 @@ int main( int argc, char * argv[] ) {
     }
     catch( const LintCombine::Exception & ex ) {
         diagnosticWorker.printDiagnostics( ex.diagnostics() );
-        return LintCombine::ExitCode::FailedToConstructLinterCombine;
+        return static_cast< int >( LintCombine::ExitCode::FailedToConstructLinterCombine );
     }
 
-    lintCombine->callLinter();
+    const auto ideBehaviorItf = ideTraitsFactory.getIdeBehaviorInstance();
+    lintCombine->callLinter( ideBehaviorItf );
     const auto callReturnCode = lintCombine->waitLinter();
-    if( callReturnCode == LintCombine::WaitLinterReturnCode::AllLintersFailed ) {
-        diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
-        if( ideTraitsFactory.getIdeBehaviorInstance() &&
-            !ideTraitsFactory.getIdeBehaviorInstance()->isLinterExitCodeTolerant() ) {
-            return LintCombine::ExitCode::FailedToCallLinters;
+    if( callReturnCode == LintCombine::RetCode::RC_TotalFailure ) {
+        if( ideBehaviorItf && !ideBehaviorItf->isLinterExitCodeTolerant() ) {
+            diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
+            return static_cast< int >( LintCombine::ExitCode::FailedToCallLinters );
         }
     }
 
-    if( ideTraitsFactory.getIdeBehaviorInstance() &&
-        ideTraitsFactory.getIdeBehaviorInstance()->mayYamlFileContainDocLink() ) {
+    if( ideBehaviorItf && ideBehaviorItf->mayYamlFileContainDocLink() ) {
         lintCombine->updateYaml();
     }
 
-    if( lintCombine->getYamlPath().empty() ) {
+    if( std::string combinedYamlPath; !lintCombine->getYamlPath( combinedYamlPath ).successNum ) {
         diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
-        return LintCombine::ExitCode::FailedToPutDiagsIntoYaml;
+        return static_cast< int >( LintCombine::ExitCode::FailedToPutDiagsIntoYaml );
     }
     diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
-    return 0;
+    return static_cast< int >( LintCombine::ExitCode::Success );
 }

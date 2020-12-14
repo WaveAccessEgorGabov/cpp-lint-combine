@@ -25,10 +25,22 @@ jobs:
       shell: bash
       run: git submodule update --init --recursive yaml-cpp && git tag 1.0.0
     
+    - name: InstallBoostOnWindows
+      if: startsWith(matrix.config.os, 'windows')
+      run: |
+        $url = "https://github.com/actions/boost-versions/releases/download/1.73.0-20200608.5/boost-1.73.0-win32-msvc14.2-x86_64.tar.gz"
+        (New-Object System.Net.WebClient).DownloadFile($url, "$($env:TEMP)\boost.tar.gz")
+        7z.exe x "$($env:TEMP)\boost.tar.gz" -o"$($env:TEMP)" -y | Out-Null
+        $tarPath = Get-ChildItem -Path "$($env:TEMP)" -Filter "boost-*.tar" | Select-Object -First 1
+        7z.exe x $tarPath -o"$($env:TEMP)/boost" -y | Out-Null
+        Push-Location -Path "$($env:TEMP)\boost"
+        Invoke-Expression .\setup.ps1
+       
+    
     - name: ConfigureWindows
       shell: bash
       if: startsWith(matrix.config.os, 'windows')
-      run: cmake -S . -B . -A Win32 -T host=x86 -DBOOST_ROOT=$BOOST_ROOT_1_69_0
+      run: cmake -S . -B . -A Win32 -T host=x86 -DBOOST_ROOT=${RUNNER_TOOL_CACHE}/boost/1.73.0/x86_64
 
     - name: ConfigureLinux
       shell: bash
@@ -42,4 +54,3 @@ jobs:
     - name: Tests
       shell: bash
       run: ctest -C ReleaseChecked --verbose
-

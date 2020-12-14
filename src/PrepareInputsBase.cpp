@@ -2,6 +2,7 @@
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include "LintCombineUtils.h"
 
 LintCombine::StringVector
 LintCombine::PrepareInputsBase::transformCmdLine( const StringVector & cmdLineVal ) {
@@ -55,47 +56,25 @@ bool LintCombine::PrepareInputsBase::parseSourceCmdLine() {
 }
 
 bool LintCombine::PrepareInputsBase::validateParsedData() {
-    auto success = true;
+    checkIsOptionsValueInit( m_sourceCmdLine, m_diagnostics, "export-fixes", m_pathToCombinedYaml,
+                             "BasePreparer", "Path to combined YAML-file is not set" );
+    checkIsOptionsValueInit(
+        m_sourceCmdLine, m_diagnostics, "clang-extra-args", m_clangExtraArgs, "BasePreparer" );
+    checkIsOptionsValueInit( m_sourceCmdLine, m_diagnostics, "clazy-checks", m_clazyChecks, "BasePreparer" );
     if( pathToWorkDir.empty() ) {
         m_diagnostics.emplace_back(
             Level::Error, "Path to compilation database is empty.", "BasePreparer", 1, 0 );
-        success = false;
+        return false;
     }
-    if( m_pathToCombinedYaml.empty() ) {
-        m_diagnostics.emplace_back(
-            Level::Error, "Path to yaml-file is empty.", "BasePreparer", 1, 0 );
-        success = false;
-    }
-    checkIsOptionsValueInit( "clang-extra-args", m_clangExtraArgs );
-    checkIsOptionsValueInit( "clazy-checks", m_clazyChecks );
-
-    return success;
-}
-
-void LintCombine::PrepareInputsBase::checkIsOptionsValueInit( const std::string & optionName,
-                                                              const std::string & option ) {
-    const auto optionPlaceIt =
-        std::find_if( std::begin( cmdLine ), std::end( cmdLine ),
-                      [&]( const std::string & str ) -> bool {
-                          return str.find( optionName ) != std::string::npos;
-                      } );
-    if( optionPlaceIt != std::end( cmdLine ) && option.empty() ) {
-        const auto warningBeginInCL =
-            static_cast< const unsigned int >( m_sourceCmdLine.find( std::string( optionName ) ) );
-        const auto warningEndInCL = warningBeginInCL +
-            static_cast< const unsigned int >( std::string( optionName ).size() );
-        m_diagnostics.emplace_back(
-            Level::Warning, "Parameter \"" + optionName + "\" was set but the parameter's "
-            "value was not set. The parameter will be ignored.",
-            "BasePreparer", warningBeginInCL, warningEndInCL );
-    }
+    return true;
 }
 
 bool LintCombine::PrepareInputsBase::initLinters() {
     auto success = true;
     for( const auto & linterName : m_lintersNames ) {
         if( linterName == "clang-tidy" ) {
-            lintersOptions.emplace_back( std::make_unique< ClangTidyOptions >( pathToWorkDir ) );
+            lintersOptions.emplace_back(
+                std::make_unique< ClangTidyOptions >( pathToWorkDir, !m_pathToCombinedYaml.empty() ) );
         }
         else if( linterName == "clazy" ) {
             std::istringstream iss( m_clangExtraArgs );
@@ -103,7 +82,9 @@ bool LintCombine::PrepareInputsBase::initLinters() {
                 StringVector( std::istream_iterator< std::string >{ iss },
                               std::istream_iterator< std::string > {} );
             lintersOptions.emplace_back(
-                std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks, separatedClangExtraArgs) );
+                std::make_unique< ClazyOptions >(
+                    pathToWorkDir, !m_pathToCombinedYaml.empty(),
+                    m_clazyChecks, separatedClangExtraArgs ) );
         }
         else {
             unsigned searchFrom = 0;
@@ -127,9 +108,12 @@ bool LintCombine::PrepareInputsBase::initLinters() {
         const auto separatedClangExtraArgs =
             StringVector( std::istream_iterator< std::string >{ iss },
                           std::istream_iterator< std::string > {} );
-        lintersOptions.emplace_back( std::make_unique< ClangTidyOptions >( pathToWorkDir ) );
+        lintersOptions.emplace_back( std::make_unique< ClangTidyOptions >(
+            pathToWorkDir, !m_pathToCombinedYaml.empty() ) );
         lintersOptions.emplace_back(
-            std::make_unique< ClazyOptions >( pathToWorkDir, m_clazyChecks, separatedClangExtraArgs ) );
+            std::make_unique< ClazyOptions >(
+                pathToWorkDir, !m_pathToCombinedYaml.empty(),
+                m_clazyChecks, separatedClangExtraArgs ) );
         m_diagnostics.emplace_back( Level::Info, "All linters are used", "BasePreparer", 1, 0 );
     }
     return success;

@@ -70,7 +70,7 @@ bool LintCombine::PrepareInputsVerbatim::validateCombinedYamlPath() {
     }
     if( combinedYamlPath.empty() ) {
         m_diagnostics.emplace_back(
-            Level::Error, "Path to combined YAML-file is not set", "VerbatimPreparer", 1, 0 );
+            Level::Info, "Path to combined YAML-file is not set", "VerbatimPreparer", 1, 0 );
         return false;
     }
     if( !isFileCreatable( combinedYamlPath ) ) {

@@ -8,8 +8,8 @@
 #include <vector>
 
 namespace LintCombine {
-    enum WaitLinterReturnCode {
-        AllLintersSucceeded = 0, SomeLintersFailed = 2, AllLintersFailed = 3
+    enum RetCode {
+        RC_Success = 0, RC_PartialFailure = 2, RC_TotalFailure = 3
     };
 
     class LinterCombine final : public LinterItf {
@@ -18,11 +18,12 @@ namespace LintCombine {
             const StringVector & cmdLine,
             LinterFactoryBase & factory = UsualLinterFactory::getInstance() );
 
-        void callLinter() override;
+        void callLinter( const std::unique_ptr< IdeBehaviorItf > & ideBehavior ) override;
 
+        // Returns: 0 if successful, implementation-defined nonzero value otherwise.
         int waitLinter() override;
 
-        std::string getYamlPath() override;
+        CallTotals getYamlPath( std::string & yamlPathOut ) override;
 
         CallTotals updateYaml() override;
 
@@ -33,9 +34,14 @@ namespace LintCombine {
         std::vector< Diagnostic > diagnostics() const override;
 
     private:
-        std::vector< StringVector > splitCmdLineBySubLinters( const StringVector & cmdLine );
+        std::vector< StringVector > splitCmdLineBySubLinters( const StringVector & cmdLine ) const;
 
         void initCombinedYamlPath( const StringVector & cmdLine );
+
+        // Allowing YAML-files combination are:
+        // 1. Path to result YAML-file set && At least one linter set path to YAML-file
+        // 2. Path to result YAML-file not set && No linter's path to YAML-file set
+        void checkIsRequiredYamlFilesCombinationSpecified();
 
         void combineYamlFiles( const std::string & yamlPathToAppend );
 

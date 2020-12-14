@@ -30,43 +30,55 @@
       
       4.2. [Via Linux CLI](#42-via-linux-cli)
       
-      4.3. [Via ReSharper](#43-via-resharper)
+      4.3. [Via Visual Studio](#43-via-visual-studio)
       
-      4.4. [Via CLion](#44-via-clion)
+      4.4. [Via ReSharper](#44-via-resharper)
+      
+      4.5. [Via CLion](#45-via-clion)
       
    5. [Get Cpp-lint-combine in Visual Studio (Windows)](#5-get-cpp-lint-combine-in-visual-studio-windows)
    
-      5.1. [Install Visual Studio and ReSharper C++](#51-install-visual-studio-and-resharper-c)
+      5.1. [Install Visual Studio](#51-install-visual-studio)
       
       5.2. [Install supported linters](#52-install-supported-linters)
       
-      5.3. [Set up ReSharper to use Cpp-lint-combine](#53-set-up-resharper-to-use-cpp-lint-combine)
-       
-   6. [Get Cpp-lint-combine in CLion](#6-get-cpp-lint-combine-in-clion)
-       
-      6.1. [Install CLion](#61-install-clion)
+      5.3. [Set up Visual Studio to use Cpp-lint-combine in applications with x64 target architecture](#53-set-up-visual-studio-to-use-cpp-lint-combine-in-applications-with-x64-target-architecture)
+      
+      5.4. [Set up Visual Studio to use Cpp-lint-combine in applications with x86 target architecture](#54-set-up-visual-studio-to-use-cpp-lint-combine-in-applications-with-x86-target-architecture)
+      
+   6. [Get Cpp-lint-combine in ReSharper via Visual Studio (Windows)](#6-get-cpp-lint-combine-in-resharper-via-visual-studio-windows)
+   
+      6.1. [Install Visual Studio and ReSharper C++](#61-install-visual-studio-and-resharper-c)
       
       6.2. [Install supported linters](#62-install-supported-linters)
       
-      6.3. [Set up CLion to use Cpp-lint-combine](#63-set-up-clion-to-use-cpp-lint-combine)
+      6.3. [Set up ReSharper to use Cpp-lint-combine](#63-set-up-resharper-to-use-cpp-lint-combine)
        
-   7. [Configure the cpp-lint-combine.sh bootstrapper script](#7-configure-the-cpp-lint-combinesh-bootstrapper-script)
+   7. [Get Cpp-lint-combine in CLion](#7-get-cpp-lint-combine-in-clion)
+       
+      7.1. [Install CLion](#71-install-clion)
+      
+      7.2. [Install supported linters](#72-install-supported-linters)
+      
+      7.3. [Set up CLion to use Cpp-lint-combine](#73-set-up-clion-to-use-cpp-lint-combine)
+       
+   8. [Configure the cpp-lint-combine.sh bootstrapper script](#8-configure-the-cpp-lint-combinesh-bootstrapper-script)
    
-      7.1. [Choose IDE to run Cpp-lint-combine](#71-choose-ide-to-run-cpp-lint-combine)
+      8.1. [Choose IDE to run Cpp-lint-combine](#81-choose-ide-to-run-cpp-lint-combine)
       
-      7.2. [Set paths](#72-set-paths)
+      8.2. [Set paths](#82-set-paths)
       
-      7.3. [Configure Clazy's checks/levels](#73-configure-clazys-checkslevels)
+      8.3. [Configure Clazy's checks/levels](#83-configure-clazys-checkslevels)
       
-      7.4. [Configure extra clang arguments](#74-configure-extra-clang-arguments)
+      8.4. [Configure extra clang arguments](#84-configure-extra-clang-arguments)
       
-      7.5 [Choose linters to use](#75-choose-linters-to-use)
+      8.5 [Choose linters to use](#85-choose-linters-to-use)
        
-   8. [Q&A/ troubleshooting](#8-qa-troubleshooting)
+   9. [Q&A/ troubleshooting](#9-qa-troubleshooting)
        
-      8.1. [How to set up Cpp-lint-combine for both ReSharper and CLion on the same Windows machine?](#81-how-to-set-up-cpp-lint-combine-for-both-resharper-and-clion-on-the-same-windows-machine)
+      9.1. [How to set up Cpp-lint-combine for both ReSharper and CLion on the same Windows machine?](#91-how-to-set-up-cpp-lint-combine-for-both-resharper-and-clion-on-the-same-windows-machine)
        
-      8.2. [Issue: not seeing ANY inspection messages from clang-tidy among ReSharper's ones](#82-issue-not-seeing-any-inspection-messages-from-clang-tidy-among-resharpers-ones)
+      9.2. [Issue: not seeing ANY inspection messages from clang-tidy among ReSharper's ones](#92-issue-not-seeing-any-inspection-messages-from-clang-tidy-among-resharpers-ones)
    
 ## 1. Overview
 
@@ -88,6 +100,8 @@ You can use ***Cpp-lint-combine*** as a **command line tool** or in IDEs/ IDE ex
  - [***ReSharper C++***](https://www.jetbrains.com/resharper-cpp/) — ***Visual Studio*** extension.
 
  - [***CLion***](https://www.jetbrains.com/clion/) — a cross-platform IDE for *C* and *C++*.
+ 
+ - [***Visual Studio***](https://visualstudio.microsoft.com/) — an IDE from Microsoft.
 
 ## 2. Get the required tools
 
@@ -155,8 +169,18 @@ You can ensure that ***Cpp-lint-combine*** built correctly in one of the followi
  **1.** Run `<cpp-lint-combine-build-dir>/test/Release/cpp-lint-combine_tests`.
 
  **2.** Tests passed successfully if the message `*** No errors detected` (green) was output.
+ 
+### 4.3. Via ***Visual Studio***
 
-### 4.3. Via ***ReSharper***
+**1.** Run `cmake --open <cpp-lint-combine-build-dir>` — ***Visual Studio*** opens the ***CMake***-generated solution.
+
+**2.** Choose Solution Configuration: **Release** (e.g. in the toolbar).
+
+**3.** Choose *Test→Run All Tests*.
+
+**4.** Tests passed successfully if the number of *Failed Tests* is zero.
+
+### 4.4. Via ***ReSharper***
 
  **1.** Run `cmake --open <cpp-lint-combine-build-dir>` — ***Visual Studio*** opens the ***CMake***-generated solution.
 
@@ -166,7 +190,7 @@ You can ensure that ***Cpp-lint-combine*** built correctly in one of the followi
 
  **4.** Tests passed successfully if the number of *Failed Tests* is zero.
 
-### 4.4. Via ***CLion***
+### 4.5. Via ***CLion***
 
  **1.** Open the `<cpp-lint-combine-source-dir>` directory by ***CLion***.
 
@@ -178,7 +202,48 @@ You can ensure that ***Cpp-lint-combine*** built correctly in one of the followi
 
 ## 5. Get ***Cpp-lint-combine*** in ***Visual Studio*** (*Windows*)
 
-### 5.1. Install ***Visual Studio*** and ***ReSharper C++***
+### 5.1. Install ***Visual Studio***
+
+***Cpp-lint-combine*** works in ***Visual Studio***, so you need to install it if you want to use ***Cpp-lint-combine*** via ***Visual Studio***.
+You can install ***Visual Studio*** from [here](https://visualstudio.microsoft.com/downloads/). Required ***Visual Studio*** version is **2019**.
+
+### 5.2. Install supported linters
+
+ - [***Clazy***](https://github.com/KDE/clazy) — get pre-built binaries (v1.7+) from [here](https://downloads.kdab.com/clazy/).
+
+ - [***clang-tidy***](https://clang.llvm.org/extra/clang-tidy/) — installed with Visual Studio 2019.
+ 
+ ### 5.3. Set up ***Visual Studio*** to use ***Cpp-lint-combine*** in applications with x64 target architecture.
+ 
+ **1.** In directory ```%VCINSTALLDIR%\Llvm\x64\bin``` create directory named ```clang-tidy```.
+ 
+ **2.** Move ```clang-tidy.exe``` from ```%VCINSTALLDIR%\Llvm\x64\bin``` to ```%VCINSTALLDIR%\Llvm\x64\bin\clang-tidy```
+ 
+ **3.** Copy ```cpp-lint-combine.cmd``` and ```cpp-lint-combine.sh``` from ```<cpp-lint-combine-source-dir>``` to ```%VCINSTALLDIR%\Llvm\x64\bin\clang-tidy```
+ 
+ **4.** In ```%VCINSTALLDIR%\Llvm\x64\bin\clang-tidy``` rename ```cpp-lint-combine.cmd``` to ```cpp-lint-combine-msvc.cmd```, ```cpp-lint-combine.sh``` to ```cpp-lint-combine-msvc.sh```
+ 
+ **5.** Copy ```msvc-shim.exe``` from ```cpp-lint-combine-build-dir>/Release/``` to ```%VCINSTALLDIR%\Llvm\x64\bin\```
+ 
+ **6.** In ```%VCINSTALLDIR%\Llvm\x64\bin\``` rename ```msvc-shim.exe``` to ```clang-tidy.exe```
+ 
+  ### 5.4. Set up ***Visual Studio*** to use ***Cpp-lint-combine*** in applications with x86 target architecture.
+ 
+ **1.** In directory ```%VCINSTALLDIR%\Llvm\bin``` create directory named ```clang-tidy```.
+ 
+ **2.** Move ```clang-tidy.exe``` from ```%VCINSTALLDIR%\Llvm\bin``` to ```%VCINSTALLDIR%\Llvm\bin\clang-tidy```
+ 
+ **3.** Copy ```cpp-lint-combine.cmd``` and ```cpp-lint-combine.sh``` from ```<cpp-lint-combine-source-dir>``` to ```%VCINSTALLDIR%\Llvm\bin\clang-tidy```
+ 
+ **4.** In ```%VCINSTALLDIR%\Llvm\bin\clang-tidy``` rename ```cpp-lint-combine.cmd``` to ```cpp-lint-combine-msvc.cmd```, ```cpp-lint-combine.sh``` to ```cpp-lint-combine-msvc.sh```
+ 
+ **5.** Copy ```msvc-shim.exe``` from ```cpp-lint-combine-build-dir>/Release/``` to ```%VCINSTALLDIR%\Llvm\bin\```
+ 
+ **6.** In ```%VCINSTALLDIR%\Llvm\bin\``` rename ```msvc-shim.exe``` to ```clang-tidy.exe```
+
+## 6. Get ***Cpp-lint-combine*** in ***ReSharper*** via ***Visual Studio*** (*Windows*)
+
+### 6.1. Install ***Visual Studio*** and ***ReSharper C++***
 
 ***Cpp-lint-combine*** works via ***Visual Studio*** extension ***ReSharper C++***, so you need to install both ***Visual Studio*** and ***ReSharper C++*** in this case.
 
@@ -186,13 +251,13 @@ Required ***Visual Studio*** version is **2017+**. You can install ***Visual Stu
 
 You can install ***ReSharper C++*** from [here](https://www.jetbrains.com/resharper-cpp/) (free trial).
 
-### 5.2. Install supported linters
+### 6.2. Install supported linters
 
  - [***Clazy***](https://github.com/KDE/clazy) — get pre-built binaries (v1.7+) from [here](https://downloads.kdab.com/clazy/).
 
  - [***clang-tidy***](https://clang.llvm.org/extra/clang-tidy/) — installed with ReSharper C++.
 
-### 5.3. Set up ***ReSharper*** to use ***Cpp-lint-combine***
+### 6.3. Set up ***ReSharper*** to use ***Cpp-lint-combine***
 
  **1.** In ***Visual Studio*** choose *Extensions→ReSharper→Options→Code Editing→C++→Clang-Tidy*.
 
@@ -202,20 +267,20 @@ You can install ***ReSharper C++*** from [here](https://www.jetbrains.com/reshar
 
  **4.** Tweak other ***ReSharper C++*** [***clang-tidy*** settings](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html) as desired.
 
-## 6. Get ***Cpp-lint-combine*** in *CLion*
+## 7. Get ***Cpp-lint-combine*** in *CLion*
 
-### 6.1. Install *CLion*
+### 7.1. Install *CLion*
 
 ***Cpp-lint-combine*** works in ***CLion***, so you need to install it if you want to use ***Cpp-lint-combine*** via ***CLion***.
 You can install ***CLion*** from [here](https://www.jetbrains.com/clion/download/#section=windows) (free trial).
 
-### 6.2. Install supported linters
+### 7.2. Install supported linters
 
  - [***Clazy***](https://github.com/KDE/clazy) — get pre-built binaries (v1.7+) from [here](https://downloads.kdab.com/clazy/).
 
  - [***clang-tidy***](https://clang.llvm.org/extra/clang-tidy/) — installed with ***CLion***.
 
-### 6.3. Set up *CLion* to use ***Cpp-lint-combine***
+### 7.3. Set up *CLion* to use ***Cpp-lint-combine***
 
  **1.** In ***CLion*** choose *Settings→Languages & Frameworks→C/C++→Clang-Tidy*.
 
@@ -225,46 +290,47 @@ You can install ***CLion*** from [here](https://www.jetbrains.com/clion/download
 
  **4.** Tweak other ***CLion*** [***clang-tidy*** settings](https://www.jetbrains.com/help/clion/clang-tidy-checks-support.html#generalsettings) as desired.
 
-## 7. Configure the `cpp-lint-combine.sh` bootstrapper script
+## 8. Configure the `cpp-lint-combine.sh` bootstrapper script
 
 You need to configure `cpp-lint-combine.sh` before using ***Cpp-lint-combine***.
 
 **Note:** in *Windows*, use ***Cygwin***-style paths — with forward slashes, with a leading (root) slash, and without the colon after drive letters, e.g. `/C/Program Files/Git`. 
 
-### 7.1. Choose IDE to run ***Cpp-lint-combine***
+### 8.1. Choose IDE to run ***Cpp-lint-combine***
 
-Assign a value to the script's variable `IDE_PROFILE`: choose either `ReSharper` or `CLion`.
+Assign a value to the script's variable `IDE_PROFILE`: choose either `ReSharper`, `BareMSVC` or `CLion`.
 
-### 7.2. Set paths
+### 8.2. Set paths
 
  **1.** Set path to the directory with the `cpp-lint-combine` executable to the script's variable `CPP_LINT_COMBINE_PATH`.
 
  **2.** Set path to the directory with ***Clazy*** binaries to the script's variable `CLAZY_PATH`.
 
  **3.** Set paths to directories with IDEs' ***clang-tidy*** executables to the script's variables `<IDE_NAME>_CLANG_TIDY_PATH`. If you don't have some IDE, just ignore it.
+ Note that you don't need to set path to the Visual Studio's clang-tidy.
 
-### 7.3. Configure ***Clazy***'s checks/levels
+### 8.3. Configure ***Clazy***'s checks/levels
 
 You can configure ***Clazy***'s checks/levels in the script's variable `CLAZY_CHECKS`. By default all ***Clazy***'s checks are included.
 
-### 7.4. Configure extra clang arguments
+### 8.4. Configure extra clang arguments
 
 You can add extra clang arguments to the script's variable `CLANG_EXTRA_ARGS` — they will be used by ***Clazy***.  
 The default is `"-w"`, see [clang docs](https://clang.llvm.org/docs/ClangCommandLineReference.html) for (much) more details.
 
-### 7.5. Choose linters to use
+### 8.5. Choose linters to use
 
 Set `--sub-linter` `cpp-lint-combine`'s command line argument value. You can use this option several times to use multiple linters. All linters are used by default (if the option isn't set).
 
-## 8. Q&A/ troubleshooting
+## 9. Q&A/ troubleshooting
 
-### 8.1. How to set up ***Cpp-lint-combine*** for both ***ReSharper*** and ***CLion*** on the same Windows machine?
+### 9.1. How to set up ***Cpp-lint-combine*** for both ***ReSharper*** and ***CLion*** on the same Windows machine?
 
  **1.** Copy `cpp-lint-combine.sh` and `cpp-lint-combine.cmd` under the same new base name (e.g. `cpp-lint-combine-CLion.cmd` and `cpp-lint-combine-CLion.sh`).
 
  **2.** Configure distinct bootstrapper script for each IDE — please refer to the “*Configure the `cpp-lint-combine.sh` bootstrapper script*” section above.
 
-### 8.2. Issue: not seeing ANY inspection messages from ***clang-tidy*** among ***ReSharper***'s ones
+### 9.2. Issue: not seeing ANY inspection messages from ***clang-tidy*** among ***ReSharper***'s ones
 
  Check ***Cpp-lint-combine*** diagnostics:
 

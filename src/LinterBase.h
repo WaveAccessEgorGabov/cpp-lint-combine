@@ -3,13 +3,17 @@
 #include "LinterFactoryBase.h"
 #include "LinterItf.h"
 #include "yaml-cpp/yaml.h"
+#include "LinterBehaviorItf.h"
 
 #include <boost/process.hpp>
+
+#include <map>
+#include <iostream>
 
 namespace LintCombine {
     class LinterBase : public LinterItf {
     public:
-        void callLinter() override;
+        void callLinter( const std::unique_ptr< IdeBehaviorItf > & ideBehavior ) override;
 
         int waitLinter() override;
 
@@ -19,7 +23,7 @@ namespace LintCombine {
 
         std::string getOptions() const;
 
-        std::string getYamlPath() final;
+        CallTotals getYamlPath( std::string & yamlPathOut ) final;
 
         std::vector< Diagnostic > diagnostics() const override;
 
@@ -29,11 +33,13 @@ namespace LintCombine {
         std::string name;
         std::string yamlPath;
 
-        explicit LinterBase( LinterFactoryBase::Services & service );
+        explicit LinterBase( LinterFactoryBase::Services & service,
+                             std::unique_ptr< LinterBehaviorItf > && linterBehaviorVal );
 
         explicit LinterBase( const StringVector & cmdLine,
                              LinterFactoryBase::Services & service,
-                             const std::string & nameVal );
+                             const std::string & nameVal,
+                             std::unique_ptr< LinterBehaviorItf > && linterBehaviorVal );
 
         void parseCmdLine( const StringVector & cmdLine );
 
@@ -45,9 +51,13 @@ namespace LintCombine {
         boost::process::async_pipe m_stdoutPipe;
         boost::process::async_pipe m_stderrPipe;
         std::vector< Diagnostic > m_diagnostics;
+        std::unique_ptr < LinterBehaviorItf > m_linterBehavior;
 
         // Buffer for reading from pipes
-        std::array< char, 64 > m_buffer = {};
+        std::array< char, 512 > m_readPart{};
+        std::map< std::ostream *, std::string > m_streamBufferMap = {
+            { &std::cout, {} }, { &std::cerr, {} } };
+        bool m_convertLinterOutput = false;
 
         void readFromPipeToStream( boost::process::async_pipe & pipe,
                                    std::ostream & outputStream );

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set the name of the used IDE
-IDE_PROFILE="<choose one of these: CLion, ReSharper>"
+IDE_PROFILE="<choose one of these: CLion, ReSharper, BareMSVC>"
 
 # Set path to cpp-lint-combine. In Windows, write it as /D/no-colon/forward-slashes.
 CPP_LINT_COMBINE_PATH="<Full directory path of the cpp-lint-combine executable>"
@@ -30,6 +30,11 @@ fi
 
 if [ "${IDE_PROFILE,,}" = "clion" ]; then
     IDE_CLANG_TIDY_PATH=$CLION_CLANG_TIDY_PATH
+fi
+
+if [ "${IDE_PROFILE,,}" = "baremsvc" ]; then
+    IDE_CLANG_TIDY_PATH="$(dirname "$0")"
+    IDE_CLANG_TIDY_PATH="/${IDE_CLANG_TIDY_PATH/:}"
 fi
 
 export PATH="$CLAZY_PATH:$IDE_CLANG_TIDY_PATH:$PATH"

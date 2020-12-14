@@ -42,7 +42,7 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /MP /W4 -D_WIN32_WINNT=0x0601")
 endif()
 
-# Thread is required for Process on Linux, Date_Time is requred for Asio, 
+# Thread is required for Process on Linux, Date_Time is requred for Asio,
 # Filesystem is required for Process, Regex is requred for Asio
 find_package(Boost 1.69 OPTIONAL_COMPONENTS program_options thread date_time filesystem regex REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
@@ -82,6 +82,10 @@ file(GLOB LINT_COMBINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"  )
 
 add_executable(${executableName} ${LINT_COMBINE_SOURCES} ${LINT_COMBINE_HEADERS})
 if(WIN32)
+    add_executable(msvc-shim src/msvc-shim/msvc-shim.cpp)
+endif()
+
+if(WIN32)
     if(MSVC_VERSION AND MSVC_VERSION LESS 1924)
         add_custom_target("MSVC_VERSION_CHECK_MAIN" ALL $<$<CONFIG:ReleaseChecked>:echo>
             "$<$<CONFIG:ReleaseChecked>: ERROR: ReleaseChecked configuration requires Visual Studio 2019+ v16.4+>")
@@ -96,7 +100,7 @@ if(WIN32)
     set(ASAN_CMD_ARGS $<$<CONFIG:ReleaseChecked>:-E copy_if_different "${ASAN_RT}-i386.dll" "${TARGET_DIR}" >)
     add_custom_command(TARGET ${executableName} POST_BUILD COMMAND
         $<$<CONFIG:ReleaseChecked>:${CMAKE_COMMAND}> "${ASAN_CMD_ARGS}" COMMAND_EXPAND_LISTS)
-elseif(UNIX) 
+elseif(UNIX)
     # Filesystem, DateTime, Regex are used as header-only
     target_link_libraries(${executableName} yaml-cpp Boost::program_options Boost::thread)
 endif()

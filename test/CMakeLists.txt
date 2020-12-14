@@ -1,5 +1,6 @@
 project(cpp-lint-combine_tests)
 
+add_compile_options("$<$<CONFIG:DEBUG>:/bigobj>")
 set(executableName cpp-lint-combine_tests)
 file(GLOB LINT_COMBINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cpp")
 file(GLOB LINT_COMBINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.h"  )

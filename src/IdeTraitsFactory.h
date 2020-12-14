@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PrepareInputsItf.h"
+#include "IdeBehaviorItf.h"
 
 #include <boost/program_options.hpp>
 #include <memory>
@@ -8,31 +9,7 @@
 namespace LintCombine {
     class IdeTraitsFactory {
     public:
-        struct IdeBehaviorItf {
-            virtual bool mayYamlFileContainDocLink() const = 0;
-            virtual bool isLinterExitCodeTolerant() const = 0;
-            virtual ~IdeBehaviorItf() = default;
-        };
-
-        class IdeBehaviorBase final : public IdeBehaviorItf {
-        public:
-            IdeBehaviorBase( const bool mayYamlFileContainDocLinkVal,
-                             const bool linterExitCodeTolerantVal )
-                : m_mayYamlFileContainDocLink( mayYamlFileContainDocLinkVal ),
-                m_linterExitCodeTolerant( linterExitCodeTolerantVal ) {}
-
-            bool mayYamlFileContainDocLink() const override {
-                return m_mayYamlFileContainDocLink;
-            }
-
-            bool isLinterExitCodeTolerant() const override {
-                return m_linterExitCodeTolerant;
-            }
-
-        private:
-            bool m_mayYamlFileContainDocLink;
-            bool m_linterExitCodeTolerant;
-        };
+        IdeTraitsFactory( StringVector & cmdLine );
 
         class PrepareInputsOnError final : public PrepareInputsItf {
         public:
@@ -61,11 +38,12 @@ namespace LintCombine {
             std::vector< Diagnostic > m_diagnostics;
         };
 
-        std::unique_ptr< PrepareInputsItf > getPrepareInputsInstance( StringVector & cmdLine );
+        std::unique_ptr< PrepareInputsItf > getPrepareInputsInstance();
 
         std::unique_ptr< IdeBehaviorItf > getIdeBehaviorInstance();
 
     private:
         std::string m_ideName;
+        StringVector & m_cmdLine;
     };
 }
