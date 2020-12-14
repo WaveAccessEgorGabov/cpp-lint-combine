@@ -59,7 +59,7 @@ void LintCombine::PrepareInputsCLion::transformFiles() {
     const auto pathToFileWithMacros = pathToWorkDir + "/macros";
     if constexpr( BOOST_OS_WINDOWS ) {
         std::ofstream macrosFileRes( pathToFileWithMacros, std::ios_base::app );
-        std::string macrosToUndefAfter[] = {
+        constexpr char * macrosToUndefAfter[] = {
             "__has_cpp_attribute",
         };
 
@@ -69,35 +69,31 @@ void LintCombine::PrepareInputsCLion::transformFiles() {
     }
 
     if constexpr( BOOST_OS_LINUX ) {
-        std::ifstream macrosFileSrc( pathToFileWithMacros );
+        constexpr char * macrosToDelete[] = {
+                "__has_include(",
+        };
 
-        // save source macros
-        std::ostringstream sourceMacros;
-        sourceMacros << macrosFileSrc.rdbuf();
+        constexpr char * macrosToUndefAfter[] = {
+            "__builtin_va_start", "__has_cpp_attribute",
+        };
+
+        std::string sourceMacros;
+        std::ifstream macrosFileSrc( pathToFileWithMacros );
+        for ( std::string line; std::getline(macrosFileSrc, line); ) {
+            auto macrosToDeleteFound = false;
+            for( const auto & macro : macrosToDelete ) {
+                if( line.find( macro ) != std::string::npos ) {
+                    macrosToDeleteFound = true;
+                }
+            }
+            if( !macrosToDeleteFound ) {
+                sourceMacros += line + '\n';
+            }
+        }
         macrosFileSrc.close();
 
         std::ofstream macrosFileRes( pathToFileWithMacros );
-
-        // TODO: Do we really need macros above?
-        // In Linux the following macros must be undefined to avoid redefinition,
-        // because clazy also defines these macros
-        std::string macrosToUndefBefore[] = {
-            "__clang_version__", "__VERSION__", "__has_feature",
-            "__has_extension", "__has_attribute", "__has_builtin",
-        };
-
-        // TODO: Do we really need macros above?
-        // In Linux clang in not compatible with GCC 8 or higher,
-        // so we can't use the following macros
-        std::string macrosToUndefAfter[] = {
-            "__builtin_va_start"
-        };
-
-        for( const auto & macro : macrosToUndefBefore )
-            macrosFileRes << "#undef " << macro << std::endl;
-
-        macrosFileRes << sourceMacros.str();
-
+        macrosFileRes << sourceMacros;
         for( const auto & macro : macrosToUndefAfter )
             macrosFileRes << "#undef " << macro << std::endl;
     }
