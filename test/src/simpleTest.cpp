@@ -1321,25 +1321,27 @@ const CDLYFTestCaseDataWrapper testCaseData[] = {
     /*1 */ { { "yamlFile_1.yaml" } } }; // if only one linter works, it still leaves the file
 
 BOOST_DATA_TEST_CASE( TestCombineDeleteLintersYamlFiles, testCaseData, sample ) {
-    LintCombine::StringVector cmdLine = { "--result-yaml=" + pathToTempDir + "mockG" };
+    LintCombine::StringVector cmdLine = { "--result-yaml=" + pathToCombineTempDir + "mockG" };
     for( const auto & yamlFileName : sample.yamlFiles ) {
         cmdLine.emplace_back( "--sub-linter=MockLinterWrapper" );
         std::string bashName = BOOST_OS_WINDOWS ? "sh.exe " : "bash ";
         cmdLine.emplace_back( bashName + CURRENT_SOURCE_DIR "mockPrograms/createFileByExportFixesParam.sh" );
-        cmdLine.emplace_back( pathToTempDir + yamlFileName );
+        cmdLine.emplace_back( pathToCombineTempDir + yamlFileName );
     }
     {
         LintCombine::LinterCombine combine( cmdLine, LintCombine::MocksLinterFactory::getInstance() );
-        combine.callLinter();
+        LintCombine::IdeTraitsFactory ideTraitsFactory( cmdLine );
+        ideTraitsFactory.getPrepareInputsInstance();
+        combine.callLinter( ideTraitsFactory.getIdeBehaviorInstance() );
         BOOST_CHECK( !combine.waitLinter() );
         for( const auto & yamlFileName : sample.yamlFiles ) {
-            BOOST_CHECK( std::filesystem::exists( pathToTempDir + yamlFileName ) );
+            BOOST_CHECK( std::filesystem::exists( pathToCombineTempDir + yamlFileName ) );
         }
     }
     for( const auto & yamlFileName : sample.yamlFiles ) {
-        BOOST_CHECK( !std::filesystem::exists( pathToTempDir + yamlFileName ) );
+        BOOST_CHECK( !std::filesystem::exists( pathToCombineTempDir + yamlFileName ) );
     }
-    deleteTempDirWithYamls( pathToTempDir );
+    deleteTempDirWithYamls( pathToCombineTempDir );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
