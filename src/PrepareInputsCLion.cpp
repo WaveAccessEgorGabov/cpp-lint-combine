@@ -59,12 +59,12 @@ void LintCombine::PrepareInputsCLion::transformFiles() {
     if constexpr( BOOST_OS_LINUX ) {
         const auto pathToFileWithMacros = pathToWorkDir + "/macros";
 
-        std::array macrosToDelete = {
+        constexpr char * macrosToDelete[] = {
                 "__has_include(",
         };
 
-        std::array macrosToUndefAfter = {
-                "__builtin_va_start", "__has_cpp_attribute",
+        constexpr char * macrosToUndefAfter[] = {
+            "__builtin_va_start", "__has_cpp_attribute",
         };
 
         std::string result;

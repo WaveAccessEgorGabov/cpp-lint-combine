@@ -221,7 +221,7 @@ BOOST_DATA_TEST_CASE_F( LAFWUTestFixture, TestLAFWU, LAFWUTestCaseData, sample )
     }
     catch( const std::exception & ) {
         doesAllLintersExit = false;
-        std::cerr << "For LAFWU test all linters must be in the PATH" << std::endl;
+        std::cerr << "Info: For LAFWU test all linters must be in the PATH" << std::endl;
         return;
     }
     LintCombine::StringVector runCommand;
