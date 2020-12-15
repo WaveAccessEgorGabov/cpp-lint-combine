@@ -3,6 +3,7 @@
 #include "OutputHelper.h"
 
 #include <fstream>
+#include <algorithm>
 
 #ifdef WIN32
 #include <windows.h> // for WideCharToMultiByte(), MultiByteToWideChar() and GetLastError()
