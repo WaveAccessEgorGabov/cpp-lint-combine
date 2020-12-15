@@ -1,13 +1,12 @@
-#include "DiagnosticOutputHelper.h"
+#include "OutputHelper.h"
 #include PATH_TO_VERSION_RESOURCE
 
 #include <boost/algorithm/string/join.hpp>
 #include <boost/program_options.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 
-std::string LintCombine::DiagnosticOutputHelper::helpStr() {
+void LintCombine::OutputHelper::printHelp() {
     boost::program_options::options_description optDesc( /*line_length=*/100 );
     optDesc.add_options()
         ( "help",             "Print this message." )
@@ -17,58 +16,39 @@ std::string LintCombine::DiagnosticOutputHelper::helpStr() {
                               "Supported linters are: clang-tidy, clazy." )
         ( "clazy-checks",     "Comma-separated list of clazy checks. Default is level1." )
         ( "clang-extra-args", "Additional argument to append to the compiler command line." );
-    std::string helpStr;
-    helpStr.append( productInfoStr() + "Usage:\n" + boost::lexical_cast< std::string >( optDesc ) );
-    return helpStr;
+    printProductInfo();
+    std::cout << "Usage:" << std::endl << optDesc;
 }
 
-std::string LintCombine::DiagnosticOutputHelper::howToPrintHelpStr() {
+void LintCombine::OutputHelper::printHelpOption() {
     boost::program_options::options_description optDesc;
     optDesc.add_options() (
         "help", "Display all available options." );
-    return boost::lexical_cast< std::string >( optDesc );
+    std::cout << optDesc;
 }
 
-std::string LintCombine::DiagnosticOutputHelper::productInfoStr() {
-    return PRODUCTNAME_STR " " PRODUCTVERSION_STR "\n\n";
+void LintCombine::OutputHelper::printProductInfo() {
+    std::cout << PRODUCTNAME_STR " " PRODUCTVERSION_STR << std::endl << std::endl;
 }
 
-bool LintCombine::DiagnosticOutputHelper::printDiagnostics( std::vector< Diagnostic > & diagnostics ) const {
-    return printDiagnosticsBase( diagnostics );
+void LintCombine::OutputHelper::setCmdLine( const StringVector & cmdLineVal ){
+    m_cmdLine = cmdLineVal;
 }
 
-bool LintCombine::DiagnosticOutputHelper::printDiagnostics( std::vector< Diagnostic > && diagnostics ) const {
-    return printDiagnosticsBase( diagnostics );
-}
-
-bool LintCombine::DiagnosticOutputHelper::printDiagnosticsBase( std::vector< Diagnostic > & diagnostics ) const {
-    if( m_cmdLine.empty() ) {
-        std::cout << productInfoStr();
-        std::cout << howToPrintHelpStr();
-        return true;
-    }
-
-    for( const auto & cmdLineElem : m_cmdLine ) {
-        if( cmdLineElem == "--help" ) {
-            std::cout << helpStr();
-            return true;
-        }
-    }
-
+void LintCombine::OutputHelper::printDiagnostics( const std::vector< Diagnostic > & diagnostics ) const {
     for( const auto & diagnostic : prepareOutput( diagnostics ) ) {
         std::cerr << diagnostic << std::endl;
     }
-
-    return false;
 }
 
 LintCombine::StringVector
-LintCombine::DiagnosticOutputHelper::prepareOutput( std::vector< Diagnostic > & diagnostics ) const {
-    std::sort( std::begin( diagnostics ), std::end( diagnostics ) );
+LintCombine::OutputHelper::prepareOutput( const std::vector< Diagnostic > & diagnostics ) const {
+    auto diagnosticsCopy = diagnostics;
+    std::sort( std::begin( diagnosticsCopy ), std::end( diagnosticsCopy ) );
     const auto sourceCmdLine = boost::algorithm::join( m_cmdLine, " " );
     StringVector preparedOutput;
     auto errorOccurred = false;
-    for( const auto & diagnostic : diagnostics ) {
+    for( const auto & diagnostic : diagnosticsCopy ) {
         std::string levelAsString;
         switch( diagnostic.level ) {
             case Level::Trace:   levelAsString = "Trace";   break;

@@ -9,41 +9,18 @@
 namespace LintCombine {
     class IdeTraitsFactory {
     public:
-        IdeTraitsFactory( StringVector & cmdLine );
+        // Constructor modifies the command line arguments by
+        // removing "--ide-profile" option and the option's value
+        IdeTraitsFactory( StringVector & cmdLineVal );
 
-        class PrepareInputsOnError final : public PrepareInputsItf {
-        public:
-            PrepareInputsOnError( const Level levelVal,
-                const std::string & textVal, const std::string & originVal,
-                const unsigned firstPosVal, const unsigned lastPosVal )
-                : m_diagnostics{ Diagnostic( levelVal, textVal, originVal,
-                                             firstPosVal, lastPosVal ) } {}
+        std::unique_ptr< PrepareInputsItf > getPrepareInputsInstance() const;
 
-            StringVector transformCmdLine( const StringVector & commandLine ) override {
-                for( const auto & diagnostic : m_diagnostics ) {
-                    if( diagnostic.level == Level::Error || diagnostic.level == Level::Fatal ) {
-                        return {};
-                    }
-                }
-                return commandLine;
-            }
+        std::unique_ptr< IdeBehaviorItf > getIdeBehaviorInstance() const;
 
-            void transformFiles() override {}
-
-            std::vector< Diagnostic > diagnostics() const override {
-                return m_diagnostics;
-            }
-
-        private:
-            std::vector< Diagnostic > m_diagnostics;
-        };
-
-        std::unique_ptr< PrepareInputsItf > getPrepareInputsInstance();
-
-        std::unique_ptr< IdeBehaviorItf > getIdeBehaviorInstance();
+        std::vector< Diagnostic > diagnostics() const;
 
     private:
         std::string m_ideName;
-        StringVector & m_cmdLine;
+        std::vector< Diagnostic > m_diagnostics;
     };
 }

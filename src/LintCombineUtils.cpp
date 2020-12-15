@@ -1,5 +1,6 @@
 #include "LintCombineUtils.h"
 #include "LintCombineException.h"
+#include "OutputHelper.h"
 
 #include <fstream>
 
@@ -233,4 +234,21 @@ void LintCombine::checkIsOptionsValueInit( const std::string & cmdLine,
                 Level::Info, textIfOptionDoesNotExists, diagnosticOrigin, 1, 0 );
         }
     }
+}
+
+bool LintCombine::checkCmdLineForEmptiness( const StringVector & cmdLine ) {
+    if( cmdLine.empty() ) {
+        OutputHelper::printProductInfo();
+        OutputHelper::printHelpOption();
+    }
+    return cmdLine.empty();
+}
+
+bool LintCombine::checkCmdLineForHelpOption( const StringVector & cmdLine ) {
+    if( std::any_of( cmdLine.cbegin(), cmdLine.cend(),
+                     []( const std::string & opt ) { return opt == "--help"; } ) ) {
+        OutputHelper::printHelp();
+        return true;
+    }
+    return false;
 }

@@ -25,6 +25,11 @@ namespace LintCombine {
                                   const std::string & optionName, const std::string & option,
                                   const std::string & diagnosticOrigin,
                                   const std::string & textIfOptionDoesNotExists = {} );
+
+    bool checkCmdLineForEmptiness( const StringVector & cmdLine );
+
+    bool checkCmdLineForHelpOption( const StringVector & cmdLine );
+
 #ifdef WIN32
     std::string Utf16ToUtf8( const std::wstring & utf16 );
     std::wstring Utf8ToUtf16( const std::string & utf8 );
