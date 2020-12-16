@@ -339,7 +339,6 @@ BOOST_AUTO_TEST_CASE( TestLinterOutputFormatConversion ) {
         const StreamCapture stdoutCapture( std::cout );
         LintCombine::StringVector cmdLine = { { "--ide-profile=BareMSVC" } };
         LintCombine::IdeTraitsFactory ideTraitsFactory( cmdLine );
-        ideTraitsFactory.getPrepareInputsInstance();
         combine.callLinter( ideTraitsFactory.getIdeBehaviorInstance() );
         combine.waitLinter();
         stdoutData = stdoutCapture.getBufferData();
@@ -410,8 +409,8 @@ namespace TestLCO::HelpOptionExists {
     const LCOTestCase::Input input{ /*cmdLine=*/{ "--help" }, /*diagnostics=*/{} };
     const LCOTestCase::Output output{
         { { "Cpp-lint-combine" }, { "" }, { "Usage:" }, { "--help", "Print this message" },
-        { "--ide-profile", "ReSharper", "CLion" }, { "--result-yaml", "Path to YAML" },
-        { "--sub-linter", "Linter to use" }, { "clang-tidy", "clazy" },
+        { "--ide-profile", "ReSharper", "CLion", "BareMSVC" }, { "--result-yaml", "Path to YAML" },
+        { "--sub-linter", "Linter to use", "Supported linters are", "clang-tidy", "clazy" },
         { "--clazy-checks", "Comma-separated list" },
         { "--clang-extra-args", "Additional argument" }, { "" } },
         /*stderrData*/{} };

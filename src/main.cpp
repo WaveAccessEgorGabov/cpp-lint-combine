@@ -12,13 +12,15 @@ namespace LintCombine {
 }
 
 int _main( const int argc, _char * argv[] ) {
+    std::vector< LintCombine::Diagnostic > allDiagnostics;
     LintCombine::OutputHelper diagnosticWorker;
     LintCombine::StringVector cmdLine;
     try {
         cmdLine = LintCombine::moveCmdLineIntoSTLContainer( argc, argv );
     }
     catch( const LintCombine::Exception & ex ) {
-        diagnosticWorker.printDiagnostics( ex.diagnostics() );
+        diagnosticWorker.printDiagnostics(
+            appendCurrentAndGetAllDiagnostics( allDiagnostics, ex.diagnostics() ) );
         return static_cast< int >( LintCombine::ExitCode::FailedToMoveCmdLineIntoSTLContainer );
     }
 
@@ -34,25 +36,30 @@ int _main( const int argc, _char * argv[] ) {
         diagnosticWorker.setCmdLine( cmdLine );
     }
     catch( const LintCombine::Exception & ex ) {
-        diagnosticWorker.printDiagnostics( ex.diagnostics() );
+        diagnosticWorker.printDiagnostics(
+            appendCurrentAndGetAllDiagnostics( allDiagnostics, ex.diagnostics() ) );
         return static_cast< int >( LintCombine::ExitCode::FailedToParseIdeName );
     }
 
     auto prepareInputs = ideTraitsFactory->getPrepareInputsInstance();
     if( !prepareInputs ) {
-        diagnosticWorker.printDiagnostics( ideTraitsFactory->diagnostics() );
+        diagnosticWorker.printDiagnostics(
+            appendCurrentAndGetAllDiagnostics( allDiagnostics, ideTraitsFactory->diagnostics() ) );
         return static_cast< int >( LintCombine::ExitCode::FailedToParseIdeName );
     }
 
     const auto ideBehaviorItf = ideTraitsFactory->getIdeBehaviorInstance();
     if( !ideBehaviorItf ) {
-        diagnosticWorker.printDiagnostics( ideTraitsFactory->diagnostics() );
+        diagnosticWorker.printDiagnostics(
+            appendCurrentAndGetAllDiagnostics( allDiagnostics, ideTraitsFactory->diagnostics() ) );
         return static_cast< int >( LintCombine::ExitCode::FailedToParseIdeName );
     }
 
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     if( cmdLine.empty() ) {
         diagnosticWorker.printDiagnostics( prepareInputs->diagnostics() );
+        diagnosticWorker.printDiagnostics(
+            appendCurrentAndGetAllDiagnostics( allDiagnostics, prepareInputs->diagnostics() ) );
         return static_cast< int >( LintCombine::ExitCode::Success );
     }
     prepareInputs->transformFiles();
@@ -63,7 +70,8 @@ int _main( const int argc, _char * argv[] ) {
         lintCombine = LintCombine::UsualLinterFactory::getInstance().createLinter( cmdLine );
     }
     catch( const LintCombine::Exception & ex ) {
-        diagnosticWorker.printDiagnostics( ex.diagnostics() );
+        diagnosticWorker.printDiagnostics(
+            appendCurrentAndGetAllDiagnostics( allDiagnostics, ex.diagnostics() ) );
         return static_cast< int >( LintCombine::ExitCode::FailedToConstructLinterCombine );
     }
 
@@ -72,7 +80,8 @@ int _main( const int argc, _char * argv[] ) {
     if( callReturnCode == LintCombine::RetCode::RC_TotalFailure &&
         !ideBehaviorItf->isLinterExitCodeTolerant() )
     {
-        diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
+        diagnosticWorker.printDiagnostics(
+            appendCurrentAndGetAllDiagnostics( allDiagnostics, lintCombine->diagnostics() ) );
         return static_cast< int >( LintCombine::ExitCode::FailedToCallLinters );
     }
 
@@ -81,9 +90,11 @@ int _main( const int argc, _char * argv[] ) {
     }
 
     if( std::string combinedYamlPath; !lintCombine->getYamlPath( combinedYamlPath ).successNum ) {
-        diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
+        diagnosticWorker.printDiagnostics(
+            appendCurrentAndGetAllDiagnostics( allDiagnostics, lintCombine->diagnostics() ) );
         return static_cast< int >( LintCombine::ExitCode::FailedToPutDiagsIntoYaml );
     }
-    diagnosticWorker.printDiagnostics( lintCombine->diagnostics() );
+    diagnosticWorker.printDiagnostics(
+        appendCurrentAndGetAllDiagnostics( allDiagnostics, lintCombine->diagnostics() ) );
     return static_cast< int >( LintCombine::ExitCode::Success );
 }

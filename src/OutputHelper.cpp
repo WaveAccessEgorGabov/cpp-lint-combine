@@ -7,10 +7,10 @@
 #include <iostream>
 
 void LintCombine::OutputHelper::printHelp() {
-    boost::program_options::options_description optDesc( /*line_length=*/100 );
+    boost::program_options::options_description optDesc( /*line_length=*/120 );
     optDesc.add_options()
         ( "help",             "Print this message." )
-        ( "ide-profile",      "Choose IDE: ReSharper C++, CLion. By default options will pass verbatim." )
+        ( "ide-profile",      "Choose IDE: ReSharper C++, CLion, BareMSVC. By default options will pass verbatim." )
         ( "result-yaml",      "Path to YAML with diagnostics from all linters." )
         ( "sub-linter",       "Linter to use (may be specified several times). "
                               "Supported linters are: clang-tidy, clazy." )

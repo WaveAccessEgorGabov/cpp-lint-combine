@@ -253,3 +253,10 @@ bool LintCombine::checkCmdLineForHelpOption( const StringVector & cmdLine ) {
     }
     return false;
 }
+
+std::vector<LintCombine::Diagnostic>
+LintCombine::appendCurrentAndGetAllDiagnostics( std::vector<Diagnostic> & allDiagnostics,
+                                                const std::vector<Diagnostic> & currentDiagnostics ) {
+    allDiagnostics.insert( allDiagnostics.end(), currentDiagnostics.begin(), currentDiagnostics.end() );
+    return allDiagnostics;
+}
