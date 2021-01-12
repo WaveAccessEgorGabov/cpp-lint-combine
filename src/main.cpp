@@ -57,7 +57,6 @@ int _main( const int argc, _char * argv[] ) {
 
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     if( cmdLine.empty() ) {
-        diagnosticWorker.printDiagnostics( prepareInputs->diagnostics() );
         diagnosticWorker.printDiagnostics(
             appendCurrentAndGetAllDiagnostics( allDiagnostics, prepareInputs->diagnostics() ) );
         return static_cast< int >( LintCombine::ExitCode::Success );
