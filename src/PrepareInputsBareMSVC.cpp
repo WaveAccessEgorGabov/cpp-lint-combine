@@ -12,6 +12,7 @@ void LintCombine::PrepareInputsBareMSVC::appendLintersOptionToCmdLine() {
         // File to analyze
         if( unrecognized.front() != '-' && unrecognized.front() != '@' ) {
             if( isCalledExplicitly() ) {
+            #ifdef WIN32
                 if( !doesStringCompletelyExistsInCP437( unrecognized ) ) {
                     m_diagnostics.emplace_back( Level::Info,
                                                 "The path of file to analyze (" + unrecognized + ") "
@@ -19,6 +20,7 @@ void LintCombine::PrepareInputsBareMSVC::appendLintersOptionToCmdLine() {
                                                 "Visual Studio will not display linters checks for this file.",
                                                 "BasePreparer", 1, 0 );
                 }
+            #endif
             }
             filesToAnalyze.emplace_back( unrecognized );
             continue;
