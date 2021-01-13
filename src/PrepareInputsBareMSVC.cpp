@@ -1,4 +1,5 @@
 #include "PrepareInputsBareMSVC.h"
+#include "LintCombineUtils.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -21,4 +22,31 @@ void LintCombine::PrepareInputsBareMSVC::appendLintersOptionToCmdLine() {
     }
 
     PrepareInputsBase::appendLintersOptionToCmdLine();
+}
+
+bool LintCombine::PrepareInputsBareMSVC::validateParsedData() {
+    if( const std::string explicitCallDetector = ".ClangTidy";
+        pathToWorkDir.compare( pathToWorkDir.size() - explicitCallDetector.size(),
+                               explicitCallDetector.size(), explicitCallDetector ) == 0 )
+    {
+        calledExplicitly = true;
+    }
+    else if( const std::string implicitCallDetector = "_analysis";
+             pathToWorkDir.compare( pathToWorkDir.size() - implicitCallDetector.size(),
+                                    implicitCallDetector.size(), implicitCallDetector ) == 0 )
+    {
+        calledExplicitly = false;
+    }
+    if( calledExplicitly ) {
+        for( const auto sym : Utf8ToUtf16( pathToWorkDir ) ) {
+            if( !doesSymbolExistsInCP437( sym ) ) {
+                m_diagnostics.emplace_back( Level::Warning,
+                                            "The path of file to analyze contains some Unicode characters. "
+                                            "Visual Studio will not display linters checks.",
+                                            "BasePreparer", 1, 0 );
+                break;
+            }
+        }
+    }
+    return PrepareInputsBase::validateParsedData();
 }

@@ -16,8 +16,14 @@ namespace LintCombine {
 
         std::vector< Diagnostic > diagnostics() const override;
 
+        bool isCalledExplicitly() const override {
+            return calledExplicitly;
+        }
+
     protected:
         virtual void specifyTargetArch() {}
+
+        virtual bool validateParsedData();
 
         void addOptionToLinterByName( const std::string & name, const std::string & option );
 
@@ -93,8 +99,6 @@ namespace LintCombine {
     private:
         bool parseSourceCmdLine();
 
-        bool validateParsedData();
-
         bool initLinters();
 
         void initCmdLine();
@@ -106,6 +110,8 @@ namespace LintCombine {
         StringVector cmdLine;
         StringVector unrecognizedCollection;
         std::vector< std::unique_ptr< LinterOptionsBase > > lintersOptions;
+        std::vector< Diagnostic > m_diagnostics;
+        bool calledExplicitly = false;
 
     private:
         std::string  m_pathToCombinedYaml;
@@ -113,6 +119,5 @@ namespace LintCombine {
         std::string  m_clangExtraArgs;
         StringVector m_lintersNames;
         std::string  m_sourceCmdLine;
-        std::vector< Diagnostic > m_diagnostics;
     };
 }

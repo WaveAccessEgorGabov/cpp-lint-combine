@@ -260,3 +260,7 @@ LintCombine::appendCurrentAndGetAllDiagnostics( std::vector<Diagnostic> & allDia
     allDiagnostics.insert( allDiagnostics.end(), currentDiagnostics.begin(), currentDiagnostics.end() );
     return allDiagnostics;
 }
+
+bool LintCombine::doesSymbolExistsInCP437( const wchar_t sym ) {
+    return true;
+}

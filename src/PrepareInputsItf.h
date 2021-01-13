@@ -11,5 +11,7 @@ namespace LintCombine {
         virtual void transformFiles() = 0;
 
         virtual std::vector< Diagnostic > diagnostics() const = 0;
+
+        virtual bool isCalledExplicitly() const = 0;
     };
 }

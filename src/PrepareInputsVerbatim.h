@@ -11,6 +11,10 @@ namespace LintCombine {
 
         std::vector< Diagnostic > diagnostics() const override;
 
+        bool isCalledExplicitly() const override {
+            return false;
+        }
+
     private:
         bool validateLinters();
 
