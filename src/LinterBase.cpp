@@ -167,8 +167,8 @@ void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe &
             bufferWithReadPart.replace(
                 0, convertedCharsNum,
                 convertStringEncodingFromUTF8ToCP437( bufferWithReadPart.substr( 0, convertedCharsNum ) ) );
-        }
         #endif
+        }
         if( convertedCharsNum < 0 ) {
             outputStream.write( bufferWithReadPart.c_str(), bufferWithReadPart.size() );
             currentWorkBuffer.clear();
