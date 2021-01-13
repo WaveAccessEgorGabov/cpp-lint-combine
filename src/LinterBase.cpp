@@ -29,6 +29,7 @@ void LintCombine::LinterBase::callLinter( const std::unique_ptr< IdeBehaviorItf 
         return;
     }
     m_convertLinterOutput = ideBehavior->doesConvertLinterOutput();
+    m_convertLinterOutputEncoding = ideBehavior->doesConvertLinterOutputEncoding();
     readFromPipeToStream( m_stdoutPipe, std::cout );
     if( !ideBehavior->doesMergeStdoutAndStderr() ) {
         readFromPipeToStream( m_stderrPipe, std::cerr );
@@ -160,6 +161,11 @@ void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe &
         std::streamsize convertedCharsNum = -1;
         if( m_convertLinterOutput ) {
             convertedCharsNum = m_linterBehavior->convertLinterOutput( bufferWithReadPart );
+        }
+        if( m_convertLinterOutputEncoding ) {
+            bufferWithReadPart.replace(
+                0, convertedCharsNum,
+                convertStringEncodingFromUTF8ToCP437( bufferWithReadPart.substr( 0, convertedCharsNum ) ) );
         }
         if( convertedCharsNum < 0 ) {
             outputStream.write( bufferWithReadPart.c_str(), bufferWithReadPart.size() );

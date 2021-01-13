@@ -16,14 +16,12 @@ namespace LintCombine {
 
         std::vector< Diagnostic > diagnostics() const override;
 
-        bool isCalledExplicitly() const override {
+        bool isCalledExplicitly() override {
             return calledExplicitly;
         }
 
     protected:
         virtual void specifyTargetArch() {}
-
-        virtual bool validateParsedData();
 
         void addOptionToLinterByName( const std::string & name, const std::string & option );
 
@@ -98,6 +96,8 @@ namespace LintCombine {
 
     private:
         bool parseSourceCmdLine();
+
+        bool validateParsedData();
 
         bool initLinters();
 

@@ -6,6 +6,6 @@ namespace LintCombine {
     class PrepareInputsBareMSVC final : public PrepareInputsBase {
         void appendLintersOptionToCmdLine() override;
 
-        bool validateParsedData() override;
+        bool isCalledExplicitly() override;
     };
 }

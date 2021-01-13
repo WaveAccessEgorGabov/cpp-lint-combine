@@ -10,7 +10,16 @@ void LintCombine::PrepareInputsBareMSVC::appendLintersOptionToCmdLine() {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         }
         // File to analyze
-        if( unrecognized[0] != '-' && unrecognized[0] != '@' ) {
+        if( unrecognized.front() != '-' && unrecognized.front() != '@' ) {
+            if( isCalledExplicitly() ) {
+                if( !doesStringCompletelyExistsInCP437( unrecognized ) ) {
+                    m_diagnostics.emplace_back( Level::Info,
+                                                "The path of file to analyze (" + unrecognized + ") "
+                                                "contains some Unicode characters. "
+                                                "Visual Studio will not display linters checks for this file.",
+                                                "BasePreparer", 1, 0 );
+                }
+            }
             filesToAnalyze.emplace_back( unrecognized );
             continue;
         }
@@ -24,12 +33,12 @@ void LintCombine::PrepareInputsBareMSVC::appendLintersOptionToCmdLine() {
     PrepareInputsBase::appendLintersOptionToCmdLine();
 }
 
-bool LintCombine::PrepareInputsBareMSVC::validateParsedData() {
+bool LintCombine::PrepareInputsBareMSVC::isCalledExplicitly() {
     if( const std::string explicitCallDetector = ".ClangTidy";
         pathToWorkDir.compare( pathToWorkDir.size() - explicitCallDetector.size(),
                                explicitCallDetector.size(), explicitCallDetector ) == 0 )
     {
-        calledExplicitly = true;
+            calledExplicitly = true;
     }
     else if( const std::string implicitCallDetector = "_analysis";
              pathToWorkDir.compare( pathToWorkDir.size() - implicitCallDetector.size(),
@@ -37,16 +46,5 @@ bool LintCombine::PrepareInputsBareMSVC::validateParsedData() {
     {
         calledExplicitly = false;
     }
-    if( calledExplicitly ) {
-        for( const auto sym : Utf8ToUtf16( pathToWorkDir ) ) {
-            if( !doesSymbolExistsInCP437( sym ) ) {
-                m_diagnostics.emplace_back( Level::Warning,
-                                            "The path of file to analyze contains some Unicode characters. "
-                                            "Visual Studio will not display linters checks.",
-                                            "BasePreparer", 1, 0 );
-                break;
-            }
-        }
-    }
-    return PrepareInputsBase::validateParsedData();
+    return calledExplicitly;
 }

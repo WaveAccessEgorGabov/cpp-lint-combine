@@ -40,7 +40,7 @@ void LintCombine::PrepareInputsCLion::appendLintersOptionToCmdLine() {
             boost::algorithm::replace_all( unrecognized, "\"", "\\\"" );
         }
         // File to analyze
-        if( unrecognized[0] != '-' && unrecognized[0] != '@' ) {
+        if( unrecognized.front() != '-' && unrecognized.front() != '@' ) {
             filesToAnalyze.emplace_back( unrecognized );
             continue;
         }

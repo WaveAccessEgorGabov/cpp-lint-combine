@@ -34,7 +34,9 @@ namespace LintCombine {
     appendCurrentAndGetAllDiagnostics( std::vector< Diagnostic > & allDiagnostics,
                                        const std::vector< Diagnostic > & currentDiagnostics );
 
-    bool doesSymbolExistsInCP437( const wchar_t sym );
+    bool doesStringCompletelyExistsInCP437( const std::string & str );
+
+    std::string convertStringEncodingFromUTF8ToCP437( const std::string & strToConvert );
 
 #ifdef WIN32
     std::string Utf16ToUtf8( const std::wstring & utf16 );

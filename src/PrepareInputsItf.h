@@ -12,6 +12,6 @@ namespace LintCombine {
 
         virtual std::vector< Diagnostic > diagnostics() const = 0;
 
-        virtual bool isCalledExplicitly() const = 0;
+        virtual bool isCalledExplicitly() = 0;
     };
 }

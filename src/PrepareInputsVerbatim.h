@@ -11,7 +11,7 @@ namespace LintCombine {
 
         std::vector< Diagnostic > diagnostics() const override;
 
-        bool isCalledExplicitly() const override {
+        bool isCalledExplicitly() override {
             return false;
         }
 
