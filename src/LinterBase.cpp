@@ -164,9 +164,15 @@ void LintCombine::LinterBase::readFromPipeToStream( boost::process::async_pipe &
         }
         if( m_convertLinterOutputEncoding ) {
         #ifdef WIN32
-            bufferWithReadPart.replace(
-                0, convertedCharsNum,
-                convertStringEncodingFromUTF8ToCP437( bufferWithReadPart.substr( 0, convertedCharsNum ) ) );
+            if( convertedCharsNum < 0 ) {
+                bufferWithReadPart = convertStringEncodingFromUTF8ToCP437( bufferWithReadPart );
+            }
+            else if( convertedCharsNum > 0 ) {
+                const auto convertedPart =
+                    convertStringEncodingFromUTF8ToCP437( bufferWithReadPart.substr( 0, convertedCharsNum ) );
+                bufferWithReadPart.replace( 0, convertedCharsNum, convertedPart );
+                convertedCharsNum = convertedPart.size();
+            }
         #endif
         }
         if( convertedCharsNum < 0 ) {

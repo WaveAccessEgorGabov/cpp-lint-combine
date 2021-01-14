@@ -48,13 +48,6 @@ int _main( const int argc, _char * argv[] ) {
         return static_cast< int >( LintCombine::ExitCode::FailedToParseIdeName );
     }
 
-    const auto ideBehaviorItf = ideTraitsFactory->getIdeBehaviorInstance();
-    if( !ideBehaviorItf ) {
-        diagnosticWorker.printDiagnostics(
-            appendCurrentAndGetAllDiagnostics( allDiagnostics, ideTraitsFactory->diagnostics() ) );
-        return static_cast< int >( LintCombine::ExitCode::FailedToParseIdeName );
-    }
-
     cmdLine = prepareInputs->transformCmdLine( cmdLine );
     if( cmdLine.empty() ) {
         diagnosticWorker.printDiagnostics(
@@ -62,6 +55,14 @@ int _main( const int argc, _char * argv[] ) {
         return static_cast< int >( LintCombine::ExitCode::Success );
     }
     prepareInputs->transformFiles();
+
+    const auto ideBehaviorItf = ideTraitsFactory->getIdeBehaviorInstance();
+    if( !ideBehaviorItf ) {
+        diagnosticWorker.printDiagnostics(
+            appendCurrentAndGetAllDiagnostics( allDiagnostics, ideTraitsFactory->diagnostics() ) );
+        return static_cast< int >( LintCombine::ExitCode::FailedToParseIdeName );
+    }
+    ideBehaviorItf->setExtraOptions( prepareInputs->isCalledExplicitly() );
 
     std::unique_ptr< LintCombine::LinterItf > lintCombine;
     try {
@@ -74,7 +75,6 @@ int _main( const int argc, _char * argv[] ) {
         return static_cast< int >( LintCombine::ExitCode::FailedToConstructLinterCombine );
     }
 
-    ideBehaviorItf->setExtraOptions( prepareInputs->isCalledExplicitly() );
     lintCombine->callLinter( ideBehaviorItf );
     const auto callReturnCode = lintCombine->waitLinter();
     if( callReturnCode == LintCombine::RetCode::RC_TotalFailure &&

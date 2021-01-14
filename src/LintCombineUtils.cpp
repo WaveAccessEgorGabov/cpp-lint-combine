@@ -195,7 +195,7 @@ bool LintCombine::doesStringCompletelyExistsInCP437( const std::string & str ) {
     const auto wideStr = Utf8ToUtf16( str );
     for( const auto sym : wideStr ) {
         if( const auto symCode = static_cast< int >( sym );
-            symCode <= 0x20 && symCode >= 0x7E && getSymCodeInCP437( sym ) == -1 ) {
+            ( symCode < 0x20 || symCode > 0x7E ) && getSymCodeInCP437( sym ) == -1 ) {
             return false;
         }
     }
@@ -203,17 +203,25 @@ bool LintCombine::doesStringCompletelyExistsInCP437( const std::string & str ) {
 }
 
 std::string LintCombine::convertStringEncodingFromUTF8ToCP437( const std::string & strToConvert ) {
-    if( doesStringCompletelyExistsInCP437( strToConvert ) ) {
-        return strToConvert;
-    }
     auto wideStrToConvert = Utf8ToUtf16( strToConvert );
-    for( auto & sym : wideStrToConvert ) {
-        if( const auto symCodeInCP437 = getSymCodeInCP437( sym );
-            symCodeInCP437 != -1 ) {
-            sym = static_cast< wchar_t >( symCodeInCP437 );
+    std::string convertedStr;
+    convertedStr.reserve( wideStrToConvert.size() );
+    for( const auto & sym : wideStrToConvert ) {
+        if( const auto symCode = static_cast< int >( sym );
+            symCode >= 0x20 && symCode <= 0x7E )
+        {
+            convertedStr.push_back( static_cast< char >( symCode ) );
+            continue;
         }
+        if( const auto symCodeInCP437 = getSymCodeInCP437( sym );
+            symCodeInCP437 != -1 )
+        {
+            convertedStr.push_back( static_cast< char >( symCodeInCP437 ) );
+            continue;
+        }
+        convertedStr.push_back( '?' );
     }
-    return Utf16ToUtf8( wideStrToConvert );
+    return convertedStr;
 }
 
 #endif

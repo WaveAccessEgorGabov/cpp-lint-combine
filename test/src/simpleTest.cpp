@@ -92,6 +92,15 @@ namespace LintCombine {
     };
 }
 
+struct TestDiagnostic : LintCombine::Diagnostic {
+    TestDiagnostic( const LintCombine::Level levelVal,
+                    const LintCombine::StringVector & keyWordsVal, const std::string & originVal,
+                    const unsigned firstPosVal, const unsigned lastPosVal )
+        : Diagnostic( levelVal, /*text*/"", originVal, firstPosVal, lastPosVal ),
+          keyWords( keyWordsVal ) {}
+    LintCombine::StringVector keyWords;
+};
+
 #ifdef _WIN32
 #define PATH_SEP "\\"
 #define W_PATH_SEP L"\\"
@@ -125,7 +134,17 @@ static void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic >
     BOOST_CHECK( lhs == rhs );
 }
 
-std::string getRunnerName( const std::string & shellName ) {
+static void checkThatDiagnosticsAreEqual( std::vector< LintCombine::Diagnostic > lhs,
+                                          std::vector< TestDiagnostic > rhs ) {
+    std::sort( lhs.begin(), lhs.end() );
+    std::sort( rhs.begin(), rhs.end() );
+    BOOST_REQUIRE( lhs.size() == rhs.size() );
+    for( decltype( lhs.size() ) i = 0; i < lhs.size(); ++i )
+        for( const auto & keyword : rhs[i].keyWords )
+            BOOST_CHECK( lhs[i].text.find( keyword ) != std::string::npos );
+}
+
+static std::string getRunnerName( const std::string & shellName ) {
     if constexpr( BOOST_OS_WINDOWS ) {
         if( shellName == "cmd" ) {
             return {};
@@ -140,7 +159,7 @@ std::string getRunnerName( const std::string & shellName ) {
     return {};
 }
 
-std::string getScriptExtension() {
+static std::string getScriptExtension() {
     if constexpr( BOOST_OS_WINDOWS ) {
         return ".cmd";
     }
@@ -240,6 +259,109 @@ BOOST_DATA_TEST_CASE_F( LAFWUTestFixture, TestLAFWU, LAFWUTestCaseData, sample )
     LintCombine::StringVector cmdLine;
     combine.callLinter( LintCombine::IdeTraitsFactory( cmdLine ).getIdeBehaviorInstance() );
     BOOST_CHECK( combine.waitLinter() == 0 );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE( TestConvertLinterOutputToCP437 )
+
+// CLOT437 means convert linter output to CP437
+struct CLOT437TestCase {
+    CLOT437TestCase( const std::string & mockInputStrVal,
+                     const std::string & mockOutputStrVal )
+        : mockName( mockInputStrVal ), mockOutputStr( mockOutputStrVal ) {}
+    std::string mockName;
+    std::string mockOutputStr;
+};
+
+std::ostream & operator<<( std::ostream & os, CLOT437TestCase ) {
+    return os;
+}
+
+const CLOT437TestCase CLOT437TestCaseData[] = {
+    /*0 */ { /*mockName*/"mockWriteASCIIToStdout.sh",   /*mockOutputStr*/"abcdefABCDEF123" },
+    /*1 */ { /*mockName*/"mockWriteCP437ToStdout.sh",   /*mockOutputStr*/"Ž’¨êæ˜ABCD«ý" },
+    /*2 */ { /*mockName*/"mockWriteUnicodeToStdout.sh", /*mockOutputStr*/"?????????" },
+};
+
+BOOST_DATA_TEST_CASE( TestCLOT437, CLOT437TestCaseData, sample ) {
+    LintCombine::StringVector cmdLineToSetUpIdeBehavior = {
+        "--ide-profile=BareMSVC", "-p=implicitCall.ClangTidy"
+    };
+    const LintCombine::IdeTraitsFactory ideTraitsFactory( cmdLineToSetUpIdeBehavior );
+    auto prepareInputs = ideTraitsFactory.getPrepareInputsInstance();
+    cmdLineToSetUpIdeBehavior = prepareInputs->transformCmdLine( cmdLineToSetUpIdeBehavior );
+    const auto ideBehaviorItf = ideTraitsFactory.getIdeBehaviorInstance();
+    ideBehaviorItf->setExtraOptions( prepareInputs->isCalledExplicitly() );
+
+    const LintCombine::StringVector lintCombineCmdLine = {
+        "--sub-linter=MockLinterWrapper", getRunnerName( "bash" ) +
+          CURRENT_SOURCE_DIR "mockPrograms/" + sample.mockName
+    };
+
+    int combineReturnCode;
+    std::string stdoutData;
+    { // Capture only LinterCombine's output
+        const StreamCapture stdoutCapture( std::cout );
+        LintCombine::LinterCombine combine(
+            lintCombineCmdLine, LintCombine::MocksLinterFactory::getInstance() );
+        combine.callLinter( ideBehaviorItf );
+        combineReturnCode = combine.waitLinter();
+        stdoutData = stdoutCapture.getBufferData();
+    }
+    BOOST_CHECK( combineReturnCode == 0 );
+    BOOST_CHECK( stdoutData == sample.mockOutputStr );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE( TestUnicodeInPathOfFileToAnalyze )
+
+// UnicodeIPOFTA means Unicode in path of file to analyze
+struct UnicodeIPOFTATestCase {
+    UnicodeIPOFTATestCase( const LintCombine::StringVector & cmdLineVal,
+                           const std::vector < TestDiagnostic > & testDiagnosticsVal )
+        : cmdLine( cmdLineVal ), testDiagnostics( testDiagnosticsVal ) {}
+    LintCombine::StringVector cmdLine;
+    std::vector < TestDiagnostic > testDiagnostics;
+};
+
+std::ostream & operator<<( std::ostream & os, UnicodeIPOFTATestCase ) {
+    return os;
+}
+
+const UnicodeIPOFTATestCase UnicodeIPOFTATestCaseData[] = {
+    /*0 */
+    {
+        { "--ide-profile=BareMSVC", "-p=implicitCall.ClangTidy", u8"path\\To\\File1" },
+        { { LintCombine::Level::Info, { "Path", "YAML-file", "is not set" }, "BasePreparer", 1, 0 },
+          { LintCombine::Level::Info, { "All", "are used" }, "BasePreparer", 1, 0 } }
+    },
+    /*1 */
+    {
+        { "--ide-profile=BareMSVC", "-p=implicitCall.ClangTidy", u8"path\\To\\File╟" },
+        { { LintCombine::Level::Info, { "Path", "YAML-file", "is not set" }, "BasePreparer", 1, 0 },
+          { LintCombine::Level::Info, { "All", "are used" }, "BasePreparer", 1, 0 } }
+    },
+    /*2 */
+    {
+        { "--ide-profile=BareMSVC", "-p=implicitCall.ClangTidy", u8"path\\To\\File⻇" },
+        { { LintCombine::Level::Info, { "Path", "YAML-file", "is not set" }, "BasePreparer", 1, 0 },
+          { LintCombine::Level::Info, { "All", "are used" }, "BasePreparer", 1, 0 },
+          { LintCombine::Level::Info,
+            { "path of file to analyze", "Unicode", "Visual Studio will not display" },
+            "BasePreparer", 1, 0 },
+        }
+    },
+};
+
+BOOST_DATA_TEST_CASE( TestUnicodeIPOFTA, UnicodeIPOFTATestCaseData, sample ) {
+    auto inputCmdLine = sample.cmdLine;
+    const LintCombine::IdeTraitsFactory ideTraitsFactory( inputCmdLine );
+    auto prepareInputs = ideTraitsFactory.getPrepareInputsInstance();
+    inputCmdLine = prepareInputs->transformCmdLine( inputCmdLine );
+    BOOST_CHECK( prepareInputs->isCalledExplicitly() == true );
+    checkThatDiagnosticsAreEqual( prepareInputs->diagnostics(), sample.testDiagnostics );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
