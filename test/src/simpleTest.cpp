@@ -263,6 +263,7 @@ BOOST_DATA_TEST_CASE_F( LAFWUTestFixture, TestLAFWU, LAFWUTestCaseData, sample )
 
 BOOST_AUTO_TEST_SUITE_END()
 
+#ifdef WIN32
 BOOST_AUTO_TEST_SUITE( TestConvertLinterOutputToCP437 )
 
 // CLOT437 means convert linter output to CP437
@@ -365,6 +366,7 @@ BOOST_DATA_TEST_CASE( TestUnicodeIPOFTA, UnicodeIPOFTATestCaseData, sample ) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+#endif
 
 const auto pathToCombineTempDir = generatePathToCombineTempDir();
 
