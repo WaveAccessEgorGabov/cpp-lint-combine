@@ -22,7 +22,7 @@ fillBuffer() {
 # $4 - Print linter output or expected result
 # $5 - Number of new lines (\n) in the linter output
 generateStringForDifferentBufferSize() {
-    for i in {256..256}
+    for i in {256..512}
     do
         printf -v spaceFromBuffersBeginToMessage '%*s' $(($i-$1)) "a"
         printf -v spaceFromMessageToBuffersEnd '%*s' $(($i-$(($(($i-${1}+${#2}-${5})) % $i)) - 1)) "a"
