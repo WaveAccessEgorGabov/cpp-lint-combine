@@ -156,6 +156,8 @@ cmake --build <cpp-lint-combine-build-dir> --config Release
 
 ## 4. Run tests
 
+**Note:** On *Windows* ensure that `sh.exe` is listed in `PATH`
+
 You can ensure that ***Cpp-lint-combine*** built correctly in one of the following ways:
 
 ### 4.1. Via *Windows* CLI
@@ -292,9 +294,13 @@ You can install ***CLion*** from [here](https://www.jetbrains.com/clion/download
 
 ## 8. Configure the `cpp-lint-combine.sh` bootstrapper script
 
-You need to configure `cpp-lint-combine.sh` before using ***Cpp-lint-combine***.
+**Notes for Windows:**
 
-**Note:** in *Windows*, use ***Cygwin***-style paths — with forward slashes, with a leading (root) slash, and without the colon after drive letters, e.g. `/C/Program Files/Git`. 
+*1.* Use ***Cygwin***-style paths — with forward slashes, with a leading (root) slash, and without the colon after drive letters, e.g. `/C/Program Files/Git`.
+
+*2.* Ensure that `sh.exe` is listed in `PATH`.
+
+You need to configure `cpp-lint-combine.sh` before using ***Cpp-lint-combine***.
 
 ### 8.1. Choose IDE to run ***Cpp-lint-combine***
 
