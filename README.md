@@ -62,7 +62,7 @@
       
       7.3. [Set up CLion to use Cpp-lint-combine](#73-set-up-clion-to-use-cpp-lint-combine)
        
-   8. [Configure the cpp-lint-combine(-msvc).sh bootstrapper script](#8-configure-the-cpp-lint-combinesh-bootstrapper-script)
+   8. [Configure the cpp-lint-combine(-msvc).sh bootstrapper script](#8-configure-the-cpp-lint-combine-msvcsh-bootstrapper-script)
    
       8.1. [Choose IDE to run Cpp-lint-combine](#81-choose-ide-to-run-cpp-lint-combine)
       
@@ -229,6 +229,12 @@ You can install ***Visual Studio*** from [here](https://visualstudio.microsoft.c
  
  **6.** In ```%VCINSTALLDIR%\Llvm\x64\bin\``` rename ```msvc-shim.exe``` to ```clang-tidy.exe```
  
+ **7.** In **Visual Studio** go to **Property Pages** of project which you want to analyze.
+ 
+ **8.** Choose **Code Analysis→General** and set property **Enable Clang-Tidy** to **Yes**
+ 
+ **9.** Choose **Code Analysis→Clang-Tidy** and specify the checks for **clang-tidy** as required, e.g. you can specify `*` to enable all **clang-tidy** checks
+ 
   ### 5.4. Set up ***Visual Studio*** to use ***Cpp-lint-combine*** in applications with x86 target architecture.
  
  **1.** In directory ```%VCINSTALLDIR%\Llvm\bin``` create directory named ```clang-tidy```.
@@ -242,6 +248,12 @@ You can install ***Visual Studio*** from [here](https://visualstudio.microsoft.c
  **5.** Copy ```msvc-shim.exe``` from ```cpp-lint-combine-build-dir>/Release/``` to ```%VCINSTALLDIR%\Llvm\bin\```
  
  **6.** In ```%VCINSTALLDIR%\Llvm\bin\``` rename ```msvc-shim.exe``` to ```clang-tidy.exe```
+ 
+ **7.** In **Visual Studio** go to **Property Pages** of project which you want to analyze.
+ 
+ **8.** Choose **Code Analysis→General** and set property **Enable Clang-Tidy** to **Yes**
+ 
+ **9.** Choose **Code Analysis→Clang-Tidy** and specify the checks for **clang-tidy** as required, e.g. you can specify `*` to enable all **clang-tidy** checks
 
 ## 6. Get ***Cpp-lint-combine*** in ***ReSharper*** via ***Visual Studio*** (*Windows*)
 
