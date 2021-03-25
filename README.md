@@ -296,9 +296,9 @@ You can install ***CLion*** from [here](https://www.jetbrains.com/clion/download
 
 **Notes for Windows:**
 
-*1.* Use ***Cygwin***-style paths — with forward slashes, with a leading (root) slash, and without the colon after drive letters, e.g. `/C/Program Files/Git`.
+**1.** Use ***Cygwin***-style paths — with forward slashes, with a leading (root) slash, and without the colon after drive letters, e.g. `/C/Program Files/Git`.
 
-*2.* Ensure that `sh.exe` is listed in `PATH`.
+**2.** Ensure that `sh.exe` is listed in `PATH`.
 
 You need to configure `cpp-lint-combine.sh` before using ***Cpp-lint-combine***.
 
