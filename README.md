@@ -62,7 +62,7 @@
       
       7.3. [Set up CLion to use Cpp-lint-combine](#73-set-up-clion-to-use-cpp-lint-combine)
        
-   8. [Configure the cpp-lint-combine.sh bootstrapper script](#8-configure-the-cpp-lint-combinesh-bootstrapper-script)
+   8. [Configure the cpp-lint-combine(-msvc).sh bootstrapper script](#8-configure-the-cpp-lint-combinesh-bootstrapper-script)
    
       8.1. [Choose IDE to run Cpp-lint-combine](#81-choose-ide-to-run-cpp-lint-combine)
       
@@ -292,7 +292,7 @@ You can install ***CLion*** from [here](https://www.jetbrains.com/clion/download
 
  **4.** Tweak other ***CLion*** [***clang-tidy*** settings](https://www.jetbrains.com/help/clion/clang-tidy-checks-support.html#generalsettings) as desired.
 
-## 8. Configure the `cpp-lint-combine.sh` bootstrapper script
+## 8. Configure the `cpp-lint-combine(-msvc).sh` bootstrapper script 
 
 **Notes for Windows:**
 
