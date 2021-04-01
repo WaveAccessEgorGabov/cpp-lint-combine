@@ -45,6 +45,8 @@
       5.3. [Set up Visual Studio to use Cpp-lint-combine in applications with x64 target architecture](#53-set-up-visual-studio-to-use-cpp-lint-combine-in-applications-with-x64-target-architecture)
       
       5.4. [Set up Visual Studio to use Cpp-lint-combine in applications with x86 target architecture](#54-set-up-visual-studio-to-use-cpp-lint-combine-in-applications-with-x86-target-architecture)
+
+      5.5 [Code analysis with cpp-lint-combine in Visual Studio](#55-code-analysis-with-cpp-lint-combine-in-visual-studio)
       
    6. [Get Cpp-lint-combine in ReSharper via Visual Studio (Windows)](#6-get-cpp-lint-combine-in-resharper-via-visual-studio-windows)
    
@@ -53,6 +55,8 @@
       6.2. [Install supported linters](#62-install-supported-linters)
       
       6.3. [Set up ReSharper to use Cpp-lint-combine](#63-set-up-resharper-to-use-cpp-lint-combine)
+
+      6.4 [Code analysis with cpp-lint-combine in ReSharper C++](#64-code-analysis-with-cpp-lint-combine-in-resharper-c)
        
    7. [Get Cpp-lint-combine in CLion](#7-get-cpp-lint-combine-in-clion)
        
@@ -61,6 +65,8 @@
       7.2. [Install supported linters](#72-install-supported-linters)
       
       7.3. [Set up CLion to use Cpp-lint-combine](#73-set-up-clion-to-use-cpp-lint-combine)
+
+      7.4 [Code analysis with cpp-lint-combine in CLion](#74-code-analysis-with-cpp-lint-combine-in-clion)
        
    8. [Configure the cpp-lint-combine(-msvc).sh bootstrapper script](#8-configure-the-cpp-lint-combine-msvcsh-bootstrapper-script)
    
