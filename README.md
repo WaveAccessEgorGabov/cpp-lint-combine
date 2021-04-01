@@ -1,5 +1,92 @@
 # ***Cpp-lint-combine***
 
+ 1. [Overview](#1-overview)
+   
+      1.1. [Using Cpp-lint-combine](#11-using-cpp-lint-combine)
+      
+      1.2. [Supported linters](#12-supported-linters)
+      
+      1.3. [Supported IDEs/ IDE extensions](#13-supported-ides-ide-extensions)
+      
+   2. [Get the required tools](#2-get-the-required-tools)
+   
+      2.1. [Git](#21-git)
+      
+      2.2. [CMake](#22-cmake)
+      
+      2.3. [Ninja](#23-ninja-on-linux)
+      
+      2.4. [Boost](#24-boost)
+      
+   3. [Build Cpp-lint-combine](#3-build-cpp-lint-combine)
+   
+      3.1. [Windows](#31-windows)
+      
+      3.2. [Linux](#32-linux)
+      
+   4. [Run tests](#4-run-tests)
+   
+      4.1. [Via Windows CLI](#41-via-windows-cli)
+      
+      4.2. [Via Linux CLI](#42-via-linux-cli)
+      
+      4.3. [Via Visual Studio](#43-via-visual-studio)
+      
+      4.4. [Via ReSharper](#44-via-resharper)
+      
+      4.5. [Via CLion](#45-via-clion)
+      
+   5. [Get Cpp-lint-combine in Visual Studio (Windows)](#5-get-cpp-lint-combine-in-visual-studio-windows)
+   
+      5.1. [Install Visual Studio](#51-install-visual-studio)
+      
+      5.2. [Install supported linters](#52-install-supported-linters)
+      
+      5.3. [Set up Visual Studio to use Cpp-lint-combine in applications with x64 target architecture](#53-set-up-visual-studio-to-use-cpp-lint-combine-in-applications-with-x64-target-architecture)
+      
+      5.4. [Set up Visual Studio to use Cpp-lint-combine in applications with x86 target architecture](#54-set-up-visual-studio-to-use-cpp-lint-combine-in-applications-with-x86-target-architecture)
+
+      5.5 [Code analysis with cpp-lint-combine in Visual Studio](#55-code-analysis-with-cpp-lint-combine-in-visual-studio)
+      
+   6. [Get Cpp-lint-combine in ReSharper via Visual Studio (Windows)](#6-get-cpp-lint-combine-in-resharper-via-visual-studio-windows)
+   
+      6.1. [Install Visual Studio and ReSharper C++](#61-install-visual-studio-and-resharper-c)
+      
+      6.2. [Install supported linters](#62-install-supported-linters)
+      
+      6.3. [Set up ReSharper to use Cpp-lint-combine](#63-set-up-resharper-to-use-cpp-lint-combine)
+
+      6.4 [Code analysis with cpp-lint-combine in ReSharper C++](#64-code-analysis-with-cpp-lint-combine-in-resharper-c)
+       
+   7. [Get Cpp-lint-combine in CLion](#7-get-cpp-lint-combine-in-clion)
+       
+      7.1. [Install CLion](#71-install-clion)
+      
+      7.2. [Install supported linters](#72-install-supported-linters)
+      
+      7.3. [Set up CLion to use Cpp-lint-combine](#73-set-up-clion-to-use-cpp-lint-combine)
+
+      7.4 [Code analysis with cpp-lint-combine in CLion](#74-code-analysis-with-cpp-lint-combine-in-clion)
+       
+   8. [Configure the cpp-lint-combine(-msvc).sh bootstrapper script](#8-configure-the-cpp-lint-combine-msvcsh-bootstrapper-script)
+   
+      8.1. [Choose IDE to run Cpp-lint-combine](#81-choose-ide-to-run-cpp-lint-combine)
+      
+      8.2. [Set paths](#82-set-paths)
+      
+      8.3. [Configure Clazy's checks/levels](#83-configure-clazys-checkslevels)
+      
+      8.4. [Configure extra clang arguments](#84-configure-extra-clang-arguments)
+      
+      8.5 [Choose linters to use](#85-choose-linters-to-use)
+       
+   9. [Q&A/ troubleshooting](#9-qa-troubleshooting)
+       
+      9.1. [How to set up Cpp-lint-combine for both ReSharper and CLion on the same Windows machine?](#91-how-to-set-up-cpp-lint-combine-for-both-resharper-and-clion-on-the-same-windows-machine)
+       
+      9.2. [Issue: not seeing ANY inspection messages from clang-tidy among ReSharper's ones](#92-issue-not-seeing-any-inspection-messages-from-clang-tidy-among-resharpers-ones)
+   
+
 ## 1. Overview
 
 > [**lint**, or a **linter**,](https://en.wikipedia.org/wiki/Lint_(software)) is a tool that analyzes source code to flag programming errors, bugs, stylistic errors, and suspicious constructs.
