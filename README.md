@@ -254,6 +254,10 @@ You can install ***Visual Studio*** from [here](https://visualstudio.microsoft.c
  **8.** Choose **Code Analysis→General** and set property **Enable Clang-Tidy** to **Yes**
  
  **9.** Choose **Code Analysis→Clang-Tidy** and specify the checks for **clang-tidy** as required, e.g. you can specify `*` to enable all **clang-tidy** checks
+ 
+ ### 5.5 Code analysis with ***cpp-lint-combine*** in ***Visual Studio***
+ 
+After setup you can use ***cpp-lint-combine*** to analyze your code in the ***Visual Studio***, just like you use clang-tidy to analyze. You can known how to analyze your code with clang-tidy in ***Visual Studio*** from the arcticle [Code analysis with clang-tidy in Visual Studio](https://devblogs.microsoft.com/cppblog/code-analysis-with-clang-tidy-in-visual-studio/)
 
 ## 6. Get ***Cpp-lint-combine*** in ***ReSharper*** via ***Visual Studio*** (*Windows*)
 
@@ -280,6 +284,10 @@ You can install ***ReSharper C++*** from [here](https://www.jetbrains.com/reshar
  **3.** Set path to `<cpp-lint-combine-source-dir>/cpp-lint-combine.cmd` (subject to customizations described below).
 
  **4.** Tweak other ***ReSharper C++*** [***clang-tidy*** settings](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html) as desired.
+ 
+### 6.4 Code analysis with ***cpp-lint-combine*** in ***ReSharper C++***
+ 
+After setup you can use ***cpp-lint-combine*** to analyze your code in the ***ReSharper C++***, just like you use clang-tidy to analyze. You can known how to analyze your code with clang-tidy in ***ReSharper C++*** from the documantation page [Clang-Tidy Integration](https://www.jetbrains.com/help/resharper/Clang_Tidy_Integration.html#clang-tidy-config)
 
 ## 7. Get ***Cpp-lint-combine*** in *CLion*
 
@@ -303,6 +311,10 @@ You can install ***CLion*** from [here](https://www.jetbrains.com/clion/download
  **3.** Set path to `<cpp-lint-combine-source-dir>/cpp-lint-combine` `.cmd`/`.sh` script on Windows/Linux respectively (subject to customizations described below).
 
  **4.** Tweak other ***CLion*** [***clang-tidy*** settings](https://www.jetbrains.com/help/clion/clang-tidy-checks-support.html#generalsettings) as desired.
+ 
+### 7.4 Code analysis with ***cpp-lint-combine*** in ***CLion***
+ 
+After setup you can use ***cpp-lint-combine*** to analyze your code in the ***CLion***, just like you use clang-tidy to analyze. You can known how to analyze your code with clang-tidy in ***CLion*** from the documantation page [Clang-Tidy Integration](https://www.jetbrains.com/help/clion/clang-tidy-checks-support.html)
 
 ## 8. Configure the `cpp-lint-combine(-msvc).sh` bootstrapper script 
 
